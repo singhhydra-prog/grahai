@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Inter, Noto_Sans_Devanagari } from "next/font/google"
+import LenisProvider from "@/components/LenisProvider"
 import "./globals.css"
 
 const inter = Inter({
@@ -16,6 +17,7 @@ const notoDevanagari = Noto_Sans_Devanagari({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://grahai.vercel.app"),
   title: "GrahAI — AI-Powered Vedic Astrology",
   description:
     "Your Planets, Your Path. Personalized Kundli readings, Numerology insights, Tarot guidance, and Vastu consultations — powered by AI trained on classical Sanskrit texts.",
@@ -30,18 +32,33 @@ export const metadata: Metadata = {
     "jyotish",
     "grahai",
   ],
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
   openGraph: {
     title: "GrahAI — AI-Powered Vedic Astrology",
     description:
       "Ancient Vedic wisdom meets cutting-edge AI. Get personalized readings across Astrology, Numerology, Tarot & Vastu.",
     type: "website",
     locale: "en_IN",
+    url: "https://grahai.vercel.app",
+    siteName: "GrahAI",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "GrahAI — AI-Powered Vedic Astrology",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "GrahAI — AI-Powered Vedic Astrology",
     description:
       "Your Planets, Your Path. Personalized Vedic readings across Astrology, Numerology, Tarot & Vastu.",
+    images: ["/og-image.png"],
   },
 }
 
@@ -52,7 +69,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${notoDevanagari.variable}`}>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <LenisProvider>{children}</LenisProvider>
+      </body>
     </html>
   )
 }

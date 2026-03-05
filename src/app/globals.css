@@ -13,13 +13,17 @@
   --color-indigo-dim: #1A2660;
   --color-green: #4ADE80;
   --color-red: #E85454;
+  --color-saffron: #E2994A;
+  --color-mint: #4ADE80;
 
   --font-heading: "Inter", system-ui, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
 }
 
-/* === RESET === */
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+/* === RESET (in base layer so utilities can override) === */
+@layer base {
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+}
 
 html {
   scroll-behavior: smooth;
@@ -108,12 +112,12 @@ body {
 .text-body {
   font-size: clamp(1rem, 1.15vw, 1.15rem);
   line-height: 1.75;
-  color: rgba(232, 228, 219, 0.4);
+  color: rgba(232, 228, 219, 0.7);
 }
 .text-caption {
   font-size: 0.8125rem;
   line-height: 1.65;
-  color: rgba(232, 228, 219, 0.35);
+  color: rgba(232, 228, 219, 0.55);
 }
 .text-label {
   font-size: 0.625rem;

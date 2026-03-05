@@ -1,121 +1,10 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { motion, useInView, useScroll, useTransform } from "framer-motion"
 import { ArrowRight, Sun, Moon, Star, Compass, Hash, Layers, Clock, Languages, Shield, ChevronRight, BarChart3, BookOpen, Gem } from "lucide-react"
 import Link from "next/link"
-
-/* ────────────────────────────────────────────────────
-   ANIMATION
-   ──────────────────────────────────────────────────── */
-const ease = [0.25, 0.46, 0.45, 0.94] as const
-
-function BlurReveal({ children, className = "", delay = 0 }: {
-  children: React.ReactNode; className?: string; delay?: number
-}) {
-  const ref = useRef<HTMLDivElement>(null)
-  const inView = useInView(ref, { once: true, margin: "-40px" })
-  return (
-    <motion.div ref={ref}
-      initial={{ opacity: 0, y: 35, filter: "blur(8px)" }}
-      animate={inView ? { opacity: 1, y: 0, filter: "blur(0px)" } : { opacity: 0, y: 35, filter: "blur(8px)" }}
-      transition={{ duration: 0.85, delay, ease }}
-      className={className}>
-      {children}
-    </motion.div>
-  )
-}
-
-function Reveal({ children, className = "", delay = 0 }: {
-  children: React.ReactNode; className?: string; delay?: number
-}) {
-  const ref = useRef<HTMLDivElement>(null)
-  const inView = useInView(ref, { once: true, margin: "-60px" })
-  return (
-    <motion.div ref={ref}
-      initial={{ opacity: 0, y: 50 }}
-      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-      transition={{ duration: 0.9, delay, ease }}
-      className={className}>
-      {children}
-    </motion.div>
-  )
-}
-
-/* ────────────────────────────────────────────────────
-   BRAND LOGO
-   ──────────────────────────────────────────────────── */
-function BrandLogo({ size = 36 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
-      <circle cx="24" cy="24" r="22" stroke="url(#lgPr)" strokeWidth="1" opacity="0.6" />
-      <circle cx="24" cy="24" r="14" stroke="url(#lgPr)" strokeWidth="0.6" opacity="0.35" />
-      <circle cx="24" cy="2" r="2" fill="#C9A24D" opacity="0.9" />
-      <circle cx="44" cy="17" r="1.5" fill="#E2C474" opacity="0.7" />
-      <circle cx="40" cy="38" r="1.5" fill="#C9A24D" opacity="0.5" />
-      <circle cx="8" cy="38" r="1.5" fill="#E2C474" opacity="0.5" />
-      <circle cx="4" cy="17" r="1.5" fill="#C9A24D" opacity="0.7" />
-      <circle cx="24" cy="24" r="5" fill="url(#sgPr)" />
-      <defs>
-        <linearGradient id="lgPr" x1="0" y1="0" x2="48" y2="48">
-          <stop offset="0%" stopColor="#C9A24D" /><stop offset="100%" stopColor="#E2C474" />
-        </linearGradient>
-        <radialGradient id="sgPr" cx="0.4" cy="0.35">
-          <stop offset="0%" stopColor="#E2C474" /><stop offset="100%" stopColor="#C9A24D" />
-        </radialGradient>
-      </defs>
-    </svg>
-  )
-}
-
-/* ────────────────────────────────────────────────────
-   NAVBAR
-   ──────────────────────────────────────────────────── */
-function Navbar() {
-  const [scrolled, setScrolled] = useState(false)
-  useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 50)
-    window.addEventListener("scroll", fn, { passive: true })
-    return () => window.removeEventListener("scroll", fn)
-  }, [])
-
-  return (
-    <motion.nav initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.8, delay: 0.2 }}
-      className={`fixed top-0 z-50 w-full transition-all duration-500 ${scrolled ? "glass-nav border-b border-white/[0.04]" : ""}`}>
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-10">
-        <Link href="/" className="flex items-center gap-3 group">
-          <BrandLogo size={40} />
-          <div className="flex flex-col">
-            <span className="text-xl font-bold tracking-tight leading-tight">Grah<span className="gold-text">AI</span></span>
-            <span className="text-[9px] tracking-[0.25em] uppercase text-gold/25 font-medium leading-none">Vedic Intelligence</span>
-          </div>
-        </Link>
-        <div className="hidden items-center gap-10 md:flex">
-          <Link href="/product" className="text-[11px] font-semibold tracking-[0.15em] uppercase text-gold/70 transition-colors hover:text-gold">Product</Link>
-          <Link href="/pricing" className="text-[11px] font-semibold tracking-[0.15em] uppercase text-text-dim/50 transition-colors hover:text-text/80">Pricing</Link>
-          <Link href="/#sciences" className="text-[11px] font-semibold tracking-[0.15em] uppercase text-text-dim/50 transition-colors hover:text-text/80">Sciences</Link>
-          <Link href="/#waitlist" className="group flex items-center gap-2 rounded-full border border-gold/15 bg-gold/[0.03] px-6 py-2.5 text-[11px] font-semibold tracking-[0.12em] uppercase text-gold/70 transition-all hover:border-gold/30 hover:bg-gold/[0.06]">
-            Early Access<ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
-          </Link>
-        </div>
-      </div>
-    </motion.nav>
-  )
-}
-
-/* ────────────────────────────────────────────────────
-   DIVIDER
-   ──────────────────────────────────────────────────── */
-function Divider() {
-  return (
-    <div className="flex items-center gap-4 my-1">
-      <div className="h-px w-12 bg-gradient-to-r from-transparent to-gold/15" />
-      <div className="h-1 w-1 rounded-full bg-gold/20" />
-      <div className="h-px w-12 bg-gradient-to-l from-transparent to-gold/15" />
-    </div>
-  )
-}
+import { Navbar } from "@/components/Navbar"
+import Footer from "@/components/Footer"
+import { BlurReveal, Reveal, Divider } from "@/components/Animations"
 
 /* ────────────────────────────────────────────────────
    DATA
@@ -257,28 +146,28 @@ export default function ProductPage() {
                 <BlurReveal delay={0.1}>
                   <div className="flex items-baseline gap-3 mb-2">
                     <h2 className="text-3xl font-bold text-text lg:text-4xl">{science.title}</h2>
-                    <span className="font-[family-name:var(--font-devanagari)] text-sm text-gold/25">{science.titleHi}</span>
+                    <span className="font-[family-name:var(--font-devanagari)] text-sm text-gold/45">{science.titleHi}</span>
                   </div>
                 </BlurReveal>
                 <BlurReveal delay={0.15}>
                   <p className="text-body mb-8 max-w-lg">{science.description}</p>
                 </BlurReveal>
                 <BlurReveal delay={0.2}>
-                  <p className="text-[10px] tracking-[0.15em] uppercase font-semibold text-gold/20 mb-2">Source Texts</p>
-                  <p className="text-xs text-text-dim/30 italic">{science.source}</p>
+                  <p className="text-[10px] tracking-[0.15em] uppercase font-semibold text-gold/40 mb-2">Source Texts</p>
+                  <p className="text-xs text-text-dim/50 italic">{science.source}</p>
                 </BlurReveal>
               </div>
 
               {/* Right — Capabilities */}
               <div className={idx % 2 === 1 ? "lg:order-1" : ""}>
                 <div className="rounded-2xl border border-white/[0.04] bg-bg-2/30 p-8 lg:p-10">
-                  <p className="text-label text-gold/25 mb-6">Capabilities</p>
+                  <p className="text-label text-gold/45 mb-6">Capabilities</p>
                   <div className="space-y-4">
                     {science.capabilities.map((cap, i) => (
                       <Reveal key={i} delay={i * 0.05}>
                         <div className="flex items-start gap-3">
                           <div className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold/30" />
-                          <span className="text-sm text-text-dim/60 leading-relaxed">{cap}</span>
+                          <span className="text-sm text-text-dim/75 leading-relaxed">{cap}</span>
                         </div>
                       </Reveal>
                     ))}
@@ -356,20 +245,7 @@ export default function ProductPage() {
         </div>
       </section>
 
-      {/* ═══ FOOTER ═══ */}
-      <footer className="relative z-10 border-t border-white/[0.03] px-6 lg:px-10 py-12">
-        <div className="mx-auto flex max-w-7xl flex-col items-center gap-6 md:flex-row md:justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <BrandLogo size={28} />
-            <span className="text-sm font-medium text-text/40">GrahAI</span>
-          </Link>
-          <p className="text-[11px] text-text-dim/25">&copy; {new Date().getFullYear()} GrahAI. All rights reserved.</p>
-          <div className="flex gap-6">
-            <Link href="/pricing" className="text-label text-text-dim/20 transition-colors hover:text-gold/40">Pricing</Link>
-            <Link href="/" className="text-label text-text-dim/20 transition-colors hover:text-gold/40">Home</Link>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </main>
   )
 }

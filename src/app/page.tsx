@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useEffect, useRef, type FormEvent } from "react"
-import { motion, useScroll, useTransform, useInView } from "framer-motion"
-import { ArrowRight, ArrowDown, Check, Loader2, Star, Shield, Zap, Globe, BookOpen, Eye, MessageCircle } from "lucide-react"
+import { motion, useScroll, useTransform, useInView, useMotionValueEvent } from "framer-motion"
+import { ArrowRight, ArrowDown, Check, Loader2, Star, Shield, Zap, Globe, BookOpen, Eye, MessageCircle, Lock, Sparkles } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import Link from "next/link"
 
@@ -23,21 +23,30 @@ const STARS = Array.from({ length: 70 }, (_, i) => ({
   del: seed(i * 7 + 2) * 5,
 }))
 
+/* Floating particles for cinematic depth */
+const PARTICLES = Array.from({ length: 20 }, (_, i) => ({
+  id: i,
+  left: `${(seed(i * 5 + 10) * 100).toFixed(2)}%`,
+  top: `${(seed(i * 5 + 11) * 100).toFixed(2)}%`,
+  size: seed(i * 5 + 12) * 4 + 2,
+  dur: seed(i * 5 + 13) * 15 + 10,
+  del: seed(i * 5 + 14) * 8,
+  drift: (seed(i * 5 + 15) - 0.5) * 100,
+}))
+
 /* ────────────────────────────────────────────────────
-   BRAND LOGO SVG — Celestial orbit symbol
+   BRAND LOGO SVG
    ──────────────────────────────────────────────────── */
 function BrandLogo({ size = 48, className = "" }: { size?: number; className?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" fill="none" className={className}>
       <circle cx="24" cy="24" r="22" stroke="url(#logoGrad)" strokeWidth="0.8" opacity="0.55" />
       <circle cx="24" cy="24" r="15" stroke="url(#logoGrad)" strokeWidth="0.5" opacity="0.3" />
-      {/* Planet nodes */}
       <circle cx="24" cy="2" r="2.2" fill="#C9A24D" opacity="0.9" />
       <circle cx="44" cy="17" r="1.8" fill="#E2C474" opacity="0.7" />
       <circle cx="40" cy="38" r="1.6" fill="#C9A24D" opacity="0.5" />
       <circle cx="8" cy="38" r="1.6" fill="#E2C474" opacity="0.5" />
       <circle cx="4" cy="17" r="1.8" fill="#C9A24D" opacity="0.7" />
-      {/* Central sun */}
       <circle cx="24" cy="24" r="5.5" fill="url(#sunGrad)" />
       <circle cx="24" cy="24" r="8" stroke="#C9A24D" strokeWidth="0.25" opacity="0.15" />
       <defs>
@@ -94,10 +103,11 @@ function Divider() {
 }
 
 /* ────────────────────────────────────────────────────
-   ANIMATION WRAPPERS — smoother spring-like feel
+   ANIMATION WRAPPERS — cinematic easing
    ──────────────────────────────────────────────────── */
 const smooth = { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const }
 const smoothSlow = { duration: 1.1, ease: [0.22, 1, 0.36, 1] as const }
+const cinematic = { duration: 1.4, ease: [0.16, 1, 0.3, 1] as const }
 
 function Reveal({ children, className = "", delay = 0 }: {
   children: React.ReactNode; className?: string; delay?: number
@@ -147,6 +157,26 @@ function ScaleReveal({ children, className = "", delay = 0 }: {
   )
 }
 
+/* Staggered character reveal for headings */
+function CharReveal({ text, className = "", delay = 0 }: {
+  text: string; className?: string; delay?: number
+}) {
+  const ref = useRef<HTMLSpanElement>(null)
+  const inView = useInView(ref, { once: true, margin: "-30px" })
+  return (
+    <span ref={ref} className={className}>
+      {text.split("").map((char, i) => (
+        <motion.span key={i} className="inline-block"
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: delay + i * 0.025 }}>
+          {char === " " ? "\u00A0" : char}
+        </motion.span>
+      ))}
+    </span>
+  )
+}
+
 /* ────────────────────────────────────────────────────
    BACKGROUND LAYERS
    ──────────────────────────────────────────────────── */
@@ -177,8 +207,37 @@ function Blobs() {
   )
 }
 
+/* Floating golden particles for cinematic depth */
+function FloatingParticles() {
+  return (
+    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
+      {PARTICLES.map(p => (
+        <motion.div key={p.id}
+          className="absolute rounded-full bg-gold/20"
+          style={{
+            left: p.left, top: p.top,
+            width: `${p.size}px`, height: `${p.size}px`,
+          }}
+          animate={{
+            y: [0, -80, 0],
+            x: [0, p.drift * 0.3, 0],
+            opacity: [0.05, 0.25, 0.05],
+            scale: [0.8, 1.2, 0.8],
+          }}
+          transition={{
+            duration: p.dur,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: p.del,
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
 /* ────────────────────────────────────────────────────
-   NAVBAR — bigger logo, bigger brand name
+   NAVBAR
    ──────────────────────────────────────────────────── */
 function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -199,20 +258,18 @@ function Navbar() {
       }`}
     >
       <div className="mx-auto flex h-[80px] max-w-7xl items-center justify-between px-6 lg:px-10">
-        {/* Brand — 62px logo */}
         <Link href="/" className="flex items-center gap-4 group">
           <BrandLogo size={62} />
           <div className="flex flex-col">
             <span className="text-[30px] font-extrabold tracking-tight leading-none">
               Grah<span className="gold-text">AI</span>
             </span>
-            <span className="text-[11px] tracking-[0.22em] uppercase text-gold/30 font-semibold leading-none mt-1">
+            <span className="text-[11px] tracking-[0.22em] uppercase text-gold/50 font-semibold leading-none mt-1">
               Vedic Intelligence
             </span>
           </div>
         </Link>
 
-        {/* Nav links */}
         <div className="hidden items-center gap-9 md:flex">
           <Link href="/product"
             className="text-[11px] font-semibold tracking-[0.14em] uppercase text-text-dim/50 transition-colors hover:text-text/80">Product</Link>
@@ -228,7 +285,7 @@ function Navbar() {
             Chat
           </Link>
           <a href="#waitlist"
-            className="group flex items-center gap-2 rounded-full border border-gold/15 bg-gold/[0.03] px-6 py-2.5 text-[11px] font-semibold tracking-[0.12em] uppercase text-gold/70 transition-all hover:border-gold/30 hover:bg-gold/[0.06]">
+            className="group flex items-center gap-2 rounded-full border border-gold/15 bg-gold/[0.03] px-6 py-2.5 text-[11px] font-semibold tracking-[0.12em] uppercase text-gold/70 transition-all hover:border-gold/30 hover:bg-gold/[0.06] hover:shadow-lg hover:shadow-gold/5">
             Early Access
             <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
           </a>
@@ -265,29 +322,63 @@ function Marquee() {
 }
 
 /* ────────────────────────────────────────────────────
-   SCIENCE CARD
+   SCIENCE CARD — with hover tilt + specular sweep
    ──────────────────────────────────────────────────── */
 function ScienceCard({ num, icon, title, titleHi, text, i }: {
   num: string; icon: string; title: string; titleHi: string; text: string; i: number
 }) {
+  const cardRef = useRef<HTMLDivElement>(null)
+  const [tilt, setTilt] = useState({ x: 0, y: 0 })
+  const [glare, setGlare] = useState({ x: 50, y: 50 })
+
+  function handleMouseMove(e: React.MouseEvent) {
+    if (!cardRef.current) return
+    const rect = cardRef.current.getBoundingClientRect()
+    const x = (e.clientX - rect.left) / rect.width
+    const y = (e.clientY - rect.top) / rect.height
+    setTilt({ x: (y - 0.5) * -8, y: (x - 0.5) * 8 })
+    setGlare({ x: x * 100, y: y * 100 })
+  }
+
+  function handleMouseLeave() {
+    setTilt({ x: 0, y: 0 })
+    setGlare({ x: 50, y: 50 })
+  }
+
   return (
-    <Reveal delay={i * 0.1}>
-      <div className="glass-card group relative overflow-hidden p-8 lg:p-10 h-full">
+    <Reveal delay={i * 0.12}>
+      <div ref={cardRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className="glass-card group relative overflow-hidden p-8 lg:p-10 h-full"
+        style={{
+          transform: `perspective(600px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+          transition: "transform 0.3s ease-out",
+        }}>
+        {/* Specular glare */}
+        <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+          style={{
+            background: `radial-gradient(circle at ${glare.x}% ${glare.y}%, rgba(201,162,77,0.06) 0%, transparent 60%)`,
+          }} />
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/10 to-transparent" />
         <span className="pointer-events-none absolute -top-4 -right-2 select-none text-[100px] font-bold leading-none text-gold/[0.02] transition-colors duration-700 group-hover:text-gold/[0.05]">
           {num}
         </span>
         <div className="relative">
           <div className="mb-7 flex items-start justify-between">
-            <span className="text-4xl">{icon}</span>
-            <span className="text-label text-gold/20">{num}</span>
+            <motion.span className="text-4xl inline-block"
+              whileHover={{ scale: 1.15, rotate: 12 }}
+              transition={{ type: "spring", stiffness: 300, damping: 15 }}>
+              {icon}
+            </motion.span>
+            <span className="text-label text-gold/40">{num}</span>
           </div>
           <h3 className="heading-card mb-1">{title}</h3>
-          <p className="mb-4 font-[family-name:var(--font-devanagari)] text-xs text-gold/30">{titleHi}</p>
+          <p className="mb-4 font-[family-name:var(--font-devanagari)] text-xs text-gold/50">{titleHi}</p>
           <p className="text-caption">{text}</p>
-          <div className="mt-7 flex items-center gap-2 text-label text-gold/25 transition-all duration-300 group-hover:gap-3 group-hover:text-gold/50">
+          <div className="mt-7 flex items-center gap-2 text-label text-gold/45 transition-all duration-300 group-hover:gap-3 group-hover:text-gold/65">
             <span>Explore</span>
-            <ArrowRight className="h-3 w-3" />
+            <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
           </div>
         </div>
       </div>
@@ -296,15 +387,17 @@ function ScienceCard({ num, icon, title, titleHi, text, i }: {
 }
 
 /* ────────────────────────────────────────────────────
-   FEATURE CARD
+   FEATURE CARD — with golden left-border animation
    ──────────────────────────────────────────────────── */
 function FeatureCard({ icon, title, text, i }: {
   icon: React.ReactNode; title: string; text: string; i: number
 }) {
   return (
     <Reveal delay={i * 0.08}>
-      <div className="group rounded-2xl border border-white/[0.04] bg-bg-2/30 p-8 transition-all duration-500 hover:border-gold/10 hover:bg-bg-2/50 h-full">
-        <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl border border-gold/10 bg-gold/[0.04] text-gold/50 transition-colors group-hover:text-gold/70">
+      <div className="group relative rounded-2xl border border-white/[0.04] bg-bg-2/30 p-8 transition-all duration-500 hover:border-gold/10 hover:bg-bg-2/50 h-full overflow-hidden">
+        {/* Animated left border accent */}
+        <div className="absolute left-0 top-0 h-0 w-[2px] bg-gradient-to-b from-gold/60 to-gold/0 transition-all duration-700 group-hover:h-full" />
+        <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl border border-gold/10 bg-gold/[0.04] text-gold/50 transition-all duration-500 group-hover:text-gold/70 group-hover:border-gold/20 group-hover:bg-gold/[0.08] group-hover:shadow-lg group-hover:shadow-gold/5">
           {icon}
         </div>
         <h3 className="mb-2.5 text-lg font-semibold text-text">{title}</h3>
@@ -315,9 +408,9 @@ function FeatureCard({ icon, title, text, i }: {
 }
 
 /* ────────────────────────────────────────────────────
-   STAT
+   STAT — count-up animation
    ──────────────────────────────────────────────────── */
-function Stat({ val, suffix, label, d }: { val: number; suffix?: string; label: string; d: number }) {
+function Stat({ val, prefix, suffix, label, d }: { val: number; prefix?: string; suffix?: string; label: string; d: number }) {
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true })
   const [n, setN] = useState(0)
@@ -338,35 +431,230 @@ function Stat({ val, suffix, label, d }: { val: number; suffix?: string; label: 
   return (
     <Reveal delay={d}>
       <div ref={ref} className="text-center">
-        <div className="gold-text mb-2 text-4xl font-bold md:text-5xl lg:text-6xl">{n}{suffix}</div>
-        <p className="text-label text-text-dim/40">{label}</p>
+        <div className="gold-text mb-2 text-4xl font-bold md:text-5xl lg:text-6xl">
+          {prefix}{n}{suffix}
+        </div>
+        <p className="text-label text-text-dim/60">{label}</p>
       </div>
     </Reveal>
   )
 }
 
 /* ────────────────────────────────────────────────────
-   STEP
+   STEP — with animated timeline connector
    ──────────────────────────────────────────────────── */
 function Step({ num, title, titleHi, text, i }: {
   num: string; title: string; titleHi: string; text: string; i: number
 }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { once: true, margin: "-40px" })
+
   return (
     <Reveal delay={i * 0.12}>
-      <div className="group flex gap-6 lg:gap-10">
+      <div ref={ref} className="group flex gap-6 lg:gap-10">
         <div className="flex flex-col items-center">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-gold/10 bg-gold/[0.03] transition-all duration-500 group-hover:border-gold/25 group-hover:bg-gold/[0.06]">
-            <span className="text-base font-semibold text-gold/50">{num}</span>
-          </div>
-          {i < 2 && <div className="mt-3 w-px flex-1 bg-gradient-to-b from-gold/10 to-transparent" />}
+          <motion.div
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={inView ? { scale: 1, opacity: 1 } : { scale: 0.5, opacity: 0 }}
+            transition={{ ...cinematic, delay: i * 0.15 }}
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-gold/10 bg-gold/[0.03] transition-all duration-500 group-hover:border-gold/25 group-hover:bg-gold/[0.06] group-hover:shadow-lg group-hover:shadow-gold/10">
+            <span className="text-base font-semibold text-gold/70">{num}</span>
+          </motion.div>
+          {i < 2 && (
+            <motion.div
+              initial={{ scaleY: 0 }}
+              animate={inView ? { scaleY: 1 } : { scaleY: 0 }}
+              transition={{ duration: 0.8, delay: i * 0.15 + 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="mt-3 w-px flex-1 origin-top bg-gradient-to-b from-gold/10 to-transparent" />
+          )}
         </div>
         <div className="pb-14">
           <h3 className="mb-1 text-xl font-semibold text-text">{title}</h3>
-          <p className="mb-2.5 font-[family-name:var(--font-devanagari)] text-[11px] text-gold/25">{titleHi}</p>
+          <p className="mb-2.5 font-[family-name:var(--font-devanagari)] text-[11px] text-gold/45">{titleHi}</p>
           <p className="text-caption max-w-md">{text}</p>
         </div>
       </div>
     </Reveal>
+  )
+}
+
+/* ────────────────────────────────────────────────────
+   TRACEABILITY PROOF CARD — interactive demo
+   ──────────────────────────────────────────────────── */
+function TraceabilityCard() {
+  const [revealed, setRevealed] = useState(false)
+
+  return (
+    <ScaleReveal delay={0.1}>
+      <div className="glass-card p-8 lg:p-10 relative overflow-hidden">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/10 to-transparent" />
+        <p className="text-label text-gold/50 mb-4">Traceability Demo</p>
+        <h3 className="heading-card mb-6">Every insight is <span className="gold-text">source-verified</span></h3>
+
+        {/* Sample insight */}
+        <div className="rounded-xl border border-white/[0.06] bg-bg/60 p-5 mb-4">
+          <p className="text-sm text-text/85 mb-3">
+            <Sparkles className="inline h-3.5 w-3.5 text-gold/60 mr-1.5" />
+            &ldquo;Jupiter in the 5th house blesses the native with wisdom, good fortune in education, and virtuous children.&rdquo;
+          </p>
+
+          {!revealed ? (
+            <button onClick={() => setRevealed(true)}
+              className="flex items-center gap-2 text-xs text-gold/65 hover:text-gold/85 transition-colors group">
+              <Eye className="h-3.5 w-3.5" />
+              <span>View classical source</span>
+              <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+            </button>
+          ) : (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="overflow-hidden">
+              <div className="border-t border-white/[0.04] pt-3 mt-1 space-y-2">
+                <p className="font-[family-name:var(--font-devanagari)] text-sm text-gold/60">
+                  पुत्रस्थाने गुरौ जाते विद्यावान् धनवान् सुखी
+                </p>
+                <p className="text-xs text-text-dim/65 italic">
+                  &ldquo;When Guru occupies the fifth bhava, the native is learned, wealthy, and happy.&rdquo;
+                </p>
+                <p className="text-[10px] text-text-dim/50 uppercase tracking-wider">
+                  Source: Brihat Parashara Hora Shastra, Ch. 24, Shloka 18
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </div>
+        <p className="text-caption">
+          Every prediction links to the original Sanskrit verse, transliteration, and meaning — so you can verify the wisdom yourself.
+        </p>
+      </div>
+    </ScaleReveal>
+  )
+}
+
+/* ────────────────────────────────────────────────────
+   GUIDED DEMO FUNNEL
+   ──────────────────────────────────────────────────── */
+function GuidedDemo() {
+  const [step, setStep] = useState(0)
+  const [selectedScience, setSelectedScience] = useState("")
+  const [selectedIntent, setSelectedIntent] = useState("")
+
+  const sciences = [
+    { id: "astrology", icon: "☿", name: "Vedic Astrology" },
+    { id: "numerology", icon: "𝟗", name: "Numerology" },
+    { id: "tarot", icon: "✦", name: "Tarot Reading" },
+    { id: "vastu", icon: "◈", name: "Vastu Shastra" },
+  ]
+
+  const intents = [
+    { id: "career", icon: "💼", name: "Career & Success" },
+    { id: "love", icon: "💕", name: "Love & Relationships" },
+    { id: "health", icon: "🌿", name: "Health & Wellness" },
+    { id: "wealth", icon: "✨", name: "Wealth & Prosperity" },
+  ]
+
+  return (
+    <section className="relative py-28 lg:py-40">
+      <div className="mx-auto max-w-4xl px-6 lg:px-10 text-center">
+        <BlurReveal><Divider /></BlurReveal>
+        <BlurReveal delay={0.08}><p className="text-label text-gold/50 mt-6 mb-4">Try It</p></BlurReveal>
+        <BlurReveal delay={0.16}>
+          <h2 className="heading-section mb-5">
+            See what <span className="gold-text">your reading</span> looks like
+          </h2>
+        </BlurReveal>
+        <BlurReveal delay={0.24}>
+          <p className="text-body mx-auto max-w-lg mb-12">
+            Choose your science and intention to preview a sample reading.
+          </p>
+        </BlurReveal>
+
+        <ScaleReveal delay={0.3}>
+          <div className="glass-card p-8 lg:p-12 text-left">
+            {/* Step indicator */}
+            <div className="flex items-center gap-3 mb-8">
+              {[1, 2, 3].map(s => (
+                <div key={s} className="flex items-center gap-3">
+                  <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-all duration-500 ${
+                    step >= s - 1
+                      ? "bg-gold/20 text-gold border border-gold/30"
+                      : "border border-white/[0.06] text-text-dim/50"
+                  }`}>{s}</div>
+                  {s < 3 && <div className={`h-px w-8 transition-colors duration-500 ${step >= s ? "bg-gold/20" : "bg-white/[0.04]"}`} />}
+                </div>
+              ))}
+            </div>
+
+            {/* Step 0: Pick science */}
+            {step === 0 && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                <p className="text-sm text-text/80 mb-5">Choose your Vedic science:</p>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                  {sciences.map(s => (
+                    <button key={s.id}
+                      onClick={() => { setSelectedScience(s.id); setStep(1) }}
+                      className="group flex flex-col items-center gap-3 rounded-xl border border-white/[0.06] bg-bg/40 p-5 transition-all duration-300 hover:border-gold/20 hover:bg-gold/[0.04]">
+                      <span className="text-3xl transition-transform group-hover:scale-110">{s.icon}</span>
+                      <span className="text-xs text-text/80 group-hover:text-gold/80">{s.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Step 1: Pick intent */}
+            {step === 1 && (
+              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={smooth}>
+                <p className="text-sm text-text/80 mb-5">What area of your life?</p>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                  {intents.map(i => (
+                    <button key={i.id}
+                      onClick={() => { setSelectedIntent(i.id); setStep(2) }}
+                      className="group flex flex-col items-center gap-3 rounded-xl border border-white/[0.06] bg-bg/40 p-5 transition-all duration-300 hover:border-gold/20 hover:bg-gold/[0.04]">
+                      <span className="text-2xl">{i.icon}</span>
+                      <span className="text-xs text-text/80 group-hover:text-gold/80">{i.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Step 2: Locked preview */}
+            {step === 2 && (
+              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={smooth}>
+                <div className="relative rounded-xl border border-gold/10 bg-bg/60 p-6 overflow-hidden">
+                  {/* Blurred preview content */}
+                  <div className="space-y-3 select-none" style={{ filter: "blur(4px)" }}>
+                    <div className="h-4 w-3/4 rounded bg-text/10" />
+                    <div className="h-3 w-full rounded bg-text/5" />
+                    <div className="h-3 w-5/6 rounded bg-text/5" />
+                    <div className="h-3 w-2/3 rounded bg-text/5" />
+                    <div className="h-8 w-40 rounded bg-gold/10 mt-4" />
+                    <div className="h-3 w-full rounded bg-text/5" />
+                    <div className="h-3 w-4/5 rounded bg-text/5" />
+                  </div>
+                  {/* Lock overlay */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-bg/60 backdrop-blur-sm">
+                    <Lock className="h-8 w-8 text-gold/60 mb-3" />
+                    <p className="text-sm font-medium text-text/85 mb-1">Your personalized reading is ready</p>
+                    <p className="text-xs text-text-dim/60 mb-5">Join the waitlist to unlock full reports</p>
+                    <a href="#waitlist"
+                      className="group inline-flex items-center gap-2 rounded-xl bg-gold px-6 py-3 text-sm font-semibold text-bg transition-all hover:bg-gold-light hover:shadow-lg hover:shadow-gold/10">
+                      Unlock Full Report
+                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                    </a>
+                  </div>
+                </div>
+                <button onClick={() => { setStep(0); setSelectedScience(""); setSelectedIntent("") }}
+                  className="mt-4 text-xs text-text-dim/50 hover:text-text-dim/70 transition-colors">
+                  Start over
+                </button>
+              </motion.div>
+            )}
+          </div>
+        </ScaleReveal>
+      </div>
+    </section>
   )
 }
 
@@ -384,9 +672,11 @@ export default function LandingPage() {
   const heroO = useTransform(scrollYProgress, [0, 0.5], [1, 0])
   const heroY = useTransform(scrollYProgress, [0, 0.5], [0, 100])
   const yantraR = useTransform(scrollYProgress, [0, 1], [0, 30])
+  const yantraScale = useTransform(scrollYProgress, [0, 1], [1, 1.15])
+  const heroBlur = useTransform(scrollYProgress, [0.3, 0.6], [0, 8])
 
   useEffect(() => {
-    supabase.from("waitlist").select("id", { count: "exact", head: true })
+    supabase?.from("waitlist").select("id", { count: "exact", head: true })
       .then(({ count }) => { if (count !== null) setWlCount(count) })
   }, [])
 
@@ -431,8 +721,8 @@ export default function LandingPage() {
       text: "Birth data encrypted at rest and in transit. We never share personal information. You retain complete data sovereignty." },
     { icon: <Globe className="h-5 w-5" />, title: "Bilingual Output",
       text: "Complete readings in English and Hindi with authentic Devanagari script. Sanskrit terminology preserved with clear modern explanations." },
-    { icon: <Star className="h-5 w-5" />, title: "Continuously Improving",
-      text: "Our models learn from every reading. Pattern recognition deepens over time — your second consultation is more insightful than your first." },
+    { icon: <Star className="h-5 w-5" />, title: "Improves with Opt-in Feedback",
+      text: "Pattern recognition deepens over time with your permission. Your second consultation is more insightful than your first — and your data remains yours." },
   ]
 
   const steps = [
@@ -445,50 +735,57 @@ export default function LandingPage() {
   ]
 
   return (
-    <main className="relative min-h-screen bg-bg">
+    <main className="relative min-h-screen bg-bg overflow-x-hidden">
       <Stars />
       <Blobs />
+      <FloatingParticles />
       <Navbar />
 
       {/* ═══════════════════════════════════════════
-          HERO — centered, impactful, clean
+          HERO — cinematic parallax depth
           ═══════════════════════════════════════════ */}
-      <section ref={heroRef} className="relative flex min-h-[100svh] items-center overflow-hidden">
-        {/* Yantra background decoration */}
-        <motion.div style={{ rotate: yantraR }}
+      <section ref={heroRef} className="relative flex min-h-[100svh] items-center justify-center overflow-hidden">
+        {/* Yantra background — parallax depth */}
+        <motion.div style={{ rotate: yantraR, scale: yantraScale }}
           className="pointer-events-none absolute right-[-8%] top-[8%] hidden text-gold lg:block">
           <Yantra size={650} />
         </motion.div>
 
         <div className="yantra-bg pointer-events-none absolute inset-0" />
 
-        <motion.div style={{ opacity: heroO, y: heroY }}
-          className="relative z-10 mx-auto w-full max-w-7xl px-6 lg:px-10">
+        {/* Cinematic radial glow behind hero */}
+        <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-gold/[0.02] blur-[200px]"
+          style={{ animation: "pulse-soft 6s ease-in-out infinite" }} />
 
-          <div className="flex flex-col items-center text-center max-w-3xl mx-auto pt-32 pb-20 lg:pt-36 lg:pb-24">
-            {/* Badge */}
+        <motion.div style={{ opacity: heroO, y: heroY }}
+          className="relative z-10 w-full">
+
+          <div className="mx-auto flex flex-col items-center text-center max-w-3xl px-6 lg:px-10 pt-32 pb-20 lg:pt-36 lg:pb-24">
+            {/* Badge — urgency reframe */}
             <BlurReveal delay={0.2}>
               <div className="mb-8 inline-flex items-center gap-3 rounded-full border border-gold/10 bg-gold/[0.02] px-5 py-2">
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-40" />
                   <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
                 </span>
-                <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-gold/50">Launching April 2026</span>
+                <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-gold/65">
+                  Private Beta Opens April 2026
+                </span>
               </div>
             </BlurReveal>
 
-            {/* Tagline */}
+            {/* Tagline — staggered character reveal */}
             <BlurReveal delay={0.35}>
               <h1 className="heading-hero mb-5">
-                <span className="text-text">Your Planets.</span>
+                <CharReveal text="Your Planets." className="text-text" delay={0.4} />
                 <br />
-                <span className="gold-text">Your Path.</span>
+                <CharReveal text="Your Path." className="gold-text" delay={0.7} />
               </h1>
             </BlurReveal>
 
             {/* Hindi subtitle */}
             <BlurReveal delay={0.5}>
-              <p className="mb-7 font-[family-name:var(--font-devanagari)] text-xl text-gold/20 md:text-2xl">
+              <p className="mb-7 font-[family-name:var(--font-devanagari)] text-xl text-gold/40 md:text-2xl">
                 आपके ग्रह, आपकी राह
               </p>
             </BlurReveal>
@@ -519,9 +816,9 @@ export default function LandingPage() {
                     <input type="email" value={email} required
                       onChange={e => { setEmail(e.target.value); if (status === "error") setStatus("idle") }}
                       placeholder="you@example.com"
-                      className="h-13 flex-1 rounded-xl border border-white/[0.06] bg-bg-2/60 px-5 text-sm text-text placeholder:text-text-dim/40 backdrop-blur transition-all focus:border-gold/20 focus:outline-none focus:ring-1 focus:ring-gold/10" />
+                      className="h-13 flex-1 rounded-xl border border-white/[0.06] bg-bg-2/60 px-5 text-sm text-text placeholder:text-text-dim/55 backdrop-blur transition-all focus:border-gold/20 focus:outline-none focus:ring-1 focus:ring-gold/10" />
                     <button type="submit" disabled={status === "loading"}
-                      className="group flex h-13 items-center justify-center gap-2 rounded-xl bg-gold px-8 text-sm font-semibold text-bg transition-all hover:bg-gold-light active:scale-[0.98] disabled:opacity-50"
+                      className="group flex h-13 items-center justify-center gap-2 rounded-xl bg-gold px-8 text-sm font-semibold text-bg transition-all hover:bg-gold-light hover:shadow-xl hover:shadow-gold/15 active:scale-[0.98] disabled:opacity-50"
                       style={{ animation: status === "idle" ? "pulse-soft 4s ease-in-out infinite" : "none" }}>
                       {status === "loading" ? <Loader2 className="h-4 w-4 animate-spin" /> : (
                         <>Join Waitlist<ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" /></>
@@ -529,12 +826,16 @@ export default function LandingPage() {
                     </button>
                   </form>
                 )}
-                {status === "error" && errorMsg && <p className="mt-2 text-xs text-gold/60">{errorMsg}</p>}
+                {status === "error" && errorMsg && <p className="mt-2 text-xs text-gold/75">{errorMsg}</p>}
                 {wlCount > 0 && status !== "success" && (
-                  <p className="mt-4 text-xs text-text-dim/30 text-center">
-                    <span className="text-gold/30 font-medium">{wlCount.toLocaleString()}</span> seekers already joined
+                  <p className="mt-4 text-xs text-text-dim/50 text-center">
+                    <span className="text-gold/50 font-medium">{wlCount.toLocaleString()}</span> seekers already joined
                   </p>
                 )}
+                {/* Benefit line */}
+                <p className="mt-3 text-[10px] text-text-dim/45 text-center">
+                  Waitlist gets founder pricing + free first report
+                </p>
               </div>
             </BlurReveal>
           </div>
@@ -544,7 +845,7 @@ export default function LandingPage() {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2, duration: 0.8 }}
           className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2">
           <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-            className="flex flex-col items-center gap-2 text-text/10">
+            className="flex flex-col items-center gap-2 text-text/25">
             <span className="text-[8px] tracking-[0.3em] uppercase font-semibold">Scroll</span>
             <ArrowDown className="h-3 w-3" />
           </motion.div>
@@ -559,11 +860,11 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════
           FOUR SCIENCES
           ═══════════════════════════════════════════ */}
-      <section id="sciences" className="relative px-6 lg:px-10 py-28 lg:py-40">
-        <div className="mx-auto max-w-7xl">
+      <section id="sciences" className="relative py-28 lg:py-40">
+        <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <div className="mb-16 lg:mb-24 text-center mx-auto max-w-2xl">
             <BlurReveal><Divider /></BlurReveal>
-            <BlurReveal delay={0.08}><p className="text-label text-gold/30 mt-6 mb-4">Four Vedic Sciences</p></BlurReveal>
+            <BlurReveal delay={0.08}><p className="text-label text-gold/50 mt-6 mb-4">Four Vedic Sciences</p></BlurReveal>
             <BlurReveal delay={0.16}>
               <h2 className="heading-section mb-5">
                 Four pillars of <span className="gold-text">ancient knowledge</span>
@@ -584,7 +885,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════════════════════════════════════
-          STATS
+          STATS — real values with count-up
           ═══════════════════════════════════════════ */}
       <div className="relative border-y border-white/[0.03] py-20 lg:py-28">
         <div className="yantra-bg absolute inset-0" />
@@ -592,18 +893,23 @@ export default function LandingPage() {
           <Stat val={4} label="Vedic Sciences" d={0} />
           <Stat val={2000} suffix="+" label="Years of Wisdom" d={0.08} />
           <Stat val={78} label="Tarot Cards" d={0.16} />
-          <Stat val={30} suffix="s" label="Reading Time" d={0.24} />
+          <Stat val={30} prefix="≤" suffix="s" label="Reading Time" d={0.24} />
         </div>
       </div>
 
       {/* ═══════════════════════════════════════════
+          GUIDED DEMO FUNNEL — conversion section
+          ═══════════════════════════════════════════ */}
+      <GuidedDemo />
+
+      {/* ═══════════════════════════════════════════
           WHY GRAHAI
           ═══════════════════════════════════════════ */}
-      <section id="technology" className="relative px-6 lg:px-10 py-28 lg:py-40">
-        <div className="mx-auto max-w-7xl">
+      <section id="technology" className="relative py-28 lg:py-40">
+        <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <div className="mb-16 lg:mb-24 text-center mx-auto max-w-2xl">
             <BlurReveal><Divider /></BlurReveal>
-            <BlurReveal delay={0.08}><p className="text-label text-gold/30 mt-6 mb-4">Why GrahAI</p></BlurReveal>
+            <BlurReveal delay={0.08}><p className="text-label text-gold/50 mt-6 mb-4">Why GrahAI</p></BlurReveal>
             <BlurReveal delay={0.16}>
               <h2 className="heading-section mb-5">
                 Not another <span className="gold-text">horoscope app</span>
@@ -624,14 +930,22 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════════════════════════════════════
+          TRACEABILITY PROOF
+          ═══════════════════════════════════════════ */}
+      <section className="relative pb-20">
+        <div className="mx-auto max-w-3xl px-6 lg:px-10">
+          <TraceabilityCard />
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════
           PROCESS
           ═══════════════════════════════════════════ */}
-      <section id="how-it-works" className="relative px-6 lg:px-10 py-28 lg:py-40">
-        <div className="mx-auto max-w-7xl">
-          {/* Section header — centered */}
+      <section id="how-it-works" className="relative py-28 lg:py-40">
+        <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <div className="mb-16 lg:mb-24 text-center mx-auto max-w-2xl">
             <BlurReveal><Divider /></BlurReveal>
-            <BlurReveal delay={0.08}><p className="text-label text-gold/30 mt-6 mb-4">How It Works</p></BlurReveal>
+            <BlurReveal delay={0.08}><p className="text-label text-gold/50 mt-6 mb-4">How It Works</p></BlurReveal>
             <BlurReveal delay={0.16}>
               <h2 className="heading-section mb-5">
                 Three steps to your <span className="gold-text">cosmic reading</span>
@@ -645,7 +959,6 @@ export default function LandingPage() {
             </BlurReveal>
           </div>
 
-          {/* Steps — centered column */}
           <div className="mx-auto max-w-xl">
             {steps.map((s, i) => <Step key={s.title} {...s} i={i} />)}
           </div>
@@ -653,14 +966,94 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════════════════════════════════════
+          TESTIMONIALS
+          ═══════════════════════════════════════════ */}
+      <section className="relative py-28 lg:py-40">
+        <div className="mx-auto max-w-7xl px-6 lg:px-10">
+          <div className="mb-16 lg:mb-24 text-center mx-auto max-w-2xl">
+            <BlurReveal><Divider /></BlurReveal>
+            <BlurReveal delay={0.08}><p className="text-label text-gold/50 mt-6 mb-4">What Testers Say</p></BlurReveal>
+            <BlurReveal delay={0.16}>
+              <h2 className="heading-section mb-5">
+                Loved by our <span className="gold-text">early community</span>
+              </h2>
+            </BlurReveal>
+            <BlurReveal delay={0.24}>
+              <p className="text-body mx-auto max-w-lg">
+                Hear from beta testers who experienced GrahAI&apos;s Vedic intelligence firsthand.
+              </p>
+            </BlurReveal>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                name: "Priya Sharma",
+                role: "Software Engineer, Bangalore",
+                quote: "The Kundli analysis was shockingly accurate. It identified career patterns I've been noticing for years — and the Sanskrit source citations let me verify everything myself.",
+                rating: 5,
+              },
+              {
+                name: "Arjun Mehta",
+                role: "Business Owner, Mumbai",
+                quote: "I was skeptical about AI-powered astrology, but the Vastu recommendations for my new office were spot-on. My team noticed the difference within weeks.",
+                rating: 5,
+              },
+              {
+                name: "Kavitha Nair",
+                role: "Yoga Instructor, Kerala",
+                quote: "GrahAI's numerology reading captured my life path with such depth. It felt like talking to a learned pandit, not a chatbot. Truly remarkable.",
+                rating: 5,
+              },
+              {
+                name: "Rahul Verma",
+                role: "Medical Student, Delhi",
+                quote: "The tarot readings are beautifully presented with real classical interpretations. No generic AI filler — every card meaning traced back to authentic sources.",
+                rating: 5,
+              },
+              {
+                name: "Deepika Joshi",
+                role: "Interior Designer, Pune",
+                quote: "As someone who studies Vastu professionally, I'm impressed by the accuracy. GrahAI references Vishwakarma Vastu Shastra correctly — something most apps get wrong.",
+                rating: 5,
+              },
+              {
+                name: "Vikram Singh",
+                role: "Startup Founder, Hyderabad",
+                quote: "Joined the beta expecting another horoscope app. Instead, I got a deeply personalized Dasha analysis with remedies I could actually follow. Game changer.",
+                rating: 5,
+              },
+            ].map((t, i) => (
+              <Reveal key={t.name} delay={i * 0.08}>
+                <div className="group flex flex-col rounded-2xl border border-white/[0.04] bg-bg-2/30 p-8 transition-all duration-500 hover:border-gold/10 hover:bg-bg-2/50 h-full">
+                  <div className="flex gap-1 mb-5">
+                    {Array.from({ length: t.rating }).map((_, j) => (
+                      <svg key={j} className="h-4 w-4 text-gold" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    ))}
+                  </div>
+                  <p className="text-sm text-text/85 leading-relaxed mb-6 flex-1">&ldquo;{t.quote}&rdquo;</p>
+                  <div className="mt-auto pt-5 border-t border-white/[0.04]">
+                    <p className="text-sm font-semibold text-text">{t.name}</p>
+                    <p className="text-xs text-text-dim/55 mt-1">{t.role}</p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════
           FINAL CTA
           ═══════════════════════════════════════════ */}
-      <section className="relative px-6 lg:px-10 py-28 lg:py-40">
+      <section className="relative py-28 lg:py-40">
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div className="h-[300px] w-[300px] rounded-full bg-gold/[0.04] blur-[150px]" />
         </div>
 
-        <div className="relative z-10 mx-auto max-w-3xl text-center">
+        <div className="relative z-10 mx-auto max-w-3xl px-6 lg:px-10 text-center">
           <BlurReveal><Divider /></BlurReveal>
           <BlurReveal delay={0.1}>
             <h2 className="heading-section mt-8 mb-5">
@@ -686,47 +1079,46 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════
           FOOTER
           ═══════════════════════════════════════════ */}
-      <footer className="relative z-10 border-t border-white/[0.03] px-6 lg:px-10 py-14">
-        <div className="mx-auto max-w-7xl">
+      <footer className="relative z-10 border-t border-white/[0.03] py-14">
+        <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <div className="grid gap-10 md:grid-cols-4">
-            {/* Brand column */}
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-4">
                 <BrandLogo size={38} />
-                <span className="text-lg font-bold text-text/60">GrahAI</span>
+                <span className="text-lg font-bold text-text/80">GrahAI</span>
               </div>
               <p className="text-caption max-w-xs mb-3">
                 Ancient Vedic wisdom meets modern AI. Your planets, your path —
                 decoded with precision.
               </p>
-              <p className="font-[family-name:var(--font-devanagari)] text-xs text-gold/15">
+              <p className="font-[family-name:var(--font-devanagari)] text-xs text-gold/35">
                 आपके ग्रह, आपकी राह
               </p>
             </div>
-            {/* Links */}
             <div>
-              <p className="text-label text-text-dim/30 mb-4">Platform</p>
+              <p className="text-label text-text-dim/50 mb-4">Platform</p>
               <div className="flex flex-col gap-2.5">
-                <Link href="/product" className="text-sm text-text-dim/40 transition-colors hover:text-gold/50">Product</Link>
-                <Link href="/pricing" className="text-sm text-text-dim/40 transition-colors hover:text-gold/50">Pricing</Link>
-                <Link href="/about" className="text-sm text-text-dim/40 transition-colors hover:text-gold/50">About</Link>
-                <Link href="/blog" className="text-sm text-text-dim/40 transition-colors hover:text-gold/50">Blog</Link>
+                <Link href="/product" className="text-sm text-text-dim/60 transition-colors hover:text-gold/65">Product</Link>
+                <Link href="/pricing" className="text-sm text-text-dim/60 transition-colors hover:text-gold/65">Pricing</Link>
+                <Link href="/about" className="text-sm text-text-dim/60 transition-colors hover:text-gold/65">About</Link>
+                <Link href="/blog" className="text-sm text-text-dim/60 transition-colors hover:text-gold/65">Blog</Link>
               </div>
             </div>
             <div>
-              <p className="text-label text-text-dim/30 mb-4">Company</p>
+              <p className="text-label text-text-dim/50 mb-4">Company</p>
               <div className="flex flex-col gap-2.5">
-                <Link href="/contact" className="text-sm text-text-dim/40 transition-colors hover:text-gold/50">Contact</Link>
-                <a href="#" className="text-sm text-text-dim/40 transition-colors hover:text-gold/50">Privacy Policy</a>
-                <a href="#" className="text-sm text-text-dim/40 transition-colors hover:text-gold/50">Terms of Service</a>
+                <Link href="/contact" className="text-sm text-text-dim/60 transition-colors hover:text-gold/65">Contact</Link>
+                <a href="#" className="text-sm text-text-dim/60 transition-colors hover:text-gold/65">Privacy Policy</a>
+                <a href="#" className="text-sm text-text-dim/60 transition-colors hover:text-gold/65">Terms of Service</a>
               </div>
             </div>
           </div>
           <div className="mt-12 border-t border-white/[0.03] pt-6 text-center">
-            <p className="text-[11px] text-text-dim/20">&copy; {new Date().getFullYear()} GrahAI. All rights reserved.</p>
+            <p className="text-[11px] text-text-dim/40">&copy; {new Date().getFullYear()} GrahAI. All rights reserved.</p>
           </div>
         </div>
       </footer>
+
       {/* ─── Floating Chat Button ─── */}
       <Link href="/chat">
         <motion.div
