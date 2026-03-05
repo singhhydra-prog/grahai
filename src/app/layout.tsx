@@ -18,7 +18,7 @@ const notoDevanagari = Noto_Sans_Devanagari({
 export const metadata: Metadata = {
   title: "GrahAI — AI-Powered Vedic Astrology",
   description:
-    "Experience ancient Vedic wisdom through cutting-edge AI. Personalized Kundli readings, Numerology insights, Tarot guidance, and Vastu consultations — powered by 28 specialized AI agents.",
+    "Your Planets, Your Path. Personalized Kundli readings, Numerology insights, Tarot guidance, and Vastu consultations — powered by AI trained on classical Sanskrit texts.",
   keywords: [
     "vedic astrology",
     "kundli",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "GrahAI — AI-Powered Vedic Astrology",
     description:
-      "Ancient Vedic wisdom meets cutting-edge AI. Personalized readings powered by 28 specialized AI agents.",
+      "Your Planets, Your Path. Personalized Vedic readings across Astrology, Numerology, Tarot & Vastu.",
   },
 }
 

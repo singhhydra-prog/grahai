@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
+import Link from "next/link"
 import {
   Sparkles,
   Sun,
@@ -191,7 +192,7 @@ export default function DashboardPage() {
           transition={{ delay: 0.1 }}
           className="mb-10"
         >
-          <div className="group cursor-pointer rounded-2xl border border-indigo/30 bg-navy-light/30 p-6 transition-all hover:border-saffron/30 hover:bg-navy-light/50">
+          <Link href="/chat" className="group block cursor-pointer rounded-2xl border border-indigo/30 bg-navy-light/30 p-6 transition-all hover:border-saffron/30 hover:bg-navy-light/50">
             <div className="flex items-center gap-4">
               <div className="rounded-xl bg-saffron/10 p-3">
                 <MessageCircle className="h-6 w-6 text-saffron" />
@@ -207,7 +208,7 @@ export default function DashboardPage() {
               </div>
               <ChevronRight className="h-5 w-5 text-cosmic-white/20 transition-colors group-hover:text-saffron" />
             </div>
-          </div>
+          </Link>
         </motion.div>
 
         {/* Verticals Grid */}
@@ -220,31 +221,32 @@ export default function DashboardPage() {
               const Icon = v.icon
               const isInterested = profile?.interests?.includes(v.id)
               return (
-                <motion.div
-                  key={v.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.15 + i * 0.08 }}
-                  className={`group cursor-pointer rounded-2xl border ${v.border} bg-gradient-to-br ${v.color} p-6 transition-all hover:scale-[1.03]`}
-                >
-                  <div className="mb-4 flex items-start justify-between">
-                    <span className="text-3xl">{v.emoji}</span>
-                    {isInterested && (
-                      <span className="rounded-full bg-saffron/20 px-2 py-0.5 text-[10px] font-medium text-saffron">
-                        Your pick
-                      </span>
-                    )}
-                  </div>
-                  <h3 className="font-semibold text-cosmic-white">{v.name}</h3>
-                  <p className="font-[family-name:var(--font-devanagari)] text-xs text-saffron/50">
-                    {v.nameHi}
-                  </p>
-                  <p className="mt-2 text-sm text-cosmic-white/40">{v.desc}</p>
-                  <div className="mt-4 flex items-center gap-1 text-xs font-medium text-saffron/60 transition-colors group-hover:text-saffron">
-                    Start Reading
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </div>
-                </motion.div>
+                <Link key={v.id} href={`/chat?v=${v.id}`}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15 + i * 0.08 }}
+                    className={`group cursor-pointer rounded-2xl border ${v.border} bg-gradient-to-br ${v.color} p-6 transition-all hover:scale-[1.03]`}
+                  >
+                    <div className="mb-4 flex items-start justify-between">
+                      <span className="text-3xl">{v.emoji}</span>
+                      {isInterested && (
+                        <span className="rounded-full bg-saffron/20 px-2 py-0.5 text-[10px] font-medium text-saffron">
+                          Your pick
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="font-semibold text-cosmic-white">{v.name}</h3>
+                    <p className="font-[family-name:var(--font-devanagari)] text-xs text-saffron/50">
+                      {v.nameHi}
+                    </p>
+                    <p className="mt-2 text-sm text-cosmic-white/40">{v.desc}</p>
+                    <div className="mt-4 flex items-center gap-1 text-xs font-medium text-saffron/60 transition-colors group-hover:text-saffron">
+                      Start Reading
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </div>
+                  </motion.div>
+                </Link>
               )
             })}
           </div>
