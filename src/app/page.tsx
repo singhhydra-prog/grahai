@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, type FormEvent } from "react"
-import { motion, useScroll, useTransform, useInView, useMotionValueEvent } from "framer-motion"
+import { motion, useScroll, useTransform, useInView, useMotionValueEvent, AnimatePresence } from "framer-motion"
 import { ArrowRight, ArrowDown, Check, Loader2, Star, Shield, Zap, Globe, BookOpen, Eye, MessageCircle, Lock, Sparkles } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import Link from "next/link"
@@ -178,6 +178,489 @@ function CharReveal({ text, className = "", delay = 0 }: {
 }
 
 /* ────────────────────────────────────────────────────
+   SANSKRIT DICTIONARY
+   ──────────────────────────────────────────────────── */
+const SANSKRIT_DICT: Record<string, { devanagari: string; english: string; explanation: string }> = {
+  "jyotish": { devanagari: "ज्योतिष", english: "Astrology", explanation: "The science of light and luminaries; Vedic astrology." },
+  "kundli": { devanagari: "कुंडली", english: "Birth Chart", explanation: "A celestial map of planets at the moment of birth." },
+  "graha": { devanagari: "ग्रह", english: "Planet", explanation: "Celestial bodies that influence human destiny." },
+  "rashi": { devanagari: "राशि", english: "Sign", explanation: "One of the 12 zodiacal divisions of the ecliptic." },
+  "nakshatra": { devanagari: "नक्षत्र", english: "Star", explanation: "27 lunar constellations forming the zodiac." },
+  "dasha": { devanagari: "दशा", english: "Period", explanation: "Planetary periods governing life phases." },
+  "panchang": { devanagari: "पञ्चांग", english: "Almanac", explanation: "Five-part calendar: tithi, nakshatra, yoga, karana, vara." },
+  "vastu": { devanagari: "वास्तु", english: "Space", explanation: "Science of architecture and spatial harmony." },
+  "yoga": { devanagari: "योग", english: "Union", explanation: "Auspicious planetary combinations." },
+  "dosha": { devanagari: "दोष", english: "Flaw", explanation: "Astrological afflictions or weaknesses." },
+  "bhava": { devanagari: "भाव", english: "House", explanation: "One of 12 life areas in a birth chart." },
+  "muhurta": { devanagari: "मुहूर्त", english: "Auspicious Time", explanation: "Favorable moment for rituals or actions." },
+  "manglik": { devanagari: "मांगलिक", english: "Mars-afflicted", explanation: "Strong Mars placement in certain houses." },
+  "gochar": { devanagari: "गोचर", english: "Transit", explanation: "Current movement of planets through zodiacal signs." },
+  "ayanamsa": { devanagari: "अयनांश", english: "Precession", explanation: "Correction factor for sidereal astrology." },
+  "tithi": { devanagari: "तिथि", english: "Lunar Day", explanation: "One of 30 divisions of the lunar month." },
+  "karana": { devanagari: "करण", english: "Half-day", explanation: "Half-day divisions derived from tithi." },
+  "hora": { devanagari: "होरा", english: "Hour", explanation: "Horary astrology; time-based predictions." },
+  "lagna": { devanagari: "लग्न", english: "Ascendant", explanation: "Rising sign at the exact birth moment." },
+  "navamsa": { devanagari: "नवांश", english: "Subdivision", explanation: "Ninth division of zodiac signs in detailed analysis." },
+}
+
+/* ────────────────────────────────────────────────────
+   SANSKRIT TERM TOOLTIP COMPONENT
+   ──────────────────────────────────────────────────── */
+function SanskritTerm({ term, children }: { term: string; children: React.ReactNode }) {
+  const [hovered, setHovered] = useState(false)
+  const dictEntry = SANSKRIT_DICT[term.toLowerCase()]
+  if (!dictEntry) return <>{children}</>
+
+  return (
+    <motion.div className="relative inline-block"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}>
+      <span className="cursor-help border-b border-dashed border-gold/40 hover:border-gold/60 transition-colors">
+        {children}
+      </span>
+      <AnimatePresence>
+        {hovered && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 6 }}
+            transition={{ duration: 0.2 }}
+            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-50">
+            <div className="glass-card px-4 py-3 rounded-lg whitespace-nowrap shadow-xl">
+              <p className="text-xs font-semibold text-gold mb-1">{dictEntry.english}</p>
+              <p className="font-[family-name:var(--font-devanagari)] text-xs text-gold/60 mb-1.5">
+                {dictEntry.devanagari}
+              </p>
+              <p className="text-xs text-text-dim/70 max-w-xs">{dictEntry.explanation}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  )
+}
+
+/* ────────────────────────────────────────────────────
+   VERSE TICKER (replaces Marquee)
+   ──────────────────────────────────────────────────── */
+const VERSES = [
+  { sanskrit: "श्लोक", english: "The planets guide but do not dictate; free will and karma dance together.", source: "Bhagavad Gita" },
+  { sanskrit: "ज्ञानं तु तेषां परमं गुह्यं", english: "Knowledge is the supreme secret; understanding oneself is the highest pursuit.", source: "Vedic Wisdom" },
+  { sanskrit: "नक्षत्राणि ब्रह्मणः नेत्राणि", english: "Stars are the eyes of the cosmos; through them we see truth.", source: "Rig Veda" },
+  { sanskrit: "ग्रहा देवताः सर्वत्र", english: "Planets are divine instruments woven into the fabric of fate.", source: "Surya Siddhanta" },
+  { sanskrit: "आत्मा ही परमं ब्रह्म", english: "The self is the ultimate cosmos; look within to understand the stars.", source: "Upanishads" },
+  { sanskrit: "काल ही सर्वश्रेष्ठ शक्ति", english: "Time is the supreme force; all cycles are held within it.", source: "Mahabharata" },
+]
+
+function VerseTicker() {
+  const [isHovered, setIsHovered] = useState(false)
+
+  return (
+    <section id="verses" className="relative py-16 lg:py-20 border-y border-white/[0.03] overflow-hidden">
+      <div className="glass-card mx-auto max-w-7xl"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}>
+        <div className="relative overflow-hidden h-20 flex items-center">
+          <motion.div
+            className="flex gap-12"
+            animate={{ x: isHovered ? 0 : [0, -4000] }}
+            transition={{
+              duration: 90,
+              repeat: Infinity,
+              ease: "linear",
+              repeatType: "loop"
+            }}>
+            {[...VERSES, ...VERSES].map((verse, i) => (
+              <div key={i} className="flex-shrink-0 min-w-fit px-8 flex items-center gap-6">
+                <span className="text-xs text-gold/50 font-semibold">श्लोक —</span>
+                <p className="text-sm text-text-dim/60">{verse.english}</p>
+                <span className="text-xs text-text-dim/40">— {verse.source}</span>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ────────────────────────────────────────────────────
+   COSMIC COMPASS QUIZ
+   ──────────────────────────────────────────────────── */
+function CosmicCompassQuiz() {
+  const [selected, setSelected] = useState<string | null>(null)
+
+  const quizCards = [
+    { id: "explorer", emoji: "🔭", title: "Curious Explorer", desc: "Understand the celestial mechanics", target: "sciences" },
+    { id: "guidance", emoji: "🌅", title: "Daily Guidance", desc: "Align with cosmic rhythms", target: "how-it-works" },
+    { id: "decisions", emoji: "🧭", title: "Life Decisions", desc: "Navigate your path with clarity", target: "guided-demo" },
+    { id: "scholar", emoji: "📚", title: "Deep Scholar", desc: "Master the ancient knowledge", target: "technology" },
+  ]
+
+  const handleSelect = (id: string, target: string) => {
+    setSelected(id)
+    if (typeof window !== "undefined") localStorage.setItem("cosmicChoice", id)
+    const elem = document.getElementById(target)
+    elem?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  return (
+    <section id="quiz" className="relative py-28 lg:py-40">
+      <div className="mx-auto max-w-7xl px-6 lg:px-10">
+        <div className="text-center mb-16 lg:mb-24">
+          <BlurReveal><Divider /></BlurReveal>
+          <BlurReveal delay={0.08}>
+            <h2 className="heading-section mt-8 mb-5">
+              What draws you to the <span className="gold-text">stars?</span>
+            </h2>
+          </BlurReveal>
+          <BlurReveal delay={0.16}>
+            <p className="text-body mx-auto max-w-lg">
+              Find your path through Vedic wisdom
+            </p>
+          </BlurReveal>
+        </div>
+
+        <div className="grid gap-6 lg:gap-7 md:grid-cols-2 lg:grid-cols-4">
+          {quizCards.map((card, i) => (
+            <Reveal key={card.id} delay={0.1 + i * 0.08}>
+              <motion.button
+                onClick={() => handleSelect(card.id, card.target)}
+                className={`glass-card p-6 text-center transition-all ${
+                  selected === card.id ? "ring-2 ring-gold/50 bg-gold/[0.06]" : ""
+                }`}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}>
+                <div className="text-4xl mb-4">{card.emoji}</div>
+                <h3 className="text-lg font-semibold text-text mb-2">{card.title}</h3>
+                <p className="text-caption">{card.desc}</p>
+              </motion.button>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ────────────────────────────────────────────────────
+   DAILY PANCHANG SECTION
+   ──────────────────────────────────────────────────── */
+function DailyPanchang() {
+  const panchangData = {
+    tithi: { label: "Tithi", value: "Shukla Paksha Tritiya", devanagari: "शुक्ल पक्ष तृतीया" },
+    nakshatra: { label: "Nakshatra", value: "Mrigasira", devanagari: "मृगशिरा" },
+    yoga: { label: "Yoga", value: "Indra", devanagari: "इंद्र" },
+    karana: { label: "Karana", value: "Bava", devanagari: "बव" },
+  }
+
+  return (
+    <section id="panchang" className="relative py-28 lg:py-40">
+      <div className="mx-auto max-w-7xl px-6 lg:px-10">
+        <div className="text-center mb-16 lg:mb-24">
+          <BlurReveal><Divider /></BlurReveal>
+          <BlurReveal delay={0.08}>
+            <h2 className="heading-section mt-8 mb-5">
+              Your Day in the <span className="gold-text">Stars</span>
+            </h2>
+          </BlurReveal>
+          <BlurReveal delay={0.16}>
+            <p className="text-body mx-auto max-w-lg">
+              Today&apos;s cosmic alignment for your reading
+            </p>
+          </BlurReveal>
+        </div>
+
+        <Reveal className="mx-auto max-w-2xl">
+          <div className="glass-card p-8 lg:p-12">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+              {Object.entries(panchangData).map(([key, data]) => (
+                <div key={key} className="text-center">
+                  <p className="text-label text-gold/50 mb-3">{data.label}</p>
+                  <p className="font-[family-name:var(--font-devanagari)] text-sm text-gold/70 mb-2">
+                    {data.devanagari}
+                  </p>
+                  <p className="text-text">{data.value}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-8 pt-8 border-t border-white/[0.03] text-center">
+              <Link href="/daily"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-gold/70 hover:text-gold transition-colors">
+                See Full Panchang
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+/* ────────────────────────────────────────────────────
+   GAMIFICATION VISUALIZATION
+   ──────────────────────────────────────────────────── */
+function GamificationVisualization() {
+  const [xp, setXp] = useState(0)
+  const maxXp = 5000
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true, margin: "-60px" })
+
+  useEffect(() => {
+    if (!inView) return
+    const duration = 2
+    const steps = 60
+    let current = 0
+    const interval = setInterval(() => {
+      current++
+      setXp(Math.floor((current / steps) * maxXp))
+      if (current >= steps) clearInterval(interval)
+    }, (duration * 1000) / steps)
+    return () => clearInterval(interval)
+  }, [inView])
+
+  const xpPercentage = (xp / maxXp) * 100
+
+  return (
+    <section id="gamification" ref={ref} className="relative py-28 lg:py-40">
+      <div className="mx-auto max-w-7xl px-6 lg:px-10">
+        <div className="text-center mb-16 lg:mb-24">
+          <BlurReveal><Divider /></BlurReveal>
+          <BlurReveal delay={0.08}>
+            <h2 className="heading-section mt-8 mb-5">
+              Your <span className="gold-text">Cosmic Journey</span>
+            </h2>
+          </BlurReveal>
+          <BlurReveal delay={0.16}>
+            <p className="text-body mx-auto max-w-lg">
+              Track progress through gamified wisdom levels
+            </p>
+          </BlurReveal>
+        </div>
+
+        <Reveal className="mx-auto max-w-3xl">
+          <div className="glass-card p-10 lg:p-14">
+            <div className="grid lg:grid-cols-3 gap-8 mb-10">
+              <div className="text-center">
+                <p className="text-label text-gold/50 mb-6">Wisdom XP</p>
+                <div className="relative h-32 w-32 mx-auto mb-4">
+                  <svg className="absolute inset-0" viewBox="0 0 120 120" fill="none">
+                    <circle cx="60" cy="60" r="50" stroke="rgba(201,162,77,0.1)" strokeWidth="4" />
+                    <motion.circle
+                      cx="60" cy="60" r="50"
+                      stroke="#C9A24D"
+                      strokeWidth="4"
+                      strokeDasharray={`${2 * Math.PI * 50}`}
+                      strokeDashoffset={`${2 * Math.PI * 50 * (1 - xpPercentage / 100)}`}
+                      strokeLinecap="round"
+                      animate={{ strokeDashoffset: `${2 * Math.PI * 50 * (1 - xpPercentage / 100)}` }}
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-center">
+                      <span className="text-2xl font-bold text-gold">{xp.toLocaleString()}</span>
+                      <p className="text-xs text-text-dim/50">/ {maxXp.toLocaleString()}</p>
+                    </span>
+                  </div>
+                </div>
+                <p className="text-xs text-text-dim/60">Unlock deeper insights</p>
+              </div>
+
+              <div className="text-center">
+                <p className="text-label text-gold/50 mb-6">Daily Streak</p>
+                <div className="flex gap-1 justify-center mb-6 flex-wrap">
+                  {Array.from({ length: 7 }).map((_, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ scale: 0 }}
+                      animate={inView ? { scale: 1 } : { scale: 0 }}
+                      transition={{ delay: 0.3 + i * 0.1 }}
+                      className={`h-8 w-8 rounded-lg ${
+                        i < 5 ? "bg-gold/30" : "bg-gold/10"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <p className="text-2xl font-bold text-gold mb-1">5 days</p>
+                <p className="text-xs text-text-dim/60">Keep reading daily</p>
+              </div>
+
+              <div className="text-center">
+                <p className="text-label text-gold/50 mb-6">Achievements</p>
+                <div className="flex gap-3 justify-center mb-6">
+                  {[
+                    { emoji: "⭐", label: "Novice" },
+                    { emoji: "🌙", label: "Seeker" },
+                    { emoji: "🔮", label: "Sage" },
+                  ].map((badge, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ scale: 0, rotateY: 180 }}
+                      animate={inView ? { scale: 1, rotateY: 0 } : { scale: 0, rotateY: 180 }}
+                      transition={{ delay: 0.5 + i * 0.15 }}
+                      className="h-12 w-12 flex items-center justify-center rounded-full bg-gold/[0.08] text-xl"
+                    >
+                      {badge.emoji}
+                    </motion.div>
+                  ))}
+                </div>
+                <p className="text-xs text-text-dim/60">3 badges earned</p>
+              </div>
+            </div>
+
+            <div className="pt-8 border-t border-white/[0.03] text-center">
+              <Link href="/dashboard"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-gold/70 hover:text-gold transition-colors">
+                See Your Full Progress
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+/* ────────────────────────────────────────────────────
+   JOURNEY PROGRESS BAR
+   ──────────────────────────────────────────────────── */
+function JourneyProgressBar() {
+  const { scrollYProgress } = useScroll()
+  const [isVisible, setIsVisible] = useState(false)
+  const [hideTimer, setHideTimer] = useState<NodeJS.Timeout | null>(null)
+
+  useMotionValueEvent(scrollYProgress, "change", () => {
+    setIsVisible(true)
+    if (hideTimer) clearTimeout(hideTimer)
+    const newTimer = setTimeout(() => setIsVisible(false), 3000)
+    setHideTimer(newTimer)
+  })
+
+  const sections = [
+    { id: "hero", label: "Hero", offset: 0 },
+    { id: "verses", label: "Verses", offset: 0.08 },
+    { id: "quiz", label: "Compass", offset: 0.15 },
+    { id: "sciences", label: "Sciences", offset: 0.25 },
+    { id: "stats", label: "Stats", offset: 0.32 },
+    { id: "guided-demo", label: "Try", offset: 0.42 },
+    { id: "technology", label: "Why GrahAI", offset: 0.55 },
+    { id: "how-it-works", label: "How It Works", offset: 0.65 },
+    { id: "panchang", label: "Panchang", offset: 0.73 },
+    { id: "testimonials", label: "Stories", offset: 0.82 },
+    { id: "gamification", label: "Progress", offset: 0.90 },
+  ]
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : -10 }}
+      transition={{ duration: 0.4 }}
+      className="hidden lg:flex fixed top-[80px] left-0 right-0 z-40 bg-gradient-to-r from-bg/60 via-bg/80 to-bg/60 backdrop-blur-sm border-b border-white/[0.03]">
+      <div className="mx-auto w-full max-w-7xl px-6 lg:px-10 h-12 flex items-center gap-6">
+        {sections.map((sec, i) => (
+          <motion.button
+            key={sec.id}
+            onClick={() => {
+              const elem = document.getElementById(sec.id)
+              elem?.scrollIntoView({ behavior: "smooth" })
+            }}
+            className="relative flex items-center gap-2 group"
+          >
+            <motion.div
+              className="h-1.5 w-1.5 rounded-full bg-gold/30 group-hover:bg-gold/70 transition-colors"
+              style={{ scaleX: useTransform(scrollYProgress, [sec.offset - 0.05, sec.offset + 0.05], [0.5, 1]) }}
+            />
+            <span className="text-xs font-semibold text-text-dim/50 group-hover:text-gold/70 transition-colors whitespace-nowrap">
+              {sec.label}
+            </span>
+          </motion.button>
+        ))}
+      </div>
+    </motion.div>
+  )
+}
+
+/* ────────────────────────────────────────────────────
+   ENHANCED HOW IT WORKS WITH ANIMATED LINE
+   ──────────────────────────────────────────────────── */
+function HowItWorksEnhanced() {
+  const steps = [
+    {
+      num: "01",
+      title: "Upload Your Birth Data",
+      desc: "Share your birth date, time, and place — or let us help you find it.",
+      icon: "📍"
+    },
+    {
+      num: "02",
+      title: "Choose Your Sciences",
+      desc: "Select which Vedic traditions resonate with you most.",
+      icon: "⚖️"
+    },
+    {
+      num: "03",
+      title: "Receive Your Reading",
+      desc: "Get a deeply personal, AI-synthesized interpretation in seconds.",
+      icon: "✨"
+    }
+  ]
+
+  const containerRef = useRef(null)
+  const isInView = useInView(containerRef, { once: true, margin: "-100px" })
+
+  return (
+    <section id="how-it-works" ref={containerRef} className="relative py-28 lg:py-40">
+      <div className="mx-auto max-w-7xl px-6 lg:px-10">
+        <div className="text-center mb-16 lg:mb-24">
+          <BlurReveal><Divider /></BlurReveal>
+          <BlurReveal delay={0.08}>
+            <h2 className="heading-section mt-8 mb-5">
+              How It <span className="gold-text">Works</span>
+            </h2>
+          </BlurReveal>
+          <BlurReveal delay={0.16}>
+            <p className="text-body mx-auto max-w-lg">
+              Three simple steps from birth data to cosmic insight
+            </p>
+          </BlurReveal>
+        </div>
+
+        <div className="relative max-w-4xl mx-auto">
+          <svg className="absolute top-16 left-0 right-0 h-12 w-full pointer-events-none" style={{ overflow: "visible" }}>
+            <motion.line
+              x1="0" y1="32" x2="100%" y2="32"
+              stroke="#C9A24D" strokeWidth="1"
+              strokeDasharray="2,4"
+              initial={{ strokeDashoffset: 100 }}
+              animate={isInView ? { strokeDashoffset: 0 } : { strokeDashoffset: 100 }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+              opacity="0.3"
+            />
+          </svg>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {steps.map((step, i) => (
+              <Reveal key={step.num} delay={0.1 + i * 0.15}>
+                <div className="relative">
+                  <div className="text-6xl mb-6 opacity-10">{step.icon}</div>
+                  <div className="absolute -top-3 -left-6 h-12 w-12 rounded-full border-2 border-gold/30 bg-bg flex items-center justify-center">
+                    <span className="text-xs font-bold text-gold">{step.num}</span>
+                  </div>
+                  <h3 className="heading-card mb-3 mt-2">{step.title}</h3>
+                  <p className="text-body">{step.desc}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ────────────────────────────────────────────────────
    BACKGROUND LAYERS
    ──────────────────────────────────────────────────── */
 function Stars() {
@@ -277,6 +760,8 @@ function Navbar() {
             className="text-[11px] font-semibold tracking-[0.14em] uppercase text-text-dim/50 transition-colors hover:text-text/80">Pricing</Link>
           <Link href="/about"
             className="text-[11px] font-semibold tracking-[0.14em] uppercase text-text-dim/50 transition-colors hover:text-text/80">About</Link>
+          <Link href="/blog"
+            className="text-[11px] font-semibold tracking-[0.14em] uppercase text-text-dim/50 transition-colors hover:text-text/80">Knowledge</Link>
           <a href="#sciences"
             className="text-[11px] font-semibold tracking-[0.14em] uppercase text-text-dim/50 transition-colors hover:text-text/80">Sciences</a>
           <Link href="/chat"
@@ -677,7 +1162,7 @@ export default function LandingPage() {
 
   useEffect(() => {
     supabase?.from("waitlist").select("id", { count: "exact", head: true })
-      .then(({ count }) => { if (count !== null) setWlCount(count) })
+      .then(({ count }: { count: number | null }) => { if (count !== null) setWlCount(count) })
   }, [])
 
   async function onSubmit(e: FormEvent) {
@@ -740,6 +1225,7 @@ export default function LandingPage() {
       <Blobs />
       <FloatingParticles />
       <Navbar />
+      <JourneyProgressBar />
 
       {/* ═══════════════════════════════════════════
           HERO — cinematic parallax depth
@@ -799,45 +1285,38 @@ export default function LandingPage() {
               </p>
             </BlurReveal>
 
-            {/* Form */}
+            {/* Primary CTA Button */}
             <BlurReveal delay={0.8}>
-              <div id="waitlist" className="w-full max-w-md mx-auto">
-                {status === "success" ? (
-                  <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-                    className="flex items-center gap-4 rounded-2xl border border-green/15 bg-green/[0.03] px-6 py-5">
-                    <div className="rounded-full bg-green/10 p-2"><Check className="h-4 w-4 text-green" /></div>
-                    <div>
-                      <p className="text-sm font-medium text-text">You&apos;re on the list</p>
-                      <p className="text-xs text-text-dim">We&apos;ll reach out before launch.</p>
-                    </div>
-                  </motion.div>
-                ) : (
-                  <form onSubmit={onSubmit} className="flex flex-col gap-3 sm:flex-row">
-                    <input type="email" value={email} required
-                      onChange={e => { setEmail(e.target.value); if (status === "error") setStatus("idle") }}
-                      placeholder="you@example.com"
-                      className="h-13 flex-1 rounded-xl border border-white/[0.06] bg-bg-2/60 px-5 text-sm text-text placeholder:text-text-dim/55 backdrop-blur transition-all focus:border-gold/20 focus:outline-none focus:ring-1 focus:ring-gold/10" />
-                    <button type="submit" disabled={status === "loading"}
-                      className="group flex h-13 items-center justify-center gap-2 rounded-xl bg-gold px-8 text-sm font-semibold text-bg transition-all hover:bg-gold-light hover:shadow-xl hover:shadow-gold/15 active:scale-[0.98] disabled:opacity-50"
-                      style={{ animation: status === "idle" ? "pulse-soft 4s ease-in-out infinite" : "none" }}>
-                      {status === "loading" ? <Loader2 className="h-4 w-4 animate-spin" /> : (
-                        <>Join Waitlist<ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" /></>
-                      )}
-                    </button>
-                  </form>
-                )}
-                {status === "error" && errorMsg && <p className="mt-2 text-xs text-gold/75">{errorMsg}</p>}
-                {wlCount > 0 && status !== "success" && (
-                  <p className="mt-4 text-xs text-text-dim/50 text-center">
-                    <span className="text-gold/50 font-medium">{wlCount.toLocaleString()}</span> seekers already joined
-                  </p>
-                )}
-                {/* Benefit line */}
-                <p className="mt-3 text-[10px] text-text-dim/45 text-center">
-                  Waitlist gets founder pricing + free first report
-                </p>
+              <Link href="/chat"
+                className="group inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-gold to-gold-light px-10 py-4 text-base font-semibold text-bg transition-all hover:shadow-xl hover:shadow-gold/20 active:scale-[0.98]"
+                style={{ animation: "pulse-soft 4s ease-in-out infinite" }}>
+                Start Your Cosmic Journey
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </BlurReveal>
+
+            {/* Micro-nav links */}
+            <BlurReveal delay={0.95}>
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8 text-sm font-medium">
+                <a href="#sciences"
+                  className="text-text-dim/60 transition-colors hover:text-gold/70">Explore Jyotish</a>
+                <span className="hidden sm:inline text-text-dim/20">·</span>
+                <a href="#guided-demo"
+                  className="text-text-dim/60 transition-colors hover:text-gold/70">Try a Reading</a>
+                <span className="hidden sm:inline text-text-dim/20">·</span>
+                <a href="#how-it-works"
+                  className="text-text-dim/60 transition-colors hover:text-gold/70">Learn the Sciences</a>
               </div>
             </BlurReveal>
+
+            {/* Waitlist counter */}
+            {wlCount > 0 && (
+              <BlurReveal delay={1.1}>
+                <p className="mt-8 text-xs text-text-dim/50 text-center">
+                  <span className="text-gold/50 font-medium">{wlCount.toLocaleString()}</span> seekers already on the path
+                </p>
+              </BlurReveal>
+            )}
           </div>
         </motion.div>
 
@@ -853,9 +1332,14 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════════════════════════════════════
-          MARQUEE
+          VERSE TICKER
           ═══════════════════════════════════════════ */}
-      <Marquee />
+      <VerseTicker />
+
+      {/* ═══════════════════════════════════════════
+          COSMIC COMPASS QUIZ
+          ═══════════════════════════════════════════ */}
+      <CosmicCompassQuiz />
 
       {/* ═══════════════════════════════════════════
           FOUR SCIENCES
@@ -939,36 +1423,19 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════════════════════════════════════
-          PROCESS
+          HOW IT WORKS - ENHANCED
           ═══════════════════════════════════════════ */}
-      <section id="how-it-works" className="relative py-28 lg:py-40">
-        <div className="mx-auto max-w-7xl px-6 lg:px-10">
-          <div className="mb-16 lg:mb-24 text-center mx-auto max-w-2xl">
-            <BlurReveal><Divider /></BlurReveal>
-            <BlurReveal delay={0.08}><p className="text-label text-gold/50 mt-6 mb-4">How It Works</p></BlurReveal>
-            <BlurReveal delay={0.16}>
-              <h2 className="heading-section mb-5">
-                Three steps to your <span className="gold-text">cosmic reading</span>
-              </h2>
-            </BlurReveal>
-            <BlurReveal delay={0.24}>
-              <p className="text-body mx-auto max-w-lg">
-                From birth details to a complete, personalized reading —
-                in under thirty seconds.
-              </p>
-            </BlurReveal>
-          </div>
+      <HowItWorksEnhanced />
 
-          <div className="mx-auto max-w-xl">
-            {steps.map((s, i) => <Step key={s.title} {...s} i={i} />)}
-          </div>
-        </div>
-      </section>
+      {/* ═══════════════════════════════════════════
+          DAILY PANCHANG
+          ═══════════════════════════════════════════ */}
+      <DailyPanchang />
 
       {/* ═══════════════════════════════════════════
           TESTIMONIALS
           ═══════════════════════════════════════════ */}
-      <section className="relative py-28 lg:py-40">
+      <section id="testimonials" className="relative py-28 lg:py-40">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <div className="mb-16 lg:mb-24 text-center mx-auto max-w-2xl">
             <BlurReveal><Divider /></BlurReveal>
@@ -1046,7 +1513,12 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════════════════════════════════════
-          FINAL CTA
+          GAMIFICATION VISUALIZATION
+          ═══════════════════════════════════════════ */}
+      <GamificationVisualization />
+
+      {/* ═══════════════════════════════════════════
+          FINAL CTA — with waitlist form
           ═══════════════════════════════════════════ */}
       <section className="relative py-28 lg:py-40">
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
@@ -1067,11 +1539,41 @@ export default function LandingPage() {
             </p>
           </BlurReveal>
           <BlurReveal delay={0.3}>
-            <a href="#waitlist"
-              className="group inline-flex items-center gap-3 rounded-xl bg-gold px-10 py-4 text-base font-semibold text-bg transition-all hover:bg-gold-light hover:shadow-xl hover:shadow-gold/10 active:scale-[0.98]">
-              Join the Waitlist
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </a>
+            <div id="waitlist" className="w-full max-w-md mx-auto">
+              {status === "success" ? (
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                  className="flex items-center gap-4 rounded-2xl border border-green/15 bg-green/[0.03] px-6 py-5">
+                  <div className="rounded-full bg-green/10 p-2"><Check className="h-4 w-4 text-green" /></div>
+                  <div>
+                    <p className="text-sm font-medium text-text">You&apos;re on the list</p>
+                    <p className="text-xs text-text-dim">We&apos;ll reach out before launch.</p>
+                  </div>
+                </motion.div>
+              ) : (
+                <form onSubmit={onSubmit} className="flex flex-col gap-3 sm:flex-row">
+                  <input type="email" value={email} required
+                    onChange={e => { setEmail(e.target.value); if (status === "error") setStatus("idle") }}
+                    placeholder="you@example.com"
+                    className="h-13 flex-1 rounded-xl border border-white/[0.06] bg-bg-2/60 px-5 text-sm text-text placeholder:text-text-dim/55 backdrop-blur transition-all focus:border-gold/20 focus:outline-none focus:ring-1 focus:ring-gold/10" />
+                  <button type="submit" disabled={status === "loading"}
+                    className="group flex h-13 items-center justify-center gap-2 rounded-xl bg-gold px-8 text-sm font-semibold text-bg transition-all hover:bg-gold-light hover:shadow-xl hover:shadow-gold/15 active:scale-[0.98] disabled:opacity-50"
+                    style={{ animation: status === "idle" ? "pulse-soft 4s ease-in-out infinite" : "none" }}>
+                    {status === "loading" ? <Loader2 className="h-4 w-4 animate-spin" /> : (
+                      <>Join Waitlist<ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" /></>
+                    )}
+                  </button>
+                </form>
+              )}
+              {status === "error" && errorMsg && <p className="mt-2 text-xs text-gold/75">{errorMsg}</p>}
+              {wlCount > 0 && status !== "success" && (
+                <p className="mt-4 text-xs text-text-dim/50 text-center">
+                  <span className="text-gold/50 font-medium">{wlCount.toLocaleString()}</span> seekers already joined
+                </p>
+              )}
+              <p className="mt-3 text-[10px] text-text-dim/45 text-center">
+                Waitlist gets founder pricing + free first report
+              </p>
+            </div>
           </BlurReveal>
         </div>
       </section>
@@ -1101,7 +1603,7 @@ export default function LandingPage() {
                 <Link href="/product" className="text-sm text-text-dim/60 transition-colors hover:text-gold/65">Product</Link>
                 <Link href="/pricing" className="text-sm text-text-dim/60 transition-colors hover:text-gold/65">Pricing</Link>
                 <Link href="/about" className="text-sm text-text-dim/60 transition-colors hover:text-gold/65">About</Link>
-                <Link href="/blog" className="text-sm text-text-dim/60 transition-colors hover:text-gold/65">Blog</Link>
+                <Link href="/blog" className="text-sm text-text-dim/60 transition-colors hover:text-gold/65">Knowledge</Link>
               </div>
             </div>
             <div>
