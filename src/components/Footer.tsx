@@ -35,7 +35,7 @@ export default function Footer() {
             <p className="text-sm text-text-dim/60 leading-relaxed mb-3">
               Ancient Vedic wisdom meets modern AI. Your planets, your path — decoded with precision.
             </p>
-            <p className="font-[family-name:var(--font-devanagari)] text-xs text-gold/15">
+            <p className="font-hindi text-xs text-gold/15">
               आपके ग्रह, आपकी राह
             </p>
           </div>
@@ -56,8 +56,8 @@ export default function Footer() {
             <h4 className="text-[10px] font-semibold tracking-[0.2em] uppercase text-text-dim/50 mb-5">Company</h4>
             <div className="flex flex-col gap-3">
               <Link href="/contact" className="text-sm text-text-dim/45 hover:text-gold/60 transition-colors">Contact</Link>
-              <Link href="/contact" className="text-sm text-text-dim/45 hover:text-gold/60 transition-colors">Privacy Policy</Link>
-              <Link href="/contact" className="text-sm text-text-dim/45 hover:text-gold/60 transition-colors">Terms of Service</Link>
+              <Link href="/privacy" className="text-sm text-text-dim/45 hover:text-gold/60 transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="text-sm text-text-dim/45 hover:text-gold/60 transition-colors">Terms of Service</Link>
             </div>
           </div>
 

@@ -1,30 +1,35 @@
 import { NextResponse } from "next/server"
 import { createServerClient } from "@supabase/ssr"
-import { cookies } from "next/headers"
+import type { NextRequest } from "next/server"
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get("code")
   const redirect = searchParams.get("redirect") || "/dashboard"
 
   if (code) {
-    const cookieStore = await cookies()
+    const cookiesToSet: { name: string; value: string; options: Record<string, unknown> }[] = []
+
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
           getAll() {
-            return cookieStore.getAll()
+            return request.cookies.getAll()
           },
-          setAll(cookiesToSet) {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              )
-            } catch {
-              // Server Component
-            }
+          setAll(cookies) {
+            // Update request cookies so subsequent getAll() calls see new values
+            cookies.forEach(({ name, value }) => request.cookies.set(name, value))
+            // Collect for setting on the response
+            cookiesToSet.length = 0
+            cookiesToSet.push(
+              ...cookies.map(({ name, value, options }) => ({
+                name,
+                value,
+                options: options as Record<string, unknown>,
+              }))
+            )
           },
         },
       }
@@ -33,28 +38,37 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error) {
+      let redirectPath = redirect
+
       // Check if user has completed onboarding
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
 
-      if (user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("onboarding_completed")
-          .eq("id", user.id)
-          .single()
+        if (user) {
+          const { data: profile, error: profileError } = await supabase
+            .from("profiles")
+            .select("onboarding_completed")
+            .eq("id", user.id)
+            .single()
 
-        // Redirect to onboarding if not completed
-        if (!profile?.onboarding_completed) {
-          return NextResponse.redirect(`${origin}/onboarding`)
+          if (!profileError && profile && !profile.onboarding_completed) {
+            redirectPath = "/onboarding"
+          }
         }
+      } catch {
+        // Profile table may not exist yet — skip onboarding check
       }
 
-      return NextResponse.redirect(`${origin}${redirect}`)
+      // Create redirect response and attach ALL auth cookies
+      const response = NextResponse.redirect(`${origin}${redirectPath}`)
+      for (const { name, value, options } of cookiesToSet) {
+        response.cookies.set(name, value, options)
+      }
+      return response
     }
   }
 
-  // Auth error — redirect to login with error
   return NextResponse.redirect(`${origin}/auth/login?error=auth_failed`)
 }

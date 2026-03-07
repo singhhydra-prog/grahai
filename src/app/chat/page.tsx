@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, Suspense, type FormEvent, type KeyboardEvent } from "react"
+import { useState, useEffect, useRef, useCallback, Suspense, type FormEvent, type KeyboardEvent } from "react"
 import { supabase } from "@/lib/supabase"
 import { useRouter, useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
@@ -20,6 +20,11 @@ import {
   ChevronDown,
 } from "lucide-react"
 import type { User } from "@supabase/supabase-js"
+import ToolIndicator from "@/components/chat/ToolIndicator"
+import MarkdownRenderer from "@/components/chat/MarkdownRenderer"
+import { useGamification } from "@/contexts/GamificationContext"
+import { ChatXPIndicator } from "@/components/gamification/ChatXPIndicator"
+import { SatisfactionRating } from "@/components/gamification/SatisfactionRating"
 
 /* ────────────────────────────────────────────────────
    TYPES
@@ -30,6 +35,16 @@ interface ChatMessage {
   content: string
   agent_name?: string
   created_at: string
+  tools_used?: string[]
+}
+
+interface ActiveTool {
+  tool_name: string
+  tool_id: string
+  label: string
+  icon: string
+  description: string
+  isComplete: boolean
 }
 
 interface Vertical {
@@ -97,35 +112,23 @@ function getTimeLabel(dateStr: string) {
    ──────────────────────────────────────────────────── */
 function BrandMark() {
   return (
-    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/20">
+    <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500/20 to-indigo-600/10 border border-amber-500/15 shadow-[0_0_16px_rgba(201,162,77,0.15)]">
       <Sparkles className="h-4 w-4 text-amber-400" />
+      {/* Breathing glow ring */}
+      <div className="absolute inset-0 rounded-xl border border-amber-500/20" style={{ animation: "pulse-ring 3s cubic-bezier(0, 0, 0.2, 1) infinite" }} />
     </div>
   )
 }
 
 /* ────────────────────────────────────────────────────
-   TYPING INDICATOR
+   STREAMING MESSAGE BUBBLE — renders as tokens arrive
    ──────────────────────────────────────────────────── */
-function TypingIndicator() {
-  return (
-    <div className="flex items-start gap-3 px-4 py-3">
-      <BrandMark />
-      <div className="flex items-center gap-1.5 rounded-2xl rounded-tl-sm bg-white/[0.04] border border-white/[0.06] px-5 py-3.5">
-        <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
-          className="h-2 w-2 rounded-full bg-amber-400/60" />
-        <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity, delay: 0.2 }}
-          className="h-2 w-2 rounded-full bg-amber-400/60" />
-        <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
-          className="h-2 w-2 rounded-full bg-amber-400/60" />
-      </div>
-    </div>
-  )
-}
-
-/* ────────────────────────────────────────────────────
-   MESSAGE BUBBLE
-   ──────────────────────────────────────────────────── */
-function MessageBubble({ msg, isLast }: { msg: ChatMessage; isLast: boolean }) {
+function MessageBubble({ msg, isLast, isStreaming, activeTools }: {
+  msg: ChatMessage
+  isLast: boolean
+  isStreaming?: boolean
+  activeTools?: ActiveTool[]
+}) {
   const [copied, setCopied] = useState(false)
   const isUser = msg.role === "user"
 
@@ -153,21 +156,62 @@ function MessageBubble({ msg, isLast }: { msg: ChatMessage; isLast: boolean }) {
 
       {/* Bubble */}
       <div className={`group relative max-w-[75%] ${isUser ? "items-end" : "items-start"}`}>
-        <div className={`rounded-2xl px-4 py-3 text-[14.5px] leading-relaxed ${
-          isUser
-            ? "rounded-tr-sm bg-amber-500/15 border border-amber-500/15 text-white/90"
-            : "rounded-tl-sm bg-white/[0.04] border border-white/[0.06] text-white/80"
-        }`}>
-          {/* Render content with basic markdown-like formatting */}
-          <div className="whitespace-pre-wrap">{msg.content}</div>
+        {/* Tool indicators (shown above assistant message) */}
+        {!isUser && activeTools && activeTools.length > 0 && (
+          <div className="mb-2 space-y-1.5">
+            <AnimatePresence>
+              {activeTools.map((tool) => (
+                <ToolIndicator
+                  key={tool.tool_id}
+                  toolName={tool.tool_name}
+                  label={tool.label}
+                  icon={tool.icon}
+                  description={tool.description}
+                  isComplete={tool.isComplete}
+                />
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+
+        <div
+          className={`rounded-2xl px-4 py-3 text-[14.5px] leading-relaxed ${
+            isUser
+              ? "rounded-tr-sm bg-amber-500/15 border border-amber-500/15 text-white/90"
+              : "rounded-tl-sm bg-white/[0.04] border border-white/[0.06] text-white/80 chat-bubble-assistant"
+          }`}
+        >
+          {isUser ? (
+            <div className="whitespace-pre-wrap">{msg.content}</div>
+          ) : (
+            <MarkdownRenderer content={msg.content} />
+          )}
+          {/* Streaming cursor */}
+          {isStreaming && (
+            <motion.span
+              animate={{ opacity: [1, 0] }}
+              transition={{ duration: 0.6, repeat: Infinity }}
+              className="inline-block ml-0.5 w-0.5 h-4 bg-amber-400/60 align-text-bottom"
+            />
+          )}
         </div>
 
         {/* Meta row */}
         <div className={`mt-1 flex items-center gap-2 ${isUser ? "justify-end" : "justify-start"}`}>
           <span className="text-[10px] text-white/20">{getTimeLabel(msg.created_at)}</span>
-          {!isUser && (
-            <button onClick={handleCopy}
-              className="opacity-0 group-hover:opacity-100 transition-opacity text-white/20 hover:text-white/50">
+          {!isUser && msg.agent_name && (
+            <span className="text-[10px] text-amber-400/30">{msg.agent_name}</span>
+          )}
+          {!isUser && msg.tools_used && msg.tools_used.length > 0 && (
+            <span className="text-[10px] text-white/15">
+              {msg.tools_used.length} tool{msg.tools_used.length > 1 ? "s" : ""} used
+            </span>
+          )}
+          {!isUser && !isStreaming && (
+            <button
+              onClick={handleCopy}
+              className="opacity-0 group-hover:opacity-100 transition-opacity text-white/20 hover:text-white/50"
+            >
               {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
             </button>
           )}
@@ -195,14 +239,30 @@ function WelcomeScreen({ vertical, onSuggestionClick }: {
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-6 py-12">
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="text-center max-w-md">
-        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500/15 to-amber-600/5 border border-amber-500/15">
-          {vertical ? <vertical.icon className={`h-7 w-7 ${vertical.color}`} /> : <Sparkles className="h-7 w-7 text-amber-400" />}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="text-center max-w-md"
+      >
+        {/* Cosmic orbiting icon */}
+        <div className="relative mx-auto mb-8 h-28 w-28 flex items-center justify-center">
+          <div className="absolute inset-0 orbit-ring" />
+          <div className="absolute inset-3 orbit-ring-reverse" />
+          {/* Orbiting dot */}
+          <div className="absolute h-2 w-2 rounded-full bg-amber-400/60" style={{ animation: "orbit 8s linear infinite", ["--orbit-radius" as string]: "52px" }} />
+          <div className="absolute h-1.5 w-1.5 rounded-full bg-indigo-400/50" style={{ animation: "orbit 12s linear infinite reverse", ["--orbit-radius" as string]: "38px" }} />
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500/15 to-indigo-600/8 border border-amber-500/15 shadow-[0_0_30px_rgba(201,162,77,0.12)]" style={{ animation: "glow-breathe 4s ease-in-out infinite" }}>
+            {vertical ? (
+              <vertical.icon className={`h-7 w-7 ${vertical.color}`} />
+            ) : (
+              <Sparkles className="h-7 w-7 text-amber-400" />
+            )}
+          </div>
         </div>
         <h2 className="text-xl font-semibold text-white mb-2">
           {vertical ? vertical.name : "Ask GrahAI anything"}
         </h2>
+        {vertical && <p className="text-xs font-medium text-amber-400/50 mb-1">{vertical.nameHi}</p>}
         <p className="text-sm text-white/35 mb-8">
           {vertical ? vertical.desc : "Personalized Vedic readings across all four sciences"}
         </p>
@@ -266,14 +326,16 @@ function getSuggestions(verticalId: string): string[] {
    ════════════════════════════════════════════════════ */
 export default function ChatPageWrapper() {
   return (
-    <Suspense fallback={
-      <main className="flex h-screen items-center justify-center bg-[#050810]">
-        <div className="flex flex-col items-center gap-4">
-          <Sparkles className="h-8 w-8 animate-pulse text-amber-400" />
-          <p className="text-sm text-white/30">Preparing your reading space...</p>
-        </div>
-      </main>
-    }>
+    <Suspense
+      fallback={
+        <main className="flex h-screen items-center justify-center bg-[#050810]">
+          <div className="flex flex-col items-center gap-4">
+            <Sparkles className="h-8 w-8 animate-pulse text-amber-400" />
+            <p className="text-sm text-white/30">Preparing your reading space...</p>
+          </div>
+        </main>
+      }
+    >
       <ChatPage />
     </Suspense>
   )
@@ -289,20 +351,37 @@ function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
   const [sending, setSending] = useState(false)
+  const [isStreaming, setIsStreaming] = useState(false)
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [selectedVertical, setSelectedVertical] = useState<string>(verticalParam || "")
   const [showVerticalPicker, setShowVerticalPicker] = useState(false)
+  const [activeTools, setActiveTools] = useState<ActiveTool[]>([])
+  const [streamingAgentName, setStreamingAgentName] = useState<string | null>(null)
+
+  // Gamification state
+  const gamification = useGamification()
+  const [xpEarned, setXpEarned] = useState(0)
+  const [showXP, setShowXP] = useState(false)
+  const [showSatisfaction, setShowSatisfaction] = useState(false)
+  const [messageCount, setMessageCount] = useState(0)
+  const satisfactionShownRef = useRef(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const abortRef = useRef<AbortController | null>(null)
 
-  const activeVertical = VERTICALS.find(v => v.id === selectedVertical) || null
+  const activeVertical = VERTICALS.find((v) => v.id === selectedVertical) || null
 
   // Auth check
   useEffect(() => {
     async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push("/auth/login"); return }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) {
+        router.push("/auth/login")
+        return
+      }
       setUser(user)
       setLoading(false)
     }
@@ -312,7 +391,7 @@ function ChatPage() {
   // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages, sending])
+  }, [messages, sending, isStreaming])
 
   // Auto-resize textarea
   function handleTextareaInput(e: React.ChangeEvent<HTMLTextAreaElement>) {
@@ -329,13 +408,175 @@ function ChatPage() {
     }
   }
 
-  // Send message
+  // Parse SSE events from streaming response
+  const parseSSE = useCallback(
+    async (reader: ReadableStreamDefaultReader<Uint8Array>) => {
+      const decoder = new TextDecoder()
+      let buffer = ""
+      let streamedText = ""
+      let toolsUsed: string[] = []
+
+      // Create the streaming assistant message
+      const streamMsgId = crypto.randomUUID()
+      const streamMsg: ChatMessage = {
+        id: streamMsgId,
+        role: "assistant",
+        content: "",
+        created_at: new Date().toISOString(),
+      }
+      setMessages((prev) => [...prev, streamMsg])
+      setIsStreaming(true)
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+
+          buffer += decoder.decode(value, { stream: true })
+
+          // Parse complete SSE events from buffer
+          const lines = buffer.split("\n")
+          buffer = ""
+          let eventType = ""
+
+          for (const line of lines) {
+            if (line.startsWith("event: ")) {
+              eventType = line.slice(7).trim()
+            } else if (line.startsWith("data: ")) {
+              const dataStr = line.slice(6)
+              try {
+                const data = JSON.parse(dataStr)
+                handleSSEEvent(eventType, data)
+              } catch {
+                // Partial JSON — put back in buffer
+                buffer += `event: ${eventType}\ndata: ${dataStr}\n`
+              }
+            } else if (line.trim() === "") {
+              // Event boundary — reset
+              eventType = ""
+            } else {
+              // Incomplete line — put back in buffer
+              buffer += line + "\n"
+            }
+          }
+        }
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") {
+          console.error("Stream reading error:", err)
+        }
+      } finally {
+        // Finalize the streaming message
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === streamMsgId
+              ? {
+                  ...m,
+                  content: streamedText,
+                  agent_name: streamingAgentName || undefined,
+                  tools_used: toolsUsed.length > 0 ? toolsUsed : undefined,
+                }
+              : m
+          )
+        )
+        setIsStreaming(false)
+        setActiveTools([])
+        setStreamingAgentName(null)
+        setSending(false)
+
+        // Award XP for this interaction
+        const newMsgCount = messageCount + 1
+        setMessageCount(newMsgCount)
+        if (streamedText.length > 20) {
+          try {
+            const result = await gamification.awardXP(selectedVertical || "general", newMsgCount)
+            if (result.xpEarned > 0) {
+              setXpEarned(result.xpEarned)
+              setShowXP(true)
+            }
+          } catch {
+            // Silently fail — gamification shouldn't break chat
+          }
+        }
+
+        // Show satisfaction rating after 5+ messages
+        if (newMsgCount >= 5 && !satisfactionShownRef.current) {
+          satisfactionShownRef.current = true
+          setTimeout(() => setShowSatisfaction(true), 2000)
+        }
+      }
+
+      function handleSSEEvent(event: string, data: Record<string, unknown>) {
+        switch (event) {
+          case "meta":
+            if (data.conversation_id) {
+              setConversationId(data.conversation_id as string)
+            }
+            if (data.agent_name) {
+              setStreamingAgentName(data.agent_name as string)
+            }
+            break
+
+          case "text_delta":
+            streamedText += data.text as string
+            setMessages((prev) =>
+              prev.map((m) => (m.id === streamMsgId ? { ...m, content: streamedText } : m))
+            )
+            break
+
+          case "tool_start":
+            setActiveTools((prev) => [
+              ...prev,
+              {
+                tool_name: data.tool_name as string,
+                tool_id: data.tool_id as string,
+                label: data.label as string,
+                icon: data.icon as string,
+                description: data.description as string,
+                isComplete: false,
+              },
+            ])
+            break
+
+          case "tool_result":
+            toolsUsed.push(data.tool_name as string)
+            setActiveTools((prev) =>
+              prev.map((t) =>
+                t.tool_id === data.tool_id ? { ...t, isComplete: true } : t
+              )
+            )
+            // Remove completed tools after a brief delay
+            setTimeout(() => {
+              setActiveTools((prev) => prev.filter((t) => t.tool_id !== data.tool_id))
+            }, 1500)
+            break
+
+          case "message_stop":
+            // Final cleanup handled in the finally block
+            break
+
+          case "error":
+            streamedText += "\n\n⚠️ " + (data.message || "An error occurred.")
+            setMessages((prev) =>
+              prev.map((m) => (m.id === streamMsgId ? { ...m, content: streamedText } : m))
+            )
+            break
+        }
+      }
+    },
+    [streamingAgentName]
+  )
+
+  // Send message with streaming
   async function handleSend(overrideText?: string) {
     const text = (overrideText || input).trim()
     if (!text || sending || !user) return
 
     setInput("")
     if (inputRef.current) inputRef.current.style.height = "auto"
+
+    // Cancel any existing stream
+    if (abortRef.current) abortRef.current.abort()
+    abortRef.current = new AbortController()
 
     // Create optimistic user message
     const userMsg: ChatMessage = {
@@ -344,7 +585,7 @@ function ChatPage() {
       content: text,
       created_at: new Date().toISOString(),
     }
-    setMessages(prev => [...prev, userMsg])
+    setMessages((prev) => [...prev, userMsg])
     setSending(true)
 
     try {
@@ -357,41 +598,53 @@ function ChatPage() {
           vertical: selectedVertical || "general",
           user_id: user.id,
         }),
+        signal: abortRef.current.signal,
       })
 
-      const data = await res.json()
-
-      if (!res.ok) throw new Error(data.error || "Failed to get response")
-
-      // Set conversation ID from response
-      if (data.conversation_id) setConversationId(data.conversation_id)
-
-      // Add assistant message
-      const assistantMsg: ChatMessage = {
-        id: data.message_id || crypto.randomUUID(),
-        role: "assistant",
-        content: data.reply,
-        agent_name: data.agent_name,
-        created_at: new Date().toISOString(),
+      if (!res.ok) {
+        const errorText = await res.text()
+        throw new Error(errorText || "Failed to get response")
       }
-      setMessages(prev => [...prev, assistantMsg])
+
+      // Check if it's a streaming response
+      if (res.headers.get("content-type")?.includes("text/event-stream") && res.body) {
+        const reader = res.body.getReader()
+        await parseSSE(reader)
+      } else {
+        // Fallback: non-streaming JSON response
+        const data = await res.json()
+        if (data.conversation_id) setConversationId(data.conversation_id)
+        const assistantMsg: ChatMessage = {
+          id: data.message_id || crypto.randomUUID(),
+          role: "assistant",
+          content: data.reply,
+          agent_name: data.agent_name,
+          created_at: new Date().toISOString(),
+        }
+        setMessages((prev) => [...prev, assistantMsg])
+        setSending(false)
+      }
     } catch (err) {
-      // Add error message
-      const errorMsg: ChatMessage = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: "I apologize, but I encountered an issue processing your request. Please try again.",
-        created_at: new Date().toISOString(),
+      if ((err as Error).name !== "AbortError") {
+        const errorMsg: ChatMessage = {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: "I apologize, but I encountered an issue processing your request. Please try again.",
+          created_at: new Date().toISOString(),
+        }
+        setMessages((prev) => [...prev, errorMsg])
       }
-      setMessages(prev => [...prev, errorMsg])
-    } finally {
       setSending(false)
     }
   }
 
   function handleNewChat() {
+    if (abortRef.current) abortRef.current.abort()
     setMessages([])
     setConversationId(null)
+    setActiveTools([])
+    setIsStreaming(false)
+    setSending(false)
     inputRef.current?.focus()
   }
 
@@ -408,13 +661,33 @@ function ChatPage() {
 
   return (
     <main className="flex h-screen flex-col bg-[#050810]">
+      {/* ─── MARKDOWN STYLES ─── */}
+      <style jsx global>{`
+        .markdown-content .md-h2 { font-size: 1.1rem; font-weight: 600; color: rgba(255,255,255,0.92); margin: 1rem 0 0.4rem; }
+        .markdown-content .md-h3 { font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.85); margin: 0.8rem 0 0.3rem; }
+        .markdown-content .md-h4 { font-size: 0.87rem; font-weight: 600; color: rgba(255,255,255,0.8); margin: 0.6rem 0 0.25rem; }
+        .markdown-content .md-bold { color: rgba(255,255,255,0.92); font-weight: 600; }
+        .markdown-content .md-italic { font-style: italic; }
+        .markdown-content .md-p { margin: 0.4rem 0; }
+        .markdown-content .md-p:first-child { margin-top: 0; }
+        .markdown-content .md-p:last-child { margin-bottom: 0; }
+        .markdown-content .md-ul, .markdown-content .md-ol { margin: 0.4rem 0; padding-left: 1.25rem; }
+        .markdown-content .md-li { margin: 0.2rem 0; list-style-type: disc; }
+        .markdown-content .md-li-num { margin: 0.2rem 0; list-style-type: decimal; }
+        .markdown-content .md-code-block { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 0.5rem; padding: 0.75rem; margin: 0.5rem 0; overflow-x: auto; font-size: 0.8rem; font-family: monospace; white-space: pre-wrap; }
+        .markdown-content .md-inline-code { background: rgba(255,255,255,0.06); border-radius: 0.25rem; padding: 0.1rem 0.35rem; font-size: 0.85em; font-family: monospace; }
+        .markdown-content .md-hr { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 0.75rem 0; }
+      `}</style>
+
       {/* ─── TOP BAR ─── */}
       <header className="shrink-0 border-b border-white/[0.06] bg-[#050810]/90 backdrop-blur-lg">
         <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
           {/* Left: back + brand */}
           <div className="flex items-center gap-3">
-            <Link href="/dashboard"
-              className="rounded-lg p-2 text-white/30 transition-colors hover:bg-white/[0.04] hover:text-white/60">
+            <Link
+              href="/dashboard"
+              className="rounded-lg p-2 text-white/30 transition-colors hover:bg-white/[0.04] hover:text-white/60"
+            >
               <ArrowLeft className="h-4 w-4" />
             </Link>
             <div className="flex items-center gap-2">
@@ -457,20 +730,30 @@ function ChatPage() {
                   className="absolute right-0 top-10 z-50 w-56 rounded-xl border border-white/[0.08] bg-[#0a0e1a] p-1.5 shadow-xl"
                 >
                   <button
-                    onClick={() => { setSelectedVertical(""); setShowVerticalPicker(false) }}
+                    onClick={() => {
+                      setSelectedVertical("")
+                      setShowVerticalPicker(false)
+                    }}
                     className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-colors ${
-                      !selectedVertical ? "bg-amber-500/10 text-amber-400" : "text-white/50 hover:bg-white/[0.04]"
+                      !selectedVertical
+                        ? "bg-amber-500/10 text-amber-400"
+                        : "text-white/50 hover:bg-white/[0.04]"
                     }`}
                   >
                     <Sparkles className="h-4 w-4" />
                     All Sciences
                   </button>
-                  {VERTICALS.map(v => (
+                  {VERTICALS.map((v) => (
                     <button
                       key={v.id}
-                      onClick={() => { setSelectedVertical(v.id); setShowVerticalPicker(false) }}
+                      onClick={() => {
+                        setSelectedVertical(v.id)
+                        setShowVerticalPicker(false)
+                      }}
                       className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-colors ${
-                        selectedVertical === v.id ? "bg-amber-500/10 text-amber-400" : "text-white/50 hover:bg-white/[0.04]"
+                        selectedVertical === v.id
+                          ? "bg-amber-500/10 text-amber-400"
+                          : "text-white/50 hover:bg-white/[0.04]"
                       }`}
                     >
                       <v.icon className={`h-4 w-4 ${v.color}`} />
@@ -482,12 +765,22 @@ function ChatPage() {
             </AnimatePresence>
           </div>
 
-          {/* Right: new chat */}
-          <button onClick={handleNewChat}
-            className="rounded-lg p-2 text-white/30 transition-colors hover:bg-white/[0.04] hover:text-white/60"
-            title="New chat">
-            <RotateCcw className="h-4 w-4" />
-          </button>
+          {/* Right: streak + new chat */}
+          <div className="flex items-center gap-2">
+            {gamification.dailyStreak > 0 && (
+              <span className="flex items-center gap-1 text-xs text-amber-400/60">
+                <span>🔥</span>
+                <span>{gamification.dailyStreak}</span>
+              </span>
+            )}
+            <button
+              onClick={handleNewChat}
+              className="rounded-lg p-2 text-white/30 transition-colors hover:bg-white/[0.04] hover:text-white/60"
+              title="New chat"
+            >
+              <RotateCcw className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -498,10 +791,19 @@ function ChatPage() {
             <WelcomeScreen vertical={activeVertical} onSuggestionClick={(t) => handleSend(t)} />
           ) : (
             <div className="py-4 space-y-1">
-              {messages.map((msg, i) => (
-                <MessageBubble key={msg.id} msg={msg} isLast={i === messages.length - 1} />
-              ))}
-              {sending && <TypingIndicator />}
+              {messages.map((msg, i) => {
+                const isLastMsg = i === messages.length - 1
+                const isCurrentlyStreaming = isLastMsg && isStreaming && msg.role === "assistant"
+                return (
+                  <MessageBubble
+                    key={msg.id}
+                    msg={msg}
+                    isLast={isLastMsg}
+                    isStreaming={isCurrentlyStreaming}
+                    activeTools={isCurrentlyStreaming ? activeTools : undefined}
+                  />
+                )
+              })}
               <div ref={messagesEndRef} />
             </div>
           )}
@@ -509,10 +811,15 @@ function ChatPage() {
       </div>
 
       {/* ─── INPUT BAR ─── */}
-      <div className="shrink-0 border-t border-white/[0.06] bg-[#050810]/95 backdrop-blur-lg">
+      <div className="shrink-0 border-t border-white/[0.06] bg-[#050810]/90 backdrop-blur-xl">
         <div className="mx-auto max-w-3xl px-4 py-3">
-          <form onSubmit={(e: FormEvent) => { e.preventDefault(); handleSend() }}
-            className="flex items-end gap-3">
+          <form
+            onSubmit={(e: FormEvent) => {
+              e.preventDefault()
+              handleSend()
+            }}
+            className="glass-input flex items-end gap-3 px-3 py-2"
+          >
             <div className="relative flex-1">
               <textarea
                 ref={inputRef}
@@ -522,23 +829,50 @@ function ChatPage() {
                 placeholder={activeVertical?.placeholder || "Ask GrahAI anything about your stars..."}
                 rows={1}
                 disabled={sending}
-                className="w-full resize-none rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 pr-4 text-sm text-white/90 placeholder:text-white/25 transition-all focus:border-amber-500/20 focus:outline-none focus:ring-1 focus:ring-amber-500/10 disabled:opacity-50"
+                className="w-full resize-none bg-transparent px-2 py-2 text-sm text-white/90 placeholder:text-white/25 focus:outline-none disabled:opacity-50"
                 style={{ maxHeight: "160px" }}
               />
             </div>
             <button
               type="submit"
               disabled={!input.trim() || sending}
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-500/90 text-[#050810] transition-all hover:bg-amber-400 active:scale-95 disabled:opacity-30 disabled:hover:bg-amber-500/90"
+              className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-[#050810] transition-all hover:shadow-[0_0_20px_rgba(201,162,77,0.35)] active:scale-95 disabled:opacity-30 disabled:hover:shadow-none"
             >
-              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              {sending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
             </button>
           </form>
           <p className="mt-2 text-center text-[10px] text-white/15">
-            GrahAI provides spiritual guidance based on Vedic traditions. Not a substitute for professional advice.
+            GrahAI provides spiritual guidance based on Vedic traditions. Not a substitute for
+            professional advice.
           </p>
         </div>
       </div>
+
+      {/* Gamification overlays */}
+      <ChatXPIndicator
+        xpEarned={xpEarned}
+        show={showXP}
+        onComplete={() => setShowXP(false)}
+      />
+      <SatisfactionRating
+        show={showSatisfaction}
+        onRate={async (rating) => {
+          try {
+            if (conversationId) {
+              await fetch("/api/gamification/rate-reading", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ conversation_id: conversationId, rating }),
+              })
+            }
+          } catch { /* silent */ }
+        }}
+        onDismiss={() => setShowSatisfaction(false)}
+      />
     </main>
   )
 }

@@ -17,11 +17,23 @@ export default function ContactPage() {
   const [formState, setFormState] = useState({ name: "", email: "", subject: "", message: "" })
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setStatus("loading")
-    // Simulate submission
-    setTimeout(() => setStatus("success"), 1500)
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formState),
+      })
+      if (res.ok) {
+        setStatus("success")
+      } else {
+        setStatus("error")
+      }
+    } catch {
+      setStatus("error")
+    }
   }
 
   return (
@@ -67,7 +79,7 @@ export default function ContactPage() {
 
             <Reveal delay={0.4}>
               <div className="mt-12 rounded-2xl border border-white/[0.04] bg-bg-2/30 p-8">
-                <p className="font-[family-name:var(--font-devanagari)] text-lg text-gold/40 mb-4">
+                <p className="font-hindi text-lg text-gold/40 mb-4">
                   आपके ग्रह, आपकी राह
                 </p>
                 <p className="text-caption">
@@ -129,6 +141,9 @@ export default function ContactPage() {
                         <>Send Message<Send className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" /></>
                       )}
                     </button>
+                    {status === "error" && (
+                      <p className="text-sm text-red text-center">Something went wrong. Please try again.</p>
+                    )}
                   </form>
                 )}
               </div>

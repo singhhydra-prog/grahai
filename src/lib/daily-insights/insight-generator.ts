@@ -1,0 +1,418 @@
+/* ════════════════════════════════════════════════════════
+   GrahAI — Daily Insight Generator
+
+   Produces a personalized daily horoscope for a user based
+   on their natal chart, current transits, active Dasha
+   period, and today's Panchang.
+
+   Called by the daily cron job for premium users.
+   ════════════════════════════════════════════════════════ */
+
+import type {
+  NatalChart, BirthDetails, PlanetName, Panchang,
+} from "../ephemeris/types"
+import { generateNatalChart } from "../ephemeris/sweph-wrapper"
+import { calculateFullDasha, getDashaTimeline, formatDashaPeriod } from "../ephemeris/dasha-engine"
+import { analyzeTransits, getMoonTransit } from "../ephemeris/transit-engine"
+import { calculatePanchang, getPanchangSummary } from "../ephemeris/panchang"
+import { PLANET_REMEDIES } from "../astrology-data/remedy-database"
+import type { FullTransitAnalysis } from "../ephemeris/transit-engine"
+
+// ─── Daily Insight Structure ────────────────────────────
+
+export interface DailyInsight {
+  userId: string
+  date: string
+  name: string
+
+  // Panchang
+  panchang: {
+    tithi: string
+    nakshatra: string
+    yoga: string
+    karana: string
+    vara: string
+    rahuKaal: string
+    auspicious: string[]
+    inauspicious: string[]
+    summary: string
+  }
+
+  // Moon transit
+  moonTransit: {
+    currentSign: string
+    houseFromMoon: number
+    houseFromLagna: number
+    effect: string
+    nakshatra: string
+  }
+
+  // Transit snapshot (slow-moving planets only)
+  keyTransits: Array<{
+    planet: string
+    sign: string
+    houseFromMoon: number
+    isBenefic: boolean
+    effect: string
+    significance: string
+  }>
+
+  // Overall transit trend
+  overallTrend: string
+  sadeSatiActive: boolean
+  sadeSatiPhase: string | null
+  sadeSatiAdvice: string | null
+
+  // Active Dasha context
+  dashaContext: {
+    mahadasha: string
+    antardasha: string
+    pratyantardasha: string | null
+    interpretation: string
+  }
+
+  // Daily remedy
+  dailyRemedy: {
+    planet: string
+    type: string
+    remedy: string
+    reason: string
+  }
+
+  // BPHS verse of the day
+  bphsVerse: {
+    source: string
+    chapter: number
+    topic: string
+    insight: string
+  }
+
+  // Favorable / unfavorable activities
+  activities: {
+    favorable: string[]
+    unfavorable: string[]
+  }
+
+  // One-line summary
+  headline: string
+}
+
+// ─── Dasha Interpretation ───────────────────────────────
+
+const DASHA_THEMES: Record<string, string> = {
+  Sun: "A period of authority, recognition, and self-expression. Focus on leadership roles, government matters, and health vitality. The soul's purpose is illuminated.",
+  Moon: "An emotional and nurturing period. Mind is active, creativity flows, and relationships with mother/women are highlighted. Travel and public image matter.",
+  Mars: "An energetic, action-oriented period. Courage increases, but watch for aggression. Good for property, sports, and competitive endeavors. Control anger.",
+  Mercury: "An intellectual period focused on communication, business, and learning. Good for education, writing, and commerce. Maintain nervous system health.",
+  Jupiter: "An expansive period of wisdom, prosperity, and spiritual growth. Marriage, children, and higher education are favored. Teachers and mentors appear.",
+  Venus: "A period of luxury, romance, and artistic expression. Material comforts increase. Good for marriage, vehicles, and creative pursuits. Enjoy life's beauty.",
+  Saturn: "A period of discipline, hard work, and karmic lessons. Patience is key. Career restructuring is possible. Long-term gains through perseverance.",
+  Rahu: "An unconventional period of ambition and worldly desires. Foreign connections, technology, and breaking norms are themes. Avoid shortcuts and deception.",
+  Ketu: "A spiritual and introspective period. Detachment from material desires. Past-life karmas surface. Good for meditation, research, and occult studies.",
+}
+
+function getDashaInterpretation(maha: string, antar: string): string {
+  const mahaTheme = DASHA_THEMES[maha] || "A transformative period."
+  const antarTheme = DASHA_THEMES[antar]
+    ? `Within this, ${antar}'s sub-period brings: ${DASHA_THEMES[antar].split(". ").slice(0, 2).join(". ")}.`
+    : ""
+  return `${mahaTheme} ${antarTheme}`
+}
+
+// ─── Activity Recommendations ───────────────────────────
+
+function getActivityRecommendations(
+  panchang: Panchang,
+  transitAnalysis: FullTransitAnalysis
+): { favorable: string[], unfavorable: string[] } {
+  const favorable: string[] = []
+  const unfavorable: string[] = []
+
+  // Based on overall transit trend
+  if (transitAnalysis.overallTrend === "favorable") {
+    favorable.push("Starting new ventures", "Important meetings", "Financial decisions")
+  } else if (transitAnalysis.overallTrend === "challenging") {
+    unfavorable.push("Starting new ventures", "Major financial commitments")
+    favorable.push("Completing pending work", "Introspection and planning")
+  }
+
+  // Based on tithi auspiciousness
+  if (panchang.tithi.name.includes("Purnima")) {
+    favorable.push("Spiritual practices", "Charity", "Starting auspicious work")
+  }
+  if (panchang.tithi.name.includes("Amavasya")) {
+    unfavorable.push("Starting new work", "Travel")
+    favorable.push("Ancestral rituals (Tarpan)", "Meditation")
+  }
+
+  // Based on yoga — auspicious yogas (Siddha, Shiva, Sadhya, etc.) vs inauspicious (Vyaghata, Vajra, etc.)
+  const auspiciousYogas = ["Siddha", "Shiva", "Sadhya", "Shubha", "Brahma", "Indra", "Priti", "Saubhagya"]
+  const inauspiciousYogas = ["Vyaghata", "Vajra", "Atiganda", "Shoola", "Ganda", "Vishkumbha"]
+  if (auspiciousYogas.includes(panchang.yoga.name)) {
+    favorable.push("Ceremonies and celebrations", "Investments")
+  } else if (inauspiciousYogas.includes(panchang.yoga.name)) {
+    unfavorable.push("Signing contracts", "Marriage ceremonies")
+  }
+
+  // Rahu Kaal warning
+  if (panchang.rahukaal) {
+    unfavorable.push(`Avoid important work during Rahu Kaal (${panchang.rahukaal.start} - ${panchang.rahukaal.end})`)
+  }
+
+  // Based on Karana
+  if (panchang.karana.name === "Vishti") {
+    unfavorable.push("Auspicious ceremonies (Vishti/Bhadra Karana active)")
+  }
+
+  // Based on vara (weekday)
+  const dayFavorable: Record<string, string> = {
+    Sunday: "Government work, health matters, father-related",
+    Monday: "Travel, meeting women, mind-related work",
+    Tuesday: "Property, surgery, competitive activities",
+    Wednesday: "Education, business, communication",
+    Thursday: "Religious activities, meeting gurus, expansion",
+    Friday: "Romance, arts, buying vehicles/luxury",
+    Saturday: "Service, iron/oil work, discipline activities",
+  }
+  const dayActivity = dayFavorable[panchang.var.name]
+  if (dayActivity) favorable.push(dayActivity)
+
+  // Ensure at least 2 items each
+  if (favorable.length < 2) favorable.push("Routine work", "Self-care")
+  if (unfavorable.length < 2) unfavorable.push("Overexertion", "Impulsive decisions")
+
+  return {
+    favorable: favorable.slice(0, 5),
+    unfavorable: unfavorable.slice(0, 4),
+  }
+}
+
+// ─── Daily Remedy Selection ─────────────────────────────
+
+function selectDailyRemedy(
+  dayOfWeek: number,
+  activeMahadasha: string
+): DailyInsight["dailyRemedy"] {
+  // Map weekdays to ruling planets
+  const dayPlanets: PlanetName[] = [
+    "Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn",
+  ]
+  const dayPlanet = dayPlanets[dayOfWeek]
+
+  // Alternate between day planet remedy and dasha lord remedy
+  const planet = dayOfWeek % 2 === 0 ? dayPlanet : (activeMahadasha as PlanetName)
+  const remedySet = PLANET_REMEDIES[planet]
+  if (!remedySet) {
+    return {
+      planet,
+      type: "mantra",
+      remedy: "Chant Om Namah Shivaya 108 times",
+      reason: `General spiritual practice for ${planet} day`,
+    }
+  }
+
+  // Rotate through remedy types based on day of month
+  const dayOfMonth = new Date().getDate()
+  const remedyTypes = ["mantra", "charity", "fasting", "gemstone"] as const
+  const selectedType = remedyTypes[dayOfMonth % remedyTypes.length]
+
+  switch (selectedType) {
+    case "mantra":
+      return {
+        planet,
+        type: "mantra",
+        remedy: `Chant ${remedySet.mantra.beejMantra} ${remedySet.mantra.beejCount} times during ${remedySet.mantra.chantingTime}`,
+        reason: `Today is ruled by ${dayPlanet}. Strengthen ${planet}'s energy through mantra.`,
+      }
+    case "charity":
+      return {
+        planet,
+        type: "charity",
+        remedy: `Donate ${remedySet.charity.items.slice(0, 2).join(" or ")} to ${remedySet.charity.donateToWhom}`,
+        reason: `Charity for ${planet} helps mitigate afflictions and generate positive karma.`,
+      }
+    case "fasting":
+      return {
+        planet,
+        type: "fasting",
+        remedy: `Consider ${remedySet.fasting.type} fast. Eat: ${remedySet.fasting.allowedFoods.slice(0, 3).join(", ")}`,
+        reason: `Fasting on ${remedySet.fasting.day} strengthens ${planet}'s blessings in your chart.`,
+      }
+    case "gemstone":
+      return {
+        planet,
+        type: "gemstone",
+        remedy: `Wearing ${remedySet.gemstone.name} (${remedySet.gemstone.caratRecommended} ct in ${remedySet.gemstone.metal}) on ${remedySet.gemstone.finger} strengthens ${planet}`,
+        reason: `Gemstone therapy channels ${planet}'s cosmic energy. Consult an astrologer before wearing.`,
+      }
+  }
+}
+
+// ─── BPHS Verse of the Day ──────────────────────────────
+
+const BPHS_DAILY_VERSES = [
+  { source: "BPHS", chapter: 1, topic: "Creation", insight: "The Supreme Being, in the form of Time (Kala), creates and dissolves all beings through the grahas (planets). Understanding this cosmic dance is the essence of Jyotish." },
+  { source: "BPHS", chapter: 3, topic: "Nature of Planets", insight: "The Sun is the soul, Moon the mind, Mars the strength, Mercury the speech, Jupiter the wisdom, Venus the desire, and Saturn the sorrow. Each planet reflects an aspect of our being." },
+  { source: "BPHS", chapter: 6, topic: "Divisional Charts", insight: "Just as a seed contains the entire tree, the natal chart contains all divisional charts. Navamsa (D9) reveals the fruit of dharma and the nature of the spouse." },
+  { source: "BPHS", chapter: 11, topic: "House Meanings", insight: "The 1st house is the self, the 7th is the other. The 10th house represents one's karma in the world — the actions by which one is remembered." },
+  { source: "BPHS", chapter: 15, topic: "Raj Yoga", insight: "When lords of Kendra (1,4,7,10) and Trikona (1,5,9) houses associate, Raj Yoga is formed — promising power, position, and prosperity to the native." },
+  { source: "BPHS", chapter: 25, topic: "Pancha Mahapurusha", insight: "When Mars, Mercury, Jupiter, Venus, or Saturn occupy their own or exaltation sign in a Kendra house, the native becomes a great person (Mahapurusha)." },
+  { source: "BPHS", chapter: 34, topic: "Yogas", insight: "Gajakesari Yoga (Jupiter in Kendra from Moon) gives wisdom, wealth, and fame — like the elephant among animals, the native commands respect." },
+  { source: "BPHS", chapter: 41, topic: "Dosha", insight: "Doshas are not curses but karmic indicators. They point to areas of life requiring conscious effort and spiritual practice for transformation." },
+  { source: "BPHS", chapter: 46, topic: "Vimshottari Dasha", insight: "The Vimshottari Dasha unfolds karma through 120 years of planetary periods. The Dasha lord's dignity and house determine the quality of that period." },
+  { source: "BPHS", chapter: 65, topic: "Transit (Gochar)", insight: "Planets in transit activate different houses from the natal Moon. Saturn's transit through the 12th, 1st, and 2nd from Moon is Sade Sati — a period of karmic pruning." },
+  { source: "BPHS", chapter: 77, topic: "Remedies", insight: "Remedies are not about changing fate but aligning with cosmic rhythm. Mantras, gemstones, fasting, and charity create resonance with planetary energies." },
+  { source: "BPHS", chapter: 80, topic: "Ishta Devata", insight: "The 12th lord from Karakamsha (Atmakaraka in Navamsa) indicates one's Ishta Devata — the personal deity that guides the soul's spiritual evolution." },
+  { source: "Saravali", chapter: 2, topic: "Hora", insight: "The Hora chart (D2) reveals wealth potential. Planets in Sun's Hora give wealth through authority; in Moon's Hora, through public service and nurturing." },
+  { source: "Phaladeepika", chapter: 6, topic: "Bhava Results", insight: "A strong 9th house brings fortune not by luck but by dharma — righteous actions in past lives bearing fruit in this one." },
+  { source: "BPHS", chapter: 3, topic: "Rahu-Ketu", insight: "Rahu amplifies worldly desires while Ketu detaches from them. Together they represent the axis of karmic evolution — what the soul craves versus what it must release." },
+  { source: "BPHS", chapter: 28, topic: "Neecha Bhanga", insight: "Even debilitated planets can produce Raj Yoga through cancellation (Neecha Bhanga). Adversity transformed into strength is the highest form of yoga." },
+  { source: "Jataka Parijata", chapter: 4, topic: "Dignity", insight: "A planet in its own sign is like a king in his own kingdom — confident and powerful. In exaltation, it reaches its highest potential." },
+  { source: "BPHS", chapter: 50, topic: "Dasha Effects", insight: "During Jupiter's Dasha, wisdom dawns naturally. During Saturn's Dasha, patience becomes the greatest teacher. Each period serves the soul's growth." },
+  { source: "BPHS", chapter: 7, topic: "Nakshatras", insight: "The 27 Nakshatras are the cosmic mansions of the Moon. Your Janma Nakshatra reveals your emotional nature, instinctive responses, and karmic patterns." },
+  { source: "Saravali", chapter: 30, topic: "Female Horoscopy", insight: "The 7th and 8th houses, Venus, Jupiter, and Moon together paint the picture of married life. A well-placed Jupiter protects marriage through wisdom." },
+]
+
+function getDailyBPHSVerse(dayOfYear: number): DailyInsight["bphsVerse"] {
+  return BPHS_DAILY_VERSES[dayOfYear % BPHS_DAILY_VERSES.length]
+}
+
+// ─── Headline Generator ─────────────────────────────────
+
+function generateHeadline(
+  transitAnalysis: FullTransitAnalysis,
+  panchang: Panchang,
+  mahadasha: string
+): string {
+  const trend = transitAnalysis.overallTrend
+  // Check for special days (Purnima, Amavasya, Ekadashi)
+  const tithiName = panchang.tithi.name
+  const isSpecial = tithiName.includes("Purnima") || tithiName.includes("Amavasya") || tithiName.includes("Ekadashi")
+
+  if (isSpecial) {
+    return `${tithiName} — A sacred day during your ${mahadasha} Mahadasha period.`
+  }
+
+  switch (trend) {
+    case "favorable":
+      return `Favorable transits today — ${mahadasha} Dasha supports positive momentum.`
+    case "challenging":
+      return `Navigate today with patience — ${mahadasha} Dasha calls for mindful action.`
+    default:
+      return `Mixed energies today — balance activity with reflection during ${mahadasha} Dasha.`
+  }
+}
+
+// ─── Main Generator ─────────────────────────────────────
+
+export async function generateDailyInsight(
+  userId: string,
+  birthDetails: BirthDetails,
+  name: string,
+  date?: Date
+): Promise<DailyInsight> {
+  const targetDate = date || new Date()
+  const dayOfYear = Math.floor(
+    (targetDate.getTime() - new Date(targetDate.getFullYear(), 0, 0).getTime()) /
+    (1000 * 60 * 60 * 24)
+  )
+
+  // 1. Generate natal chart
+  const natalChart = await generateNatalChart(birthDetails, name)
+
+  // 2. Calculate Panchang
+  const panchang = await calculatePanchang(
+    targetDate,
+    birthDetails.latitude,
+    birthDetails.longitude
+  )
+
+  // 3. Analyze transits
+  const transitAnalysis = await analyzeTransits(natalChart, targetDate)
+
+  // 4. Moon transit
+  const moonTransit = await getMoonTransit(natalChart, targetDate)
+
+  // 5. Active Dasha
+  const dashaAnalysis = calculateFullDasha(natalChart)
+  const currentMaha = dashaAnalysis.currentMahadasha?.planet || "Saturn"
+  const currentAntar = dashaAnalysis.currentAntardasha?.planet || "Mercury"
+
+  // Try to find pratyantar from timeline
+  const timeline = getDashaTimeline(natalChart, 1)
+  const now = targetDate.getTime()
+  const currentPeriod = timeline.find(
+    t => t.startDate.getTime() <= now && t.endDate.getTime() >= now
+  )
+
+  // 6. Build key transits (slow-moving only)
+  const keyTransits = transitAnalysis.transits
+    .filter(t => ["Saturn", "Jupiter", "Rahu", "Ketu"].includes(t.planet))
+    .map(t => ({
+      planet: t.planet,
+      sign: t.transitSign,
+      houseFromMoon: t.houseFromMoon,
+      isBenefic: t.isBeneficTransit,
+      effect: t.effect,
+      significance: t.significance,
+    }))
+
+  // 7. Activities
+  const activities = getActivityRecommendations(panchang, transitAnalysis)
+
+  // 8. Daily remedy
+  const dailyRemedy = selectDailyRemedy(targetDate.getDay(), currentMaha)
+
+  // 9. BPHS verse
+  const bphsVerse = getDailyBPHSVerse(dayOfYear)
+
+  // 10. Headline
+  const headline = generateHeadline(transitAnalysis, panchang, currentMaha)
+
+  return {
+    userId,
+    date: targetDate.toISOString().split("T")[0],
+    name,
+
+    panchang: {
+      tithi: panchang.tithi.name,
+      nakshatra: panchang.nakshatra.name,
+      yoga: panchang.yoga.name,
+      karana: panchang.karana.name,
+      vara: panchang.var.name,
+      rahuKaal: panchang.rahukaal
+        ? `${panchang.rahukaal.start} - ${panchang.rahukaal.end}`
+        : "N/A",
+      auspicious: panchang.auspicious,
+      inauspicious: panchang.inauspicious,
+      summary: getPanchangSummary(panchang),
+    },
+
+    moonTransit: {
+      currentSign: moonTransit.currentSign,
+      houseFromMoon: moonTransit.houseFromNatalMoon,
+      houseFromLagna: moonTransit.houseFromLagna,
+      effect: moonTransit.effect,
+      nakshatra: moonTransit.nakshatra,
+    },
+
+    keyTransits,
+
+    overallTrend: transitAnalysis.overallTrend,
+    sadeSatiActive: transitAnalysis.sadeSatiStatus?.isActive || false,
+    sadeSatiPhase: transitAnalysis.sadeSatiStatus?.phase || null,
+    sadeSatiAdvice: transitAnalysis.sadeSatiStatus?.advice || null,
+
+    dashaContext: {
+      mahadasha: currentMaha,
+      antardasha: currentAntar,
+      pratyantardasha: null, // Would need deeper dasha calculation
+      interpretation: getDashaInterpretation(currentMaha, currentAntar),
+    },
+
+    dailyRemedy,
+    bphsVerse,
+    activities,
+    headline,
+  }
+}

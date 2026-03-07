@@ -1,19 +1,14 @@
 import type { Metadata } from "next"
-import { Inter, Noto_Sans_Devanagari } from "next/font/google"
+import { Inter } from "next/font/google"
 import LenisProvider from "@/components/LenisProvider"
+import { AppProviders } from "@/components/Providers"
+import CosmicBackground from "@/components/CosmicBackground"
 import "./globals.css"
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
-})
-
-const notoDevanagari = Noto_Sans_Devanagari({
-  subsets: ["devanagari"],
-  variable: "--font-devanagari",
-  display: "swap",
-  weight: ["400", "500", "600", "700"],
 })
 
 export const metadata: Metadata = {
@@ -68,9 +63,18 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${notoDevanagari.variable}`}>
+    <html lang="en" className={inter.variable}>
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body className="antialiased">
-        <LenisProvider>{children}</LenisProvider>
+        <CosmicBackground />
+        <LenisProvider>
+          <AppProviders>{children}</AppProviders>
+        </LenisProvider>
       </body>
     </html>
   )

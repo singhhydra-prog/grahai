@@ -110,3 +110,129 @@ src/
 - Never dismissive of traditional knowledge
 - Scientific framing of ancient wisdom
 - Premium but not exclusive
+
+---
+
+## Agent System Architecture
+
+### 28-Agent Hierarchy
+GrahAI operates a **CEO Orchestrator** pattern with 5 departments and 28 total agents, all registered in `agent_hierarchy` and `agent_prompt_versions` tables.
+
+The CEO Orchestrator (`detectVertical()` in `route.ts`) uses regex to route incoming messages to the correct vertical specialist. Each vertical has a department head agent with domain tools.
+
+### Communication Flow
+```
+User Message → CEO Orchestrator (regex routing)
+  → Vertical Detection (astrology/numerology/tarot/vastu/general)
+  → Load System Prompt (from agent_prompt_versions, 5-min cache)
+  → Inject Memory Context (from memories table)
+  → Anthropic API (claude-sonnet-4, streaming, with tools)
+  → Tool Execution Loop (if tool_use returned)
+  → Stream Response (SSE text_delta events)
+  → Save to DB + Track Metrics (fire-and-forget)
+```
+
+### Streaming API (SSE)
+The chat API (`src/app/api/chat/route.ts`) returns `text/event-stream` with events: `meta`, `text_delta`, `tool_start`, `tool_result`, `message_stop`, `error`. The client reads via `ReadableStream` reader and renders token-by-token.
+
+### Tool-Use Pattern
+When Claude's response includes a `tool_use` block, the server: executes the tool → sends result back to Claude → Claude continues generating → repeat until `stop_reason: "end_turn"`.
+
+## Agent Development Standards
+
+### Adding a New Tool
+1. Define tool schema in `src/lib/agents/tools/{vertical}-tools.ts`
+2. Implement executor function in the same file
+3. Register in `src/lib/agents/tools/index.ts` (VERTICAL_TOOLS + switch case + TOOL_DISPLAY_INFO)
+4. Tool names: `snake_case`, unique across all verticals
+5. Always return structured JSON from tools (not plain strings)
+
+### Modifying System Prompts
+NEVER hardcode prompts — update via `agent_prompt_versions` table. Prompts are cached 5 minutes in `prompt-loader.ts`. Fallback prompts exist for DB outages.
+
+### Memory System
+- Auto birth data extraction on every message (fire-and-forget)
+- Memory types: `birth_data`, `preference`, `reading_history`, vertical-specific
+- Retrieved by importance DESC, injected into system prompt context
+- Stored in `memories` table with optional vector embeddings
+
+### Metrics Tracking
+Every response tracks: agent name, vertical, response time, success/failure in `agent_metrics` (daily aggregation). Prompt interaction counts tracked in `agent_prompt_versions.interactions_count`.
+
+### Development Workflow
+Use Claude Code skills in `.claude/skills/`:
+- `grahai-agents/` — Agent architecture, tool development, prompt management
+- `grahai-supabase/` — Database operations, migrations, RLS policies
+- `grahai-deploy/` — Build, test, deploy to Vercel
+
+## File Organization (Updated)
+```
+src/
+  app/
+    (marketing)/        # Public pages (landing, pricing, blog)
+    (app)/              # Authenticated app pages
+    auth/               # Auth pages (login, callback)
+    chat/               # Chat interface (streaming + tool indicators)
+    api/chat/           # Streaming SSE chat API with tool-use
+  components/
+    ui/                 # Reusable UI primitives
+    chat/               # ToolIndicator, MarkdownRenderer
+    3d/                 # Spline 3D components
+    sections/           # Page sections
+  lib/
+    agents/             # Agent system core
+      prompt-loader.ts  # Dynamic prompt loading (DB + cache)
+      memory.ts         # Memory retrieval + birth data extraction
+      metrics.ts        # Agent performance tracking
+      tools/            # Vertical tool definitions + executors
+        index.ts        # Central registry + dispatcher
+        astrology-tools.ts
+        numerology-tools.ts
+        tarot-tools.ts
+        vastu-tools.ts
+    supabase.ts         # Client-side Supabase
+    supabase-server.ts  # Server-side Supabase (SSR)
+.claude/
+  skills/               # Claude Code development skills
+    grahai-agents/
+    grahai-supabase/
+    grahai-deploy/
+```
+
+## API Patterns
+
+### Streaming SSE Response
+```typescript
+return new Response(stream, {
+  headers: {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    "Connection": "keep-alive",
+  },
+})
+```
+
+### SSE Event Format
+```typescript
+function sseEvent(event: string, data: unknown): string {
+  return `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`
+}
+```
+
+### Supabase Server Client (API Routes)
+```typescript
+import { createClient } from "@supabase/supabase-js"
+const sb = createClient(supabaseUrl, supabaseServiceKey) // Bypasses RLS
+```
+
+## Testing Checklist
+- [ ] `npm run build` passes with zero errors
+- [ ] Each vertical detects correctly from user messages
+- [ ] System prompts load from `agent_prompt_versions` (not hardcoded)
+- [ ] All 14 tools execute correctly and return structured data
+- [ ] Streaming renders token-by-token (no flash of complete text)
+- [ ] Tool indicators show/hide correctly during execution
+- [ ] Conversation history persists across messages
+- [ ] Memories save and retrieve for returning users
+- [ ] Metrics tracked in `agent_metrics` table
+- [ ] Deployed to Vercel with all env vars set

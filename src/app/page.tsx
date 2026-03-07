@@ -228,7 +228,7 @@ function SanskritTerm({ term, children }: { term: string; children: React.ReactN
             className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-50">
             <div className="glass-card px-4 py-3 rounded-lg whitespace-nowrap shadow-xl">
               <p className="text-xs font-semibold text-gold mb-1">{dictEntry.english}</p>
-              <p className="font-[family-name:var(--font-devanagari)] text-xs text-gold/60 mb-1.5">
+              <p className="font-hindi text-xs text-gold/60 mb-1.5">
                 {dictEntry.devanagari}
               </p>
               <p className="text-xs text-text-dim/70 max-w-xs">{dictEntry.explanation}</p>
@@ -377,7 +377,7 @@ function DailyPanchang() {
               {Object.entries(panchangData).map(([key, data]) => (
                 <div key={key} className="text-center">
                   <p className="text-label text-gold/50 mb-3">{data.label}</p>
-                  <p className="font-[family-name:var(--font-devanagari)] text-sm text-gold/70 mb-2">
+                  <p className="font-hindi text-sm text-gold/70 mb-2">
                     {data.devanagari}
                   </p>
                   <p className="text-text">{data.value}</p>
@@ -797,7 +797,7 @@ function Marquee() {
       <div className="absolute inset-y-0 right-0 z-10 w-40 bg-gradient-to-l from-bg to-transparent" />
       <div className="marquee-belt">
         {belt.map((item, i) => (
-          <span key={i} className="mx-6 whitespace-nowrap font-[family-name:var(--font-devanagari)] text-xs text-text/[0.07]">
+          <span key={i} className="mx-6 whitespace-nowrap font-hindi text-xs text-text/[0.07]">
             {item}
           </span>
         ))}
@@ -859,7 +859,7 @@ function ScienceCard({ num, icon, title, titleHi, text, i }: {
             <span className="text-label text-gold/40">{num}</span>
           </div>
           <h3 className="heading-card mb-1">{title}</h3>
-          <p className="mb-4 font-[family-name:var(--font-devanagari)] text-xs text-gold/50">{titleHi}</p>
+          <p className="mb-4 font-hindi text-xs text-gold/50">{titleHi}</p>
           <p className="text-caption">{text}</p>
           <div className="mt-7 flex items-center gap-2 text-label text-gold/45 transition-all duration-300 group-hover:gap-3 group-hover:text-gold/65">
             <span>Explore</span>
@@ -955,7 +955,7 @@ function Step({ num, title, titleHi, text, i }: {
         </div>
         <div className="pb-14">
           <h3 className="mb-1 text-xl font-semibold text-text">{title}</h3>
-          <p className="mb-2.5 font-[family-name:var(--font-devanagari)] text-[11px] text-gold/45">{titleHi}</p>
+          <p className="mb-2.5 font-hindi text-[11px] text-gold/45">{titleHi}</p>
           <p className="text-caption max-w-md">{text}</p>
         </div>
       </div>
@@ -995,7 +995,7 @@ function TraceabilityCard() {
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="overflow-hidden">
               <div className="border-t border-white/[0.04] pt-3 mt-1 space-y-2">
-                <p className="font-[family-name:var(--font-devanagari)] text-sm text-gold/60">
+                <p className="font-hindi text-sm text-gold/60">
                   पुत्रस्थाने गुरौ जाते विद्यावान् धनवान् सुखी
                 </p>
                 <p className="text-xs text-text-dim/65 italic">
@@ -1271,7 +1271,7 @@ export default function LandingPage() {
 
             {/* Hindi subtitle */}
             <BlurReveal delay={0.5}>
-              <p className="mb-7 font-[family-name:var(--font-devanagari)] text-xl text-gold/40 md:text-2xl">
+              <p className="mb-7 font-hindi text-xl text-gold/40 md:text-2xl">
                 आपके ग्रह, आपकी राह
               </p>
             </BlurReveal>
@@ -1593,7 +1593,7 @@ export default function LandingPage() {
                 Ancient Vedic wisdom meets modern AI. Your planets, your path —
                 decoded with precision.
               </p>
-              <p className="font-[family-name:var(--font-devanagari)] text-xs text-gold/35">
+              <p className="font-hindi text-xs text-gold/35">
                 आपके ग्रह, आपकी राह
               </p>
             </div>

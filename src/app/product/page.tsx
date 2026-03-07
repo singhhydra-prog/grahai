@@ -146,7 +146,7 @@ export default function ProductPage() {
                 <BlurReveal delay={0.1}>
                   <div className="flex items-baseline gap-3 mb-2">
                     <h2 className="text-3xl font-bold text-text lg:text-4xl">{science.title}</h2>
-                    <span className="font-[family-name:var(--font-devanagari)] text-sm text-gold/45">{science.titleHi}</span>
+                    <span className="font-hindi text-sm text-gold/45">{science.titleHi}</span>
                   </div>
                 </BlurReveal>
                 <BlurReveal delay={0.15}>

@@ -78,7 +78,7 @@ export default function AboutPage() {
           <div>
             <BlurReveal delay={0.2}>
               <div className="rounded-2xl border border-white/[0.04] bg-bg/50 p-10">
-                <p className="font-[family-name:var(--font-devanagari)] text-2xl text-gold/40 mb-6 leading-relaxed">
+                <p className="font-hindi text-2xl text-gold/40 mb-6 leading-relaxed">
                   &ldquo;ज्योतिषशास्त्रं वेदस्य चक्षुः&rdquo;
                 </p>
                 <p className="text-body italic mb-4">

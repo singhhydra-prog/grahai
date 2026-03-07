@@ -16,10 +16,21 @@ import {
   Settings,
   LogOut,
   ChevronRight,
-  Zap,
-  Crown,
+  Trophy,
+  FileText,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Calendar,
+  BookOpen,
 } from "lucide-react"
 import type { User } from "@supabase/supabase-js"
+import { useGamification } from "@/contexts/GamificationContext"
+import { CosmicScoreWidget } from "@/components/gamification/CosmicScoreWidget"
+import { DailyInsightCard } from "@/components/gamification/DailyInsightCard"
+import { StreakCalendar } from "@/components/gamification/StreakCalendar"
+import { AchievementShowcase } from "@/components/gamification/AchievementShowcase"
+import { AchievementModal } from "@/components/gamification/AchievementModal"
 
 interface UserProfile {
   full_name: string
@@ -27,6 +38,32 @@ interface UserProfile {
   interests: string[]
   subscription_tier: string
   birth_date: string | null
+}
+
+interface DailyInsightPreview {
+  headline: string
+  overall_trend: "positive" | "mixed" | "challenging"
+  panchang: { vara: string; tithi: string; nakshatra: string; specialDay?: string }
+  dasha_context: { mahadasha: string; antardasha: string }
+}
+
+const TREND_ICONS = {
+  positive: TrendingUp,
+  mixed: Minus,
+  challenging: TrendingDown,
+}
+
+const TREND_STYLES = {
+  positive: { color: "text-green", bg: "bg-green/10" },
+  mixed: { color: "text-saffron", bg: "bg-saffron/10" },
+  challenging: { color: "text-red", bg: "bg-red/10" },
+}
+
+const XP_MULTIPLIERS: Record<string, string> = {
+  astrology: "1.25x",
+  numerology: "1.1x",
+  tarot: "1.0x",
+  vastu: "1.15x",
 }
 
 const VERTICALS = [
@@ -76,11 +113,25 @@ const VERTICALS = [
   },
 ]
 
+function getReadingCount(gamification: ReturnType<typeof useGamification>, verticalId: string): number {
+  switch (verticalId) {
+    case "astrology": return gamification.readingsAstrology
+    case "numerology": return gamification.readingsNumerology
+    case "tarot": return gamification.readingsTarot
+    case "vastu": return gamification.readingsVastu
+    default: return 0
+  }
+}
+
 export default function DashboardPage() {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loadingState, setLoadingState] = useState(true)
+  const [showAchievements, setShowAchievements] = useState(false)
+  const [todayInsight, setTodayInsight] = useState<DailyInsightPreview | null>(null)
+  const [reportCount, setReportCount] = useState(0)
+  const gamification = useGamification()
 
   useEffect(() => {
     async function load() {
@@ -100,6 +151,28 @@ export default function DashboardPage() {
         .single()
 
       if (profileData) setProfile(profileData)
+
+      // Fetch today's insight preview (non-blocking)
+      const today = new Date().toISOString().split("T")[0]
+      supabase
+        .from("daily_insights")
+        .select("headline, overall_trend, panchang, dasha_context")
+        .eq("user_id", user.id)
+        .eq("date", today)
+        .single()
+        .then(({ data }: { data: DailyInsightPreview | null }) => {
+          if (data) setTodayInsight(data)
+        })
+
+      // Fetch report count (non-blocking)
+      supabase
+        .from("reports")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .then(({ count }: { count: number | null }) => {
+          if (count) setReportCount(count)
+        })
+
       setLoadingState(false)
     }
     load()
@@ -129,12 +202,11 @@ export default function DashboardPage() {
   }
 
   const displayName = profile?.display_name || profile?.full_name?.split(" ")[0] || "Explorer"
-  const tier = profile?.subscription_tier || "free"
 
   return (
     <main className="min-h-screen bg-deep-space">
       {/* Nav */}
-      <nav className="sticky top-0 z-50 border-b border-indigo/20 bg-deep-space/80 backdrop-blur-xl">
+      <nav className="sticky top-0 z-50 glass-nav">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-saffron" />
@@ -143,6 +215,13 @@ export default function DashboardPage() {
             </span>
           </div>
           <div className="flex items-center gap-4">
+            <button
+              onClick={() => setShowAchievements(true)}
+              className="rounded-lg p-2 text-cosmic-white/40 transition-colors hover:bg-indigo/20 hover:text-saffron"
+              title="Achievements"
+            >
+              <Trophy className="h-5 w-5" />
+            </button>
             <button className="rounded-lg p-2 text-cosmic-white/40 transition-colors hover:bg-indigo/20 hover:text-cosmic-white">
               <History className="h-5 w-5" />
             </button>
@@ -159,38 +238,48 @@ export default function DashboardPage() {
         </div>
       </nav>
 
-      <div className="mx-auto max-w-6xl px-6 py-10">
+      <div className="mx-auto max-w-6xl px-6 py-8">
         {/* Greeting */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-10"
+          className="mb-6"
         >
-          <h1 className="text-3xl font-bold text-cosmic-white">
+          <h1 className="text-3xl font-bold text-white">
             {getGreeting()},{" "}
-            <span className="gradient-text">{displayName}</span>
+            <span className="gold-text">{displayName}</span>
           </h1>
-          <p className="mt-2 text-cosmic-white/40">
-            What would you like to explore today?
+          <p className="mt-1 text-white/40">
+            The stars are aligned — what would you like to explore today?
           </p>
-          {tier === "free" && (
-            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-saffron/20 bg-saffron/5 px-4 py-1.5 text-xs">
-              <Crown className="h-3.5 w-3.5 text-saffron" />
-              <span className="text-saffron/80">Free Plan</span>
-              <span className="text-cosmic-white/30">·</span>
-              <a href="#" className="font-medium text-saffron hover:underline">
-                Upgrade for unlimited readings
-              </a>
-            </div>
-          )}
+        </motion.div>
+
+        {/* Cosmic Score Widget — XP bar, level, streak */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="mb-6"
+        >
+          <CosmicScoreWidget />
+        </motion.div>
+
+        {/* Daily Insight Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-8"
+        >
+          <DailyInsightCard />
         </motion.div>
 
         {/* Quick Chat */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-10"
+          transition={{ delay: 0.15 }}
+          className="mb-8"
         >
           <Link href="/chat" className="group block cursor-pointer rounded-2xl border border-indigo/30 bg-navy-light/30 p-6 transition-all hover:border-saffron/30 hover:bg-navy-light/50">
             <div className="flex items-center gap-4">
@@ -202,8 +291,7 @@ export default function DashboardPage() {
                   Ask anything about your stars
                 </h2>
                 <p className="mt-0.5 text-sm text-cosmic-white/40">
-                  Chat with our AI for personalized insights across all
-                  verticals
+                  Chat with our AI for personalized insights across all verticals
                 </p>
               </div>
               <ChevronRight className="h-5 w-5 text-cosmic-white/20 transition-colors group-hover:text-saffron" />
@@ -211,8 +299,110 @@ export default function DashboardPage() {
           </Link>
         </motion.div>
 
-        {/* Verticals Grid */}
-        <div className="mb-10">
+        {/* Daily Insight Preview + Reports CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.17 }}
+          className="mb-8 grid gap-4 sm:grid-cols-2"
+        >
+          {/* Today's Insight Preview */}
+          <Link href="/daily" className="group block">
+            <div className="h-full rounded-2xl border border-indigo/20 bg-gradient-to-br from-gold/5 to-transparent p-5 transition-all hover:border-gold/30 hover:bg-gold/5">
+              {todayInsight ? (
+                <>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-gold" />
+                      <span className="text-xs font-semibold text-cosmic-white/60 uppercase tracking-wider">
+                        Today&apos;s Insight
+                      </span>
+                    </div>
+                    {(() => {
+                      const TIcon = TREND_ICONS[todayInsight.overall_trend] || Minus
+                      const style = TREND_STYLES[todayInsight.overall_trend] || TREND_STYLES.mixed
+                      return (
+                        <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full ${style.bg}`}>
+                          <TIcon className={`h-3 w-3 ${style.color}`} />
+                          <span className={`text-[10px] font-medium ${style.color} capitalize`}>
+                            {todayInsight.overall_trend}
+                          </span>
+                        </div>
+                      )
+                    })()}
+                  </div>
+                  <p className="text-sm font-medium text-cosmic-white mb-2 line-clamp-2">
+                    {todayInsight.headline}
+                  </p>
+                  <div className="flex items-center gap-3 text-[11px] text-cosmic-white/40">
+                    <span>{todayInsight.panchang?.vara}</span>
+                    <span>·</span>
+                    <span>{todayInsight.panchang?.tithi}</span>
+                    <span>·</span>
+                    <span>{todayInsight.dasha_context?.mahadasha} Dasha</span>
+                  </div>
+                  {todayInsight.panchang?.specialDay && (
+                    <div className="mt-2 flex items-center gap-1">
+                      <Star className="h-3 w-3 text-saffron" />
+                      <span className="text-[10px] text-saffron font-medium">
+                        {todayInsight.panchang.specialDay}
+                      </span>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Calendar className="h-4 w-4 text-gold/40" />
+                    <span className="text-xs font-semibold text-cosmic-white/40 uppercase tracking-wider">
+                      Daily Insight
+                    </span>
+                  </div>
+                  <p className="text-sm text-cosmic-white/40 mb-1">
+                    Your personalized horoscope
+                  </p>
+                  <p className="text-xs text-cosmic-white/25">
+                    Generated daily at 6:00 AM IST
+                  </p>
+                </>
+              )}
+              <div className="mt-3 flex items-center gap-1 text-xs text-gold/60 group-hover:text-gold transition-colors">
+                View Full Insight <ChevronRight className="h-3.5 w-3.5" />
+              </div>
+            </div>
+          </Link>
+
+          {/* Reports CTA */}
+          <Link href="/reports" className="group block">
+            <div className="h-full rounded-2xl border border-indigo/20 bg-gradient-to-br from-saffron/5 to-transparent p-5 transition-all hover:border-saffron/30 hover:bg-saffron/5">
+              <div className="flex items-center gap-2 mb-3">
+                <FileText className="h-4 w-4 text-saffron" />
+                <span className="text-xs font-semibold text-cosmic-white/60 uppercase tracking-wider">
+                  Kundli Reports
+                </span>
+              </div>
+              <p className="text-sm font-medium text-cosmic-white mb-1">
+                Professional PDF Analysis
+              </p>
+              <p className="text-xs text-cosmic-white/40 mb-2">
+                12+ page report with charts, Dasha timeline, yogas, doshas, and BPHS references
+              </p>
+              <div className="flex items-center gap-3">
+                {reportCount > 0 && (
+                  <span className="text-[10px] text-cosmic-white/25">
+                    {reportCount} report{reportCount !== 1 ? "s" : ""} generated
+                  </span>
+                )}
+              </div>
+              <div className="mt-3 flex items-center gap-1 text-xs text-saffron/60 group-hover:text-saffron transition-colors">
+                {reportCount > 0 ? "View Reports" : "Generate Report"} <ChevronRight className="h-3.5 w-3.5" />
+              </div>
+            </div>
+          </Link>
+        </motion.div>
+
+        {/* Verticals Grid — with XP multiplier + reading count */}
+        <div className="mb-8">
           <h2 className="mb-5 text-lg font-semibold text-cosmic-white">
             Explore Readings
           </h2>
@@ -220,30 +410,46 @@ export default function DashboardPage() {
             {VERTICALS.map((v, i) => {
               const Icon = v.icon
               const isInterested = profile?.interests?.includes(v.id)
+              const readingCount = getReadingCount(gamification, v.id)
+              const multiplier = XP_MULTIPLIERS[v.id]
               return (
                 <Link key={v.id} href={`/chat?v=${v.id}`}>
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15 + i * 0.08 }}
+                    transition={{ delay: 0.2 + i * 0.08 }}
                     className={`group cursor-pointer rounded-2xl border ${v.border} bg-gradient-to-br ${v.color} p-6 transition-all hover:scale-[1.03]`}
                   >
                     <div className="mb-4 flex items-start justify-between">
                       <span className="text-3xl">{v.emoji}</span>
-                      {isInterested && (
-                        <span className="rounded-full bg-saffron/20 px-2 py-0.5 text-[10px] font-medium text-saffron">
-                          Your pick
-                        </span>
-                      )}
+                      <div className="flex flex-col items-end gap-1">
+                        {isInterested && (
+                          <span className="rounded-full bg-saffron/20 px-2 py-0.5 text-[10px] font-medium text-saffron">
+                            Your pick
+                          </span>
+                        )}
+                        {multiplier && (
+                          <span className="rounded-full bg-mint/10 px-2 py-0.5 text-[10px] font-medium text-mint/80">
+                            {multiplier} XP
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <h3 className="font-semibold text-cosmic-white">{v.name}</h3>
-                    <p className="font-[family-name:var(--font-devanagari)] text-xs text-saffron/50">
+                    <p className="font-hindi text-xs text-saffron/50">
                       {v.nameHi}
                     </p>
                     <p className="mt-2 text-sm text-cosmic-white/40">{v.desc}</p>
-                    <div className="mt-4 flex items-center gap-1 text-xs font-medium text-saffron/60 transition-colors group-hover:text-saffron">
-                      Start Reading
-                      <ChevronRight className="h-3.5 w-3.5" />
+                    <div className="mt-4 flex items-center justify-between">
+                      <div className="flex items-center gap-1 text-xs font-medium text-saffron/60 transition-colors group-hover:text-saffron">
+                        Start Reading
+                        <ChevronRight className="h-3.5 w-3.5" />
+                      </div>
+                      {readingCount > 0 && (
+                        <span className="text-[10px] text-cosmic-white/25">
+                          {readingCount} reading{readingCount !== 1 ? "s" : ""}
+                        </span>
+                      )}
                     </div>
                   </motion.div>
                 </Link>
@@ -252,67 +458,43 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="mb-10">
+        {/* Streak Calendar — activity heatmap */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="mb-8"
+        >
           <h2 className="mb-5 text-lg font-semibold text-cosmic-white">
-            Quick Actions
+            Activity
           </h2>
-          <div className="grid gap-4 sm:grid-cols-3">
-            {[
-              {
-                icon: Zap,
-                label: "Daily Horoscope",
-                desc: "Today's cosmic energy",
-                color: "text-saffron",
-              },
-              {
-                icon: Star,
-                label: "Compatibility Check",
-                desc: "Match your stars",
-                color: "text-mint",
-              },
-              {
-                icon: Moon,
-                label: "Moon Phase",
-                desc: "Lunar insights today",
-                color: "text-[#7B68EE]",
-              },
-            ].map((action, i) => {
-              const Icon = action.icon
-              return (
-                <motion.div
-                  key={action.label}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 + i * 0.08 }}
-                  className="group cursor-pointer rounded-xl border border-indigo/20 bg-navy-light/20 p-5 transition-all hover:border-indigo/40 hover:bg-navy-light/40"
-                >
-                  <Icon className={`mb-3 h-5 w-5 ${action.color}`} />
-                  <h3 className="text-sm font-medium text-cosmic-white">
-                    {action.label}
-                  </h3>
-                  <p className="mt-0.5 text-xs text-cosmic-white/30">
-                    {action.desc}
-                  </p>
-                </motion.div>
-              )
-            })}
-          </div>
-        </div>
+          <StreakCalendar />
+        </motion.div>
 
-        {/* Recent Readings (placeholder) */}
-        <div>
-          <h2 className="mb-5 text-lg font-semibold text-cosmic-white">
-            Recent Readings
-          </h2>
-          <div className="rounded-2xl border border-indigo/20 bg-navy-light/10 p-12 text-center">
-            <History className="mx-auto mb-3 h-8 w-8 text-cosmic-white/20" />
-            <p className="text-sm text-cosmic-white/30">
-              No readings yet. Start exploring to see your history here.
-            </p>
+        {/* Achievement Showcase */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mb-8"
+        >
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-lg font-semibold text-cosmic-white">
+              Achievements
+            </h2>
+            <button
+              onClick={() => setShowAchievements(true)}
+              className="text-xs text-saffron/60 hover:text-saffron transition-colors"
+            >
+              View All
+            </button>
           </div>
-        </div>
+          <AchievementShowcase />
+        </motion.div>
       </div>
+
+      {/* Achievement Modal */}
+      <AchievementModal show={showAchievements} onClose={() => setShowAchievements(false)} />
     </main>
   )
 }

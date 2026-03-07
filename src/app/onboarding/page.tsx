@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
+import type { User as SupabaseUser } from "@supabase/supabase-js"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Sparkles,
@@ -61,7 +62,7 @@ export default function OnboardingPage() {
 
   // Pre-fill from auth user
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(({ data: { user } }: { data: { user: SupabaseUser | null } }) => {
       if (user?.user_metadata) {
         setForm((f) => ({
           ...f,
@@ -112,6 +113,40 @@ export default function OnboardingPage() {
       })
 
       if (error) throw error
+
+      // Initialize gamification — create user_stats + unlock "New Seeker"
+      try {
+        await supabase.from("user_stats").upsert({
+          user_id: user.id,
+          current_level: 1,
+          total_xp: 0,
+          xp_to_next_level: 100,
+          daily_streak: 0,
+          longest_streak: 0,
+          last_activity_date: new Date().toISOString().split("T")[0],
+          readings_total: 0,
+          readings_astrology: 0,
+          readings_numerology: 0,
+          readings_tarot: 0,
+          readings_vastu: 0,
+        })
+
+        const { data: achievement } = await supabase
+          .from("achievements")
+          .select("id")
+          .eq("slug", "new_seeker")
+          .single()
+
+        if (achievement) {
+          await supabase.from("user_achievements").upsert({
+            user_id: user.id,
+            achievement_id: achievement.id,
+            unlocked_at: new Date().toISOString(),
+          })
+        }
+      } catch {
+        // Gamification init failure shouldn't block onboarding
+      }
 
       router.push("/dashboard")
     } catch (err) {
@@ -373,7 +408,7 @@ export default function OnboardingPage() {
                           >
                             {interest.label}
                           </span>
-                          <span className="font-[family-name:var(--font-devanagari)] text-xs text-cosmic-white/30">
+                          <span className="font-hindi text-xs text-cosmic-white/30">
                             {interest.labelHi}
                           </span>
                         </button>

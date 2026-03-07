@@ -131,7 +131,7 @@ export default function PricingPage() {
                 <div className="mb-8">
                   <div className="flex items-baseline gap-2 mb-1">
                     <h3 className="text-xl font-bold text-text">{plan.name}</h3>
-                    <span className="font-[family-name:var(--font-devanagari)] text-xs text-gold/45">{plan.nameHi}</span>
+                    <span className="font-hindi text-xs text-gold/45">{plan.nameHi}</span>
                   </div>
                   <p className="text-caption mb-6">{plan.description}</p>
                   <div className="flex items-baseline gap-1">
