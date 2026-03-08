@@ -5,6 +5,8 @@ import { motion, useScroll, useTransform, useInView, useMotionValueEvent, Animat
 import { ArrowRight, ArrowDown, Check, Loader2, Star, Shield, Zap, Globe, BookOpen, Eye, MessageCircle, Lock, Sparkles } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import Link from "next/link"
+import CosmicSnapshot from "@/components/CosmicSnapshot"
+import ExitIntentPopup from "@/components/ExitIntentPopup"
 
 /* ────────────────────────────────────────────────────
    CONSTANTS — deterministic so SSR = client
@@ -1337,6 +1339,11 @@ export default function LandingPage() {
       <VerseTicker />
 
       {/* ═══════════════════════════════════════════
+          COSMIC SNAPSHOT — Zero-Signup Mini Reading
+          ═══════════════════════════════════════════ */}
+      <CosmicSnapshot />
+
+      {/* ═══════════════════════════════════════════
           COSMIC COMPASS QUIZ
           ═══════════════════════════════════════════ */}
       <CosmicCompassQuiz />
@@ -1620,6 +1627,9 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* ─── Exit Intent Popup ─── */}
+      <ExitIntentPopup />
 
       {/* ─── Floating Chat Button ─── */}
       <Link href="/chat">
