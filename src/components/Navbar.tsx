@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { ArrowRight, MessageCircle } from "lucide-react"
+import { ArrowRight, MessageCircle, ChevronDown } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -47,11 +47,18 @@ export function Navbar() {
     return pathname === path
   }
 
+  const [productsOpen, setProductsOpen] = useState(false)
+
+  const productLinks = [
+    { href: "/kundli", label: "Birth Chart (Kundli)" },
+    { href: "/horoscope", label: "Daily Horoscope" },
+    { href: "/compatibility", label: "Compatibility" },
+    { href: "/astrologer", label: "AI Astrologer" },
+  ]
+
   const navLinks = [
-    { href: "/product", label: "Product" },
     { href: "/pricing", label: "Pricing" },
     { href: "/about", label: "About" },
-    { href: "/#sciences", label: "Sciences" },
   ]
 
   return (
@@ -78,7 +85,40 @@ export function Navbar() {
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden items-center gap-10 md:flex">
+        <div className="hidden items-center gap-8 md:flex">
+          {/* Products Dropdown */}
+          <div
+            className="relative"
+            onMouseEnter={() => setProductsOpen(true)}
+            onMouseLeave={() => setProductsOpen(false)}
+          >
+            <button className="flex items-center gap-1 text-[11px] font-semibold tracking-[0.15em] uppercase text-text-dim/50 hover:text-text/80 transition-colors">
+              Products
+              <ChevronDown className={`h-3 w-3 transition-transform ${productsOpen ? "rotate-180" : ""}`} />
+            </button>
+            {productsOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 rounded-xl border border-white/[0.06] bg-bg-card/95 backdrop-blur-xl shadow-2xl shadow-black/40 py-2 z-50"
+              >
+                {productLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`block px-4 py-2.5 text-[11px] font-medium tracking-wide transition-colors ${
+                      isActive(link.href)
+                        ? "text-gold/80 bg-gold/[0.05]"
+                        : "text-text-dim/60 hover:text-text/80 hover:bg-white/[0.03]"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </motion.div>
+            )}
+          </div>
+
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -93,15 +133,15 @@ export function Navbar() {
             </Link>
           ))}
 
-          {/* Chat Link */}
+          {/* AI Astrologer Link */}
           <Link
-            href="/chat"
+            href="/astrologer"
             className={`flex items-center gap-2 text-[11px] font-semibold tracking-[0.15em] uppercase transition-colors ${
-              isActive("/chat") ? "text-gold/70" : "text-text-dim/50 hover:text-text/80"
+              isActive("/astrologer") ? "text-gold/70" : "text-text-dim/50 hover:text-text/80"
             }`}
           >
             <MessageCircle className="h-4 w-4" />
-            Chat
+            Ask AI
           </Link>
 
           {/* Early Access CTA */}
@@ -151,6 +191,25 @@ export function Navbar() {
         className="overflow-hidden md:hidden border-t border-white/[0.04]"
       >
         <div className="flex flex-col gap-4 px-6 py-6 bg-bg/50 backdrop-blur-sm">
+          {/* Product links in mobile */}
+          <p className="text-[9px] tracking-[0.2em] uppercase text-gold/40 font-semibold">Products</p>
+          {productLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={() => setMobileMenuOpen(false)}
+              className={`text-sm font-semibold tracking-[0.1em] transition-colors pl-2 ${
+                isActive(link.href)
+                  ? "text-gold/70"
+                  : "text-text-dim/50 hover:text-text/80"
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
+
+          <div className="h-px bg-white/[0.04]" />
+
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -166,14 +225,14 @@ export function Navbar() {
             </Link>
           ))}
 
-          {/* Mobile Chat Link */}
+          {/* Mobile AI Astrologer Link */}
           <Link
-            href="/chat"
+            href="/astrologer"
             onClick={() => setMobileMenuOpen(false)}
             className="flex items-center gap-2 text-sm font-semibold tracking-[0.15em] uppercase text-text-dim/50 hover:text-text/80 transition-colors"
           >
             <MessageCircle className="h-4 w-4" />
-            Chat
+            Ask AI
           </Link>
 
           {/* Mobile CTA */}
