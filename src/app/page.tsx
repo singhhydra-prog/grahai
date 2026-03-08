@@ -7,6 +7,12 @@ import { supabase } from "@/lib/supabase"
 import Link from "next/link"
 import CosmicSnapshot from "@/components/CosmicSnapshot"
 import ExitIntentPopup from "@/components/ExitIntentPopup"
+import AskOneQuestion from "@/components/AskOneQuestion"
+import DecodeYourName from "@/components/DecodeYourName"
+import VerseOfTheDay from "@/components/VerseOfTheDay"
+import WeeklyTransitBrief from "@/components/WeeklyTransitBrief"
+import PricingSection from "@/components/PricingSection"
+import WhatsAppCTA from "@/components/WhatsAppCTA"
 
 /* ────────────────────────────────────────────────────
    CONSTANTS — deterministic so SSR = client
@@ -1344,6 +1350,16 @@ export default function LandingPage() {
       <CosmicSnapshot />
 
       {/* ═══════════════════════════════════════════
+          ASK ONE QUESTION — 3-Click Clarity
+          ═══════════════════════════════════════════ */}
+      <AskOneQuestion />
+
+      {/* ═══════════════════════════════════════════
+          DECODE YOUR NAME — Viral Numerology
+          ═══════════════════════════════════════════ */}
+      <DecodeYourName />
+
+      {/* ═══════════════════════════════════════════
           COSMIC COMPASS QUIZ
           ═══════════════════════════════════════════ */}
       <CosmicCompassQuiz />
@@ -1440,6 +1456,16 @@ export default function LandingPage() {
       <DailyPanchang />
 
       {/* ═══════════════════════════════════════════
+          VERSE OF THE DAY — Classical Wisdom
+          ═══════════════════════════════════════════ */}
+      <VerseOfTheDay />
+
+      {/* ═══════════════════════════════════════════
+          THIS WEEK IN THE STARS — Transit Brief
+          ═══════════════════════════════════════════ */}
+      <WeeklyTransitBrief />
+
+      {/* ═══════════════════════════════════════════
           TESTIMONIALS
           ═══════════════════════════════════════════ */}
       <section id="testimonials" className="relative py-28 lg:py-40">
@@ -1523,6 +1549,11 @@ export default function LandingPage() {
           GAMIFICATION VISUALIZATION
           ═══════════════════════════════════════════ */}
       <GamificationVisualization />
+
+      {/* ═══════════════════════════════════════════
+          PRICING — Geo-Based Plans + Micro-Transactions
+          ═══════════════════════════════════════════ */}
+      <PricingSection />
 
       {/* ═══════════════════════════════════════════
           FINAL CTA — with waitlist form
@@ -1631,13 +1662,16 @@ export default function LandingPage() {
       {/* ─── Exit Intent Popup ─── */}
       <ExitIntentPopup />
 
+      {/* ─── WhatsApp Floating CTA ─── */}
+      <WhatsAppCTA />
+
       {/* ─── Floating Chat Button ─── */}
       <Link href="/chat">
         <motion.div
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 2, type: "spring", stiffness: 200, damping: 20 }}
-          className="fixed bottom-6 right-6 z-50 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-gradient-to-br from-[#C9A24D] to-[#E2C474] shadow-lg shadow-[#C9A24D]/30 transition-transform hover:scale-110"
+          className="fixed bottom-6 left-6 z-50 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-gradient-to-br from-[#C9A24D] to-[#E2C474] shadow-lg shadow-[#C9A24D]/30 transition-transform hover:scale-110"
         >
           <MessageCircle className="h-6 w-6 text-[#0B0E1A]" />
         </motion.div>
