@@ -10,12 +10,12 @@
    ════════════════════════════════════════════════════════ */
 
 import { useState, useRef, useEffect, useCallback } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import {
-  Send, Sparkles, Star, Moon, Sun, Heart,
-  Briefcase, Brain, ArrowRight, ChevronRight,
-  MessageCircle, Mic, Zap, Eye, RefreshCw,
-  ArrowUp, User, Bot, Loader2
+  Sparkles, Star, Moon, Sun, Heart,
+  Briefcase, Brain, ArrowRight,
+  Zap,
+  ArrowUp,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -38,7 +38,6 @@ interface QuickQuestion {
 
 // ─── Astronomical Helpers (Meeus-style client-side) ─────
 
-const PI2 = Math.PI * 2
 const DEG = Math.PI / 180
 function norm360(a: number) { return ((a % 360) + 360) % 360 }
 
@@ -140,10 +139,6 @@ function toSid(tropical: number, jd: number): number {
 const SIGNS = [
   "Aries","Taurus","Gemini","Cancer","Leo","Virgo",
   "Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"
-]
-const SIGN_LORDS = [
-  "Mars","Venus","Mercury","Moon","Sun","Mercury",
-  "Venus","Mars","Jupiter","Saturn","Saturn","Jupiter"
 ]
 const NAKSHATRAS = [
   "Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra",
