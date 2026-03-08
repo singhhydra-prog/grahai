@@ -86,7 +86,134 @@ const ELEMENT_COLORS: Record<string, string> = {
   Water: "#8B8BCD",
 }
 
-// ─── Deterministic prediction generator ─────────────────
+// ─── Astronomical Helpers ─────────────────────────────────
+
+const NAKSHATRA_NAMES = [
+  "Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashira", "Ardra",
+  "Punarvasu", "Pushya", "Ashlesha", "Magha", "Purva Phalguni",
+  "Uttara Phalguni", "Hasta", "Chitra", "Swati", "Vishakha",
+  "Anuradha", "Jyeshtha", "Mula", "Purva Ashadha", "Uttara Ashadha",
+  "Shravana", "Dhanishta", "Shatabhisha", "Purva Bhadrapada",
+  "Uttara Bhadrapada", "Revati",
+]
+
+const TITHI_NAMES = [
+  "Pratipada", "Dwitiya", "Tritiya", "Chaturthi", "Panchami",
+  "Shashthi", "Saptami", "Ashtami", "Navami", "Dashami",
+  "Ekadashi", "Dwadashi", "Trayodashi", "Chaturdashi", "Purnima",
+  "Pratipada", "Dwitiya", "Tritiya", "Chaturthi", "Panchami",
+  "Shashthi", "Saptami", "Ashtami", "Navami", "Dashami",
+  "Ekadashi", "Dwadashi", "Trayodashi", "Chaturdashi", "Amavasya",
+]
+
+const YOGA_NAMES = [
+  "Vishkambha", "Preeti", "Ayushman", "Saubhagya", "Shobhana",
+  "Atiganda", "Sukarma", "Dhriti", "Shula", "Ganda",
+  "Vriddhi", "Dhruva", "Vyaghata", "Harshana", "Vajra",
+  "Siddhi", "Vyatipata", "Variyana", "Parigha", "Shiva",
+  "Siddha", "Sadhya", "Shubha", "Shukla", "Brahma",
+  "Indra", "Vaidhriti",
+]
+
+const KARANA_NAMES = [
+  "Bava", "Balava", "Kaulava", "Taitila", "Garija", "Vanija", "Vishti",
+  "Shakuni", "Chatushpada", "Nagava", "Kimstughna",
+]
+
+const VARA_NAMES = [
+  "Ravivara (Sunday)", "Somavara (Monday)", "Mangalavara (Tuesday)",
+  "Budhavara (Wednesday)", "Guruvara (Thursday)", "Shukravara (Friday)",
+  "Shanivara (Saturday)",
+]
+
+/** Rahu Kaal is fixed per weekday (for a ~6AM sunrise city like Delhi) */
+const RAHUKAAL_TABLE: Record<number, string> = {
+  0: "4:30 PM – 6:00 PM",
+  1: "7:30 AM – 9:00 AM",
+  2: "3:00 PM – 4:30 PM",
+  3: "12:00 PM – 1:30 PM",
+  4: "1:30 PM – 3:00 PM",
+  5: "10:30 AM – 12:00 PM",
+  6: "9:00 AM – 10:30 AM",
+}
+
+/** Meeus-style Sun longitude (tropical, degrees) */
+function computeSunLong(jde: number): number {
+  const T = (jde - 2451545.0) / 36525.0
+  const L0 = (280.46646 + 36000.76983 * T + 0.0003032 * T * T) % 360
+  const M = ((357.52911 + 35999.05029 * T - 0.0001537 * T * T) % 360) * Math.PI / 180
+  const C = (1.914602 - 0.004817 * T) * Math.sin(M) + 0.019993 * Math.sin(2 * M) + 0.000290 * Math.sin(3 * M)
+  let lon = (L0 + C) % 360
+  if (lon < 0) lon += 360
+  return lon
+}
+
+/** Simplified Moon longitude (tropical, degrees) — Brown model approx */
+function computeMoonLong(jde: number): number {
+  const T = (jde - 2451545.0) / 36525.0
+  const Lp = (218.3165 + 481267.8813 * T) % 360
+  const D = ((297.8502 + 445267.1115 * T) % 360) * Math.PI / 180
+  const M = ((357.5291 + 35999.0503 * T) % 360) * Math.PI / 180
+  const Mp = ((134.9634 + 477198.8676 * T) % 360) * Math.PI / 180
+  const F = ((93.2720 + 483202.0175 * T) % 360) * Math.PI / 180
+  let lon = Lp
+    + 6.289 * Math.sin(Mp)
+    - 1.274 * Math.sin(2 * D - Mp)
+    + 0.658 * Math.sin(2 * D)
+    + 0.214 * Math.sin(2 * Mp)
+    - 0.186 * Math.sin(M)
+    - 0.114 * Math.sin(2 * F)
+    + 0.059 * Math.sin(2 * D - 2 * Mp)
+    + 0.057 * Math.sin(2 * D - M - Mp)
+  lon = lon % 360
+  if (lon < 0) lon += 360
+  return lon
+}
+
+/** Convert a YYYY-MM-DD string + noon IST → Julian Day Number */
+function dateToJDE(dateStr: string): number {
+  const [y, m, d] = dateStr.split("-").map(Number)
+  // noon IST = 06:30 UT
+  const utHour = 6.5
+  let Y = y, M = m
+  if (M <= 2) { Y -= 1; M += 12 }
+  const A = Math.floor(Y / 100)
+  const B = 2 - A + Math.floor(A / 4)
+  return Math.floor(365.25 * (Y + 4716)) + Math.floor(30.6001 * (M + 1)) + d + utHour / 24 + B - 1524.5
+}
+
+/** Lahiri ayanamsa approximation */
+function lahiriAyanamsa(jde: number): number {
+  const T = (jde - 2451545.0) / 36525.0
+  return 23.85 + 0.0137 * (jde - 2451545.0) / 365.25
+}
+
+/** Tropical → Sidereal */
+function toSidereal(tropical: number, jde: number): number {
+  let s = tropical - lahiriAyanamsa(jde)
+  if (s < 0) s += 360
+  if (s >= 360) s -= 360
+  return s
+}
+
+/** Approximate sunrise for Indian latitudes (~28°N) */
+function approxSunrise(dateStr: string): { rise: string; set: string } {
+  const [y, m] = dateStr.split("-").map(Number)
+  // Simple sinusoidal model for Delhi-ish latitude
+  const dayOfYear = Math.floor((Date.UTC(y, m - 1, parseInt(dateStr.split("-")[2])) - Date.UTC(y, 0, 0)) / 86400000)
+  const riseBase = 6.0 + 0.6 * Math.cos(2 * Math.PI * (dayOfYear - 172) / 365)
+  const setBase = 18.0 + 0.8 * Math.cos(2 * Math.PI * (dayOfYear - 172) / 365)
+  const fmt = (h: number) => {
+    const hr = Math.floor(h)
+    const mn = Math.round((h - hr) * 60)
+    const ampm = hr >= 12 ? "PM" : "AM"
+    const h12 = hr > 12 ? hr - 12 : hr === 0 ? 12 : hr
+    return `${h12}:${mn.toString().padStart(2, "0")} ${ampm}`
+  }
+  return { rise: fmt(riseBase), set: fmt(setBase) }
+}
+
+// ─── Deterministic PRNG for stable text selection ─────────
 
 function seedRandom(seed: number): () => number {
   let s = seed
@@ -96,185 +223,276 @@ function seedRandom(seed: number): () => number {
   }
 }
 
+// ─── Ruler-Aware Prediction Content ──────────────────────
+
+/** Each sign ruler gets specific flavour for predictions */
+const RULER_CONTENT: Record<string, {
+  mantras: string[];
+  remedies: string[];
+  colors: string[];
+  numbers: number[];
+  avoids: string[];
+}> = {
+  Mars: {
+    mantras: ["ॐ अं अंगारकाय नमः — Om Ang Angarakaya Namah", "ॐ क्रां क्रीं क्रौं सः भौमाय नमः — Om Kraam Kreem Kraum Sah Bhaumaya Namah"],
+    remedies: ["Offer red flowers at a Hanuman temple. Recite Hanuman Chalisa for Mars's blessings.", "Donate blood or red lentils on Tuesday to strengthen Mars's positive influence."],
+    colors: ["Red", "Saffron", "Coral"],
+    numbers: [9, 18, 27],
+    avoids: ["Avoid losing your temper before noon — Mars amplifies aggression today.", "Do not start construction or demolition work today."],
+  },
+  Venus: {
+    mantras: ["ॐ शुक्राय नमः — Om Shukraya Namah", "ॐ द्रां द्रीं द्रौं सः शुक्राय नमः — Om Draam Dreem Draum Sah Shukraya Namah"],
+    remedies: ["Offer white flowers or rice to a temple. Venus responds to beauty and devotion.", "Wear white or cream clothing today to harmonize with Venus's energy."],
+    colors: ["White", "Cream", "Pink"],
+    numbers: [6, 15, 24],
+    avoids: ["Avoid arguments with your partner — Venus makes conflicts linger today.", "Skip heavy, oily foods to keep Venus's digestive influence balanced."],
+  },
+  Mercury: {
+    mantras: ["ॐ बुं बुधाय नमः — Om Bum Budhaya Namah", "ॐ ब्रां ब्रीं ब्रौं सः बुधाय नमः — Om Braam Breem Braum Sah Budhaya Namah"],
+    remedies: ["Donate green vegetables or moong dal on Wednesday for Mercury's blessings.", "Write down your goals today — Mercury rewards clarity of thought and intention."],
+    colors: ["Green", "Emerald", "Light Green"],
+    numbers: [5, 14, 23],
+    avoids: ["Avoid signing important documents without thorough review.", "Don't multitask excessively — Mercury wants focused attention today."],
+  },
+  Moon: {
+    mantras: ["ॐ चन्द्राय नमः — Om Chandraya Namah", "ॐ श्रां श्रीं श्रौं सः चन्द्राय नमः — Om Shraam Shreem Shraum Sah Chandraya Namah"],
+    remedies: ["Offer milk or water to a Shiva lingam. The Moon responds to acts of devotion.", "Wear pearl or moonstone to strengthen the Moon's calming influence."],
+    colors: ["Silver", "White", "Pearl"],
+    numbers: [2, 11, 20],
+    avoids: ["Avoid emotional decisions this evening — the Moon amplifies reactivity.", "Do not travel over water bodies during evening hours today."],
+  },
+  Sun: {
+    mantras: ["ॐ सूर्याय नमः — Om Suryaya Namah", "ॐ ह्रां ह्रीं ह्रौं सः सूर्याय नमः — Om Hraam Hreem Hraum Sah Suryaya Namah"],
+    remedies: ["Offer water to the Sun at sunrise while chanting Gayatri mantra 11 times.", "Wear a ruby or garnet to strengthen the Sun's vitality in your chart."],
+    colors: ["Gold", "Saffron", "Orange"],
+    numbers: [1, 10, 19],
+    avoids: ["Avoid ego conflicts with authority figures — the Sun intensifies pride today.", "Don't skip meals, especially breakfast — the Sun governs digestive fire."],
+  },
+  Jupiter: {
+    mantras: ["ॐ बृहस्पतये नमः — Om Brihaspataye Namah", "ॐ ग्रां ग्रीं ग्रौं सः गुरवे नमः — Om Graam Greem Graum Sah Gurave Namah"],
+    remedies: ["Apply turmeric tilak and visit a temple on Thursday for Jupiter's blessings.", "Teach or mentor someone today — Jupiter rewards the sharing of knowledge."],
+    colors: ["Yellow", "Gold", "Turmeric"],
+    numbers: [3, 12, 21],
+    avoids: ["Avoid dishonesty or exaggeration — Jupiter penalizes falsehood swiftly.", "Don't ignore the advice of elders or teachers today."],
+  },
+  Saturn: {
+    mantras: ["ॐ शनैश्चराय नमः — Om Shanaishcharaya Namah", "ॐ प्रां प्रीं प्रौं सः शनैश्चराय नमः — Om Praam Preem Praum Sah Shanaishcharaya Namah"],
+    remedies: ["Feed the needy or donate black sesame seeds on Saturday for Saturn's grace.", "Light a sesame oil lamp under a Peepal tree in the evening."],
+    colors: ["Blue", "Black", "Indigo"],
+    numbers: [8, 17, 26],
+    avoids: ["Avoid laziness and procrastination — Saturn rewards discipline, punishes sloth.", "Don't waste food or resources today — Saturn watches for extravagance."],
+  },
+}
+
+/** Sign-specific overall prediction templates keyed by ruler planet */
+function getOverallPrediction(sign: SignData, moonSignName: string, nakName: string, rand: () => number): string {
+  const ruler = sign.ruler
+  const templates: Record<string, string[]> = {
+    Mars: [
+      `Mars, your ruling planet, activates your house of ambition today. The Moon in ${moonSignName} under ${nakName} nakshatra channels raw energy into purposeful action. Trust your instincts — your decisiveness is your superpower right now.`,
+      `With Mars energizing your sector, today rewards bold moves and physical activity. The ${nakName} nakshatra adds a layer of strategic precision. Channel aggression into competitive drive rather than conflict.`,
+    ],
+    Venus: [
+      `Venus graces your sign with beauty and harmony today. The Moon transiting ${moonSignName} through ${nakName} nakshatra enhances your creative and relational magnetism. Express yourself through art, music, or heartfelt conversation.`,
+      `Your ruling planet Venus softens today's cosmic intensity. Under ${nakName} nakshatra's influence, relationships deepen through vulnerability. Financial decisions made today carry Venus's blessing of growth.`,
+    ],
+    Mercury: [
+      `Mercury sharpens your intellect today. With the Moon in ${moonSignName} and ${nakName} nakshatra active, your communication skills peak. This is ideal for writing, negotiations, and learning something new.`,
+      `Your ruling Mercury aligns with the day's ${nakName} nakshatra energy, creating exceptional mental clarity. Conversations you initiate today could open doors that remain closed to others.`,
+    ],
+    Moon: [
+      `The Moon, your ruling luminary, transits ${moonSignName} through ${nakName} nakshatra today, making you especially intuitive and emotionally perceptive. Trust the subtle feelings — they carry genuine intelligence.`,
+      `Today's lunar energy through ${nakName} nakshatra resonates deeply with your Cancerian nature. Home, family, and emotional security are highlighted. Nurture yourself before nurturing others.`,
+    ],
+    Sun: [
+      `The Sun, your ruling star, illuminates your path with confidence and authority today. ${nakName} nakshatra adds a spiritual dimension — lead with both power and compassion. Others look to you for direction.`,
+      `Solar energy is at its peak in your chart today. The Moon in ${moonSignName} under ${nakName} activates your creative house. Express your authentic self without apology — the cosmos rewards genuine radiance.`,
+    ],
+    Jupiter: [
+      `Jupiter, your expansive ruler, opens doors of opportunity today. The Moon in ${moonSignName} through ${nakName} nakshatra amplifies wisdom and spiritual growth. Generosity attracts abundance in return.`,
+      `With Jupiter guiding your day, ${nakName} nakshatra's energy supports philosophical inquiry and higher learning. Travel, teaching, and spiritual practices are especially favored right now.`,
+    ],
+    Saturn: [
+      `Saturn, your disciplined ruler, rewards patience and persistence today. The Moon transiting ${moonSignName} under ${nakName} nakshatra asks you to build slowly but surely. What you create now will endure.`,
+      `Today's ${nakName} nakshatra energy aligns with Saturn's demand for structure. Focus on long-term planning over quick wins. The karmic rewards of discipline compound over time.`,
+    ],
+  }
+  const arr = templates[ruler] || templates["Jupiter"]
+  return arr[Math.floor(rand() * arr.length)]
+}
+
+function getLovePrediction(ruler: string, rand: () => number): string {
+  const templates: Record<string, string[]> = {
+    Mars: ["Passion runs high today. Express desire with confidence but temper it with tenderness. Mars can overwhelm — balance intensity with listening.", "Physical chemistry is amplified by Mars's fire. Plan an active date or adventurous outing with your partner for maximum connection."],
+    Venus: ["Venus wraps your love life in warmth and beauty today. Small romantic gestures carry enormous weight. A heartfelt compliment or surprise gift deepens bonds.", "Your natural charm peaks today. If single, attend social gatherings — Venus ensures you radiate magnetic attraction."],
+    Mercury: ["Communication is the key to love today. An honest, witty conversation builds more intimacy than grand gestures. Text that person you've been thinking about.", "Mercury makes you articulate in matters of the heart. Write a letter, share your thoughts openly — words become love language today."],
+    Moon: ["Emotional depth defines your romantic energy today. Share your vulnerabilities and create space for your partner's. Tears can heal as much as laughter.", "The Moon heightens romantic sensitivity. Candlelight, music, and gentle touch speak louder than words. Nurture love through presence."],
+    Sun: ["Confidence makes you irresistible today. Express your feelings boldly — the Sun favors those who lead in love. Don't wait for signals; create them.", "Your authentic radiance attracts genuine admiration. Step into the spotlight and let your partner (or a new connection) see the real you."],
+    Jupiter: ["Love expands through shared wisdom and laughter today. Deep philosophical conversations build romantic foundations that last. Seek meaning together.", "Jupiter blesses commitment and long-term partnership today. If considering marriage or engagement, the cosmic timing is favorable."],
+    Saturn: ["Patience in love pays dividends today. Don't rush emotional conversations. Saturn rewards those who build relationships on trust and consistency.", "Practical expressions of love — reliability, support, keeping promises — matter more than grand romance today. Show up consistently."],
+  }
+  const arr = templates[ruler] || templates["Venus"]
+  return arr[Math.floor(rand() * arr.length)]
+}
+
+function getCareerPrediction(ruler: string, rand: () => number): string {
+  const templates: Record<string, string[]> = {
+    Mars: ["Mars drives career ambition to a peak. Take initiative on stalled projects — your decisive energy inspires teams. Avoid power struggles with colleagues.", "Physical and professional stamina combine today. Tackle the most challenging tasks first when your Mars-fueled energy is highest."],
+    Venus: ["Creativity and diplomacy advance your career today. Venus favors artistic projects, client relationships, and financial negotiations. Dress well for important meetings.", "Financial opportunities arise through partnerships. Venus rewards collaboration over competition — seek win-win arrangements."],
+    Mercury: ["Mercury supercharges professional communication. Presentations, emails, and negotiations flow with unusual clarity. This is your day to pitch ideas.", "Analytical skills peak today. Data-driven decisions yield the best results. Mercury also favors learning new tools or taking a quick course."],
+    Moon: ["Workplace intuition is your hidden advantage today. Trust your gut about team dynamics and project timing. Emotional intelligence outperforms raw IQ.", "Nurture professional relationships today. A supportive word to a colleague returns as unexpected career advancement later."],
+    Sun: ["Leadership energy peaks. Step up and take charge of important projects. The Sun rewards those who accept responsibility and inspire others.", "Authority figures notice your work today. Shine in presentations and meetings — the Sun highlights your competence and vision."],
+    Jupiter: ["Jupiter opens doors for career expansion. New opportunities arrive through mentors, education, or international connections. Think bigger than usual.", "Financial wisdom guides investments and business decisions today. Jupiter's abundance flows toward those who operate with integrity."],
+    Saturn: ["Discipline and structure are your career allies today. Organize, plan, and execute methodically — Saturn rewards thoroughness over shortcuts.", "Long-term career foundations strengthen today. Certifications, skill development, and strategic networking create lasting professional advantages."],
+  }
+  const arr = templates[ruler] || templates["Jupiter"]
+  return arr[Math.floor(rand() * arr.length)]
+}
+
+function getHealthPrediction(ruler: string, moonSign: string, rand: () => number): string {
+  const elem = SIGNS.find(s => s.name === moonSign)?.element || "Fire"
+  const elemAdvice: Record<string, string> = {
+    Fire: "Your fire element is active — stay hydrated and avoid spicy foods. Morning exercise boosts vitality.",
+    Earth: "Ground yourself with walks in nature and warm, nourishing meals. Stability supports healing today.",
+    Air: "Your nervous system needs calming. Practice pranayama and avoid overstimulation from screens.",
+    Water: "Emotional energy affects physical health today. Warm teas, baths, and gentle stretching restore balance.",
+  }
+  const base = elemAdvice[elem]
+  const extras: string[] = [
+    ` ${ruler === "Mars" ? "Channel physical energy through vigorous exercise — Mars needs an outlet." : ""}`,
+    ` ${ruler === "Saturn" ? "Pay attention to joints and bones. Gentle stretching and calcium-rich foods are beneficial." : ""}`,
+    ` ${ruler === "Mercury" ? "Mental fatigue is possible — take breaks every 90 minutes for cognitive recovery." : ""}`,
+    ` ${ruler === "Moon" ? "Sleep quality directly impacts tomorrow's energy. Create a calming bedtime ritual." : ""}`,
+  ]
+  return base + (extras[Math.floor(rand() * extras.length)] || "")
+}
+
+function getSpiritualPrediction(nakName: string, rand: () => number): string {
+  const templates = [
+    `${nakName} nakshatra's energy today deepens meditation and inner inquiry. The veil between conscious and unconscious thins — pay attention to dreams and sudden insights.`,
+    `Today's ${nakName} nakshatra supports mantra practice and devotional activities. Any sincere prayer during Brahma Muhurta (4:00-5:30 AM) carries amplified potency.`,
+    `The ${nakName} nakshatra invites you to practice non-attachment. Hold loosely what you wish to keep — true spiritual growth comes through surrender, not control.`,
+    `Gratitude is your spiritual practice today. ${nakName}'s energy transmutes challenges into wisdom when viewed through the lens of appreciation and acceptance.`,
+  ]
+  return templates[Math.floor(rand() * templates.length)]
+}
+
+function getPlanetaryInfluence(sign: SignData, moonSignName: string, sunSignIdx: number, rand: () => number): string {
+  const signIdx = sign.id - 1
+  const transitHouse = ((sunSignIdx - signIdx + 12) % 12) + 1
+  const moonHouse = ((SIGNS.findIndex(s => s.name === moonSignName) - signIdx + 12) % 12) + 1
+  const houseNames: Record<number, string> = {
+    1: "Lagna (self/personality)", 2: "Dhana (wealth/speech)", 3: "Sahaja (courage/siblings)",
+    4: "Sukha (home/happiness)", 5: "Putra (creativity/children)", 6: "Ripu (health/enemies)",
+    7: "Kalatra (partnerships)", 8: "Ayu (transformation)", 9: "Dharma (fortune/philosophy)",
+    10: "Karma (career/status)", 11: "Labha (gains/aspirations)", 12: "Vyaya (liberation/expenses)",
+  }
+  return `The Sun transits your ${transitHouse}${transitHouse === 1 ? "st" : transitHouse === 2 ? "nd" : transitHouse === 3 ? "rd" : "th"} house — ${houseNames[transitHouse] || ""}. The Moon illuminates your ${moonHouse}${moonHouse === 1 ? "st" : moonHouse === 2 ? "nd" : moonHouse === 3 ? "rd" : "th"} house of ${houseNames[moonHouse] || ""}, shaping today's emotional landscape. ${sign.ruler}'s influence anchors your experience.`
+}
+
+// ─── Computed Prediction Generator ──────────────────────
+
 function generatePrediction(signId: number, dateStr: string): DailyPrediction {
+  const jde = dateToJDE(dateStr)
+  const sunTropical = computeSunLong(jde)
+  const moonTropical = computeMoonLong(jde)
+  const sunSid = toSidereal(sunTropical, jde)
+  const moonSid = toSidereal(moonTropical, jde)
+
+  // Moon nakshatra & sign from actual position
+  const moonNakIdx = Math.floor(moonSid / (360 / 27))
+  const moonSignIdx = Math.floor(moonSid / 30)
+  const moonSignName = SIGNS[moonSignIdx].name
+  const nakName = NAKSHATRA_NAMES[moonNakIdx]
+  const sunSignIdx = Math.floor(sunSid / 30)
+
+  const sign = SIGNS[signId - 1]
+  const ruler = sign.ruler
+  const rulerContent = RULER_CONTENT[ruler] || RULER_CONTENT["Jupiter"]
+
+  // Deterministic seed for stable text selection per sign+date
   const dateSeed = dateStr.split("-").reduce((a, b) => a + parseInt(b), 0)
   const rand = seedRandom(signId * 1000 + dateSeed * 7)
 
-  const overallPhrases = [
-    "The cosmos aligns in your favor today. Trust your intuition and take bold steps toward your goals.",
-    "A day of reflection and inner clarity. Mercury's influence sharpens your communication skills.",
-    "Jupiter expands your horizons. Opportunities arise through unexpected conversations.",
-    "Saturn tests your discipline today, but rewards await those who persist with patience.",
-    "Venus brings harmony to relationships. Express your feelings with confidence and grace.",
-    "Mars energizes your ambitions. Channel this fire wisely — avoid impulsive decisions.",
-    "The Moon's transit through your sign heightens emotional awareness. Honor your feelings.",
-    "Rahu's shadow creates an illusion of urgency. Slow down and verify before committing.",
-    "A powerful day for spiritual growth. Meditation and mantra practice yield deep insights.",
-    "Ketu's influence dissolves old patterns. Embrace change as liberation, not loss.",
-    "The Sun illuminates hidden talents. Others notice your authentic presence today.",
-    "A transformative transit activates your house of purpose. Align actions with dharma.",
-  ]
-
-  const lovePhrases = [
-    "Emotional depth strengthens bonds. Share something vulnerable with someone you trust.",
-    "Venus softens defenses. An old misunderstanding may finally resolve through honest dialogue.",
-    "Single? The stars suggest a meaningful connection through creative or spiritual circles.",
-    "Give your partner space to process. Pressure now backfires — patience deepens love.",
-    "Romance thrives through shared experiences today. Plan something new together.",
-    "Your magnetism peaks this afternoon. Confidence attracts genuine admiration.",
-    "Past relationship patterns surface for healing. Forgiveness opens new doorways.",
-    "A gentle day for love. Small gestures of kindness carry immense weight.",
-  ]
-
-  const careerPhrases = [
-    "A strategic decision today sets the trajectory for months ahead. Think long-term.",
-    "Collaborative efforts yield better results than solo work. Partner with complementary minds.",
-    "Mercury retrograde energy suggests reviewing contracts before signing. Details matter.",
-    "Financial intuition peaks. Trust your gut on investment timing but verify with data.",
-    "A mentor figure offers valuable guidance. Be open to unconventional advice.",
-    "Creative solutions emerge for stalled projects. Think laterally, not linearly.",
-    "Avoid workplace conflicts before noon. The afternoon brings harmonious negotiations.",
-    "Your expertise gets recognized. Accept praise gracefully and leverage momentum.",
-  ]
-
-  const healthPhrases = [
-    "Focus on hydration and rest. Your body processes deep emotional releases today.",
-    "Morning exercise amplifies energy for the entire day. Don't skip the warmup.",
-    "Digestive sensitivity — favor light, warm foods. Avoid cold beverages after meals.",
-    "Pranayama practice is especially powerful today. Even 5 minutes shifts your state.",
-    "Sleep quality matters more than duration. Create a calm evening routine.",
-    "Joint and muscle tension responds to gentle stretching and warm oil massage.",
-    "Mental clarity peaks in late morning. Schedule important decisions during this window.",
-    "Your healing capacity is strong. Address any lingering health concerns proactively.",
-  ]
-
-  const spiritualPhrases = [
-    "The veil between conscious and unconscious thins today. Pay attention to dreams.",
-    "Mantra repetition during Brahma Muhurta (pre-dawn) activates dormant spiritual faculties.",
-    "Practice non-attachment today. Hold loosely what you wish to keep.",
-    "A sacred text or teaching appears at the right moment. Stay alert to synchronicities.",
-    "Gratitude meditation before sleep transmutes today's challenges into tomorrow's wisdom.",
-    "Your ancestors' blessings are strong. Light a lamp in their remembrance.",
-    "Silence is your greatest teacher today. Reduce unnecessary speech.",
-    "The planets support devotional practices. Any sincere prayer carries amplified potency.",
-  ]
-
-  const mantras = [
-    "ॐ गं गणपतये नमः — Om Gam Ganapataye Namah",
-    "ॐ नमः शिवाय — Om Namah Shivaya",
-    "ॐ श्रीं ह्रीं क्लीं — Om Shreem Hreem Kleem",
-    "ॐ सूर्याय नमः — Om Suryaya Namah",
-    "ॐ चन्द्राय नमः — Om Chandraya Namah",
-    "ॐ बृहस्पतये नमः — Om Brihaspataye Namah",
-    "ॐ शुक्राय नमः — Om Shukraya Namah",
-    "ॐ शनैश्चराय नमः — Om Shanaishcharaya Namah",
-  ]
-
-  const remedies = [
-    "Offer water to the Sun at sunrise while chanting Gayatri mantra 11 times.",
-    "Donate white clothes or rice to someone in need before noon.",
-    "Wear a copper ring or bracelet on your dominant hand today.",
-    "Feed jaggery and wheat to a cow or leave it for birds at sunrise.",
-    "Light a ghee lamp in the northeast corner of your home this evening.",
-    "Chant Hanuman Chalisa once before undertaking any major task today.",
-    "Place fresh tulsi leaves in your drinking water for the day.",
-    "Apply a small tilak of sandalwood paste at your Ajna chakra (third eye).",
-  ]
-
-  const avoidThings = [
-    "Avoid starting new financial ventures after sunset.",
-    "Refrain from harsh speech between 3-5 PM (Rahu Kaal influence).",
-    "Do not lend money today — it may not return easily.",
-    "Avoid wearing black to important meetings.",
-    "Skip non-vegetarian food today for optimal planetary alignment.",
-    "Postpone signing contracts or legal documents until tomorrow.",
-    "Avoid travel in the southern direction during morning hours.",
-    "Don't make promises you can't keep — Saturn watches closely today.",
-  ]
-
-  const nakshatras = [
-    "Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashira",
-    "Ardra", "Punarvasu", "Pushya", "Ashlesha", "Magha",
-    "Purva Phalguni", "Uttara Phalguni", "Hasta", "Chitra",
-    "Swati", "Vishakha", "Anuradha", "Jyeshtha", "Mula",
-    "Purva Ashadha", "Uttara Ashadha", "Shravana", "Dhanishta",
-    "Shatabhisha", "Purva Bhadrapada", "Uttara Bhadrapada", "Revati",
-  ]
-
-  const planetaryInfluences = [
-    "Sun-Jupiter conjunction amplifies wisdom and authority in your chart today.",
-    "Moon-Venus trine brings emotional harmony and creative inspiration.",
-    "Mars aspects your 10th house, energizing career ambitions significantly.",
-    "Mercury's transit through your 3rd house sharpens communication and learning.",
-    "Saturn's stabilizing influence on your finances builds long-term security.",
-    "Rahu in your 5th house sparks unconventional creative urges — channel wisely.",
-    "Jupiter's aspect on your Lagna brings expansion and optimism to all endeavors.",
-    "Venus-Moon conjunction creates a beautiful day for artistic expression and love.",
-  ]
-
-  const colors = ["Saffron", "White", "Green", "Red", "Yellow", "Blue", "Silver", "Gold", "Pink", "Orange"]
+  // Scores influenced by relationship between sign and current Moon/Sun
+  const signIdx = signId - 1
+  const moonDist = ((moonSignIdx - signIdx + 12) % 12)
+  const sunDist = ((sunSignIdx - signIdx + 12) % 12)
+  // Favourable houses: 1,4,5,7,9,10,11 → higher scores
+  const favourable = [0, 3, 4, 6, 8, 9, 10]
+  const moonBoost = favourable.includes(moonDist) ? 1.5 : 0
+  const sunBoost = favourable.includes(sunDist) ? 1 : 0
+  const baseScore = () => {
+    const raw = 5 + moonBoost + sunBoost + rand() * 2.5
+    return Math.min(10, Math.max(4, Math.round(raw)))
+  }
 
   const idx = (arr: string[]) => arr[Math.floor(rand() * arr.length)]
-  const score = () => Math.floor(rand() * 4) + 6 // 6-10 range
 
   return {
-    overall: idx(overallPhrases),
-    love: idx(lovePhrases),
-    career: idx(careerPhrases),
-    health: idx(healthPhrases),
-    spiritual: idx(spiritualPhrases),
-    luckyNumber: Math.floor(rand() * 9) + 1,
-    luckyColor: idx(colors),
+    overall: getOverallPrediction(sign, moonSignName, nakName, rand),
+    love: getLovePrediction(ruler, rand),
+    career: getCareerPrediction(ruler, rand),
+    health: getHealthPrediction(ruler, moonSignName, rand),
+    spiritual: getSpiritualPrediction(nakName, rand),
+    luckyNumber: rulerContent.numbers[Math.floor(rand() * rulerContent.numbers.length)],
+    luckyColor: idx(rulerContent.colors),
     luckyTime: `${Math.floor(rand() * 12) + 1}:${rand() > 0.5 ? "00" : "30"} ${rand() > 0.5 ? "AM" : "PM"}`,
-    overallScore: score(),
-    loveScore: score(),
-    careerScore: score(),
-    healthScore: score(),
-    mantra: idx(mantras),
-    remedy: idx(remedies),
-    avoid: idx(avoidThings),
-    moonNakshatra: idx(nakshatras),
-    planetaryInfluence: idx(planetaryInfluences),
+    overallScore: baseScore(),
+    loveScore: baseScore(),
+    careerScore: baseScore(),
+    healthScore: baseScore(),
+    mantra: idx(rulerContent.mantras),
+    remedy: idx(rulerContent.remedies),
+    avoid: idx(rulerContent.avoids),
+    moonNakshatra: nakName,
+    planetaryInfluence: getPlanetaryInfluence(sign, moonSignName, sunSignIdx, rand),
   }
 }
 
+// ─── Computed Panchang ───────────────────────────────────
+
 function generatePanchang(dateStr: string): PanchangData {
-  const dateSeed = dateStr.split("-").reduce((a, b) => a + parseInt(b), 0)
-  const rand = seedRandom(dateSeed * 31)
+  const jde = dateToJDE(dateStr)
+  const sunTropical = computeSunLong(jde)
+  const moonTropical = computeMoonLong(jde)
+  const sunSid = toSidereal(sunTropical, jde)
+  const moonSid = toSidereal(moonTropical, jde)
 
-  const tithis = [
-    "Pratipada", "Dwitiya", "Tritiya", "Chaturthi", "Panchami",
-    "Shashthi", "Saptami", "Ashtami", "Navami", "Dashami",
-    "Ekadashi", "Dwadashi", "Trayodashi", "Chaturdashi", "Purnima", "Amavasya",
-  ]
-  const yogas = [
-    "Vishkambha", "Preeti", "Ayushman", "Saubhagya", "Shobhana",
-    "Atiganda", "Sukarma", "Dhriti", "Shula", "Ganda",
-    "Vriddhi", "Dhruva", "Vyaghata", "Harshana", "Vajra",
-  ]
-  const karanas = [
-    "Bava", "Balava", "Kaulava", "Taitila", "Garija",
-    "Vanija", "Vishti", "Shakuni", "Chatushpada", "Nagava",
-  ]
-  const varas = ["Ravivara (Sunday)", "Somavara (Monday)", "Mangalavara (Tuesday)", "Budhavara (Wednesday)", "Guruvara (Thursday)", "Shukravara (Friday)", "Shanivara (Saturday)"]
-  const nakshatras = [
-    "Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashira",
-    "Ardra", "Punarvasu", "Pushya", "Ashlesha", "Magha",
-  ]
+  // Tithi = Sun-Moon angular distance / 12°
+  let sunMoonAngle = moonSid - sunSid
+  if (sunMoonAngle < 0) sunMoonAngle += 360
+  const tithiIdx = Math.floor(sunMoonAngle / 12) % 30
 
-  const idx = (arr: string[]) => arr[Math.floor(rand() * arr.length)]
+  // Nakshatra from Moon position
+  const nakIdx = Math.floor(moonSid / (360 / 27)) % 27
+
+  // Yoga = (Sun + Moon sidereal longitudes) / (360/27)
+  const yogaAngle = (sunSid + moonSid) % 360
+  const yogaIdx = Math.floor(yogaAngle / (360 / 27)) % 27
+
+  // Karana = half-tithi
+  const karanaIdx = Math.floor(sunMoonAngle / 6) % 11
+
+  // Vara
   const dayOfWeek = new Date(dateStr).getDay()
 
+  // Moon sign
+  const moonSignIdx = Math.floor(moonSid / 30) % 12
+
+  // Sunrise/sunset
+  const { rise, set } = approxSunrise(dateStr)
+
   return {
-    tithi: idx(tithis),
-    nakshatra: idx(nakshatras),
-    yoga: idx(yogas),
-    karana: idx(karanas),
-    vara: varas[dayOfWeek] || varas[0],
-    sunRise: "6:28 AM",
-    sunSet: "6:14 PM",
-    moonSign: SIGNS[Math.floor(rand() * 12)].name,
-    rahukaal: `${Math.floor(rand() * 3) + 1}:30 PM – ${Math.floor(rand() * 3) + 3}:00 PM`,
+    tithi: (tithiIdx < 15 ? "Shukla " : "Krishna ") + TITHI_NAMES[tithiIdx],
+    nakshatra: NAKSHATRA_NAMES[nakIdx],
+    yoga: YOGA_NAMES[yogaIdx],
+    karana: KARANA_NAMES[karanaIdx],
+    vara: VARA_NAMES[dayOfWeek] || VARA_NAMES[0],
+    sunRise: rise,
+    sunSet: set,
+    moonSign: SIGNS[moonSignIdx].name,
+    rahukaal: RAHUKAAL_TABLE[dayOfWeek] || "1:30 PM – 3:00 PM",
   }
 }
 

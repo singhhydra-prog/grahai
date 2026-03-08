@@ -8,7 +8,17 @@
    - Works on Vercel serverless without binary files
    ════════════════════════════════════════════════════════ */
 
-import sweph from "sweph"
+// Dynamic import to prevent build failure when native binary is missing
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let sweph: any = null
+
+try {
+  // This will fail at build time if the .node binary isn't built
+  sweph = require("sweph")
+} catch {
+  console.warn("[GrahAI] sweph native module not available — ephemeris calculations will use fallback")
+}
+
 import type {
   PlanetName, PlanetData, NatalChart, HouseData,
   SignInfo, NakshatraInfo, BirthDetails, SwephPlanetPosition,
@@ -26,7 +36,14 @@ import {
 // Accuracy: ~0.1 arcsecond for planets, sufficient for Jyotish
 let initialized = false
 
+function ensureSweph() {
+  if (!sweph) {
+    throw new Error("Swiss Ephemeris native module is not available. Please run 'npm rebuild sweph' or install build tools.")
+  }
+}
+
 function ensureInit() {
+  ensureSweph()
   if (!initialized) {
     // No ephemeris path needed for Moshier mode
     // sweph will use internal Moshier calculations automatically
@@ -44,6 +61,7 @@ export function dateToJulianDay(
 ): number {
   // Convert to UT (subtract timezone offset)
   const utDecimalHour = hour + minute / 60 + second / 3600 - timezoneOffset
+  ensureSweph()
   // sweph.julday(year, month, day, hour, gregflag)
   return sweph.julday(year, month, day, utDecimalHour, sweph.constants.SE_GREG_CAL)
 }
@@ -336,3 +354,8 @@ export function getSunMoonSum(jd: number): number {
 // ─── Export convenience ────────────────────────────────
 
 export { sweph }
+
+/** Check if the native Swiss Ephemeris module is available */
+export function isSwephAvailable(): boolean {
+  return sweph !== null
+}
