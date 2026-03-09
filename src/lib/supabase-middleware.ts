@@ -32,10 +32,12 @@ export async function updateSession(request: NextRequest) {
   const path = request.nextUrl.pathname
 
   // Protected routes — redirect to login if not authenticated
-  if (!user && (path.startsWith("/dashboard") || path.startsWith("/onboarding") || path.startsWith("/reading"))) {
+  const protectedPaths = ["/dashboard", "/onboarding", "/reading", "/chat", "/settings", "/reports"]
+  if (!user && protectedPaths.some(p => path.startsWith(p))) {
     const url = request.nextUrl.clone()
     url.pathname = "/auth/login"
-    url.searchParams.set("redirect", path)
+    url.searchParams.set("redirect", path + request.nextUrl.search)
+    url.searchParams.set("reason", "login_required")
     return NextResponse.redirect(url)
   }
 

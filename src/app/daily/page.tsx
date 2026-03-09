@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 import { createBrowserClient } from "@supabase/ssr"
 import PanchangWidget from "@/components/astrology/PanchangWidget"
+import AppHeader from "@/components/AppHeader"
 
 // ─── Types ──────────────────────────────────────────────
 
@@ -281,6 +282,7 @@ export default function DailyInsightsPage() {
 
   return (
     <div className="min-h-screen bg-bg pb-20">
+      <AppHeader />
       {/* Nav */}
       <nav className="sticky top-0 z-50 glass-nav h-16 flex items-center justify-between px-6">
         <button onClick={() => router.push("/dashboard")} className="flex items-center gap-2 text-text-dim hover:text-text transition-colors">

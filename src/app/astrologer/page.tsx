@@ -18,6 +18,8 @@ import {
   ArrowUp,
 } from "lucide-react"
 import Link from "next/link"
+import { Navbar } from "@/components/Navbar"
+import Footer from "@/components/Footer"
 
 // ─── Types ──────────────────────────────────────────────
 
@@ -564,6 +566,7 @@ export default function AstrologerPage() {
   if (messages.length === 0) {
     return (
       <div className="min-h-screen bg-bg pt-24 pb-16">
+        <Navbar />
         {/* Ambient */}
         <div className="fixed inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-1/4 left-1/3 w-[600px] h-[600px] rounded-full bg-gold/[0.015] blur-[150px]" />
@@ -677,6 +680,7 @@ export default function AstrologerPage() {
             ))}
           </motion.div>
         </div>
+        <Footer />
       </div>
     )
   }
@@ -685,28 +689,7 @@ export default function AstrologerPage() {
 
   return (
     <div className="min-h-screen bg-bg flex flex-col">
-      {/* Header Bar */}
-      <div className="fixed top-0 z-40 w-full glass-nav border-b border-white/[0.04]">
-        <div className="max-w-2xl mx-auto flex items-center justify-between px-6 h-16">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gold/[0.08] border border-gold/[0.15] flex items-center justify-center">
-              <Sparkles className="h-3.5 w-3.5 text-gold/70" />
-            </div>
-            <div>
-              <span className="text-sm font-semibold text-text/80">AI Astrologer</span>
-              <span className="text-[9px] text-green/50 ml-2">● Online</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-[10px] text-text-dim/30">
-              {isAtLimit ? "Limit reached" : `${FREE_LIMIT - questionsAsked} questions left`}
-            </span>
-            <Link href="/horoscope" className="text-[10px] text-gold/50 hover:text-gold/70 transition-colors">
-              Daily Horoscope →
-            </Link>
-          </div>
-        </div>
-      </div>
+      <Navbar />
 
       {/* Messages */}
       <div className="flex-1 pt-20 pb-32 overflow-y-auto">
@@ -839,6 +822,7 @@ export default function AstrologerPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   )
 }

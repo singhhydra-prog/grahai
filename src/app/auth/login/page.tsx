@@ -12,6 +12,7 @@ function LoginForm() {
   const [errorMsg, setErrorMsg] = useState("")
   const searchParams = useSearchParams()
   const redirect = searchParams.get("redirect") || "/dashboard"
+  const reason = searchParams.get("reason")
 
   async function handleMagicLink(e: React.FormEvent) {
     e.preventDefault()
@@ -55,6 +56,18 @@ function LoginForm() {
         transition={{ duration: 0.6 }}
         className="relative z-10 w-full max-w-md"
       >
+        {/* Gate message */}
+        {reason === "login_required" && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 rounded-xl border border-saffron/20 bg-saffron/[0.06] px-5 py-4 text-center"
+          >
+            <p className="text-sm font-medium text-saffron/90">Sign in to unlock this feature</p>
+            <p className="mt-1 text-xs text-cosmic-white/50">Free account includes 3 daily AI readings, Kundli generation, and daily horoscope</p>
+          </motion.div>
+        )}
+
         {/* Logo */}
         <div className="mb-10 text-center">
           <div className="mb-4 inline-flex items-center gap-2">

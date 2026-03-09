@@ -24,6 +24,7 @@ import {
   Compass,
   Sparkles,
 } from "lucide-react"
+import AppHeader from "@/components/AppHeader"
 
 /* ════════════════════════════════════════════════════════
    AGENT ANALYTICS DASHBOARD
@@ -186,6 +187,7 @@ export default function AgentDashboard() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white">
+      <AppHeader />
       {/* Header */}
       <div className="border-b border-white/10 bg-[#0a0a0f]/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">

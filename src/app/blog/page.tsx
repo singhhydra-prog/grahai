@@ -5,57 +5,7 @@ import Link from "next/link"
 import { Navbar } from "@/components/Navbar"
 import Footer from "@/components/Footer"
 import { BlurReveal, Reveal } from "@/components/Animations"
-
-const articles = [
-  {
-    category: "Vedic Astrology",
-    title: "Understanding Your Birth Chart: A Beginner's Guide to Kundli",
-    excerpt: "Your Kundli is more than a horoscope — it's a precise map of the cosmos at the moment of your birth. Learn how planetary positions, houses, and Nakshatras shape your unique chart.",
-    readTime: "8 min read",
-    date: "March 2026",
-    featured: true,
-  },
-  {
-    category: "Numerology",
-    title: "Life Path Numbers: What Your Birth Date Reveals",
-    excerpt: "Discover how your Life Path number is calculated and what it reveals about your personality, strengths, challenges, and life purpose.",
-    readTime: "6 min read",
-    date: "March 2026",
-    featured: false,
-  },
-  {
-    category: "Tarot",
-    title: "The Celtic Cross Spread: A Complete Interpretation Guide",
-    excerpt: "The Celtic Cross is the most comprehensive Tarot spread. Here's how to read each position, interpret card interactions, and understand reversed cards.",
-    readTime: "10 min read",
-    date: "March 2026",
-    featured: false,
-  },
-  {
-    category: "Vastu",
-    title: "Vastu for Your Home: Room-by-Room Directional Guide",
-    excerpt: "Ancient Vastu principles for modern living spaces. Learn the ideal placement for your kitchen, bedroom, and workspace based on the five elements.",
-    readTime: "7 min read",
-    date: "March 2026",
-    featured: false,
-  },
-  {
-    category: "Technology",
-    title: "How AI Interprets Classical Sanskrit Texts",
-    excerpt: "A look inside GrahAI's approach to training AI on texts like Brihat Parashara Hora Shastra — preserving authenticity while enabling accessibility.",
-    readTime: "5 min read",
-    date: "March 2026",
-    featured: false,
-  },
-  {
-    category: "Vedic Astrology",
-    title: "Mangal Dosha: Facts, Myths, and Remedies",
-    excerpt: "Mangal Dosha is one of the most misunderstood concepts in Vedic astrology. We separate classical teachings from modern misconceptions.",
-    readTime: "9 min read",
-    date: "March 2026",
-    featured: false,
-  },
-]
+import { articles } from "./articles"
 
 export default function BlogPage() {
   const featured = articles.find(a => a.featured)
@@ -88,18 +38,20 @@ export default function BlogPage() {
         <section className="px-6 lg:px-10 pb-16">
           <div className="mx-auto max-w-6xl">
             <BlurReveal delay={0.3}>
-              <div className="group rounded-2xl border border-white/[0.04] bg-bg-2/30 p-8 lg:p-12 transition-all duration-500 hover:border-gold/10 hover:bg-bg-2/50 cursor-pointer">
-                <div className="flex items-center gap-3 mb-6">
-                  <span className="inline-flex rounded-full bg-gold/10 border border-gold/20 px-3 py-1 text-[10px] font-semibold tracking-[0.15em] uppercase text-gold">{featured.category}</span>
-                  <span className="text-caption text-text-dim/60 flex items-center gap-1"><Clock className="h-3 w-3" />{featured.readTime}</span>
+              <Link href={`/blog/${featured.slug}`}>
+                <div className="group rounded-2xl border border-white/[0.04] bg-bg-2/30 p-8 lg:p-12 transition-all duration-500 hover:border-gold/10 hover:bg-bg-2/50 cursor-pointer">
+                  <div className="flex items-center gap-3 mb-6">
+                    <span className="inline-flex rounded-full bg-gold/10 border border-gold/20 px-3 py-1 text-[10px] font-semibold tracking-[0.15em] uppercase text-gold">{featured.category}</span>
+                    <span className="text-caption text-text-dim/60 flex items-center gap-1"><Clock className="h-3 w-3" />{featured.readTime}</span>
+                  </div>
+                  <h2 className="text-2xl lg:text-3xl font-bold text-text mb-4 group-hover:text-gold/80 transition-colors">{featured.title}</h2>
+                  <p className="text-body max-w-2xl mb-8">{featured.excerpt}</p>
+                  <div className="flex items-center gap-2 text-label text-gold/50 group-hover:text-gold/70 transition-colors">
+                    <span>Read Article</span>
+                    <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                  </div>
                 </div>
-                <h2 className="text-2xl lg:text-3xl font-bold text-text mb-4 group-hover:text-gold/80 transition-colors">{featured.title}</h2>
-                <p className="text-body max-w-2xl mb-8">{featured.excerpt}</p>
-                <div className="flex items-center gap-2 text-label text-gold/50 group-hover:text-gold/70 transition-colors">
-                  <span>Read Article</span>
-                  <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
-                </div>
-              </div>
+              </Link>
             </BlurReveal>
           </div>
         </section>
@@ -111,19 +63,21 @@ export default function BlogPage() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {rest.map((article, i) => (
               <Reveal key={article.title} delay={i * 0.08}>
-                <div className="group flex flex-col rounded-2xl border border-white/[0.04] bg-bg-2/30 p-8 transition-all duration-500 hover:border-gold/10 hover:bg-bg-2/50 cursor-pointer h-full">
-                  <div className="flex items-center gap-3 mb-5">
-                    <span className="inline-flex rounded-full border border-white/[0.08] px-3 py-1 text-[9px] font-semibold tracking-[0.15em] uppercase text-text-dim/40">{article.category}</span>
+                <Link href={`/blog/${article.slug}`}>
+                  <div className="group flex flex-col rounded-2xl border border-white/[0.04] bg-bg-2/30 p-8 transition-all duration-500 hover:border-gold/10 hover:bg-bg-2/50 cursor-pointer h-full">
+                    <div className="flex items-center gap-3 mb-5">
+                      <span className="inline-flex rounded-full border border-white/[0.08] px-3 py-1 text-[9px] font-semibold tracking-[0.15em] uppercase text-text-dim/40">{article.category}</span>
+                    </div>
+                    <h3 className="text-lg font-semibold text-text mb-3 group-hover:text-gold/80 transition-colors flex-1">{article.title}</h3>
+                    <p className="text-caption mb-6">{article.excerpt}</p>
+                    <div className="mt-auto flex items-center justify-between">
+                      <span className="text-caption text-text-dim/60 flex items-center gap-1"><Clock className="h-3 w-3" />{article.readTime}</span>
+                      <span className="text-label text-gold/45 group-hover:text-gold/70 transition-colors flex items-center gap-1">
+                        Read<ChevronRight className="h-3 w-3" />
+                      </span>
+                    </div>
                   </div>
-                  <h3 className="text-lg font-semibold text-text mb-3 group-hover:text-gold/80 transition-colors flex-1">{article.title}</h3>
-                  <p className="text-caption mb-6">{article.excerpt}</p>
-                  <div className="mt-auto flex items-center justify-between">
-                    <span className="text-caption text-text-dim/60 flex items-center gap-1"><Clock className="h-3 w-3" />{article.readTime}</span>
-                    <span className="text-label text-gold/45 group-hover:text-gold/70 transition-colors flex items-center gap-1">
-                      Read<ChevronRight className="h-3 w-3" />
-                    </span>
-                  </div>
-                </div>
+                </Link>
               </Reveal>
             ))}
           </div>

@@ -31,6 +31,7 @@ import { DailyInsightCard } from "@/components/gamification/DailyInsightCard"
 import { StreakCalendar } from "@/components/gamification/StreakCalendar"
 import { AchievementShowcase } from "@/components/gamification/AchievementShowcase"
 import { AchievementModal } from "@/components/gamification/AchievementModal"
+import AppHeader from "@/components/AppHeader"
 
 interface UserProfile {
   full_name: string
@@ -205,6 +206,7 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-deep-space">
+      <AppHeader />
       {/* Nav */}
       <nav className="sticky top-0 z-50 glass-nav">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">

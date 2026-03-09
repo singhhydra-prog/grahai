@@ -28,6 +28,7 @@ const plans = [
       "English output",
     ],
     cta: "Get Started Free",
+    href: "/auth/login",
   },
   {
     name: "Graha",
@@ -47,7 +48,8 @@ const plans = [
       "Gemstone recommendations",
       "Compatibility matching",
     ],
-    cta: "Join Waitlist",
+    cta: "Start Graha Plan",
+    href: "/pricing/checkout?plan=graha",
   },
   {
     name: "Rishi",
@@ -68,7 +70,8 @@ const plans = [
       "Family chart comparisons",
       "Export to PDF",
     ],
-    cta: "Join Waitlist",
+    cta: "Start Rishi Plan",
+    href: "/pricing/checkout?plan=rishi",
   },
 ]
 
@@ -145,13 +148,13 @@ export default function PricingPage() {
                     {plan.features.map(f => (
                       <div key={f} className="flex items-start gap-3">
                         <Check className="h-4 w-4 mt-0.5 shrink-0 text-gold/50" />
-                        <span className="text-sm text-text-dim/70">{f}</span>
+                        <span className="text-sm text-text-dim/80">{f}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <Link href="/#waitlist"
+                <Link href={plan.href}
                   className={`flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-semibold transition-all active:scale-[0.98] ${
                     plan.popular
                       ? "bg-gold text-bg hover:bg-gold-light"
@@ -188,7 +191,7 @@ export default function PricingPage() {
                   </div>
                   {openFaq === i && (
                     <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
-                      className="mt-4 text-caption">
+                      className="mt-4 text-sm text-text-dim/75 leading-relaxed">
                       {faq.a}
                     </motion.p>
                   )}

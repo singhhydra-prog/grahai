@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase"
 import Link from "next/link"
 import { ArrowRight, Check, AlertCircle, Loader2 } from "lucide-react"
 import type { User } from "@supabase/supabase-js"
+import AppHeader from "@/components/AppHeader"
 
 interface Plan {
   name: string
@@ -233,6 +234,7 @@ function CheckoutPageContent() {
 
   return (
     <main className="min-h-screen bg-bg pb-16">
+      <AppHeader />
       {/* Header */}
       <div className="border-b border-white/[0.04] bg-bg-2/30 backdrop-blur-xl">
         <div className="mx-auto max-w-4xl px-6 py-6 lg:px-10">

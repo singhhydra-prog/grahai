@@ -27,6 +27,7 @@ import {
   MessageCircle,
 } from "lucide-react"
 import Link from "next/link"
+import AppHeader from "@/components/AppHeader"
 
 /* ─── Types ────────────────────────────────────────────── */
 
@@ -740,12 +741,13 @@ function BirthDetailsForm({ onSubmit }: { onSubmit: (d: BirthDetails) => void })
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">
-              <Calendar className="inline w-3 h-3 mr-1" />Birth Date
+              <Calendar className="inline w-3 h-3 mr-1" />Birth Date <span className="normal-case tracking-normal text-white/25">(DD/MM/YYYY)</span>
             </label>
             <input
               type="date"
               value={form.date}
               onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+              placeholder="dd/mm/yyyy"
               className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white focus:border-amber-500/30 focus:outline-none transition-colors"
             />
           </div>
@@ -1262,17 +1264,7 @@ export default function KundliPage() {
 
   return (
     <main className="min-h-screen bg-[#050810]">
-      {/* Nav */}
-      <nav className="sticky top-0 z-50 border-b border-white/[0.04] bg-[#050810]/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
-          <Link href="/" className="flex items-center gap-2">
-            <ArrowLeft className="w-4 h-4 text-white/30" />
-            <Sparkles className="w-5 h-5 text-amber-400" />
-            <span className="text-sm font-semibold text-white/90">Grah<span className="text-amber-400">AI</span></span>
-          </Link>
-          <span className="text-xs text-white/20">Free Kundli Generator</span>
-        </div>
-      </nav>
+      <AppHeader />
 
       <div className="mx-auto max-w-4xl px-4 py-8">
         {/* Form State */}

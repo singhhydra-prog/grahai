@@ -18,6 +18,7 @@ import {
   Check,
 } from "lucide-react"
 import { zodiacSigns } from "@/lib/brand"
+import AppHeader from "@/components/AppHeader"
 
 type Step = 1 | 2 | 3 | 4
 
@@ -166,6 +167,7 @@ export default function OnboardingPage() {
 
   return (
     <main className="relative flex min-h-screen items-center justify-center bg-deep-space px-6 py-16">
+      <AppHeader />
       {/* Background */}
       <div className="pointer-events-none absolute left-1/4 top-1/3 h-96 w-96 rounded-full bg-indigo/15 blur-[128px]" />
       <div className="pointer-events-none absolute bottom-1/4 right-1/3 h-64 w-64 rounded-full bg-saffron/8 blur-[96px]" />

@@ -17,6 +17,8 @@ import {
   Clock, Zap, Eye, RefreshCw, Share2, MessageCircle
 } from "lucide-react"
 import Link from "next/link"
+import { Navbar } from "@/components/Navbar"
+import Footer from "@/components/Footer"
 
 // ─── Types ──────────────────────────────────────────────
 
@@ -618,6 +620,7 @@ export default function HoroscopePage() {
   if (!showResult || loading) {
     return (
       <div className="min-h-screen bg-bg pt-24 pb-16">
+        <Navbar />
         {/* Ambient */}
         <div className="fixed inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full bg-gold/[0.02] blur-[120px]" />
@@ -730,6 +733,7 @@ export default function HoroscopePage() {
             )}
           </AnimatePresence>
         </div>
+        <Footer />
       </div>
     )
   }
@@ -740,6 +744,7 @@ export default function HoroscopePage() {
 
   return (
     <div className="min-h-screen bg-bg pt-24 pb-20">
+      <Navbar />
       {/* Ambient */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/3 left-1/4 w-[500px] h-[500px] rounded-full bg-gold/[0.015] blur-[120px]" />
@@ -905,6 +910,7 @@ export default function HoroscopePage() {
           </button>
         </div>
       </div>
+      <Footer />
     </div>
   )
 }

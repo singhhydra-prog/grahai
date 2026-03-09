@@ -16,6 +16,8 @@ import {
   ChevronUp, MessageCircle, Share2, RefreshCw, Check, X
 } from "lucide-react"
 import Link from "next/link"
+import { Navbar } from "@/components/Navbar"
+import Footer from "@/components/Footer"
 
 // ─── Types ──────────────────────────────────────────────
 
@@ -531,6 +533,7 @@ export default function CompatibilityPage() {
   if (!showResult) {
     return (
       <div className="min-h-screen bg-bg pt-24 pb-16">
+        <Navbar />
         {/* Ambient */}
         <div className="fixed inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] rounded-full bg-[#F0C8E0]/[0.02] blur-[120px]" />
@@ -633,6 +636,7 @@ export default function CompatibilityPage() {
             </motion.div>
           )}
         </AnimatePresence>
+        <Footer />
       </div>
     )
   }
@@ -648,6 +652,7 @@ export default function CompatibilityPage() {
 
   return (
     <div className="min-h-screen bg-bg pt-24 pb-20">
+      <Navbar />
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/3 left-1/4 w-[500px] h-[500px] rounded-full blur-[120px]" style={{ background: `${scoreColor}06` }} />
       </div>
@@ -771,6 +776,7 @@ export default function CompatibilityPage() {
           </button>
         </div>
       </div>
+      <Footer />
     </div>
   )
 }

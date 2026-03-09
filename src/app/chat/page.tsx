@@ -25,6 +25,7 @@ import MarkdownRenderer from "@/components/chat/MarkdownRenderer"
 import { useGamification } from "@/contexts/GamificationContext"
 import { ChatXPIndicator } from "@/components/gamification/ChatXPIndicator"
 import { SatisfactionRating } from "@/components/gamification/SatisfactionRating"
+import AppHeader from "@/components/AppHeader"
 
 /* ────────────────────────────────────────────────────
    TYPES
@@ -661,6 +662,7 @@ function ChatPage() {
 
   return (
     <main className="flex h-screen flex-col bg-[#050810]">
+      <AppHeader />
       {/* ─── MARKDOWN STYLES ─── */}
       <style jsx global>{`
         .markdown-content .md-h2 { font-size: 1.1rem; font-weight: 600; color: rgba(255,255,255,0.92); margin: 1rem 0 0.4rem; }
