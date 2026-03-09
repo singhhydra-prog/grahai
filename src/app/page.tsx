@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, type FormEvent } from "react"
 import { motion, useScroll, useTransform, useInView, useMotionValueEvent, AnimatePresence } from "framer-motion"
 import { ArrowRight, ArrowDown, Check, Loader2, Star, Shield, Zap, Globe, BookOpen, Eye, MessageCircle, Lock, Sparkles } from "lucide-react"
 import { supabase } from "@/lib/supabase"
+import { zodiacSigns } from "@/lib/brand"
 import Link from "next/link"
 import CosmicSnapshot from "@/components/CosmicSnapshot"
 import ExitIntentPopup from "@/components/ExitIntentPopup"
@@ -97,6 +98,131 @@ function Yantra({ size = 500, className = "" }: { size?: number; className?: str
       <polygon points="250,450 80,150 420,150" stroke="currentColor" strokeWidth="0.35" opacity="0.04" />
       <circle cx="250" cy="250" r="4" fill="currentColor" opacity="0.1" />
     </svg>
+  )
+}
+
+/* ────────────────────────────────────────────────────
+   ORBITAL RING — Zodiac symbols orbiting
+   ──────────────────────────────────────────────────── */
+function OrbitalRing() {
+  return (
+    <div className="pointer-events-none absolute inset-0">
+      <div className="relative h-full w-full">
+        {/* Outer ring — zodiac symbols orbiting */}
+        <div className="absolute inset-0 rounded-full border border-gold/[0.07]"
+          style={{ animation: "spin-slow 90s linear infinite" }}>
+          {zodiacSigns.map((sign, i) => {
+            const angle = (i * 30 * Math.PI) / 180
+            const r = 46
+            return (
+              <span key={sign.en}
+                className="absolute text-xl opacity-25 transition-opacity duration-300 hover:opacity-70"
+                style={{
+                  left: `${50 + r * Math.cos(angle)}%`,
+                  top: `${50 + r * Math.sin(angle)}%`,
+                  transform: "translate(-50%, -50%)",
+                }}>
+                {sign.symbol}
+              </span>
+            )
+          })}
+        </div>
+        {/* Middle ring — counter-rotating */}
+        <div className="absolute inset-[15%] rounded-full border border-gold/[0.05]"
+          style={{ animation: "spin-slow 120s linear infinite reverse" }} />
+        {/* Inner ring */}
+        <div className="absolute inset-[30%] rounded-full border border-gold/[0.03]" />
+        {/* Center glow */}
+        <div className="absolute inset-[40%] rounded-full bg-gold/[0.03] blur-xl" />
+      </div>
+    </div>
+  )
+}
+
+/* ────────────────────────────────────────────────────
+   PLANETARY ORBITS — Interactive planets with labels
+   ──────────────────────────────────────────────────── */
+const PLANETS = [
+  { name: "Sun", symbol: "☉", label: "Soul Power", color: "#E8A838", orbit: 0.92, speed: 50, size: 28 },
+  { name: "Moon", symbol: "☽", label: "Inner Mind", color: "#E0E0E0", orbit: 0.82, speed: 38, size: 22 },
+  { name: "Mars", symbol: "♂", label: "Raw Energy", color: "#E85454", orbit: 0.72, speed: 55, size: 18 },
+  { name: "Mercury", symbol: "☿", label: "Quick Wit", color: "#7BCAB3", orbit: 0.62, speed: 30, size: 16 },
+  { name: "Jupiter", symbol: "♃", label: "Divine Grace", color: "#F5D590", orbit: 0.52, speed: 72, size: 24 },
+  { name: "Venus", symbol: "♀", label: "Love Beauty", color: "#C8A2C8", orbit: 0.42, speed: 44, size: 18 },
+  { name: "Saturn", symbol: "♄", label: "Karmic Law", color: "#8899AA", orbit: 0.32, speed: 95, size: 20 },
+  { name: "Rahu", symbol: "☊", label: "Deep Desire", color: "#6B5B95", orbit: 0.22, speed: 80, size: 14 },
+  { name: "Ketu", symbol: "☋", label: "Past Wisdom", color: "#A0522D", orbit: 0.15, speed: 80, size: 14 },
+]
+
+function PlanetaryOrbits() {
+  const [hoveredPlanet, setHoveredPlanet] = useState<string | null>(null)
+
+  return (
+    <div className="pointer-events-none absolute inset-0">
+      {/* Orbital tracks */}
+      {PLANETS.map((planet) => (
+        <div key={`track-${planet.name}`}
+          className="absolute rounded-full border border-gold/[0.04]"
+          style={{
+            inset: `${(1 - planet.orbit) * 50}%`,
+          }} />
+      ))}
+
+      {/* Planets on orbits */}
+      {PLANETS.map((planet) => {
+        const isHovered = hoveredPlanet === planet.name
+        return (
+          <div key={planet.name}
+            className="absolute"
+            style={{
+              inset: `${(1 - planet.orbit) * 50}%`,
+              animation: `spin-slow ${planet.speed}s linear infinite`,
+            }}>
+            {/* Planet positioned at top of its orbit */}
+            <div className="pointer-events-auto absolute left-1/2 -translate-x-1/2 cursor-pointer"
+              style={{ top: -planet.size / 2 }}
+              onMouseEnter={() => setHoveredPlanet(planet.name)}
+              onMouseLeave={() => setHoveredPlanet(null)}>
+              {/* Planet body */}
+              <motion.div
+                animate={{ scale: isHovered ? 1.4 : 1 }}
+                transition={{ duration: 0.3 }}
+                className="relative flex items-center justify-center rounded-full"
+                style={{
+                  width: planet.size,
+                  height: planet.size,
+                  background: `radial-gradient(circle at 35% 35%, ${planet.color}cc, ${planet.color}55)`,
+                  boxShadow: isHovered
+                    ? `0 0 20px ${planet.color}55, 0 0 40px ${planet.color}22`
+                    : `0 0 8px ${planet.color}22`,
+                }}>
+                <span className="text-[9px] font-bold text-white/90"
+                  style={{ counterReset: "spin-slow", animation: `spin-slow ${planet.speed}s linear infinite reverse` }}>
+                  {planet.symbol}
+                </span>
+              </motion.div>
+              {/* Label tooltip */}
+              <AnimatePresence>
+                {isHovered && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 4, scale: 0.9 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 4, scale: 0.9 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-full left-1/2 -translate-x-1/2 mt-2 whitespace-nowrap z-50"
+                    style={{ animation: `spin-slow ${planet.speed}s linear infinite reverse` }}>
+                    <div className="glass-card px-3 py-1.5 rounded-lg text-center shadow-xl">
+                      <p className="text-[10px] font-bold" style={{ color: planet.color }}>{planet.name}</p>
+                      <p className="text-[9px] text-text-dim/70">{planet.label}</p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+        )
+      })}
+    </div>
   )
 }
 
@@ -1246,6 +1372,16 @@ export default function LandingPage() {
         </motion.div>
 
         <div className="yantra-bg pointer-events-none absolute inset-0" />
+
+        {/* ── Animation 1: Orbital Ring — zodiac signs orbiting ── */}
+        <div className="pointer-events-none absolute right-[-5%] top-1/2 -translate-y-1/2 hidden lg:block h-[620px] w-[620px]">
+          <OrbitalRing />
+        </div>
+
+        {/* ── Animation 2: Interactive Planetary Orbits ── */}
+        <div className="absolute left-[-5%] top-1/2 -translate-y-1/2 hidden lg:block h-[560px] w-[560px]">
+          <PlanetaryOrbits />
+        </div>
 
         {/* Cinematic radial glow behind hero */}
         <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-gold/[0.02] blur-[200px]"
