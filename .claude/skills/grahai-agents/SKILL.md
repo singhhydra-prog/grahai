@@ -32,24 +32,32 @@ CEO Orchestrator (routes all queries)
 | `src/lib/agents/memory.ts` | Memory retrieval + birth data extraction |
 | `src/lib/agents/metrics.ts` | Agent performance tracking |
 | `src/lib/agents/tools/index.ts` | Central tool registry + dispatcher |
-| `src/lib/agents/tools/astrology-tools.ts` | Kundli, Dasha, Yoga, chart retrieval tools |
-| `src/lib/agents/tools/numerology-tools.ts` | Life path, name numbers, personal year tools |
-| `src/lib/agents/tools/tarot-tools.ts` | Card draw, details lookup, reading save tools |
-| `src/lib/agents/tools/vastu-tools.ts` | Direction analysis, element balance, assessment tools |
+| `src/lib/agents/tools/astrology-tools.ts` | 7 tools: kundli, dasha, yoga, divisional, transit, remedies, report |
+| `src/lib/agents/tools/numerology-tools.ts` | 4 tools: life path, name numbers, personal year, save profile |
+| `src/lib/agents/tools/tarot-tools.ts` | 3 tools: draw cards, card meaning, save reading |
+| `src/lib/agents/tools/vastu-tools.ts` | 3 tools: analyze vastu, remedies, save assessment |
+| `src/lib/ethics-guardrails.ts` | Content safety filter (hard blocks + soft transforms) |
+
+## Tool Registry (17 total)
+
+**Astrology (7):** `calculate_kundli`, `get_dasha_periods`, `analyze_yogas`, `get_divisional_chart`, `get_transit_effects`, `get_remedies`, `generate_report`
+**Numerology (4):** `calculate_life_path`, `calculate_name_numbers`, `calculate_personal_year`, `save_numerology_profile`
+**Tarot (3):** `draw_tarot_cards`, `get_card_meaning`, `save_tarot_reading`
+**Vastu (3):** `analyze_vastu`, `get_vastu_remedies`, `save_vastu_assessment`
 
 ## How to Add a New Tool
 
 ### 1. Define the tool schema
 
-Create or edit `src/lib/agents/tools/{vertical}-tools.ts`:
+In `src/lib/agents/tools/{vertical}-tools.ts`:
 
 ```typescript
 import type { Tool } from "@anthropic-ai/sdk/resources/messages"
 
 export const MY_TOOL_DEFINITIONS: Tool[] = [
   {
-    name: "my_tool_name",           // snake_case, unique across all verticals
-    description: "What this tool does — be specific for Claude to know when to use it",
+    name: "my_tool_name",           // snake_case, globally unique
+    description: "What this tool does — be specific for Claude",
     input_schema: {
       type: "object" as const,
       properties: {
@@ -72,7 +80,7 @@ export async function executeMyTool(
 ): Promise<unknown> {
   switch (toolName) {
     case "my_tool_name":
-      return await myToolLogic(input as { param1: string; param2?: number }, userId)
+      return await myToolLogic(input as MyToolInput, userId)
     default:
       return { error: `Unknown tool: ${toolName}` }
   }
@@ -87,38 +95,38 @@ import { MY_TOOL_DEFINITIONS, executeMyTool } from "./my-tools"
 // Add to VERTICAL_TOOLS:
 const VERTICAL_TOOLS: Record<string, Tool[]> = {
   my_vertical: MY_TOOL_DEFINITIONS,
-  // ... existing
 }
 
-// Add to executeToolCall switch:
+// Add to executeToolCall switch case:
 case "my_vertical":
   return await executeMyTool(toolName, toolInput, userId)
-
-// Add to TOOL_DISPLAY_INFO:
-my_tool_name: {
-  label: "Tool Label",
-  icon: "🔧",
-  description: "User-facing description shown during execution...",
-},
 ```
+
+### 4. Rules
+
+- Tool names: `snake_case`, globally unique across all verticals
+- Always return structured JSON (never plain strings)
+- Include `userId` parameter for any DB operations
+- Handle errors gracefully — return `{ error: "message" }` not throw
 
 ## Modifying System Prompts
 
-**NEVER hardcode system prompts** in route.ts. All prompts live in the `agent_prompt_versions` Supabase table.
+**NEVER hardcode system prompts** in route.ts. All prompts live in `agent_prompt_versions` table.
 
-To update a prompt:
 ```sql
 -- Deactivate old version
-UPDATE agent_prompt_versions SET is_active = false WHERE agent_name = 'jyotish_guru' AND is_active = true;
+UPDATE agent_prompt_versions SET is_active = false
+WHERE agent_name = 'jyotish_guru' AND is_active = true;
 
 -- Insert new version
 INSERT INTO agent_prompt_versions (agent_name, version, system_prompt, is_active)
 VALUES ('jyotish_guru', 2, 'Your new prompt here...', true);
 ```
 
-The `prompt-loader.ts` has a 5-minute TTL cache. Changes take effect within 5 minutes of DB update.
+Cache TTL: 5 minutes. Changes take effect within 5 minutes of DB update.
 
 ### Agent Name Mapping
+
 | Vertical | Agent Name | Display Name |
 |----------|-----------|--------------|
 | astrology | jyotish_guru | Jyotish Guru |
@@ -127,25 +135,26 @@ The `prompt-loader.ts` has a 5-minute TTL cache. Changes take effect within 5 mi
 | vastu | vastu_acharya | Vastu Acharya |
 | general | ceo_orchestrator | GrahAI |
 
-## Streaming Architecture
+## Streaming Architecture (SSE)
 
-The chat API uses **Server-Sent Events (SSE)** with these event types:
+The chat API returns Server-Sent Events:
 
 | Event | Payload | When |
 |-------|---------|------|
 | `meta` | `{ conversation_id, vertical, agent_name }` | Start of response |
-| `text_delta` | `{ text: "chunk" }` | Each ~50 char chunk of response |
-| `tool_start` | `{ tool_name, tool_id, label, icon, description }` | Tool execution begins |
-| `tool_result` | `{ tool_name, tool_id, success }` | Tool execution completes |
-| `message_stop` | `{ conversation_id, agent_name, vertical, tools_used }` | Response complete |
+| `text_delta` | `{ text: "chunk" }` | Each token chunk |
+| `tool_start` | `{ tool_name, tool_id, label, icon, description }` | Tool begins |
+| `tool_result` | `{ tool_name, tool_id, success }` | Tool completes |
+| `message_stop` | `{ conversation_id, agent_name, vertical, tools_used }` | Response done |
 | `error` | `{ message }` | Error occurred |
 
 ### Tool-Use Loop
-When Claude returns `stop_reason: "tool_use"`, the API:
-1. Executes the tool server-side
-2. Feeds the result back as a `tool_result` message
-3. Calls Claude again to continue generating
-4. Repeats until `stop_reason: "end_turn"`
+
+When Claude returns `stop_reason: "tool_use"`:
+1. Execute the tool server-side
+2. Feed result back as `tool_result` message
+3. Call Claude again to continue generating
+4. Repeat until `stop_reason: "end_turn"`
 
 ## Memory System
 
@@ -153,31 +162,30 @@ When Claude returns `stop_reason: "tool_use"`, the API:
 - `birth_data` — auto-extracted from user messages (date, time, place)
 - `preference` — user preferences noted during conversation
 - `reading_history` — completed readings/analyses
-- `astrological` / `numerological` / `tarot` / `vastu` — vertical-specific facts
+- Vertical-specific: `astrological`, `numerological`, `tarot`, `vastu`
 
 ### Auto Birth Data Extraction
-`extractAndSaveBirthData()` runs fire-and-forget on every message, using regex patterns to detect:
-- Date patterns (DD/MM/YYYY, "March 15, 1995", etc.)
-- Time patterns (10:30 AM, 22:30, etc.)
-- City names (after keywords like "born in", "from", "at")
+`extractAndSaveBirthData()` runs fire-and-forget on every message, using regex to detect dates, times, and city names.
 
 ### Memory Retrieval
-`getRelevantMemories()` fetches top memories by `importance DESC, last_accessed_at DESC` and formats them as a context block prepended to the system prompt.
+`getRelevantMemories()` fetches top memories by `importance DESC, last_accessed_at DESC`, formats as context block prepended to system prompt.
+
+## Ethics Guardrails
+
+Every AI response passes through `src/lib/ethics-guardrails.ts`:
+
+- **Hard blocks:** Fatalistic doom, medical misinformation, financial manipulation, relationship coercion, caste discrimination
+- **Soft transforms:** "you will never" → "current patterns suggest challenges in"
+- **Severity:** none, low, medium, high
 
 ## Testing Checklist
-- [ ] Each vertical correctly detects from user message (regex in `detectVertical()`)
+
+- [ ] Each vertical detects correctly from user messages
 - [ ] System prompts load from DB (check `agent_prompt_versions` has active rows)
-- [ ] Tool execution works for each vertical (test all 14 tools)
+- [ ] All 17 tools execute and return structured data
 - [ ] Streaming renders token-by-token in chat UI
-- [ ] Tool indicators show during execution and disappear after completion
-- [ ] Conversation history persists across messages
-- [ ] Memories are saved and retrieved for returning users
-- [ ] Metrics are tracked in `agent_metrics` table
-
-## TypeScript Patterns
-
-- All tool inputs typed with explicit interfaces
-- Use `Record<string, unknown>` for generic tool input, cast inside executor
-- Supabase client created per-request (not global) via `getSupabase()`
-- Fire-and-forget patterns use `.catch(() => {})` to prevent unhandled rejections
-- Model: `claude-sonnet-4-20250514`, max_tokens: 4096
+- [ ] Tool indicators show/hide correctly
+- [ ] Conversation history persists
+- [ ] Memories save and retrieve
+- [ ] Metrics tracked in `agent_metrics`
+- [ ] Ethics guardrails block fatalistic predictions

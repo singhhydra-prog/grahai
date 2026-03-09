@@ -28,6 +28,7 @@ SUPABASE_SERVICE_ROLE_KEY=...              (server-only, NEVER expose client-sid
 ## Table Reference (22+ tables)
 
 ### Core User Tables
+
 | Table | Purpose | Key Columns |
 |-------|---------|-------------|
 | `profiles` | User profiles (PK = auth.uid()) | `id`, `full_name`, `email`, `avatar_url`, `onboarding_completed` |
@@ -36,6 +37,7 @@ SUPABASE_SERVICE_ROLE_KEY=...              (server-only, NEVER expose client-sid
 | `memories` | User memory/context | `id`, `user_id`, `memory_type`, `content`, `importance`, `access_count`, `embedding` |
 
 ### Astrology Tables
+
 | Table | Purpose | Key Columns |
 |-------|---------|-------------|
 | `kundlis` | Birth charts | `id`, `user_id`, `birth_date/time/city/lat/lng`, `planets`, `houses`, `nakshatras`, `dashas`, `yogas` (all JSONB) |
@@ -43,23 +45,27 @@ SUPABASE_SERVICE_ROLE_KEY=...              (server-only, NEVER expose client-sid
 | `compatibility_reports` | Match analysis | `id`, `user_id`, `partner_name`, `partner_birth_*`, `compatibility_data` |
 
 ### Numerology Tables
+
 | Table | Purpose | Key Columns |
 |-------|---------|-------------|
 | `numerology_profiles` | Computed profiles | `id`, `user_id`, `full_name`, `birth_date`, `life_path_number`, `destiny_number`, `soul_urge_number`, `personality_number` |
 | `numerology_readings` | Reading history | `id`, `user_id`, `reading_type`, `reading_data`, `insights` |
 
 ### Tarot Tables
+
 | Table | Purpose | Key Columns |
 |-------|---------|-------------|
 | `tarot_cards` | 78-card RWS deck | `id`, `name`, `arcana` (CHECK: 'major'/'minor'), `suit` (CHECK: 'wands'/'cups'/'swords'/'pentacles'/NULL), `card_number`, `keywords`, `upright_meaning`, `reversed_meaning`, `element`, `zodiac_sign`, `image_url` |
 | `tarot_readings` | Saved readings | `id`, `user_id`, `spread_type`, `question`, `cards_drawn`, `interpretation` |
 
 ### Vastu Tables
+
 | Table | Purpose | Key Columns |
 |-------|---------|-------------|
 | `vastu_assessments` | Space analyses | `id`, `user_id`, `property_type`, `entrance_direction`, `rooms`, `overall_score`, `assessment_data`, `remedies` |
 
 ### Agent System Tables
+
 | Table | Purpose | Key Columns |
 |-------|---------|-------------|
 | `agent_hierarchy` | 28 agent definitions | `id`, `agent_name`, `display_name`, `role`, `department`, `parent_agent_id`, `vertical`, `capabilities`, `status` |
@@ -68,7 +74,8 @@ SUPABASE_SERVICE_ROLE_KEY=...              (server-only, NEVER expose client-sid
 | `agent_learnings` | Agent knowledge base | `id`, `agent_name`, `learning_type`, `content`, `confidence_score` |
 | `agent_tasks` | Inter-agent communication | `id`, `conversation_id`, `from_agent`, `to_agent`, `task_type`, `input_data`, `output_data`, `status`, `priority` |
 
-### Other Tables
+### Business Tables
+
 | Table | Purpose |
 |-------|---------|
 | `blog_posts` | Blog/content CMS |
@@ -83,9 +90,18 @@ SUPABASE_SERVICE_ROLE_KEY=...              (server-only, NEVER expose client-sid
 ### Check Constraints
 - `tarot_cards.arcana`: Must be `'major'` or `'minor'` (lowercase!)
 - `tarot_cards.suit`: Must be `'wands'`, `'cups'`, `'swords'`, `'pentacles'`, or NULL (for Major Arcana)
-- Always query constraints before inserting: `SELECT conname, pg_get_constraintdef(oid) FROM pg_constraint WHERE conrelid = 'table_name'::regclass;`
+- Always query constraints before inserting:
+  ```sql
+  SELECT conname, pg_get_constraintdef(oid) FROM pg_constraint WHERE conrelid = 'table_name'::regclass;
+  ```
+
+### Critical Rules
+- **Table is `profiles`** — NEVER reference `user_profiles` or `user_id`
+- Primary key `id` = `auth.uid()` (UUID from Supabase Auth)
+- Always check `onboarding_completed` boolean after auth callback
 
 ### RLS (Row Level Security)
+
 All tables have RLS enabled. Patterns:
 - **User data**: `auth.uid() = user_id` for SELECT/INSERT/UPDATE/DELETE
 - **Public read**: `true` for SELECT (blog_posts, pricing_plans, tarot_cards)
@@ -95,15 +111,12 @@ All tables have RLS enabled. Patterns:
 ```sql
 ALTER TABLE my_table ENABLE ROW LEVEL SECURITY;
 
--- User can read own data
 CREATE POLICY "Users read own data" ON my_table
   FOR SELECT USING (auth.uid() = user_id);
 
--- User can insert own data
 CREATE POLICY "Users insert own data" ON my_table
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 
--- Service role bypass (for API routes)
 CREATE POLICY "Service role full access" ON my_table
   FOR ALL USING (auth.role() = 'service_role');
 ```
@@ -111,7 +124,6 @@ CREATE POLICY "Service role full access" ON my_table
 ## Creating Migrations
 
 Use the Supabase MCP tool:
-
 ```
 apply_migration(
   project_id: "jkowflffshkebegtabxa",
@@ -124,30 +136,29 @@ Naming convention: `add_<table>`, `alter_<table>_add_<column>`, `create_<index>`
 
 ## Client Patterns
 
-### Server-side (API routes)
+### Server-side (API routes — bypasses RLS)
 ```typescript
 import { createClient } from "@supabase/supabase-js"
 const sb = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!  // Bypasses RLS
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 ```
 
-### Server Components (SSR)
+### Server Components (SSR — respects RLS)
 ```typescript
 import { createServerClient } from "@/lib/supabase-server"
-const sb = await createServerClient()  // Uses cookies, respects RLS
+const sb = await createServerClient()
 ```
 
-### Client Components
+### Client Components (browser — respects RLS)
 ```typescript
 import { createClient } from "@/lib/supabase"
-const sb = createClient()  // Browser client, respects RLS
+const sb = createClient()
 ```
 
 ## JSONB Column Patterns
 
-Many tables use JSONB for flexible data (planets, houses, cards_drawn, etc.). Query patterns:
 ```sql
 -- Access nested JSONB
 SELECT planets->>'Sun' FROM kundlis WHERE user_id = '...';
@@ -161,6 +172,6 @@ UPDATE kundlis SET planets = planets || '{"Rahu": {"sign": "Aries"}}' WHERE id =
 
 ## Edge Functions
 
-Deploy via Supabase MCP `deploy_edge_function` tool. Edge Functions run Deno and can access the service role key via `Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")`.
+Deploy via Supabase MCP `deploy_edge_function` tool. Edge Functions run Deno and can access `Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")`.
 
 Currently no Edge Functions deployed — all AI logic runs in Next.js API routes.
