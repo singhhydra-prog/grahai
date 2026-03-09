@@ -13,8 +13,12 @@
 let sweph: any = null
 
 try {
-  // This will fail at build time if the .node binary isn't built
-  sweph = require("sweph")
+  // Use indirect require to prevent Next.js/Webpack static analysis from
+  // resolving the module at build time — critical for Vercel deployment
+  // where the native .node binary may not compile
+  const moduleName = "sweph"
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  sweph = require(moduleName)
 } catch {
   console.warn("[GrahAI] sweph native module not available — ephemeris calculations will use fallback")
 }
