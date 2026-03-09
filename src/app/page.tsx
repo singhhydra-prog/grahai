@@ -1285,6 +1285,7 @@ export default function LandingPage() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
   const [errorMsg, setErrorMsg] = useState("")
   const [wlCount, setWlCount] = useState(0)
+  const [hoveredPlanet, setHoveredPlanet] = useState<string | null>(null)
 
   const heroRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] })
@@ -1362,105 +1363,218 @@ export default function LandingPage() {
       <JourneyProgressBar />
 
       {/* ═══════════════════════════════════════════
-          HERO — cinematic parallax depth
+          HERO — split layout: tagline left, solar system right, video bg
           ═══════════════════════════════════════════ */}
-      <section ref={heroRef} className="relative flex min-h-[100svh] items-center justify-center overflow-hidden">
-        {/* Yantra background — parallax depth */}
-        <motion.div style={{ rotate: yantraR, scale: yantraScale }}
-          className="pointer-events-none absolute right-[-8%] top-[8%] hidden text-gold lg:block">
-          <Yantra size={650} />
-        </motion.div>
+      <section ref={heroRef} className="relative flex min-h-[100svh] items-center overflow-hidden">
+        {/* Video Background */}
+        <video
+          autoPlay muted loop playsInline
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-30"
+          aria-hidden="true"
+        >
+          <source src="/hero-bg.webm" type="video/webm" />
+        </video>
 
-        <div className="yantra-bg pointer-events-none absolute inset-0" />
-
-        {/* ── Animation 1: Orbital Ring — zodiac signs orbiting ── */}
-        <div className="pointer-events-none absolute right-[-5%] top-1/2 -translate-y-1/2 hidden lg:block h-[620px] w-[620px]">
-          <OrbitalRing />
-        </div>
-
-        {/* ── Animation 2: Interactive Planetary Orbits ── */}
-        <div className="absolute left-[-5%] top-1/2 -translate-y-1/2 hidden lg:block h-[560px] w-[560px]">
-          <PlanetaryOrbits />
-        </div>
-
-        {/* Cinematic radial glow behind hero */}
-        <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-gold/[0.02] blur-[200px]"
-          style={{ animation: "pulse-soft 6s ease-in-out infinite" }} />
+        {/* Dark gradient overlay for readability */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-bg/95 via-bg/80 to-bg/50" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg via-transparent to-bg/60" />
 
         <motion.div style={{ opacity: heroO, y: heroY }}
           className="relative z-10 w-full">
 
-          <div className="mx-auto flex flex-col items-center text-center max-w-3xl px-6 lg:px-10 pt-32 pb-20 lg:pt-36 lg:pb-24">
-            {/* Badge — urgency reframe */}
-            <BlurReveal delay={0.2}>
-              <div className="mb-8 inline-flex items-center gap-3 rounded-full border border-gold/10 bg-gold/[0.02] px-5 py-2">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-40" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
-                </span>
-                <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-gold/65">
-                  Private Beta Opens April 2026
-                </span>
-              </div>
-            </BlurReveal>
+          <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-8 px-6 pt-32 pb-20 lg:grid-cols-2 lg:gap-4 lg:px-10 lg:pt-36 lg:pb-24">
 
-            {/* Tagline — staggered character reveal */}
-            <BlurReveal delay={0.35}>
-              <h1 className="heading-hero mb-5">
-                <CharReveal text="Your Planets." className="text-text" delay={0.4} />
-                <br />
-                <CharReveal text="Your Path." className="gold-text" delay={0.7} />
-              </h1>
-            </BlurReveal>
+            {/* ── LEFT COLUMN: Tagline + CTA ── */}
+            <div className="flex flex-col items-start text-left">
+              {/* Badge */}
+              <BlurReveal delay={0.2}>
+                <div className="mb-8 inline-flex items-center gap-3 rounded-full border border-gold/10 bg-gold/[0.02] px-5 py-2">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-40" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
+                  </span>
+                  <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-gold/65">
+                    Private Beta Opens April 2026
+                  </span>
+                </div>
+              </BlurReveal>
 
-            {/* Hindi subtitle */}
-            <BlurReveal delay={0.5}>
-              <p className="mb-7 font-hindi text-xl text-gold/40 md:text-2xl">
-                आपके ग्रह, आपकी राह
-              </p>
-            </BlurReveal>
+              {/* Tagline */}
+              <BlurReveal delay={0.35}>
+                <h1 className="heading-hero mb-5">
+                  <CharReveal text="Your Planets." className="text-text" delay={0.4} />
+                  <br />
+                  <CharReveal text="Your Path." className="gold-text" delay={0.7} />
+                </h1>
+              </BlurReveal>
 
-            {/* Body */}
-            <BlurReveal delay={0.65}>
-              <p className="text-body mb-10 max-w-xl">
-                GrahAI brings together four Vedic sciences — Astrology, Numerology,
-                Tarot, and Vastu — powered by AI trained on classical Sanskrit texts.
-                Deeply personal readings, computed with precision, delivered in seconds.
-              </p>
-            </BlurReveal>
-
-            {/* Primary CTA Button */}
-            <BlurReveal delay={0.8}>
-              <Link href="/chat"
-                className="group inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-gold to-gold-light px-10 py-4 text-base font-semibold text-bg transition-all hover:shadow-xl hover:shadow-gold/20 active:scale-[0.98]"
-                style={{ animation: "pulse-soft 4s ease-in-out infinite" }}>
-                Start Your Cosmic Journey
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </BlurReveal>
-
-            {/* Micro-nav links */}
-            <BlurReveal delay={0.95}>
-              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8 text-sm font-medium">
-                <a href="#sciences"
-                  className="text-text-dim/60 transition-colors hover:text-gold/70">Explore Jyotish</a>
-                <span className="hidden sm:inline text-text-dim/20">·</span>
-                <a href="#guided-demo"
-                  className="text-text-dim/60 transition-colors hover:text-gold/70">Try a Reading</a>
-                <span className="hidden sm:inline text-text-dim/20">·</span>
-                <a href="#how-it-works"
-                  className="text-text-dim/60 transition-colors hover:text-gold/70">Learn the Sciences</a>
-              </div>
-            </BlurReveal>
-
-            {/* Waitlist counter */}
-            {wlCount > 0 && (
-              <BlurReveal delay={1.1}>
-                <p className="mt-8 text-xs text-text-dim/50 text-center">
-                  <span className="text-gold/50 font-medium">{wlCount.toLocaleString()}</span> seekers already on the path
+              {/* Hindi subtitle */}
+              <BlurReveal delay={0.5}>
+                <p className="mb-7 font-hindi text-xl text-gold/40 md:text-2xl">
+                  आपके ग्रह, आपकी राह
                 </p>
               </BlurReveal>
-            )}
+
+              {/* Body */}
+              <BlurReveal delay={0.65}>
+                <p className="text-body mb-10 max-w-lg">
+                  GrahAI brings together four Vedic sciences — Astrology, Numerology,
+                  Tarot, and Vastu — powered by AI trained on classical Sanskrit texts.
+                  Deeply personal readings, computed with precision, delivered in seconds.
+                </p>
+              </BlurReveal>
+
+              {/* Primary CTA */}
+              <BlurReveal delay={0.8}>
+                <Link href="/chat"
+                  className="group inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-gold to-gold-light px-10 py-4 text-base font-semibold text-bg transition-all hover:shadow-xl hover:shadow-gold/20 active:scale-[0.98]"
+                  style={{ animation: "pulse-soft 4s ease-in-out infinite" }}>
+                  Start Your Cosmic Journey
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </BlurReveal>
+
+              {/* Micro-nav */}
+              <BlurReveal delay={0.95}>
+                <div className="mt-8 flex flex-col sm:flex-row items-start gap-6 sm:gap-8 text-sm font-medium">
+                  <a href="#sciences" className="text-text-dim/60 transition-colors hover:text-gold/70">Explore Jyotish</a>
+                  <span className="hidden sm:inline text-text-dim/20">·</span>
+                  <a href="#guided-demo" className="text-text-dim/60 transition-colors hover:text-gold/70">Try a Reading</a>
+                  <span className="hidden sm:inline text-text-dim/20">·</span>
+                  <a href="#how-it-works" className="text-text-dim/60 transition-colors hover:text-gold/70">Learn the Sciences</a>
+                </div>
+              </BlurReveal>
+
+              {/* Waitlist counter */}
+              {wlCount > 0 && (
+                <BlurReveal delay={1.1}>
+                  <p className="mt-8 text-xs text-text-dim/50">
+                    <span className="text-gold/50 font-medium">{wlCount.toLocaleString()}</span> seekers already on the path
+                  </p>
+                </BlurReveal>
+              )}
+            </div>
+
+            {/* ── RIGHT COLUMN: 3D Interactive Solar System ── */}
+            <BlurReveal delay={0.4} className="hidden lg:flex items-center justify-center">
+              <div className="relative h-[520px] w-[520px]">
+                {/* Orbital tracks */}
+                {PLANETS.map((planet) => (
+                  <div key={`hero-track-${planet.name}`}
+                    className="absolute rounded-full border border-gold/[0.06]"
+                    style={{
+                      inset: `${(1 - planet.orbit) * 50}%`,
+                    }} />
+                ))}
+
+                {/* Glowing Sun in center */}
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+                  <div className="relative flex items-center justify-center">
+                    {/* Sun corona glow */}
+                    <div className="absolute h-24 w-24 rounded-full bg-gold/10 blur-xl"
+                      style={{ animation: "pulse-soft 3s ease-in-out infinite" }} />
+                    <div className="absolute h-16 w-16 rounded-full bg-gold/15 blur-lg" />
+                    {/* Sun body */}
+                    <div className="relative h-10 w-10 rounded-full"
+                      style={{
+                        background: "radial-gradient(circle at 35% 35%, #F5E6A3, #E8A838, #C9A24D)",
+                        boxShadow: "0 0 30px #E8A83855, 0 0 60px #C9A24D33, 0 0 90px #E8A83822",
+                      }}>
+                      <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-bg/80">☉</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Orbiting Planets */}
+                {PLANETS.filter(p => p.name !== "Sun").map((planet) => {
+                  const isHovered = hoveredPlanet === planet.name
+                  return (
+                    <div key={`hero-${planet.name}`}
+                      className="absolute"
+                      style={{
+                        inset: `${(1 - planet.orbit) * 50}%`,
+                        animation: `spin-slow ${planet.speed}s linear infinite`,
+                      }}>
+                      <div className="pointer-events-auto absolute left-1/2 -translate-x-1/2 cursor-pointer"
+                        style={{ top: -planet.size / 2 }}
+                        onMouseEnter={() => setHoveredPlanet(planet.name)}
+                        onMouseLeave={() => setHoveredPlanet(null)}>
+                        <motion.div
+                          animate={{ scale: isHovered ? 1.5 : 1 }}
+                          transition={{ duration: 0.3 }}
+                          className="relative flex items-center justify-center rounded-full"
+                          style={{
+                            width: planet.size,
+                            height: planet.size,
+                            background: `radial-gradient(circle at 35% 35%, ${planet.color}cc, ${planet.color}55)`,
+                            boxShadow: isHovered
+                              ? `0 0 20px ${planet.color}55, 0 0 40px ${planet.color}22`
+                              : `0 0 8px ${planet.color}22`,
+                          }}>
+                          <span className="text-[9px] font-bold text-white/90"
+                            style={{ animation: `spin-slow ${planet.speed}s linear infinite reverse` }}>
+                            {planet.symbol}
+                          </span>
+                        </motion.div>
+                        <AnimatePresence>
+                          {isHovered && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 4, scale: 0.9 }}
+                              animate={{ opacity: 1, y: 0, scale: 1 }}
+                              exit={{ opacity: 0, y: 4, scale: 0.9 }}
+                              transition={{ duration: 0.2 }}
+                              className="absolute top-full left-1/2 -translate-x-1/2 mt-2 whitespace-nowrap z-50"
+                              style={{ animation: `spin-slow ${planet.speed}s linear infinite reverse` }}>
+                              <div className="rounded-lg border border-white/10 bg-bg/90 px-3 py-1.5 text-center shadow-xl backdrop-blur-md">
+                                <p className="text-[10px] font-bold" style={{ color: planet.color }}>{planet.name}</p>
+                                <p className="text-[9px] text-text-dim/70">{planet.label}</p>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </BlurReveal>
+
+            {/* Mobile: show compact solar system */}
+            <BlurReveal delay={0.4} className="flex lg:hidden items-center justify-center -mt-4">
+              <div className="relative h-[280px] w-[280px]">
+                {PLANETS.slice(0, 5).map((planet) => (
+                  <div key={`mob-track-${planet.name}`}
+                    className="absolute rounded-full border border-gold/[0.06]"
+                    style={{ inset: `${(1 - planet.orbit) * 50}%` }} />
+                ))}
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+                  <div className="h-6 w-6 rounded-full"
+                    style={{
+                      background: "radial-gradient(circle at 35% 35%, #F5E6A3, #E8A838)",
+                      boxShadow: "0 0 20px #E8A83844, 0 0 40px #C9A24D22",
+                    }} />
+                </div>
+                {PLANETS.filter(p => p.name !== "Sun").slice(0, 4).map((planet) => (
+                  <div key={`mob-${planet.name}`}
+                    className="absolute"
+                    style={{
+                      inset: `${(1 - planet.orbit) * 50}%`,
+                      animation: `spin-slow ${planet.speed}s linear infinite`,
+                    }}>
+                    <div className="absolute left-1/2 -translate-x-1/2"
+                      style={{ top: -(planet.size * 0.7) / 2 }}>
+                      <div className="rounded-full"
+                        style={{
+                          width: planet.size * 0.7,
+                          height: planet.size * 0.7,
+                          background: `radial-gradient(circle at 35% 35%, ${planet.color}cc, ${planet.color}55)`,
+                          boxShadow: `0 0 6px ${planet.color}22`,
+                        }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </BlurReveal>
           </div>
         </motion.div>
 
