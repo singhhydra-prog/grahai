@@ -9,6 +9,7 @@ import { getRelevantMemories, extractAndSaveBirthData } from "@/lib/agents/memor
 import { trackAgentMetrics, incrementPromptInteractions } from "@/lib/agents/metrics"
 import { getToolsForVertical, executeToolCall, TOOL_DISPLAY_INFO } from "@/lib/agents/tools"
 import { detectSubAgent, getSubAgentPromptAugment, logDelegation } from "@/lib/agents/delegation"
+import { checkUsage, incrementUsage } from "@/lib/agents/usage-limiter"
 
 /* ────────────────────────────────────────────────────
    SUPABASE CLIENT — uses user's auth cookies for RLS
@@ -90,6 +91,21 @@ export async function POST(req: NextRequest) {
     // 1. Detect vertical
     const vertical = detectVertical(message, requestedVertical)
     const agentName = getAgentNameForVertical(vertical)
+
+    // 1a. USAGE LIMIT CHECK — enforce tier-based daily limits
+    const usageCheck = await checkUsage(user_id, vertical)
+    if (!usageCheck.allowed) {
+      return new Response(JSON.stringify({
+        error: "daily_limit_reached",
+        message: usageCheck.message,
+        tier: usageCheck.tier,
+        limit: usageCheck.limit,
+        upgradeNeeded: true,
+      }), {
+        status: 429,
+        headers: { "Content-Type": "application/json" },
+      })
+    }
 
     // 1b. Detect sub-agent within the vertical
     const subAgentRoute = detectSubAgent(vertical, message)
@@ -342,6 +358,9 @@ export async function POST(req: NextRequest) {
           if (subAgentRoute) {
             trackAgentMetrics(subAgentRoute.displayName, vertical, Date.now() - startTime, success).catch(() => {})
           }
+
+          // 12. Increment daily usage counter (fire-and-forget)
+          incrementUsage(user_id, vertical).catch(() => {})
 
           controller.close()
         } catch (err) {
