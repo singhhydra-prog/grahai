@@ -8,6 +8,7 @@ import { getActivePrompt, getAgentNameForVertical } from "@/lib/agents/prompt-lo
 import { getRelevantMemories, extractAndSaveBirthData } from "@/lib/agents/memory"
 import { trackAgentMetrics, incrementPromptInteractions } from "@/lib/agents/metrics"
 import { getToolsForVertical, executeToolCall, TOOL_DISPLAY_INFO } from "@/lib/agents/tools"
+import { detectSubAgent, getSubAgentPromptAugment, logDelegation } from "@/lib/agents/delegation"
 
 /* ────────────────────────────────────────────────────
    SUPABASE CLIENT — uses user's auth cookies for RLS
@@ -90,13 +91,18 @@ export async function POST(req: NextRequest) {
     const vertical = detectVertical(message, requestedVertical)
     const agentName = getAgentNameForVertical(vertical)
 
-    // 2. Load system prompt from DB (cached) + memory context
-    const [systemPrompt, memoryContext] = await Promise.all([
+    // 1b. Detect sub-agent within the vertical
+    const subAgentRoute = detectSubAgent(vertical, message)
+    const activeSubAgent = subAgentRoute?.displayName || null
+
+    // 2. Load system prompt from DB (cached) + memory context + sub-agent augment
+    const [systemPrompt, memoryContext, subAgentAugment] = await Promise.all([
       getActivePrompt(vertical),
       getRelevantMemories(user_id, vertical),
+      subAgentRoute ? getSubAgentPromptAugment(vertical, subAgentRoute) : Promise.resolve(""),
     ])
 
-    const fullSystemPrompt = systemPrompt + memoryContext
+    const fullSystemPrompt = systemPrompt + subAgentAugment + memoryContext
 
     // 3. Create or get conversation
     let convId = conversation_id
@@ -175,16 +181,22 @@ export async function POST(req: NextRequest) {
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          // Send initial metadata
+          // Send initial metadata (includes sub-agent if delegated)
           controller.enqueue(
             encoder.encode(
               sseEvent("meta", {
                 conversation_id: convId,
                 vertical,
                 agent_name: agentName,
+                sub_agent: activeSubAgent,
               })
             )
           )
+
+          // Log delegation if sub-agent was selected (fire-and-forget)
+          if (subAgentRoute) {
+            logDelegation(convId, agentName, subAgentRoute.displayName, vertical, message).catch(() => {})
+          }
 
           // Anthropic API call with streaming
           let currentMessages = [...messages]
@@ -299,6 +311,7 @@ export async function POST(req: NextRequest) {
               sseEvent("message_stop", {
                 conversation_id: convId,
                 agent_name: agentName,
+                sub_agent: activeSubAgent,
                 vertical,
                 tools_used: toolsExecuted,
               })
@@ -314,6 +327,7 @@ export async function POST(req: NextRequest) {
               agent_name: agentName,
               metadata: {
                 vertical,
+                sub_agent: activeSubAgent,
                 model: "claude-sonnet-4-20250514",
                 tools_used: toolsExecuted,
                 response_time_ms: Date.now() - startTime,
@@ -323,8 +337,11 @@ export async function POST(req: NextRequest) {
             console.warn("Failed to save assistant message:", saveErr)
           }
 
-          // 11. Track metrics (fire-and-forget)
+          // 11. Track metrics (fire-and-forget) — track both head agent and sub-agent
           trackAgentMetrics(agentName, vertical, Date.now() - startTime, success).catch(() => {})
+          if (subAgentRoute) {
+            trackAgentMetrics(subAgentRoute.displayName, vertical, Date.now() - startTime, success).catch(() => {})
+          }
 
           controller.close()
         } catch (err) {
