@@ -104,6 +104,10 @@ const VERTICAL_ICONS: Record<string, typeof Sun> = {
   tarot: Star,
   vastu: Compass,
   general: Sparkles,
+  support: MessageSquare,
+  growth: TrendingUp,
+  intelligence: Activity,
+  education: Bot,
 }
 
 const VERTICAL_COLORS: Record<string, string> = {
@@ -112,6 +116,10 @@ const VERTICAL_COLORS: Record<string, string> = {
   tarot: "from-indigo-500/20 to-blue-500/20 border-indigo-500/30",
   vastu: "from-emerald-500/20 to-green-500/20 border-emerald-500/30",
   general: "from-rose-500/20 to-pink-500/20 border-rose-500/30",
+  support: "from-cyan-500/20 to-teal-500/20 border-cyan-500/30",
+  growth: "from-lime-500/20 to-green-500/20 border-lime-500/30",
+  intelligence: "from-sky-500/20 to-blue-500/20 border-sky-500/30",
+  education: "from-fuchsia-500/20 to-pink-500/20 border-fuchsia-500/30",
 }
 
 const VERTICAL_TEXT: Record<string, string> = {
@@ -120,6 +128,10 @@ const VERTICAL_TEXT: Record<string, string> = {
   tarot: "text-indigo-400",
   vastu: "text-emerald-400",
   general: "text-rose-400",
+  support: "text-cyan-400",
+  growth: "text-lime-400",
+  intelligence: "text-sky-400",
+  education: "text-fuchsia-400",
 }
 
 export default function AgentDashboard() {
