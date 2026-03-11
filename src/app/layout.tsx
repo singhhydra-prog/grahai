@@ -1,8 +1,9 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import LenisProvider from "@/components/LenisProvider"
 import { AppProviders } from "@/components/Providers"
 import CosmicBackground from "@/components/CosmicBackground"
+import PWARegister from "@/components/PWARegister"
 import "./globals.css"
 
 const inter = Inter({
@@ -10,6 +11,16 @@ const inter = Inter({
   variable: "--font-inter",
   display: "swap",
 })
+
+/* ═══ PWA VIEWPORT ═══ */
+export const viewport: Viewport = {
+  themeColor: "#0E1538",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://grahai.vercel.app"),
@@ -27,9 +38,23 @@ export const metadata: Metadata = {
     "jyotish",
     "grahai",
   ],
+  manifest: "/manifest.json",
   icons: {
-    icon: "/favicon.svg",
-    apple: "/favicon.svg",
+    icon: [
+      { url: "/icon-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icon-96.png", sizes: "96x96", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "GrahAI",
   },
   openGraph: {
     title: "GrahAI — AI-Powered Vedic Astrology",
@@ -71,6 +96,7 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
+        <PWARegister />
         <CosmicBackground />
         <LenisProvider>
           <AppProviders>{children}</AppProviders>
