@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { ArrowRight, MessageCircle, ChevronDown } from "lucide-react"
+import { ArrowRight, ChevronDown, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -50,13 +50,14 @@ export function Navbar() {
   const [productsOpen, setProductsOpen] = useState(false)
 
   const productLinks = [
-    { href: "/kundli", label: "Birth Chart (Kundli)" },
+    { href: "/kundli", label: "Kundli (Birth Chart)" },
     { href: "/horoscope", label: "Daily Horoscope" },
-    { href: "/compatibility", label: "Compatibility" },
+    { href: "/compatibility", label: "Match Making" },
     { href: "/astrologer", label: "AI Astrologer" },
   ]
 
   const navLinks = [
+    { href: "/horoscope", label: "Daily Horoscope" },
     { href: "/pricing", label: "Pricing" },
     { href: "/about", label: "About" },
   ]
@@ -85,7 +86,7 @@ export function Navbar() {
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden items-center gap-8 md:flex">
+        <div className="hidden items-center gap-6 md:flex">
           {/* Products Dropdown */}
           <div
             className="relative"
@@ -100,7 +101,7 @@ export function Navbar() {
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 rounded-xl border border-white/[0.06] bg-bg-card/95 backdrop-blur-xl shadow-2xl shadow-black/40 py-2 z-50"
+                className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 rounded-xl border border-white/[0.06] bg-bg-card/95 backdrop-blur-xl shadow-2xl shadow-black/40 py-2 z-50"
               >
                 {productLinks.map((link) => (
                   <Link
@@ -119,39 +120,61 @@ export function Navbar() {
             )}
           </div>
 
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`text-[11px] font-semibold tracking-[0.15em] uppercase transition-colors ${
-                isActive(link.href)
-                  ? "text-gold/70"
-                  : "text-text-dim/50 hover:text-text/80"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-
-          {/* AI Astrologer Link */}
+          {/* Daily Horoscope Direct Link */}
           <Link
-            href="/astrologer"
-            className={`flex items-center gap-2 text-[11px] font-semibold tracking-[0.15em] uppercase transition-colors ${
-              isActive("/astrologer") ? "text-gold/70" : "text-text-dim/50 hover:text-text/80"
+            href="/horoscope"
+            className={`text-[11px] font-semibold tracking-[0.15em] uppercase transition-colors ${
+              isActive("/horoscope")
+                ? "text-gold/70"
+                : "text-text-dim/50 hover:text-text/80"
             }`}
           >
-            <MessageCircle className="h-4 w-4" />
-            Ask AI
+            Daily Horoscope
           </Link>
 
-          {/* Early Access CTA */}
+          {/* Pricing */}
           <Link
-            href="/#waitlist"
-            className="group flex items-center gap-2 rounded-full border border-gold/15 bg-gold/[0.03] px-6 py-2.5 text-[11px] font-semibold tracking-[0.12em] uppercase text-gold/70 transition-all hover:border-gold/30 hover:bg-gold/[0.06]"
+            href="/pricing"
+            className={`text-[11px] font-semibold tracking-[0.15em] uppercase transition-colors ${
+              isActive("/pricing")
+                ? "text-gold/70"
+                : "text-text-dim/50 hover:text-text/80"
+            }`}
           >
-            Early Access
-            <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+            Pricing
           </Link>
+
+          {/* About */}
+          <Link
+            href="/about"
+            className={`text-[11px] font-semibold tracking-[0.15em] uppercase transition-colors ${
+              isActive("/about")
+                ? "text-gold/70"
+                : "text-text-dim/50 hover:text-text/80"
+            }`}
+          >
+            About
+          </Link>
+
+          {/* CTA Section with Badge */}
+          <div className="flex items-center gap-3 pl-2 border-l border-white/[0.06]">
+            {/* Free Forever Badge */}
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/[0.05] border border-gold/[0.15]">
+              <Sparkles className="h-3 w-3 text-gold/60" />
+              <span className="text-[9px] font-semibold tracking-[0.1em] uppercase text-gold/60">
+                Free Forever
+              </span>
+            </div>
+
+            {/* Start Free CTA */}
+            <Link
+              href="/auth/login"
+              className="group flex items-center gap-2 rounded-full bg-gradient-to-r from-gold/80 to-gold/60 px-6 py-2.5 text-[11px] font-semibold tracking-[0.12em] uppercase text-bg transition-all hover:shadow-lg hover:shadow-gold/30"
+            >
+              Start Free
+              <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          </div>
         </div>
 
         {/* Mobile Menu Button */}
@@ -210,12 +233,14 @@ export function Navbar() {
 
           <div className="h-px bg-white/[0.04]" />
 
+          {/* Navigation Links */}
+          <p className="text-[9px] tracking-[0.2em] uppercase text-gold/40 font-semibold">Navigation</p>
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setMobileMenuOpen(false)}
-              className={`text-sm font-semibold tracking-[0.15em] uppercase transition-colors ${
+              className={`text-sm font-semibold tracking-[0.1em] transition-colors pl-2 ${
                 isActive(link.href)
                   ? "text-gold/70"
                   : "text-text-dim/50 hover:text-text/80"
@@ -225,23 +250,23 @@ export function Navbar() {
             </Link>
           ))}
 
-          {/* Mobile AI Astrologer Link */}
-          <Link
-            href="/astrologer"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-2 text-sm font-semibold tracking-[0.15em] uppercase text-text-dim/50 hover:text-text/80 transition-colors"
-          >
-            <MessageCircle className="h-4 w-4" />
-            Ask AI
-          </Link>
+          <div className="h-px bg-white/[0.04]" />
 
-          {/* Mobile CTA */}
+          {/* Mobile Free Badge */}
+          <div className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-gold/[0.05] border border-gold/[0.15] justify-center">
+            <Sparkles className="h-3 w-3 text-gold/60" />
+            <span className="text-[10px] font-semibold tracking-[0.1em] uppercase text-gold/60">
+              Free Forever - No Credit Card
+            </span>
+          </div>
+
+          {/* Mobile CTA - Prominent Gold Button */}
           <Link
-            href="/#waitlist"
+            href="/auth/login"
             onClick={() => setMobileMenuOpen(false)}
-            className="group flex items-center justify-center gap-2 rounded-full border border-gold/15 bg-gold/[0.03] px-6 py-2.5 text-sm font-semibold tracking-[0.12em] uppercase text-gold/70 transition-all hover:border-gold/30 hover:bg-gold/[0.06] w-full"
+            className="group flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-gold/80 to-gold/60 px-6 py-3 text-sm font-semibold tracking-[0.12em] uppercase text-bg transition-all hover:shadow-lg hover:shadow-gold/30 w-full"
           >
-            Early Access
+            Start Free
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>

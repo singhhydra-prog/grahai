@@ -717,22 +717,25 @@ function BirthDetailsForm({ onSubmit }: { onSubmit: (d: BirthDetails) => void })
           <Sun className="w-8 h-8 text-amber-400" />
         </motion.div>
         <h1 className="text-3xl font-bold text-white mb-2">
-          Generate Your <span className="text-amber-400">Kundli</span>
+          Create Your <span className="text-amber-400">Birth Chart (Kundli)</span>
         </h1>
         <p className="text-white/40 text-sm">
-          Enter your birth details for a complete Vedic birth chart analysis
+          अपनी जन्म कुंडली बनाएं
+        </p>
+        <p className="text-white/40 text-sm mt-2">
+          Enter your birth details and get your complete Vedic birth chart with planetary positions, yogas, and remedies — in 30 seconds.
         </p>
       </div>
 
       <div className="space-y-4">
         {/* Name */}
         <div>
-          <label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Full Name</label>
+          <label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Your Name</label>
           <input
             type="text"
             value={form.name}
             onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-            placeholder="Enter your name"
+            placeholder="Your Name"
             className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white placeholder:text-white/20 focus:border-amber-500/30 focus:outline-none transition-colors"
           />
         </div>
@@ -741,7 +744,7 @@ function BirthDetailsForm({ onSubmit }: { onSubmit: (d: BirthDetails) => void })
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">
-              <Calendar className="inline w-3 h-3 mr-1" />Birth Date <span className="normal-case tracking-normal text-white/25">(DD/MM/YYYY)</span>
+              <Calendar className="inline w-3 h-3 mr-1" />Date of Birth <span className="normal-case tracking-normal text-white/25">(DD/MM/YYYY)</span>
             </label>
             <input
               type="date"
@@ -753,7 +756,7 @@ function BirthDetailsForm({ onSubmit }: { onSubmit: (d: BirthDetails) => void })
           </div>
           <div>
             <label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">
-              <Clock className="inline w-3 h-3 mr-1" />Birth Time
+              <Clock className="inline w-3 h-3 mr-1" />Time of Birth
             </label>
             <input
               type="time"
@@ -814,12 +817,12 @@ function BirthDetailsForm({ onSubmit }: { onSubmit: (d: BirthDetails) => void })
           className="w-full mt-6 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-[#050810] font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed hover:shadow-[0_0_30px_rgba(201,162,77,0.3)] transition-all"
         >
           <Sparkles className="w-4 h-4" />
-          Generate Kundli
+          Generate My Kundli ✨
           <ArrowRight className="w-4 h-4" />
         </motion.button>
 
         <p className="text-center text-[10px] text-white/20 mt-3">
-          Free analysis with chart, planets, yogas & doshas. Premium unlocks full Dasha timeline & remedies.
+          Want deeper insights? Upgrade for full Dasha analysis, Yoga breakdown, and personalized remedies.
         </p>
       </div>
     </motion.div>

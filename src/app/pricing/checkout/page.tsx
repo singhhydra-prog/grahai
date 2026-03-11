@@ -356,20 +356,10 @@ function CheckoutPageContent() {
               {/* Payment Button */}
               <button
                 onClick={handlePayment}
-                disabled={loading}
+                disabled={true}
                 className="w-full py-3.5 px-4 rounded-xl bg-gold text-bg font-semibold transition-all disabled:opacity-60 disabled:cursor-not-allowed hover:enabled:bg-gold-light active:enabled:scale-[0.98] flex items-center justify-center gap-2 mb-4"
               >
-                {loading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    Pay with Razorpay
-                    <ArrowRight className="h-4 w-4" />
-                  </>
-                )}
+                <span>Coming Soon - Launch Special: First month FREE!</span>
               </button>
 
               {/* Alternative Text */}

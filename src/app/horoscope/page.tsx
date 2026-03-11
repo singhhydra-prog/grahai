@@ -45,6 +45,7 @@ interface DailyPrediction {
   loveScore: number
   careerScore: number
   healthScore: number
+  spiritualScore: number
   mantra: string
   remedy: string
   avoid: string
@@ -444,6 +445,7 @@ function generatePrediction(signId: number, dateStr: string): DailyPrediction {
     loveScore: baseScore(),
     careerScore: baseScore(),
     healthScore: baseScore(),
+    spiritualScore: baseScore(),
     mantra: idx(rulerContent.mantras),
     remedy: idx(rulerContent.remedies),
     avoid: idx(rulerContent.avoids),
@@ -638,10 +640,13 @@ export default function HoroscopePage() {
               {displayDate}
             </p>
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
-              Your <span className="gold-text">Daily Horoscope</span>
+              <span className="gold-text">Today's Horoscope</span>
             </h1>
             <p className="text-text-dim/60 text-sm max-w-md mx-auto">
-              Personalized Vedic predictions powered by real planetary transits, Panchang, and Nakshatra analysis
+              आज का राशिफल
+            </p>
+            <p className="text-text-dim/60 text-sm max-w-md mx-auto mt-2">
+              Select your zodiac sign and see what the stars have in store for you today.
             </p>
           </motion.div>
 
@@ -802,9 +807,10 @@ export default function HoroscopePage() {
           {/* Scores */}
           <div className="space-y-3 pt-2 border-t border-white/[0.04]">
             <ScoreBar score={prediction.overallScore} label="Overall" icon={Star} color="#E2C474" />
-            <ScoreBar score={prediction.loveScore} label="Love" icon={Heart} color="#F0C8E0" />
-            <ScoreBar score={prediction.careerScore} label="Career" icon={Briefcase} color="#4ADE80" />
-            <ScoreBar score={prediction.healthScore} label="Health" icon={Shield} color="#60A5FA" />
+            <ScoreBar score={prediction.loveScore} label="Love ❤️" icon={Heart} color="#F0C8E0" />
+            <ScoreBar score={prediction.careerScore} label="Career 💼" icon={Briefcase} color="#4ADE80" />
+            <ScoreBar score={prediction.healthScore} label="Health 🏃" icon={Shield} color="#60A5FA" />
+            <ScoreBar score={prediction.spiritualScore} label="Spiritual 🕉️" icon={Brain} color="#8B8BCD" />
           </div>
 
           {/* Lucky items */}
@@ -878,6 +884,25 @@ export default function HoroscopePage() {
 
         {/* Panchang */}
         <PanchangWidget panchang={panchang} />
+
+        {/* CTA for Personalized */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55 }}
+          className="glass-card p-4 text-center"
+        >
+          <p className="text-xs text-text/70 mb-3">
+            Get your personalized horoscope based on your exact birth chart
+          </p>
+          <Link
+            href="/kundli"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-gold/70 hover:text-gold/90 transition-colors"
+          >
+            Create your Kundli
+            <ArrowRight className="h-3 w-3" />
+          </Link>
+        </motion.div>
 
         {/* CTAs */}
         <motion.div

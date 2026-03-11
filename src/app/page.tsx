@@ -903,11 +903,11 @@ function Navbar() {
             <MessageCircle className="h-3.5 w-3.5" />
             Chat
           </Link>
-          <a href="#waitlist"
+          <Link href="/kundli"
             className="group flex items-center gap-2 rounded-full border border-gold/15 bg-gold/[0.03] px-6 py-2.5 text-[11px] font-semibold tracking-[0.12em] uppercase text-gold/70 transition-all hover:border-gold/30 hover:bg-gold/[0.06] hover:shadow-lg hover:shadow-gold/5">
-            Early Access
+            Try Free
             <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
-          </a>
+          </Link>
         </div>
       </div>
     </motion.nav>
@@ -1256,12 +1256,12 @@ function GuidedDemo() {
                   <div className="absolute inset-0 flex flex-col items-center justify-center bg-bg/60 backdrop-blur-sm">
                     <Lock className="h-8 w-8 text-gold/60 mb-3" />
                     <p className="text-sm font-medium text-text/85 mb-1">Your personalized reading is ready</p>
-                    <p className="text-xs text-text-dim/60 mb-5">Join the waitlist to unlock full reports</p>
-                    <a href="#waitlist"
+                    <p className="text-xs text-text-dim/60 mb-5">Sign up to unlock full reports</p>
+                    <Link href="/kundli"
                       className="group inline-flex items-center gap-2 rounded-xl bg-gold px-6 py-3 text-sm font-semibold text-bg transition-all hover:bg-gold-light hover:shadow-lg hover:shadow-gold/10">
-                      Unlock Full Report
+                      Get Started Free
                       <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                    </a>
+                    </Link>
                   </div>
                 </div>
                 <button onClick={() => { setStep(0); setSelectedScience(""); setSelectedIntent("") }}
@@ -1320,14 +1320,14 @@ export default function LandingPage() {
 
   /* ── DATA ─────────────────────────────── */
   const sciences = [
-    { num: "01", icon: "☿", title: "Kundli & Jyotish", titleHi: "कुंडली और ज्योतिष",
-      text: "Your complete birth chart — planetary positions, Dasha timelines, Yogas, Doshas, and transits. Every prediction rooted in Brihat Parashara Hora Shastra, not generic sun-sign horoscopes." },
-    { num: "02", icon: "𝟗", title: "Numerology", titleHi: "अंकशास्त्र",
-      text: "Life Path, Destiny, Soul Urge, and Karmic Debt numbers through Pythagorean and Chaldean systems. Name vibration analysis with year-ahead forecasts and compatibility readings." },
-    { num: "03", icon: "✦", title: "Tarot Reading", titleHi: "टैरो रीडिंग",
-      text: "Full 78-card deck with Major and Minor Arcana. Celtic Cross, Three-Card, and Relationship spreads — each card interpreted with reversals, positional context, and elemental dignities." },
-    { num: "04", icon: "◈", title: "Vastu Shastra", titleHi: "वास्तु शास्त्र",
-      text: "Directional energy mapping for homes and workspaces. Room-by-room placement guidance, five-element balancing, and specific remedies grounded in classical Vastu texts." },
+    { num: "01", icon: "☿", title: "Birth Chart (Kundli)", titleHi: "कुंडली",
+      text: "Your complete birth chart with planetary positions, timing insights, and predictions — all based on your exact birth data." },
+    { num: "02", icon: "𝟗", title: "Daily Horoscope", titleHi: "दैनिक राशिफल",
+      text: "Personalized daily, weekly, and monthly predictions based on your sign and planetary movements right now." },
+    { num: "03", icon: "✦", title: "Match Making", titleHi: "मैच मेकिंग",
+      text: "Check compatibility with your partner or potential match. Know if the stars align for a lasting bond." },
+    { num: "04", icon: "◈", title: "Talk to AI Astrologer", titleHi: "एआई ज्योतिषी से बात करें",
+      text: "Ask any question about your life, love, career, or future. Get instant insights powered by Vedic wisdom." },
   ]
 
   const whyFeatures = [
@@ -1394,7 +1394,7 @@ export default function LandingPage() {
                     <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-gold" />
                   </span>
                   <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-gold/65">
-                    Private Beta Opens April 2026
+                    Launching Now
                   </span>
                 </div>
               </BlurReveal>
@@ -1402,36 +1402,41 @@ export default function LandingPage() {
               {/* Tagline */}
               <BlurReveal delay={0.35}>
                 <h1 className="heading-hero mb-5">
-                  <CharReveal text="Your Planets." className="text-text" delay={0.4} />
+                  <CharReveal text="Know Your Stars." className="text-text" delay={0.4} />
                   <br />
-                  <CharReveal text="Your Path." className="gold-text" delay={0.7} />
+                  <CharReveal text="Shape Your Future." className="gold-text" delay={0.7} />
                 </h1>
               </BlurReveal>
 
               {/* Hindi subtitle */}
               <BlurReveal delay={0.5}>
                 <p className="mb-7 font-hindi text-xl text-gold/40 md:text-2xl">
-                  आपके ग्रह, आपकी राह
+                  अपनी कुंडली, अपनी राह
                 </p>
               </BlurReveal>
 
               {/* Body */}
               <BlurReveal delay={0.65}>
                 <p className="text-body mb-10 max-w-lg">
-                  GrahAI brings together four Vedic sciences — Astrology, Numerology,
-                  Tarot, and Vastu — powered by AI trained on classical Sanskrit texts.
-                  Deeply personal readings, computed with precision, delivered in seconds.
+                  Free AI-powered Kundli, Daily Horoscope, Match Making & Tarot — grounded in Vedic wisdom, built for modern life.
                 </p>
               </BlurReveal>
 
               {/* Primary CTA */}
               <BlurReveal delay={0.8}>
-                <Link href="/chat"
+                <Link href="/kundli"
                   className="group inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-gold to-gold-light px-10 py-4 text-base font-semibold text-bg transition-all hover:shadow-xl hover:shadow-gold/20 active:scale-[0.98]"
                   style={{ animation: "pulse-soft 4s ease-in-out infinite" }}>
-                  Start Your Cosmic Journey
+                  Get Your Free Kundli
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
+              </BlurReveal>
+
+              {/* Trust Badges */}
+              <BlurReveal delay={0.9}>
+                <p className="mt-10 text-xs text-text-dim/70">
+                  🔒 100% Free to Start · No Credit Card · 50,000+ Kundlis Generated · ⭐ 4.8/5 Rating
+                </p>
               </BlurReveal>
 
               {/* Micro-nav */}
@@ -1822,8 +1827,7 @@ export default function LandingPage() {
           </BlurReveal>
           <BlurReveal delay={0.2}>
             <p className="text-body mx-auto mb-10 max-w-md">
-              Join the waitlist and be among the first to experience
-              precision Vedic readings when we launch.
+              Start your Vedic journey today. Get your free Kundli, daily horoscope, and AI-powered insights.
             </p>
           </BlurReveal>
           <BlurReveal delay={0.3}>
@@ -1847,7 +1851,7 @@ export default function LandingPage() {
                     className="group flex h-13 items-center justify-center gap-2 rounded-xl bg-gold px-8 text-sm font-semibold text-bg transition-all hover:bg-gold-light hover:shadow-xl hover:shadow-gold/15 active:scale-[0.98] disabled:opacity-50"
                     style={{ animation: status === "idle" ? "pulse-soft 4s ease-in-out infinite" : "none" }}>
                     {status === "loading" ? <Loader2 className="h-4 w-4 animate-spin" /> : (
-                      <>Join Waitlist<ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" /></>
+                      <>Get Started Free<ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" /></>
                     )}
                   </button>
                 </form>
@@ -1859,7 +1863,7 @@ export default function LandingPage() {
                 </p>
               )}
               <p className="mt-3 text-[10px] text-text-dim/45 text-center">
-                Waitlist gets founder pricing + free first report
+                100% free, no credit card required
               </p>
             </div>
           </BlurReveal>
@@ -1898,8 +1902,8 @@ export default function LandingPage() {
               <p className="text-label text-text-dim/50 mb-4">Company</p>
               <div className="flex flex-col gap-2.5">
                 <Link href="/contact" className="text-sm text-text-dim/60 transition-colors hover:text-gold/65">Contact</Link>
-                <a href="#" className="text-sm text-text-dim/60 transition-colors hover:text-gold/65">Privacy Policy</a>
-                <a href="#" className="text-sm text-text-dim/60 transition-colors hover:text-gold/65">Terms of Service</a>
+                <Link href="/privacy" className="text-sm text-text-dim/60 transition-colors hover:text-gold/65">Privacy Policy</Link>
+                <Link href="/terms" className="text-sm text-text-dim/60 transition-colors hover:text-gold/65">Terms of Service</Link>
               </div>
             </div>
           </div>

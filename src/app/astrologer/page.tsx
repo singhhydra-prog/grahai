@@ -360,12 +360,10 @@ function generateResponse(question: string): string {
 // ─── Constants ──────────────────────────────────────────
 
 const QUICK_QUESTIONS: QuickQuestion[] = [
-  { icon: Heart, label: "Love", question: "What do the stars say about my love life this week?", category: "Relationships", color: "#F0C8E0" },
-  { icon: Briefcase, label: "Career", question: "What career opportunities are the planets indicating for me?", category: "Career", color: "#4ADE80" },
-  { icon: Moon, label: "Today", question: "What should I focus on today according to my horoscope?", category: "Daily", color: "#C8D8E4" },
-  { icon: Brain, label: "Spiritual", question: "What spiritual practices would benefit me right now?", category: "Spiritual", color: "#8B8BCD" },
-  { icon: Sun, label: "Health", question: "What does Vedic astrology suggest for my health and energy this month?", category: "Health", color: "#E2994A" },
-  { icon: Star, label: "General", question: "Give me a general Vedic astrology reading for the current period.", category: "General", color: "#E2C474" },
+  { icon: Heart, label: "Love", question: "Is this person right for me?", category: "Relationships", color: "#F0C8E0" },
+  { icon: Briefcase, label: "Career", question: "Will I get a promotion this year?", category: "Career", color: "#4ADE80" },
+  { icon: Moon, label: "Business", question: "When should I start my business?", category: "Business", color: "#C8D8E4" },
+  { icon: Brain, label: "Health", question: "What's causing my health issues?", category: "Health", color: "#8B8BCD" },
 ]
 
 const SUGGESTED_FOLLOWUPS = [
@@ -590,13 +588,16 @@ export default function AstrologerPage() {
             </motion.div>
 
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
-              Ask the <span className="gold-text">AI Astrologer</span>
+              <span className="gold-text">Talk to AI Astrologer</span>
             </h1>
             <p className="text-text-dim/60 text-sm max-w-md mx-auto mb-2">
-              Get instant Vedic astrology guidance powered by ancient wisdom and modern AI
+              AI ज्योतिषी से बात करें
+            </p>
+            <p className="text-text-dim/60 text-sm max-w-md mx-auto mb-2">
+              Ask any question about your life — love, career, health, money. Our AI reads your stars and gives honest answers.
             </p>
             <p className="text-[10px] text-gold/40 tracking-wider">
-              {FREE_LIMIT - questionsAsked} free questions remaining • Unlimited with GrahAI Pro
+              <span className="inline-block px-3 py-1 rounded-full bg-gold/10 text-gold/70 font-semibold">3 free questions today</span>
             </p>
           </motion.div>
 

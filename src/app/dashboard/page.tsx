@@ -23,6 +23,7 @@ import {
   Minus,
   Calendar,
   BookOpen,
+  Heart,
 } from "lucide-react"
 import type { User } from "@supabase/supabase-js"
 import { useGamification } from "@/contexts/GamificationContext"
@@ -266,6 +267,35 @@ export default function DashboardPage() {
           <CosmicScoreWidget />
         </motion.div>
 
+        {/* Your Plan Section */}
+        {profile?.subscription_tier === "free" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08 }}
+            className="mb-8"
+          >
+            <div className="rounded-2xl border border-saffron/20 bg-gradient-to-r from-saffron/10 to-saffron/5 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold text-white mb-1">
+                    You're on the <span className="text-saffron">Free Plan</span>
+                  </h2>
+                  <p className="text-sm text-white/60">
+                    Unlock unlimited readings and premium features
+                  </p>
+                </div>
+                <Link
+                  href="/pricing"
+                  className="px-6 py-2.5 rounded-lg bg-saffron text-bg font-semibold hover:bg-saffron-light transition-colors whitespace-nowrap"
+                >
+                  Upgrade Now
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Daily Insight Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -276,30 +306,109 @@ export default function DashboardPage() {
           <DailyInsightCard />
         </motion.div>
 
-        {/* Quick Chat */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="mb-8"
-        >
-          <Link href="/chat" className="group block cursor-pointer rounded-2xl border border-indigo/30 bg-navy-light/30 p-6 transition-all hover:border-saffron/30 hover:bg-navy-light/50">
-            <div className="flex items-center gap-4">
-              <div className="rounded-xl bg-saffron/10 p-3">
-                <MessageCircle className="h-6 w-6 text-saffron" />
-              </div>
-              <div className="flex-1">
-                <h2 className="font-semibold text-cosmic-white">
-                  Ask anything about your stars
-                </h2>
-                <p className="mt-0.5 text-sm text-cosmic-white/40">
-                  Chat with our AI for personalized insights across all verticals
-                </p>
-              </div>
-              <ChevronRight className="h-5 w-5 text-cosmic-white/20 transition-colors group-hover:text-saffron" />
-            </div>
-          </Link>
-        </motion.div>
+        {/* Quick Actions */}
+        <div className="mb-8">
+          <h2 className="mb-4 text-lg font-semibold text-cosmic-white">
+            Quick Actions
+          </h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {/* Chat */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.13 }}
+            >
+              <Link href="/chat" className="group block cursor-pointer rounded-xl border border-indigo/30 bg-navy-light/30 p-4 transition-all hover:border-saffron/30 hover:bg-navy-light/50">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-lg bg-saffron/10 p-2">
+                    <MessageCircle className="h-5 w-5 text-saffron" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-cosmic-white text-sm">
+                      Chat
+                    </h3>
+                    <p className="text-xs text-cosmic-white/40">
+                      Ask AI anything
+                    </p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-cosmic-white/20 transition-colors group-hover:text-saffron" />
+                </div>
+              </Link>
+            </motion.div>
+
+            {/* Kundli */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.14 }}
+            >
+              <Link href="/kundli" className="group block cursor-pointer rounded-xl border border-indigo/30 bg-navy-light/30 p-4 transition-all hover:border-saffron/30 hover:bg-navy-light/50">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-lg bg-mint/10 p-2">
+                    <Sun className="h-5 w-5 text-mint" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-cosmic-white text-sm">
+                      Kundli
+                    </h3>
+                    <p className="text-xs text-cosmic-white/40">
+                      Your birth chart
+                    </p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-cosmic-white/20 transition-colors group-hover:text-saffron" />
+                </div>
+              </Link>
+            </motion.div>
+
+            {/* Horoscope */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+            >
+              <Link href="/horoscope" className="group block cursor-pointer rounded-xl border border-indigo/30 bg-navy-light/30 p-4 transition-all hover:border-saffron/30 hover:bg-navy-light/50">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-lg bg-gold/10 p-2">
+                    <Moon className="h-5 w-5 text-gold" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-cosmic-white text-sm">
+                      Horoscope
+                    </h3>
+                    <p className="text-xs text-cosmic-white/40">
+                      Daily forecast
+                    </p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-cosmic-white/20 transition-colors group-hover:text-saffron" />
+                </div>
+              </Link>
+            </motion.div>
+
+            {/* Compatibility */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.16 }}
+            >
+              <Link href="/compatibility" className="group block cursor-pointer rounded-xl border border-indigo/30 bg-navy-light/30 p-4 transition-all hover:border-saffron/30 hover:bg-navy-light/50">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-lg bg-rose/10 p-2">
+                    <Heart className="h-5 w-5 text-rose" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-cosmic-white text-sm">
+                      Compatibility
+                    </h3>
+                    <p className="text-xs text-cosmic-white/40">
+                      Relationship match
+                    </p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-cosmic-white/20 transition-colors group-hover:text-saffron" />
+                </div>
+              </Link>
+            </motion.div>
+          </div>
+        </div>
 
         {/* Daily Insight Preview + Reports CTA */}
         <motion.div

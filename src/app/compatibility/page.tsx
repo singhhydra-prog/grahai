@@ -349,7 +349,7 @@ function PersonForm({ label, person, onChange, color }: {
       <div className="glass-input p-0">
         <input
           type="text"
-          placeholder="Full name"
+          placeholder={label === "Person 1" ? "Partner 1 Name" : "Partner 2 Name"}
           value={person.name}
           onChange={(e) => onChange({ ...person, name: e.target.value })}
           className="w-full bg-transparent px-4 py-3 text-sm text-text/90 placeholder:text-text-dim/30 focus:outline-none"
@@ -548,10 +548,13 @@ export default function CompatibilityPage() {
               <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-[#F0C8E0]/70">Vedic Matching</span>
             </div>
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">
-              Kundli <span className="gold-text">Matching</span>
+              <span className="gold-text">Love Match Check</span>
             </h1>
             <p className="text-text-dim/60 text-sm max-w-md mx-auto">
-              Traditional Ashtakoot (8-point) Guna Milan analysis based on Vedic astrology principles for marital compatibility
+              कुंडली मिलान
+            </p>
+            <p className="text-text-dim/60 text-sm max-w-md mx-auto mt-2">
+              Enter two birth details and find out how compatible you are — Vedic Ashtakoot system with 36-point matching.
             </p>
           </motion.div>
 
@@ -590,7 +593,7 @@ export default function CompatibilityPage() {
               ) : (
                 <>
                   <Sparkles className="h-4 w-4" />
-                  Check Compatibility
+                  Check Compatibility 💕
                 </>
               )}
             </motion.button>
