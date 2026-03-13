@@ -2,74 +2,34 @@
 
 import { useState, useEffect, useRef, useCallback, type FormEvent, type KeyboardEvent } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import {
-  MessageCircle, Send, Loader2, Sparkles, Crown,
-  Mic, Copy, Check, Share2, Lock
-} from "lucide-react"
+import { Send, Loader2, Copy, Check } from "lucide-react"
 import ChatResponseParser from "@/components/chat/ChatResponseParser"
-import type { TabType, OverlayType, ChatMessage } from "@/types/app"
+import { SectionHeader } from "@/components/ui"
+import type { ChatMessage, AstroSource } from "@/types/app"
 
 // ═══════════════════════════════════════════════════
 // CONSTANTS
 // ═══════════════════════════════════════════════════
 
-const ASK_TOPIC_CHIPS = ["Career timing", "Love compatibility", "Money & wealth", "Health check", "Best dates", "Current Dasha"]
-const ASK_FOLLOWUP_CHIPS = ["Tell me more", "What should I avoid?", "Best timing for this?", "Any remedies?"]
+const TOPIC_CHIPS = ["Career timing", "Love match", "Health", "Money flow", "Best dates", "Current Dasha"]
+const FOLLOWUP_CHIPS = ["Tell me more", "What should I avoid?", "Best timing?", "Any remedies?"]
 const SUGGESTED_QUESTIONS = [
   "Will I get a promotion this year?",
   "Is this the right time to invest?",
-  "When will I find true love?",
+  "Why do I keep facing delays in relationships?",
 ]
 
 // ═══════════════════════════════════════════════════
-// TYPES
+// CHAT BUBBLE
 // ═══════════════════════════════════════════════════
 
-interface AskTabProps {
-  onUpgrade: () => void
-}
-
-// ═══════════════════════════════════════════════════
-// QUESTION COUNTER COMPONENT
-// ═══════════════════════════════════════════════════
-
-function QuestionCounter({
-  questionsLeft,
-  totalQuestions,
-  onUpgrade,
+function ChatBubble({
+  message,
+  onSourceTap,
 }: {
-  questionsLeft: number
-  totalQuestions: number
-  onUpgrade: () => void
+  message: ChatMessage
+  onSourceTap?: (sources: AstroSource[]) => void
 }) {
-  return (
-    <div className="mx-4 mt-3 mb-2">
-      <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20">
-        <div className="flex items-center gap-2">
-          <MessageCircle className="w-4 h-4 text-amber-400" />
-          <span className="text-sm font-medium text-white/85">
-            <span className="text-amber-400 font-bold">{questionsLeft}</span>
-            <span className="text-white/40"> / {totalQuestions} Questions left</span>
-          </span>
-        </div>
-        <button
-          onClick={onUpgrade}
-          aria-label="Upgrade to buy more questions"
-          className="flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500 text-[#0a0e1a] text-xs font-bold hover:bg-amber-400 transition-colors active:scale-95"
-        >
-          <Crown className="w-3 h-3" />
-          Buy More
-        </button>
-      </div>
-    </div>
-  )
-}
-
-// ═══════════════════════════════════════════════════
-// CHAT BUBBLE COMPONENT
-// ═══════════════════════════════════════════════════
-
-function ChatBubble({ message }: { message: ChatMessage }) {
   const [copied, setCopied] = useState(false)
   const isUser = message.role === "user"
 
@@ -77,24 +37,27 @@ function ChatBubble({ message }: { message: ChatMessage }) {
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className={`flex items-start gap-3 ${isUser ? "flex-row-reverse" : ""}`}
+      transition={{ duration: 0.25 }}
+      className={`flex items-start gap-2.5 ${isUser ? "flex-row-reverse" : ""}`}
     >
+      {/* Avatar */}
       {isUser ? (
-        <div className="w-8 h-8 rounded-lg bg-white/[0.06] border border-white/[0.08] flex items-center justify-center flex-shrink-0">
-          <span className="text-[10px] font-bold text-white/40">You</span>
+        <div className="w-7 h-7 rounded-lg bg-white/[0.05] flex items-center justify-center shrink-0">
+          <span className="text-[9px] font-bold text-text-dim/40">You</span>
         </div>
       ) : (
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-500/15 flex items-center justify-center flex-shrink-0">
-          <Sparkles className="w-4 h-4 text-amber-400" />
+        <div className="w-7 h-7 rounded-lg bg-gold/10 border border-gold/10 flex items-center justify-center shrink-0">
+          <span className="text-xs text-gold">✦</span>
         </div>
       )}
-      <div className="group max-w-[80%]">
+
+      {/* Bubble */}
+      <div className="group max-w-[82%]">
         <div
-          className={`px-4 py-4 text-sm leading-relaxed rounded-2xl ${
+          className={`px-4 py-3 text-sm leading-relaxed rounded-2xl ${
             isUser
-              ? "rounded-tr-sm bg-amber-400/15 border border-amber-400/20 text-white/85"
-              : "rounded-tl-sm bg-white/[0.04] border border-white/[0.06] text-white/85"
+              ? "rounded-tr-sm bg-gold/10 border border-gold/15 text-text/85"
+              : "rounded-tl-sm bg-white/[0.03] border border-white/[0.05] text-text/85"
           }`}
         >
           {isUser ? (
@@ -103,15 +66,31 @@ function ChatBubble({ message }: { message: ChatMessage }) {
             <ChatResponseParser content={message.content} />
           )}
         </div>
+
+        {/* Meta row */}
         {!isUser && (
-          <div className="mt-2 flex items-center gap-2">
-            <span className="text-[10px] text-white/40">
+          <div className="mt-1.5 flex items-center gap-2">
+            <span className="text-[10px] text-text-dim/30">
               {new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
             </span>
+
+            {/* Source pill */}
+            {message.sources && message.sources.length > 0 && (
+              <button
+                onClick={() => onSourceTap?.(message.sources!)}
+                className="text-[10px] text-text-dim/40 hover:text-gold transition-colors flex items-center gap-1"
+              >
+                <svg width="10" height="10" viewBox="0 0 16 16" fill="none" className="opacity-50">
+                  <path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                {message.sources[0].system}
+              </button>
+            )}
+
+            {/* Copy */}
             <button
               onClick={() => { navigator.clipboard.writeText(message.content); setCopied(true); setTimeout(() => setCopied(false), 2000) }}
-              aria-label={copied ? "Copied to clipboard" : "Copy message"}
-              className="opacity-0 group-hover:opacity-100 text-white/40 hover:text-white/60 transition-all"
+              className="opacity-0 group-hover:opacity-100 text-text-dim/30 hover:text-text-dim/60 transition-all"
             >
               {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
             </button>
@@ -123,21 +102,71 @@ function ChatBubble({ message }: { message: ChatMessage }) {
 }
 
 // ═══════════════════════════════════════════════════
-// MAIN ASK TAB COMPONENT
+// QUESTION COUNTER (subtle, not aggressive)
 // ═══════════════════════════════════════════════════
 
-export default function AskTab({ onUpgrade }: AskTabProps) {
+function QuestionCounter({
+  remaining,
+  total,
+  onUpgrade,
+}: {
+  remaining: number
+  total: number
+  onUpgrade: () => void
+}) {
+  if (remaining > total * 0.5) return null // hide when plenty left
+
+  return (
+    <div className="mx-5 mt-2 mb-1">
+      <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+        <span className="text-[11px] text-text-dim/50">
+          <span className="text-gold font-medium">{remaining}</span> / {total} questions today
+        </span>
+        {remaining <= 1 && (
+          <button
+            onClick={onUpgrade}
+            className="text-[10px] text-gold/70 font-medium hover:text-gold transition-colors"
+          >
+            Get more →
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════
+// MAIN ASK TAB
+// ═══════════════════════════════════════════════════
+
+interface AskTabProps {
+  onUpgrade: () => void
+  onSourceTap?: (sources: AstroSource[]) => void
+}
+
+export default function AskTab({ onUpgrade, onSourceTap }: AskTabProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
   const [sending, setSending] = useState(false)
   const [questionsLeft, setQuestionsLeft] = useState(3)
   const [totalQuestions, setTotalQuestions] = useState(3)
-  const [usageLoaded, setUsageLoaded] = useState(false)
   const [lastResponseDone, setLastResponseDone] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
-  // Fetch real usage from API on mount
+  // Pick up pending question from HomeTab
+  useEffect(() => {
+    try {
+      const pending = localStorage.getItem("grahai-pending-question")
+      if (pending) {
+        localStorage.removeItem("grahai-pending-question")
+        handleSend(pending)
+      }
+    } catch { /* ignore */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Fetch usage
   useEffect(() => {
     fetch("/api/usage")
       .then(r => r.ok ? r.json() : null)
@@ -145,41 +174,29 @@ export default function AskTab({ onUpgrade }: AskTabProps) {
         if (data && typeof data.remaining === "number") {
           setQuestionsLeft(data.remaining)
           setTotalQuestions(data.limit || 3)
-          setUsageLoaded(true)
         }
       })
-      .catch(() => setUsageLoaded(true))
+      .catch(() => {})
   }, [])
 
-  // Auto-scroll to latest message
+  // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  // Save question to localStorage for history
-  const saveQuestion = useCallback((q: string) => {
+  // Get personalized placeholder
+  const getPlaceholder = useCallback(() => {
     try {
-      const existing = JSON.parse(localStorage.getItem("grahai-saved-questions") || "[]")
-      const updated = [q, ...existing.filter((x: string) => x !== q)].slice(0, 10)
-      localStorage.setItem("grahai-saved-questions", JSON.stringify(updated))
-    } catch { /* ignore */ }
-  }, [])
-
-  // Get personalized welcome message
-  const getWelcomeMessage = useCallback(() => {
-    try {
-      const cosmicSnapshot = localStorage.getItem("cosmic-snapshot")
-      if (cosmicSnapshot) {
-        const data = JSON.parse(cosmicSnapshot)
-        if (data.moon) {
-          return `Your Moon is in ${data.moon}... Ask about what matters to you`
-        }
+      const snap = localStorage.getItem("grahai-cosmic-snapshot")
+      if (snap) {
+        const data = JSON.parse(snap)
+        if (data.moonSign) return `Your Moon is in ${data.moonSign}... what's on your mind?`
       }
     } catch { /* ignore */ }
-    return "Ask about your stars..."
+    return "Ask about your chart..."
   }, [])
 
-  // Handle sending message
+  // Send message
   const handleSend = useCallback(async (overrideText?: string) => {
     const text = (overrideText || input).trim()
     if (!text || sending || questionsLeft <= 0) return
@@ -196,23 +213,24 @@ export default function AskTab({ onUpgrade }: AskTabProps) {
     }
     setMessages(prev => [...prev, userMsg])
     setSending(true)
-    saveQuestion(text)
+
+    // Save to history
+    try {
+      const existing = JSON.parse(localStorage.getItem("grahai-saved-questions") || "[]")
+      localStorage.setItem("grahai-saved-questions", JSON.stringify([text, ...existing.filter((x: string) => x !== text)].slice(0, 20)))
+    } catch { /* ignore */ }
 
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: text,
-          vertical: "astrology",
-        }),
+        body: JSON.stringify({ message: text, vertical: "astrology" }),
       })
 
       if (res.status === 429) {
         setMessages(prev => [...prev, {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          content: "You've reached your daily question limit. Upgrade to Pro for unlimited questions!",
+          id: crypto.randomUUID(), role: "assistant",
+          content: "You've reached your daily limit. Upgrade to Plus for more questions, or come back tomorrow.",
           created_at: new Date().toISOString(),
         }])
         setQuestionsLeft(0)
@@ -221,9 +239,8 @@ export default function AskTab({ onUpgrade }: AskTabProps) {
 
       if (!res.ok) {
         setMessages(prev => [...prev, {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          content: "The cosmic connection wavered. Please try again in a moment.",
+          id: crypto.randomUUID(), role: "assistant",
+          content: "Something went wrong. Please try again in a moment.",
           created_at: new Date().toISOString(),
         }])
         return
@@ -255,8 +272,7 @@ export default function AskTab({ onUpgrade }: AskTabProps) {
                     lastMsg.content = fullText
                   } else {
                     updated.push({
-                      id: assistantId,
-                      role: "assistant",
+                      id: assistantId, role: "assistant",
                       content: fullText,
                       created_at: new Date().toISOString(),
                     })
@@ -264,16 +280,15 @@ export default function AskTab({ onUpgrade }: AskTabProps) {
                   return [...updated]
                 })
               }
-            } catch { /* skip non-JSON SSE lines */ }
+            } catch { /* skip */ }
           }
         }
       }
 
       if (!fullText) {
         setMessages(prev => [...prev, {
-          id: assistantId,
-          role: "assistant",
-          content: "The stars are aligning... Please try your question again.",
+          id: assistantId, role: "assistant",
+          content: "I wasn't able to generate a response. Please try again.",
           created_at: new Date().toISOString(),
         }])
       }
@@ -282,17 +297,15 @@ export default function AskTab({ onUpgrade }: AskTabProps) {
       setLastResponseDone(true)
     } catch {
       setMessages(prev => [...prev, {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: "A cosmic disturbance occurred. Please check your connection and try again.",
+        id: crypto.randomUUID(), role: "assistant",
+        content: "Connection lost. Please check your internet and try again.",
         created_at: new Date().toISOString(),
       }])
     } finally {
       setSending(false)
     }
-  }, [input, sending, questionsLeft, saveQuestion])
+  }, [input, sending, questionsLeft])
 
-  // Handle keyboard shortcuts
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
@@ -300,84 +313,61 @@ export default function AskTab({ onUpgrade }: AskTabProps) {
     }
   }
 
-  // Copy last assistant message
-  const handleCopyLast = useCallback(() => {
-    const lastAssistant = [...messages].reverse().find(m => m.role === "assistant")
-    if (lastAssistant) navigator.clipboard?.writeText(lastAssistant.content)
-  }, [messages])
-
-  // Share last assistant message
-  const handleShareLast = useCallback(() => {
-    const lastAssistant = [...messages].reverse().find(m => m.role === "assistant")
-    if (lastAssistant && navigator.share) {
-      navigator.share({ title: "GrahAI Insight", text: lastAssistant.content.slice(0, 200) + "..." }).catch(() => {})
-    }
-  }, [messages])
-
-  // ─── Render ───
   return (
     <div className="flex flex-col h-full">
-      {/* Question counter */}
-      <QuestionCounter questionsLeft={questionsLeft} totalQuestions={totalQuestions} onUpgrade={onUpgrade} />
+      {/* Subtle question counter */}
+      <QuestionCounter remaining={questionsLeft} total={totalQuestions} onUpgrade={onUpgrade} />
 
-      {/* Messages or Welcome Screen */}
-      <div className="flex-1 overflow-y-auto px-4">
+      {/* Messages or empty state */}
+      <div className="flex-1 overflow-y-auto px-5">
         {messages.length === 0 ? (
-          <div className="py-8">
-            {/* Welcome header */}
+          <div className="py-10">
+            {/* Calm welcome */}
             <div className="text-center mb-8">
-              <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-500/20 flex items-center justify-center">
-                <Sparkles className="w-7 h-7 text-amber-400" />
+              <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-gold/[0.06] flex items-center justify-center">
+                <span className="text-lg text-gold/70">✦</span>
               </div>
-              <h3 className="text-lg font-bold text-white">Ask GrahAI</h3>
-              <p className="text-xs text-white/40 mt-2 max-w-xs mx-auto leading-relaxed">
-                {getWelcomeMessage().includes("Moon")
-                  ? getWelcomeMessage()
-                  : "Calm, specific guidance rooted in your birth chart. Ask anything about career, love, timing, or life."}
+              <h3 className="text-base font-semibold text-text mb-1">Ask GrahAI</h3>
+              <p className="text-xs text-text-dim/50 max-w-[260px] mx-auto leading-relaxed">
+                Specific, source-backed guidance from your birth chart. No vague predictions.
               </p>
             </div>
 
-            {/* Topic chips - increased spacing and size */}
-            <div className="grid grid-cols-2 gap-3 mb-8 max-w-sm mx-auto">
-              {ASK_TOPIC_CHIPS.slice(0, 6).map((chip) => (
+            {/* Topic lanes */}
+            <div className="flex flex-wrap gap-2 justify-center mb-8">
+              {TOPIC_CHIPS.map((chip) => (
                 <button
                   key={chip}
-                  onClick={() => {
-                    const fullText = chip === "Career timing" ? "When is the best time for career growth?" : chip === "Love compatibility" ? "Is this person right for me?" : chip === "Money & wealth" ? "When will my finances improve?" : chip === "Health check" ? "What health aspects should I watch?" : chip === "Best dates" ? "What are the most auspicious dates this month?" : "What is my current Dasha period telling me?"
-                    handleSend(fullText)
-                  }}
-                  aria-label={`Ask about ${chip.toLowerCase()}`}
-                  className="px-4 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.03] text-sm text-white/60 hover:border-amber-400/25 hover:bg-amber-400/5 hover:text-white/80 transition-all active:scale-95"
+                  onClick={() => handleSend(chip)}
+                  className="px-3.5 py-2 rounded-xl border border-white/[0.05] bg-white/[0.02] text-xs text-text-dim/50 hover:border-gold/15 hover:text-text-dim/80 transition-all active:scale-[0.97]"
                 >
                   {chip}
                 </button>
               ))}
             </div>
 
-            {/* Popular questions - 3 items, full-width cards */}
-            <div className="space-y-3 max-w-md mx-auto">
-              <p className="text-[10px] text-white/25 uppercase tracking-wider font-medium">Popular Questions</p>
+            {/* Suggested questions */}
+            <SectionHeader title="Try asking" className="px-0" />
+            <div className="space-y-2">
               {SUGGESTED_QUESTIONS.map((q, i) => (
                 <motion.button
                   key={q}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05 }}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.06 }}
                   onClick={() => handleSend(q)}
-                  aria-label={`Ask: ${q}`}
-                  className="w-full text-left px-4 py-3 min-h-[48px] rounded-xl border border-white/[0.06] bg-white/[0.02] text-sm text-white/60 hover:border-amber-500/20 hover:bg-amber-500/[0.04] hover:text-white/80 transition-all flex items-center gap-3 active:scale-[0.98]"
+                  className="w-full text-left px-4 py-3 rounded-xl border border-white/[0.04] bg-white/[0.02] text-sm text-text-dim/60 hover:border-gold/10 hover:text-text/70 transition-all active:scale-[0.98] flex items-center gap-3"
                 >
-                  <MessageCircle className="w-4 h-4 text-amber-400/50 flex-shrink-0" />
-                  <span className="text-white/70">{q}</span>
+                  <span className="text-gold/30 text-xs">→</span>
+                  {q}
                 </motion.button>
               ))}
             </div>
           </div>
         ) : (
           <div className="py-4 space-y-3">
-            {/* Chat messages */}
             {messages.map((msg) => (
-              <ChatBubble key={msg.id} message={msg} />
+              <ChatBubble key={msg.id} message={msg} onSourceTap={onSourceTap} />
             ))}
 
             {/* Typing indicator */}
@@ -385,99 +375,62 @@ export default function AskTab({ onUpgrade }: AskTabProps) {
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex items-start gap-3"
+                className="flex items-start gap-2.5"
               >
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500/20 to-orange-500/10 flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="w-4 h-4 text-amber-400" />
+                <div className="w-7 h-7 rounded-lg bg-gold/10 flex items-center justify-center shrink-0">
+                  <span className="text-xs text-gold">✦</span>
                 </div>
-                <div className="px-4 py-4 rounded-2xl rounded-tl-sm bg-white/[0.04] border border-white/[0.06]">
-                  <div className="flex gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-amber-400/60 animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <div className="w-2.5 h-2.5 rounded-full bg-amber-400/40 animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <div className="w-2.5 h-2.5 rounded-full bg-amber-400/20 animate-bounce" style={{ animationDelay: "300ms" }} />
+                <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-white/[0.03] border border-white/[0.05]">
+                  <div className="typing-indicator">
+                    <span /><span /><span />
                   </div>
                 </div>
               </motion.div>
             )}
 
-            {/* Footer actions after response - clean horizontal row */}
+            {/* Follow-up row */}
             <AnimatePresence>
-              {lastResponseDone && !sending && messages.length > 0 && (
+              {lastResponseDone && !sending && (
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  className="pt-3 space-y-4"
+                  exit={{ opacity: 0 }}
+                  className="flex flex-wrap gap-2 pt-2"
                 >
-                  {/* Action buttons row */}
-                  <div className="flex items-center gap-2">
+                  {FOLLOWUP_CHIPS.map((chip) => (
                     <button
-                      onClick={handleCopyLast}
-                      aria-label="Save message to clipboard"
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-white/[0.06] bg-white/[0.02] text-xs text-white/60 hover:text-white/80 hover:border-white/[0.12] transition-all active:scale-95"
+                      key={chip}
+                      onClick={() => handleSend(chip)}
+                      className="px-3 py-1.5 rounded-full border border-white/[0.04] text-[11px] text-text-dim/40 hover:border-gold/10 hover:text-text-dim/70 transition-all active:scale-[0.97]"
                     >
-                      <Copy className="w-3.5 h-3.5" />
-                      <span>Save</span>
+                      {chip}
                     </button>
-                    <button
-                      onClick={handleShareLast}
-                      aria-label="Share message"
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-white/[0.06] bg-white/[0.02] text-xs text-white/60 hover:text-white/80 hover:border-white/[0.12] transition-all active:scale-95"
-                    >
-                      <Share2 className="w-3.5 h-3.5" />
-                      <span>Share</span>
-                    </button>
-                    <button
-                      onClick={onUpgrade}
-                      aria-label="Get deeper astrological report"
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-amber-500/20 bg-amber-500/[0.08] text-xs text-amber-400/70 hover:text-amber-400 hover:border-amber-500/40 transition-all active:scale-95"
-                    >
-                      <Lock className="w-3.5 h-3.5" />
-                      <span>Deeper Report</span>
-                    </button>
-                  </div>
-
-                  {/* Follow-up chips */}
-                  <div className="flex flex-wrap gap-2">
-                    {ASK_FOLLOWUP_CHIPS.slice(0, 3).map((chip) => (
-                      <button
-                        key={chip}
-                        onClick={() => handleSend(chip)}
-                        aria-label={`Follow-up: ${chip.toLowerCase()}`}
-                        className="px-3 py-1.5 rounded-full border border-white/[0.06] bg-white/[0.02] text-xs text-white/50 hover:border-amber-400/20 hover:bg-amber-400/[0.04] hover:text-white/70 transition-all active:scale-95"
-                      >
-                        {chip}
-                      </button>
-                    ))}
-                  </div>
+                  ))}
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {/* Scroll anchor */}
             <div ref={messagesEndRef} />
           </div>
         )}
       </div>
 
-      {/* Input bar - prominent with clear affordance */}
-      <div className="shrink-0 px-4 py-3 border-t border-white/[0.06] bg-[#0a0e1a]/90 backdrop-blur-xl">
+      {/* Input bar */}
+      <div className="shrink-0 px-4 py-3 border-t border-white/[0.04] bg-bg/90 backdrop-blur-xl">
         {questionsLeft <= 0 ? (
           <div className="text-center py-2">
-            <p className="text-sm text-white/60 mb-3">You've used all free questions today</p>
+            <p className="text-xs text-text-dim/50 mb-2">Daily limit reached</p>
             <button
               onClick={onUpgrade}
-              aria-label="Unlock unlimited questions"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-[#0a0e1a] font-bold text-sm hover:from-amber-400 hover:to-orange-400 transition-all active:scale-95 shadow-lg"
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-gold to-gold-dark text-bg text-sm font-semibold transition-transform active:scale-[0.98]"
             >
-              <Crown className="w-4 h-4" />
-              Unlock Unlimited Questions
+              Upgrade for more questions
             </button>
           </div>
         ) : (
           <form
             onSubmit={(e: FormEvent) => { e.preventDefault(); handleSend() }}
-            className="flex items-end gap-2 px-3 py-2 h-12 rounded-xl border border-white/[0.08] bg-white/[0.06] backdrop-blur-sm"
+            className="flex items-end gap-2 px-3 py-2 rounded-2xl border border-white/[0.06] bg-bg-card/40 backdrop-blur-sm focus-within:border-gold/15 transition-all"
           >
             <textarea
               ref={inputRef}
@@ -488,30 +441,21 @@ export default function AskTab({ onUpgrade }: AskTabProps) {
                 e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px"
               }}
               onKeyDown={handleKeyDown}
-              placeholder={getWelcomeMessage().includes("Moon") ? getWelcomeMessage() : "Ask about your stars..."}
-              aria-label="Ask GrahAI a question"
+              placeholder={getPlaceholder()}
               rows={1}
               disabled={sending}
-              className="flex-1 resize-none bg-transparent text-sm text-white/90 placeholder:text-white/30 focus:outline-none disabled:opacity-50 py-2"
+              className="flex-1 resize-none bg-transparent text-sm text-text/90 placeholder:text-text-dim/25 focus:outline-none disabled:opacity-50 py-2"
               style={{ maxHeight: "120px" }}
             />
-            <div className="flex items-center gap-1 pb-0.5">
-              <button
-                type="button"
-                aria-label="Voice input (coming soon)"
-                className="w-9 h-9 flex items-center justify-center rounded-lg text-white/30 hover:text-white/50 hover:bg-white/[0.04] transition-colors active:scale-95"
-              >
-                <Mic className="w-4 h-4" />
-              </button>
-              <button
-                type="submit"
-                disabled={!input.trim() || sending}
-                aria-label={sending ? "Sending..." : "Send message"}
-                className="w-9 h-9 flex items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 text-[#0a0e1a] disabled:opacity-30 transition-all active:scale-95 hover:from-amber-400 hover:to-amber-500"
-              >
-                {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={!input.trim() || sending}
+              className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all active:scale-[0.9] ${
+                input.trim() ? "bg-gold text-bg" : "bg-white/[0.04] text-text-dim/20"
+              }`}
+            >
+              {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            </button>
           </form>
         )}
       </div>

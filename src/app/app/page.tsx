@@ -40,6 +40,7 @@ import HomeTab from "@/components/app/tabs/HomeTab"
 import AskTab from "@/components/app/tabs/AskTab"
 import MyChartTab from "@/components/app/tabs/MyChartTab"
 import ReportsTab from "@/components/app/tabs/ReportsTab"
+import ProfileTab from "@/components/app/tabs/ProfileTab"
 import type { TabType, OverlayType } from "@/types/app"
 
 // ═══════════════════════════════════════════════════
@@ -172,6 +173,11 @@ function BottomTabs({
       label: "Reports",
       icon: <FileText className="w-5 h-5" />,
       badge: freeReportsCount > 0 ? "FREE" : undefined,
+    },
+    {
+      id: "profile",
+      label: "Profile",
+      icon: <Settings className="w-5 h-5" />,
     },
   ]
 
@@ -635,7 +641,19 @@ export default function GrahAIApp() {
               transition={{ duration: 0.2 }}
               className="h-full overflow-y-auto"
             >
-              <ReportsTab onShowOverlay={showOverlay} />
+              <ReportsTab onShowOverlay={showOverlay} onTabChange={setActiveTab} />
+            </motion.div>
+          )}
+          {activeTab === "profile" && (
+            <motion.div
+              key="profile"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+              className="h-full overflow-y-auto"
+            >
+              <ProfileTab onShowOverlay={showOverlay} />
             </motion.div>
           )}
         </AnimatePresence>

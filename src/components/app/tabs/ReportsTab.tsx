@@ -1,283 +1,338 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import {
-  Briefcase,
-  Heart,
-  Calendar,
-  TrendingUp,
-  BookOpen,
-  Gem,
-  Star,
-  ArrowRight,
-} from "lucide-react"
-import type { OverlayType } from "@/types/app"
+import { LifeAreaCard, SectionHeader, EmptyState, InsightCard } from "@/components/ui"
+import type { OverlayType, TabType, AstroSource } from "@/types/app"
 
 // ═══════════════════════════════════════════════════
-// TYPES
+// INTERNAL TYPES
 // ═══════════════════════════════════════════════════
 
-interface MarketplaceReport {
+interface ReportItem {
   id: string
-  icon: React.ReactNode
   title: string
-  subtitle: string
-  description: string
-  whoFor: string
-  includes: string[]
-  price: string
-  priceNote?: string
-  color: string
-  bgGradient: string
-  isMostPopular?: boolean
+  hook: string
+  price: number
   isFree?: boolean
+  sections: string[]
+  source: AstroSource
+}
+
+interface LifeAreaCollection {
+  icon: string
+  area: string
+  headline: string
+  reports: ReportItem[]
 }
 
 // ═══════════════════════════════════════════════════
-// DATA
+// REPORT COLLECTIONS — life-area guided
 // ═══════════════════════════════════════════════════
 
-const REPORTS_MARKETPLACE: MarketplaceReport[] = [
+const COLLECTIONS: LifeAreaCollection[] = [
   {
-    id: "career-blueprint",
-    icon: <Briefcase className="w-6 h-6" />,
-    title: "Career Blueprint",
-    subtitle: "₹299",
-    description: "Find your ideal career path, promotion windows, and business timing based on your 10th house and Dasha periods",
-    whoFor: "Career seekers",
-    includes: ["10th house analysis", "Dasha career timeline", "Promotion windows"],
-    price: "₹299",
-    color: "text-emerald-400",
-    bgGradient: "from-emerald-500/20 to-teal-500/10",
+    icon: "💼",
+    area: "Career",
+    headline: "Your 10th house holds the key to professional direction",
+    reports: [
+      {
+        id: "career-blueprint",
+        title: "Career Blueprint",
+        hook: "Ideal career path, promotion windows, and business timing",
+        price: 299,
+        sections: ["10th house deep dive", "Dasha career timeline", "Promotion windows", "Business launch timing"],
+        source: { label: "10th house analysis", system: "Vedic · Parashari", reference: "BPHS Ch.24", confidence: "high" },
+      },
+      {
+        id: "career-timing",
+        title: "Job Change Timing",
+        hook: "When to move — transit windows for career transitions",
+        price: 199,
+        sections: ["Saturn transit impact", "Jupiter opportunities", "Decision windows"],
+        source: { label: "Transit analysis", system: "Vedic · Gochar", reference: "BPHS Ch.65" },
+      },
+    ],
   },
   {
-    id: "love-compatibility",
-    icon: <Heart className="w-6 h-6" />,
-    title: "Love Compatibility",
-    subtitle: "₹249",
-    description: "Deep Ashtakoot analysis plus Bhakoot, Nadi, and Mangal Dosha cross-check with remedies",
-    whoFor: "Couples & seekers",
-    includes: ["36-point Guna score", "Mangal Dosha check", "Nakshatra matching"],
-    price: "₹249",
-    color: "text-pink-400",
-    bgGradient: "from-pink-500/20 to-rose-500/10",
+    icon: "💛",
+    area: "Love & Relationships",
+    headline: "Venus and your 7th house reveal relationship patterns",
+    reports: [
+      {
+        id: "love-compatibility",
+        title: "Compatibility Analysis",
+        hook: "36-point Guna matching with Mangal Dosha and Bhakoot check",
+        price: 249,
+        sections: ["Ashtakoot score", "Mangal Dosha check", "Nakshatra synergy", "Remedies if needed"],
+        source: { label: "Ashtakoot matching", system: "Vedic · Parashari", reference: "Muhurta Chintamani", confidence: "high" },
+      },
+      {
+        id: "marriage-timing",
+        title: "Marriage Timing",
+        hook: "Precise Dasha + transit windows for marriage with Muhurta guidance",
+        price: 349,
+        sections: ["7th house analysis", "Venus Dasha timing", "Transit windows", "Muhurta dates"],
+        source: { label: "7th house analysis", system: "Vedic · Parashari", reference: "BPHS Ch.12", confidence: "high" },
+      },
+    ],
   },
   {
-    id: "marriage-timing",
-    icon: <Calendar className="w-6 h-6" />,
-    title: "Marriage Timing",
-    subtitle: "₹349",
-    description: "When will you marry? Precise Dasha + transit windows for marriage, with Muhurta guidance",
-    whoFor: "Couples planning",
-    includes: ["7th house analysis", "Venus Dasha timing", "Transit windows"],
-    price: "₹349",
-    color: "text-rose-400",
-    bgGradient: "from-rose-500/20 to-pink-500/10",
-    isMostPopular: true,
+    icon: "💰",
+    area: "Wealth & Finance",
+    headline: "Your 2nd and 11th houses govern accumulation and gains",
+    reports: [
+      {
+        id: "wealth-report",
+        title: "Wealth Blueprint",
+        hook: "Money patterns, investment timing, and wealth yogas in your chart",
+        price: 299,
+        sections: ["2nd & 11th house analysis", "Dhana yogas", "Investment windows", "Financial cautions"],
+        source: { label: "Dhana yoga analysis", system: "Vedic · Parashari", reference: "BPHS Ch.41", confidence: "high" },
+      },
+    ],
   },
   {
-    id: "annual-forecast",
-    icon: <TrendingUp className="w-6 h-6" />,
-    title: "Annual Forecast 2026",
-    subtitle: "₹399",
-    description: "Month-by-month predictions for career, health, love, and finance based on your exact Dasha + transits",
-    whoFor: "Annual planners",
-    includes: ["12-month forecast", "Key decision windows", "Cautions & remedies"],
-    price: "₹399",
-    color: "text-violet-400",
-    bgGradient: "from-violet-500/20 to-purple-500/10",
+    icon: "🌿",
+    area: "Health & Wellbeing",
+    headline: "The 6th house and planetary rulers influence vitality",
+    reports: [
+      {
+        id: "health-report",
+        title: "Health Overview",
+        hook: "Vulnerable periods, strength windows, and preventive guidance",
+        price: 199,
+        sections: ["6th house analysis", "Planet-body mapping", "Vulnerable periods", "Remedies & practices"],
+        source: { label: "6th house analysis", system: "Vedic · Parashari", reference: "BPHS Ch.14" },
+      },
+    ],
   },
   {
-    id: "dasha-deep-dive",
-    icon: <BookOpen className="w-6 h-6" />,
-    title: "Dasha Deep Dive",
-    subtitle: "₹199",
-    description: "Understand your current planetary period — what it activates, what to expect, and how to navigate it",
-    whoFor: "Life transitions",
-    includes: ["Mahadasha analysis", "Antardasha breakdown", "Practical guidance"],
-    price: "₹199",
-    color: "text-indigo-400",
-    bgGradient: "from-indigo-500/20 to-blue-500/10",
+    icon: "📅",
+    area: "Annual Forecast",
+    headline: "Month-by-month guidance for 2026 based on your exact chart",
+    reports: [
+      {
+        id: "annual-forecast",
+        title: "Annual Forecast 2026",
+        hook: "12-month predictions for career, health, love, and finance",
+        price: 399,
+        sections: ["12-month forecast", "Key decision windows", "Cautions & remedies", "Best months highlighted"],
+        source: { label: "Dasha + Transit overlay", system: "Vedic · Gochar", reference: "Phaladeepika Ch.26", confidence: "high" },
+      },
+    ],
   },
   {
-    id: "remedies-guide",
-    icon: <Gem className="w-6 h-6" />,
-    title: "Remedies Guide",
-    subtitle: "Free with Plus / ₹149",
-    description: "Personalized remedies based on your chart — mantras, gemstones, donations, and daily practices",
-    whoFor: "Solution seekers",
-    includes: ["Dosha remedies", "Planet-specific mantras", "Gemstone recommendations"],
-    price: "₹149",
-    priceNote: "Free with Plus",
-    color: "text-amber-400",
-    bgGradient: "from-amber-500/20 to-yellow-500/10",
-    isFree: true,
+    icon: "🔮",
+    area: "Dasha & Timing",
+    headline: "Understanding your current planetary period changes everything",
+    reports: [
+      {
+        id: "dasha-deep-dive",
+        title: "Dasha Deep Dive",
+        hook: "What your current period activates and how to navigate it",
+        price: 199,
+        sections: ["Mahadasha analysis", "Antardasha breakdown", "Practical guidance", "Next period preview"],
+        source: { label: "Dasha analysis", system: "Vedic · Vimshottari", reference: "BPHS Ch.46" },
+      },
+      {
+        id: "remedies-guide",
+        title: "Personalized Remedies",
+        hook: "Mantras, gemstones, donations, and daily practices for your chart",
+        price: 149,
+        isFree: true,
+        sections: ["Dosha remedies", "Planet-specific mantras", "Gemstone recommendations", "Daily practices"],
+        source: { label: "Remedial measures", system: "Vedic · Lal Kitab", reference: "BPHS Ch.83" },
+      },
+    ],
   },
 ]
 
 // ═══════════════════════════════════════════════════
-// COMPONENT
+// REPORTS TAB
 // ═══════════════════════════════════════════════════
 
 export default function ReportsTab({
   onShowOverlay,
+  onTabChange,
 }: {
   onShowOverlay: (o: OverlayType) => void
+  onTabChange: (t: TabType) => void
 }) {
-  return (
-    <div className="overflow-y-auto px-4 pt-6 pb-24">
-      {/* Header Section */}
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-white mb-2">Guidance Reports</h2>
-        <p className="text-xs text-white/50 font-hindi mb-3">
-          गहन मार्गदर्शन — Personalized insights backed by classical Jyotish
-        </p>
-        <p className="text-sm text-white/40 leading-relaxed max-w-2xl">
-          Each report solves a specific life question with executive summary, key themes, decision windows, cautions, and remedies rooted in Vedic wisdom.
-        </p>
-      </div>
+  const [selectedArea, setSelectedArea] = useState<string | null>(null)
+  const [hasChart, setHasChart] = useState(false)
+  const [sourceDrawerData, setSourceDrawerData] = useState<AstroSource[]>([])
 
-      {/* Report Cards - Full Width with Stagger */}
-      <div className="space-y-4">
-        {REPORTS_MARKETPLACE.map((report, idx) => (
-          <motion.div
-            key={report.id}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.08, duration: 0.4, ease: "easeOut" }}
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("grahai-chart-data") || localStorage.getItem("grahai-cosmic-snapshot")
+      setHasChart(!!stored)
+    } catch { /* ignore */ }
+  }, [])
+
+  void sourceDrawerData
+
+  const selected = COLLECTIONS.find(c => c.area === selectedArea)
+
+  // ─── No chart data ───
+  if (!hasChart) {
+    return (
+      <div className="h-full flex items-center justify-center px-5">
+        <EmptyState
+          icon="📊"
+          title="Personalized reports"
+          body="Add your birth details first — every report is calculated from your exact chart, not generic sun-sign content."
+          cta={{ label: "Add birth details", action: () => onShowOverlay("onboarding") }}
+        />
+      </div>
+    )
+  }
+
+  // ─── Report detail view ───
+  if (selected) {
+    return (
+      <div className="overflow-y-auto h-full tab-content">
+        {/* Back + area header */}
+        <section className="px-5 pt-6 pb-2">
+          <button
+            onClick={() => setSelectedArea(null)}
+            className="text-[11px] text-text-dim/50 hover:text-gold transition-colors mb-4 flex items-center gap-1"
           >
-            <ReportCard report={report} onShowOverlay={onShowOverlay} />
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  )
-}
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            All life areas
+          </button>
 
-// ═══════════════════════════════════════════════════
-// REPORT CARD COMPONENT
-// ═══════════════════════════════════════════════════
-
-function ReportCard({
-  report,
-  onShowOverlay,
-}: {
-  report: MarketplaceReport
-  onShowOverlay: (o: OverlayType) => void
-}) {
-  return (
-    <motion.button
-      onClick={() => onShowOverlay("pricing")}
-      whileHover={{ scale: 1.01, y: -2 }}
-      whileTap={{ scale: 0.98 }}
-      className="block w-full text-left rounded-xl border border-white/10 bg-gradient-to-br from-white/[0.04] to-white/[0.01] p-5 transition-all hover:border-white/20 hover:bg-gradient-to-br hover:from-white/[0.06] hover:to-white/[0.02] group"
-      aria-label={`${report.title} report for ${report.whoFor}`}
-    >
-      {/* Top Section: Icon + Title + Badge Row */}
-      <div className="flex items-start justify-between gap-4 mb-4">
-        <div className="flex items-start gap-4 flex-1">
-          {/* Icon */}
-          <div
-            className={`w-12 h-12 rounded-lg bg-gradient-to-br ${report.bgGradient} flex items-center justify-center flex-shrink-0 border border-white/10`}
-          >
-            <div className={report.color}>{report.icon}</div>
+          <div className="flex items-center gap-3 mb-2">
+            <span className="text-2xl">{selected.icon}</span>
+            <h2 className="text-lg font-semibold text-text">{selected.area}</h2>
           </div>
+          <p className="text-xs text-text-dim/60 leading-relaxed mb-6">{selected.headline}</p>
+        </section>
 
-          {/* Title & Description */}
-          <div className="flex-1 min-w-0">
-            <h3 className="text-base font-bold text-white mb-1 group-hover:text-white transition-colors">
-              {report.title}
-            </h3>
-            <p className="text-xs text-white/40 line-clamp-2">
-              {report.description}
-            </p>
-          </div>
-        </div>
-
-        {/* Badges: Most Popular / Free */}
-        <div className="flex flex-col gap-2 items-end flex-shrink-0">
-          {report.isMostPopular && (
-            <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/10 border border-amber-500/30">
-              <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-              <span className="text-xs font-bold text-amber-300">Most Popular</span>
-            </div>
-          )}
-          {report.isFree && (
-            <div className="px-2.5 py-1 rounded-full bg-green-500/15 border border-green-500/30">
-              <span className="text-xs font-bold text-green-300">Free with Plus</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Problem Solved Section */}
-      <div className="mb-4 pb-4 border-b border-white/5">
-        <p className="text-xs font-bold text-white/40 uppercase tracking-widest mb-2">
-          Solves
-        </p>
-        <p className="text-sm text-white/70 leading-relaxed">
-          {report.description}
-        </p>
-      </div>
-
-      {/* What's Included - 3 Bullet Points */}
-      <div className="mb-4">
-        <p className="text-xs font-bold text-white/40 uppercase tracking-widest mb-2.5">
-          Includes
-        </p>
-        <ul className="space-y-1.5">
-          {report.includes.map((item, idx) => (
-            <li
-              key={idx}
-              className="text-xs text-white/50 flex items-start gap-2.5"
+        {/* Reports list */}
+        <section className="px-5 space-y-4 pb-8">
+          {selected.reports.map((report) => (
+            <motion.div
+              key={report.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="rounded-2xl border border-white/[0.04] bg-bg-card/50 p-5"
             >
-              <span className={`${report.color} font-bold mt-0.5 flex-shrink-0`}>
-                •
-              </span>
-              <span>{item}</span>
-            </li>
+              <div className="flex items-start justify-between mb-3">
+                <h3 className="text-sm font-semibold text-text">{report.title}</h3>
+                <div className="flex items-center gap-2">
+                  {report.isFree && (
+                    <span className="text-[9px] uppercase tracking-wider text-green/80 bg-green/10 px-2 py-0.5 rounded-full">
+                      Free with Plus
+                    </span>
+                  )}
+                  <span className="text-xs font-semibold text-gold">₹{report.price}</span>
+                </div>
+              </div>
+
+              <p className="text-xs text-text-dim leading-relaxed mb-4">{report.hook}</p>
+
+              {/* What's included */}
+              <div className="mb-4">
+                <p className="text-[9px] uppercase tracking-[0.2em] text-text-dim/40 font-medium mb-2">Includes</p>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {report.sections.map((section) => (
+                    <div key={section} className="flex items-center gap-2">
+                      <div className="w-1 h-1 rounded-full bg-gold/40" />
+                      <span className="text-[11px] text-text-dim/60">{section}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Source + CTA */}
+              <div className="flex items-center justify-between pt-3 border-t border-white/[0.04]">
+                <button
+                  onClick={() => setSourceDrawerData([report.source])}
+                  className="text-[10px] text-text-dim/50 hover:text-gold transition-colors flex items-center gap-1"
+                >
+                  <svg width="10" height="10" viewBox="0 0 16 16" fill="none" className="opacity-50">
+                    <path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                  {report.source.system}
+                </button>
+                <button
+                  onClick={() => onShowOverlay("pricing")}
+                  className="text-xs font-medium text-gold hover:text-gold/80 transition-colors"
+                >
+                  Get this report →
+                </button>
+              </div>
+            </motion.div>
           ))}
-        </ul>
-      </div>
+        </section>
 
-      {/* Best For Badge */}
-      <div className="mb-4 flex items-center gap-2">
-        <span className="text-xs text-white/40 font-bold uppercase tracking-widest">
-          Best for:
-        </span>
-        <span className="inline-block px-3 py-1 rounded-full bg-white/[0.08] border border-white/10 text-xs text-white/70 font-medium">
-          {report.whoFor}
-        </span>
+        {/* Ask about this area */}
+        <section className="px-5 pb-8">
+          <InsightCard
+            title={`Have a ${selected.area.toLowerCase()} question?`}
+            body="Ask anything specific — our AI astrologer can give you quick guidance based on your chart before you commit to a full report."
+            category="natal"
+            sources={[{ label: "AI guidance", system: "Vedic · Multi-system" }]}
+            onSourceTap={(s) => setSourceDrawerData(s)}
+            cta={{ label: "Ask now", action: () => onTabChange("ask") }}
+            compact
+          />
+        </section>
       </div>
+    )
+  }
 
-      {/* Footer: Price + CTA Button */}
-      <div className="flex items-center justify-between gap-3 pt-4 border-t border-white/5">
-        <div className="flex flex-col">
-          <span className={`text-lg font-bold ${report.color}`}>
-            {report.price}
-          </span>
-          {report.priceNote && (
-            <span className="text-xs text-green-400/80 font-medium">
-              {report.priceNote}
-            </span>
-          )}
+  // ─── Main reports index ───
+  return (
+    <div className="overflow-y-auto h-full tab-content">
+      {/* Header */}
+      <section className="px-5 pt-6 pb-2">
+        <p className="text-[9px] uppercase tracking-[0.2em] text-text-dim/40 font-medium mb-1">Guidance</p>
+        <h2 className="text-lg font-semibold text-text mb-1">Reports</h2>
+        <p className="text-xs text-text-dim/60 leading-relaxed">
+          Each report answers a specific life question — calculated from your exact birth chart, not generic content.
+        </p>
+      </section>
+
+      {/* Featured report */}
+      <section className="px-5 pt-4">
+        <SectionHeader label="Most requested" title="Start Here" />
+        <InsightCard
+          title="Annual Forecast 2026"
+          body="Month-by-month guidance for career, health, love, and finance — personalized to your Dasha period and active transits."
+          category="transit"
+          sources={[{ label: "Dasha + Transit overlay", system: "Vedic · Gochar", reference: "Phaladeepika Ch.26", confidence: "high" }]}
+          onSourceTap={(s) => setSourceDrawerData(s)}
+          cta={{ label: "From ₹399", action: () => { setSelectedArea("Annual Forecast") } }}
+        />
+      </section>
+
+      {/* Life area collections */}
+      <section className="px-5 pt-8 pb-8">
+        <SectionHeader label="Explore by area" title="Life Areas" />
+        <div className="space-y-3">
+          {COLLECTIONS.map((collection, idx) => (
+            <motion.div
+              key={collection.area}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.05, duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] as const }}
+            >
+              <LifeAreaCard
+                icon={collection.icon}
+                lifeArea={collection.area}
+                headline={collection.headline}
+                reportCount={collection.reports.length}
+                priceFrom={Math.min(...collection.reports.map(r => r.price))}
+                hasFreeReport={collection.reports.some(r => r.isFree)}
+                onTap={() => setSelectedArea(collection.area)}
+              />
+            </motion.div>
+          ))}
         </div>
-
-        {/* CTA Button */}
-        <motion.div
-          whileHover={{ x: 4 }}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-xs transition-all whitespace-nowrap
-            ${
-              report.isMostPopular
-                ? "bg-gradient-to-r from-amber-500 to-orange-500 text-[#0a0e1a] hover:from-amber-400 hover:to-orange-400 shadow-lg shadow-amber-500/20"
-                : "bg-gradient-to-r from-white/10 to-white/5 text-white/80 hover:from-white/15 hover:to-white/10 border border-white/10"
-            }
-          `}
-        >
-          Details
-          <ArrowRight className="w-3.5 h-3.5" />
-        </motion.div>
-      </div>
-    </motion.button>
+      </section>
+    </div>
   )
 }

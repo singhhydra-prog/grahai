@@ -58,13 +58,13 @@ interface CosmicSnapshot {
 // ═══════════════════════════════════════════════════
 
 const INTENTS = [
-  { id: "career", label: "Career", hindi: "करियर", icon: "💼", color: "from-blue-500/20 to-blue-600/10", border: "border-blue-500/20" },
-  { id: "love", label: "Love", hindi: "प्रेम", icon: "❤️", color: "from-pink-500/20 to-pink-600/10", border: "border-pink-500/20" },
-  { id: "marriage", label: "Marriage", hindi: "विवाह", icon: "💍", color: "from-purple-500/20 to-purple-600/10", border: "border-purple-500/20" },
-  { id: "money", label: "Money", hindi: "धन", icon: "💰", color: "from-emerald-500/20 to-emerald-600/10", border: "border-emerald-500/20" },
-  { id: "health", label: "Health", hindi: "स्वास्थ्य", icon: "🧘", color: "from-teal-500/20 to-teal-600/10", border: "border-teal-500/20" },
-  { id: "daily", label: "Daily Guidance", hindi: "दैनिक मार्गदर्शन", icon: "🌅", color: "from-amber-500/20 to-orange-600/10", border: "border-amber-500/20" },
-  { id: "exploring", label: "Just Exploring", hindi: "अन्वेषण", icon: "🔭", color: "from-indigo-500/20 to-indigo-600/10", border: "border-indigo-500/20" },
+  { id: "career", label: "Career", hindi: "करियर", icon: "💼", color: "from-gold/10 to-gold/5", border: "border-gold/10" },
+  { id: "love", label: "Love & Relationships", hindi: "प्रेम", icon: "💛", color: "from-saffron/10 to-saffron/5", border: "border-saffron/10" },
+  { id: "marriage", label: "Marriage Timing", hindi: "विवाह", icon: "💍", color: "from-indigo/10 to-indigo/5", border: "border-indigo/10" },
+  { id: "money", label: "Wealth & Finance", hindi: "धन", icon: "💰", color: "from-green/10 to-green/5", border: "border-green/10" },
+  { id: "health", label: "Health", hindi: "स्वास्थ्य", icon: "🌿", color: "from-green/10 to-green/5", border: "border-green/10" },
+  { id: "daily", label: "Daily Guidance", hindi: "दैनिक मार्गदर्शन", icon: "🌅", color: "from-saffron/10 to-saffron/5", border: "border-saffron/10" },
+  { id: "exploring", label: "Just Exploring", hindi: "अन्वेषण", icon: "✦", color: "from-indigo/10 to-indigo/5", border: "border-indigo/10" },
 ]
 
 const INTENT_FIRST_QUESTIONS: Record<string, string> = {
@@ -300,11 +300,11 @@ export default function OnboardingView({
   const stepProgress = step === 6 ? 100 : ((step - 1) / 5) * 100
 
   return (
-    <main className="relative min-h-screen bg-[#050810]">
+    <main className="relative min-h-screen bg-bg">
       {/* Progress bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-white/[0.04]">
+      <div className="fixed top-0 left-0 right-0 z-50 h-0.5 bg-white/[0.04]">
         <motion.div
-          className="h-full bg-gradient-to-r from-amber-400 to-orange-400"
+          className="h-full bg-gold"
           initial={{ width: "0%" }}
           animate={{ width: `${stepProgress}%` }}
           transition={{ duration: 0.4, ease: "easeOut" }}
@@ -312,22 +312,22 @@ export default function OnboardingView({
       </div>
 
       {/* Back button */}
-      <div className="sticky top-0 z-40 flex items-center gap-3 px-4 py-3 bg-[#0a0a0f]/90 backdrop-blur-xl border-b border-white/[0.04]">
+      <div className="sticky top-0 z-40 flex items-center gap-3 px-4 py-3 bg-bg/90 backdrop-blur-xl border-b border-white/[0.04]">
         <button
           onClick={step > 1 ? () => setStep((step - 1) as Step) : onBack}
           className="p-2 -ml-2 rounded-xl hover:bg-white/[0.06] transition-colors"
         >
-          <ArrowLeft className="w-5 h-5 text-white/70" />
+          <ArrowLeft className="w-5 h-5 text-text-dim/50" />
         </button>
         <div className="flex-1">
-          <span className="text-xs text-white/40 font-medium">
+          <span className="text-[10px] uppercase tracking-[0.15em] text-text-dim/40 font-medium">
             {step <= 5 ? `Step ${step} of 5` : "Create Account"}
           </span>
         </div>
         {step < 4 && (
           <button
             onClick={onBack}
-            className="text-xs text-white/30 hover:text-white/50 transition-colors"
+            className="text-[11px] text-text-dim/30 hover:text-text-dim/50 transition-colors"
           >
             Skip
           </button>
@@ -335,8 +335,8 @@ export default function OnboardingView({
       </div>
 
       {/* Background effects */}
-      <div className="pointer-events-none fixed left-1/4 top-1/3 h-96 w-96 rounded-full bg-amber-400/[0.04] blur-[128px]" />
-      <div className="pointer-events-none fixed bottom-1/4 right-1/3 h-64 w-64 rounded-full bg-purple-400/[0.03] blur-[96px]" />
+      <div className="pointer-events-none fixed left-1/4 top-1/3 h-96 w-96 rounded-full bg-gold/[0.03] blur-[128px]" />
+      <div className="pointer-events-none fixed bottom-1/4 right-1/3 h-64 w-64 rounded-full bg-indigo/[0.03] blur-[96px]" />
 
       <div className="relative z-10 mx-auto w-full max-w-lg px-4 pb-24">
         <AnimatePresence mode="wait">
@@ -354,11 +354,11 @@ export default function OnboardingView({
               className="pt-8"
             >
               <div className="mb-8 text-center">
-                <h2 className="text-2xl font-bold text-white">
-                  What brings you here today?
+                <h2 className="text-xl font-semibold text-text">
+                  What brings you to GrahAI?
                 </h2>
-                <p className="mt-2 text-sm text-white/50">
-                  Select your primary area of interest
+                <p className="mt-2 text-xs text-text-dim/60 leading-relaxed max-w-xs mx-auto">
+                  This helps us personalize your experience. You can explore everything — this just sets your starting point.
                 </p>
               </div>
 
@@ -373,7 +373,7 @@ export default function OnboardingView({
                     }}
                     className={`rounded-2xl border p-4 text-center transition-all bg-gradient-to-br ${item.color} ${
                       intent === item.id
-                        ? "border-amber-400/40 ring-1 ring-amber-400/20"
+                        ? "border-gold/40 ring-1 ring-amber-400/20"
                         : `${item.border} hover:border-white/[0.15]`
                     }`}
                   >
@@ -412,33 +412,30 @@ export default function OnboardingView({
               className="pt-8"
             >
               <div className="mb-8 text-center">
-                <h2 className="text-2xl font-bold text-white">
-                  How GrahAI works
+                <h2 className="text-xl font-semibold text-text">
+                  How GrahAI is different
                 </h2>
-                <p className="mt-2 text-sm text-white/50">
-                  AI-powered, rooted in tradition
+                <p className="mt-2 text-xs text-text-dim/60 leading-relaxed max-w-xs mx-auto">
+                  No vague predictions. No fear-based advice. Just honest, source-visible guidance from classical Vedic astrology.
                 </p>
               </div>
 
               <div className="space-y-3">
                 {[
                   {
-                    icon: <MapPin className="w-5 h-5 text-amber-400" />,
-                    title: "Personalized from your birth details",
-                    desc: "Your exact date, time, and place of birth power every insight — nothing generic.",
-                    bg: "from-amber-500/10 to-orange-500/5",
+                    icon: "📖",
+                    title: "Classical texts, not sun-sign guesswork",
+                    desc: "Every insight references Brihat Parashara Hora Shastra, Phaladeepika, and other canonical works.",
                   },
                   {
-                    icon: <BookOpen className="w-5 h-5 text-purple-400" />,
-                    title: "Rooted in classical Jyotish texts",
-                    desc: "Every reading references Brihat Parashara Hora Shastra, Phaladeepika, and more.",
-                    bg: "from-purple-500/10 to-indigo-500/5",
+                    icon: "🔍",
+                    title: "Sources always visible",
+                    desc: "See exactly which text, chapter, and system backs each reading. Verify anything yourself.",
                   },
                   {
-                    icon: <Zap className="w-5 h-5 text-emerald-400" />,
-                    title: "Practical, not generic",
-                    desc: "Get clear answers for career, love, money, and timing decisions you face today.",
-                    bg: "from-emerald-500/10 to-teal-500/5",
+                    icon: "🎯",
+                    title: "Calculated from your exact chart",
+                    desc: "Your date, time, and place of birth power personalized insights — nothing generic.",
                   },
                 ].map((item, i) => (
                   <motion.div
@@ -446,12 +443,12 @@ export default function OnboardingView({
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.12, duration: 0.4 }}
-                    className={`flex gap-4 rounded-2xl border border-white/[0.06] bg-gradient-to-br ${item.bg} p-5`}
+                    className="flex gap-4 rounded-2xl border border-white/[0.04] bg-bg-card/40 p-5"
                   >
-                    <div className="flex-shrink-0 mt-0.5">{item.icon}</div>
+                    <span className="text-lg flex-shrink-0 mt-0.5">{item.icon}</span>
                     <div>
-                      <h3 className="font-semibold text-white text-sm">{item.title}</h3>
-                      <p className="text-xs text-white/50 mt-1 leading-relaxed">{item.desc}</p>
+                      <h3 className="font-semibold text-text text-sm">{item.title}</h3>
+                      <p className="text-xs text-text-dim/60 mt-1 leading-relaxed">{item.desc}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -462,7 +459,7 @@ export default function OnboardingView({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
                 onClick={() => setStep(3)}
-                className="mt-8 w-full flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 py-3.5 font-semibold text-[#050810] transition-all hover:bg-amber-300 active:scale-[0.98]"
+                className="mt-8 w-full flex items-center justify-center gap-2 rounded-xl bg-gold px-6 py-3.5 font-semibold text-bg transition-all hover:bg-gold/90 active:scale-[0.98]"
               >
                 Continue
                 <ArrowRight className="w-4 h-4" />
@@ -483,9 +480,9 @@ export default function OnboardingView({
               className="pt-8"
             >
               <div className="mb-8 text-center">
-                <h2 className="text-2xl font-bold text-white">Your birth details</h2>
-                <p className="mt-2 text-sm text-white/50">
-                  For accurate Vedic chart calculation
+                <h2 className="text-xl font-semibold text-text">Your birth details</h2>
+                <p className="mt-2 text-xs text-text-dim/60 leading-relaxed max-w-xs mx-auto">
+                  Accurate birth data = accurate chart. This powers every personalized insight in GrahAI.
                 </p>
               </div>
 
@@ -499,7 +496,7 @@ export default function OnboardingView({
                     type="date"
                     value={birthData.date}
                     onChange={(e) => setBirthData({ ...birthData, date: e.target.value })}
-                    className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-white focus:border-amber-400/50 focus:outline-none focus:ring-2 focus:ring-amber-400/20 [color-scheme:dark]"
+                    className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-white focus:border-gold/50 focus:outline-none focus:ring-2 focus:ring-amber-400/20 [color-scheme:dark]"
                   />
                 </div>
 
@@ -513,15 +510,15 @@ export default function OnboardingView({
                     value={birthData.time}
                     onChange={(e) => setBirthData({ ...birthData, time: e.target.value })}
                     disabled={birthData.timeUnknown}
-                    className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-white focus:border-amber-400/50 focus:outline-none focus:ring-2 focus:ring-amber-400/20 disabled:opacity-30 [color-scheme:dark]"
+                    className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-white focus:border-gold/50 focus:outline-none focus:ring-2 focus:ring-amber-400/20 disabled:opacity-30 [color-scheme:dark]"
                   />
                   <label className="mt-2.5 flex items-center gap-2.5 text-sm text-white/40 cursor-pointer">
                     <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
                       birthData.timeUnknown
-                        ? "bg-amber-400/20 border-amber-400/40"
+                        ? "bg-gold/20 border-gold/40"
                         : "border-white/[0.15] bg-white/[0.03]"
                     }`}>
-                      {birthData.timeUnknown && <Check className="w-3 h-3 text-amber-400" />}
+                      {birthData.timeUnknown && <Check className="w-3 h-3 text-gold" />}
                     </div>
                     <input
                       type="checkbox"
@@ -537,7 +534,7 @@ export default function OnboardingView({
                     <motion.p
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
-                      className="mt-2 text-xs text-amber-400/70 flex items-center gap-1.5"
+                      className="mt-2 text-xs text-gold/70 flex items-center gap-1.5"
                     >
                       <Clock className="w-3 h-3" />
                       Approximate mode — timing precision will be reduced
@@ -561,7 +558,7 @@ export default function OnboardingView({
                   label="Place of Birth"
                   showIcon={true}
                   labelClassName="mb-2 block text-sm font-medium text-white/60"
-                  inputClassName="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-white placeholder:text-white/25 focus:border-amber-400/50 focus:outline-none focus:ring-2 focus:ring-amber-400/20"
+                  inputClassName="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-white placeholder:text-white/25 focus:border-gold/50 focus:outline-none focus:ring-2 focus:ring-amber-400/20"
                   placeholder="Start typing — e.g. Mumbai, Delhi"
                 />
               </div>
@@ -569,7 +566,7 @@ export default function OnboardingView({
               <button
                 onClick={fetchCosmicSnapshot}
                 disabled={!canProceedBirth || loading}
-                className="mt-8 w-full flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 py-3.5 font-semibold text-[#050810] transition-all hover:bg-amber-300 disabled:opacity-40 active:scale-[0.98]"
+                className="mt-8 w-full flex items-center justify-center gap-2 rounded-xl bg-gold px-6 py-3.5 font-semibold text-bg transition-all hover:bg-gold/90 disabled:opacity-40 active:scale-[0.98]"
               >
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -602,7 +599,7 @@ export default function OnboardingView({
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.1 }}
                 >
-                  <Sparkles className="w-8 h-8 text-amber-400 mx-auto mb-3" />
+                  <Sparkles className="w-8 h-8 text-gold mx-auto mb-3" />
                 </motion.div>
                 <h2 className="text-2xl font-bold text-white">Your Cosmic Profile</h2>
                 <p className="mt-1.5 text-sm text-white/50">Here&apos;s what the stars reveal</p>
@@ -620,7 +617,7 @@ export default function OnboardingView({
                     border: "border-blue-500/15",
                   },
                   {
-                    icon: <Star className="w-5 h-5 text-amber-400" />,
+                    icon: <Star className="w-5 h-5 text-gold" />,
                     label: "Nakshatra (Birth Star)",
                     value: cosmicSnapshot.nakshatra,
                     sublabel: cosmicSnapshot.nakshatraShakti || "Your cosmic DNA",
@@ -671,8 +668,8 @@ export default function OnboardingView({
                 className="mt-4 rounded-2xl border border-amber-500/15 bg-amber-500/[0.05] p-4"
               >
                 <div className="flex items-center gap-2 mb-2">
-                  <MessageSquare className="w-4 h-4 text-amber-400" />
-                  <span className="text-[10px] uppercase tracking-wider text-amber-400/60 font-bold">Suggested First Question</span>
+                  <MessageSquare className="w-4 h-4 text-gold" />
+                  <span className="text-[10px] uppercase tracking-wider text-gold/60 font-bold">Suggested First Question</span>
                 </div>
                 <p className="text-sm text-white/80 font-medium">{suggestedQuestion}</p>
               </motion.div>
@@ -686,7 +683,7 @@ export default function OnboardingView({
               >
                 <button
                   onClick={() => setStep(5)}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 py-3.5 font-semibold text-[#050810] transition-all hover:bg-amber-300 active:scale-[0.98]"
+                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-gold px-6 py-3.5 font-semibold text-bg transition-all hover:bg-gold/90 active:scale-[0.98]"
                 >
                   Ask your first question
                   <Zap className="w-4 h-4" />
@@ -719,7 +716,7 @@ export default function OnboardingView({
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.1 }}
                 >
-                  <MessageSquare className="w-8 h-8 text-amber-400 mx-auto mb-3" />
+                  <MessageSquare className="w-8 h-8 text-gold mx-auto mb-3" />
                 </motion.div>
                 <h2 className="text-2xl font-bold text-white">Your First Question</h2>
                 <p className="mt-1.5 text-sm text-white/50">Ask about {intent} and get your answer</p>
@@ -733,7 +730,7 @@ export default function OnboardingView({
                 >
                   {/* Suggested Question Badge */}
                   <div className="rounded-2xl border border-amber-500/15 bg-amber-500/[0.05] p-3">
-                    <p className="text-[10px] uppercase tracking-wider text-amber-400/60 font-bold mb-2">Suggested</p>
+                    <p className="text-[10px] uppercase tracking-wider text-gold/60 font-bold mb-2">Suggested</p>
                     <p className="text-sm text-white/70">{suggestedQuestion}</p>
                   </div>
 
@@ -746,7 +743,7 @@ export default function OnboardingView({
                       value={editableQuestion}
                       onChange={(e) => setEditableQuestion(e.target.value)}
                       placeholder="Type your question..."
-                      className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-white placeholder:text-white/25 focus:border-amber-400/50 focus:outline-none focus:ring-2 focus:ring-amber-400/20 resize-none"
+                      className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-white placeholder:text-white/25 focus:border-gold/50 focus:outline-none focus:ring-2 focus:ring-amber-400/20 resize-none"
                       rows={3}
                     />
                   </div>
@@ -755,7 +752,7 @@ export default function OnboardingView({
                   <button
                     onClick={submitQuestion}
                     disabled={!editableQuestion.trim() || questionLoading}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 py-3.5 font-semibold text-[#050810] transition-all hover:bg-amber-300 disabled:opacity-40 active:scale-[0.98]"
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-gold px-6 py-3.5 font-semibold text-bg transition-all hover:bg-gold/90 disabled:opacity-40 active:scale-[0.98]"
                   >
                     {questionLoading ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
@@ -774,7 +771,7 @@ export default function OnboardingView({
                   className="space-y-4"
                 >
                   {/* Your Question */}
-                  <div className="ml-4 mb-4 rounded-2xl rounded-tr-md bg-amber-400/10 border border-amber-400/20 px-4 py-3">
+                  <div className="ml-4 mb-4 rounded-2xl rounded-tr-md bg-gold/10 border border-gold/20 px-4 py-3">
                     <p className="text-sm text-white font-medium">{editableQuestion}</p>
                   </div>
 
@@ -786,17 +783,17 @@ export default function OnboardingView({
                       className="rounded-2xl rounded-tl-md border border-white/[0.06] bg-white/[0.02] px-4 py-4"
                     >
                       <div className="flex items-center gap-2 mb-3">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                        <span className="text-[10px] uppercase tracking-wider text-amber-400/60 font-bold">GrahAI</span>
+                        <Sparkles className="w-3.5 h-3.5 text-gold" />
+                        <span className="text-[10px] uppercase tracking-wider text-gold/60 font-bold">GrahAI</span>
                       </div>
                       <motion.div
                         animate={{ opacity: [0.5, 1, 0.5] }}
                         transition={{ repeat: Infinity, duration: 1.5 }}
                         className="flex gap-1"
                       >
-                        <div className="w-2 h-2 bg-amber-400/50 rounded-full" />
-                        <div className="w-2 h-2 bg-amber-400/50 rounded-full" />
-                        <div className="w-2 h-2 bg-amber-400/50 rounded-full" />
+                        <div className="w-2 h-2 bg-gold/50 rounded-full" />
+                        <div className="w-2 h-2 bg-gold/50 rounded-full" />
+                        <div className="w-2 h-2 bg-gold/50 rounded-full" />
                       </motion.div>
                     </motion.div>
                   ) : aiResponse ? (
@@ -806,14 +803,14 @@ export default function OnboardingView({
                       className="rounded-2xl rounded-tl-md border border-white/[0.06] bg-white/[0.02] px-4 py-4 space-y-3 max-h-96 overflow-y-auto"
                     >
                       <div className="flex items-center gap-2 mb-3">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                        <span className="text-[10px] uppercase tracking-wider text-amber-400/60 font-bold">GrahAI</span>
+                        <Sparkles className="w-3.5 h-3.5 text-gold" />
+                        <span className="text-[10px] uppercase tracking-wider text-gold/60 font-bold">GrahAI</span>
                       </div>
                       {aiResponse.split("\n").map((line, idx) => {
                         if (!line.trim()) return <div key={idx} className="h-2" />
                         if (line.startsWith("**") && line.endsWith("**")) {
                           return (
-                            <p key={idx} className="text-sm font-semibold text-amber-300/90">
+                            <p key={idx} className="text-sm font-semibold text-gold/90">
                               {line.replace(/\*\*/g, "")}
                             </p>
                           )
@@ -840,14 +837,14 @@ export default function OnboardingView({
                         setAiResponse("")
                         setEditableQuestion("")
                       }}
-                      className="w-full flex items-center justify-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.05] px-6 py-3.5 font-semibold text-white transition-all hover:border-amber-400/30 hover:bg-white/[0.1]"
+                      className="w-full flex items-center justify-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.05] px-6 py-3.5 font-semibold text-white transition-all hover:border-gold/30 hover:bg-white/[0.1]"
                     >
                       <MessageSquare className="w-4 h-4" />
                       Ask a follow-up question
                     </button>
                     <button
                       onClick={() => setStep(6)}
-                      className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 py-3.5 font-semibold text-[#050810] transition-all hover:bg-amber-300 active:scale-[0.98]"
+                      className="w-full flex items-center justify-center gap-2 rounded-xl bg-gold px-6 py-3.5 font-semibold text-bg transition-all hover:bg-gold/90 active:scale-[0.98]"
                     >
                       Save chart & sign up
                       <Lock className="w-4 h-4" />
@@ -871,7 +868,7 @@ export default function OnboardingView({
               className="pt-8"
             >
               <div className="mb-8 text-center">
-                <Lock className="mx-auto mb-4 h-10 w-10 text-amber-400" />
+                <Lock className="mx-auto mb-4 h-10 w-10 text-gold" />
                 <h2 className="text-2xl font-bold text-white">
                   Create your account
                 </h2>
@@ -892,12 +889,12 @@ export default function OnboardingView({
                   <h3 className="mb-2 text-lg font-semibold text-white">Check your email</h3>
                   <p className="text-sm text-white/50">
                     We sent a magic link to{" "}
-                    <span className="font-medium text-amber-400">{authEmail}</span>.
+                    <span className="font-medium text-gold">{authEmail}</span>.
                     Click it to sign in.
                   </p>
                   <button
                     onClick={() => setAuthSent(false)}
-                    className="mt-6 text-sm text-amber-400/70 transition-colors hover:text-amber-400"
+                    className="mt-6 text-sm text-gold/70 transition-colors hover:text-gold"
                   >
                     Use a different email
                   </button>
@@ -908,7 +905,7 @@ export default function OnboardingView({
                   <button
                     onClick={handleGoogleAuth}
                     disabled={authLoading}
-                    className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.05] py-3.5 text-sm font-medium text-white transition-all hover:border-amber-400/30 hover:bg-white/[0.1] disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.05] py-3.5 text-sm font-medium text-white transition-all hover:border-gold/30 hover:bg-white/[0.1] disabled:opacity-50"
                   >
                     <svg className="h-5 w-5" viewBox="0 0 24 24">
                       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
@@ -934,14 +931,14 @@ export default function OnboardingView({
                       onChange={(e) => setAuthEmail(e.target.value)}
                       onKeyDown={(e) => { if (e.key === "Enter") handleMagicLink() }}
                       placeholder="you@example.com"
-                      className="h-12 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] pl-11 pr-4 text-white placeholder:text-white/25 transition-all focus:border-amber-400/50 focus:outline-none focus:ring-2 focus:ring-amber-400/20"
+                      className="h-12 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] pl-11 pr-4 text-white placeholder:text-white/25 transition-all focus:border-gold/50 focus:outline-none focus:ring-2 focus:ring-amber-400/20"
                     />
                   </div>
 
                   <button
                     onClick={handleMagicLink}
                     disabled={!authEmail.trim() || authLoading}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 py-3.5 font-semibold text-[#050810] transition-all hover:bg-amber-300 disabled:opacity-40 active:scale-[0.98]"
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-gold px-6 py-3.5 font-semibold text-bg transition-all hover:bg-gold/90 disabled:opacity-40 active:scale-[0.98]"
                   >
                     {authLoading ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
@@ -995,8 +992,8 @@ export default function OnboardingView({
             >
               {/* Demo header */}
               <div className="flex items-center gap-2 mb-5">
-                <div className="w-8 h-8 rounded-full bg-amber-400/20 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-amber-400" />
+                <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center">
+                  <Sparkles className="w-4 h-4 text-gold" />
                 </div>
                 <div>
                   <p className="text-xs text-white/40">Interactive Preview</p>
@@ -1013,15 +1010,15 @@ export default function OnboardingView({
               </div>
 
               {/* User question bubble */}
-              <div className="ml-8 mb-4 rounded-2xl rounded-tr-md bg-amber-400/10 border border-amber-400/20 px-4 py-3">
+              <div className="ml-8 mb-4 rounded-2xl rounded-tr-md bg-gold/10 border border-gold/20 px-4 py-3">
                 <p className="text-sm text-white font-medium">{DEMO_QUESTION}</p>
               </div>
 
               {/* AI answer — typing animation */}
               <div className="rounded-2xl rounded-tl-md border border-white/[0.06] bg-white/[0.02] px-4 py-4 mr-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                  <span className="text-[10px] uppercase tracking-wider text-amber-400/60 font-bold">GrahAI</span>
+                  <Sparkles className="w-3.5 h-3.5 text-gold" />
+                  <span className="text-[10px] uppercase tracking-wider text-gold/60 font-bold">GrahAI</span>
                 </div>
                 <div className="space-y-1">
                   {DEMO_ANSWER_LINES.slice(0, demoTypingIndex).map((line, i) => (
@@ -1030,7 +1027,7 @@ export default function OnboardingView({
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       className={`text-sm leading-relaxed ${
-                        line.startsWith("**") ? "text-amber-300/90 font-semibold" : "text-white/70"
+                        line.startsWith("**") ? "text-gold/90 font-semibold" : "text-white/70"
                       }`}
                     >
                       {line.replace(/\*\*/g, "")}
@@ -1040,7 +1037,7 @@ export default function OnboardingView({
                     <motion.span
                       animate={{ opacity: [0.2, 1, 0.2] }}
                       transition={{ repeat: Infinity, duration: 1 }}
-                      className="inline-block w-2 h-4 bg-amber-400/50 rounded-sm"
+                      className="inline-block w-2 h-4 bg-gold/50 rounded-sm"
                     />
                   )}
                 </div>
@@ -1062,7 +1059,7 @@ export default function OnboardingView({
                         setShowSampleDemo(false)
                         setStep(1)
                       }}
-                      className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 py-3.5 font-semibold text-[#050810] transition-all hover:bg-amber-300 active:scale-[0.98]"
+                      className="w-full flex items-center justify-center gap-2 rounded-xl bg-gold px-6 py-3.5 font-semibold text-bg transition-all hover:bg-gold/90 active:scale-[0.98]"
                     >
                       Get my first insight
                       <ArrowRight className="w-4 h-4" />

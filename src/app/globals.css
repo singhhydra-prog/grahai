@@ -452,6 +452,20 @@ body {
   display: none;
 }
 
+/* === SAFE AREA (notch / home indicator) === */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* === TAB CONTENT AREA === */
+.tab-content {
+  padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px) + 0.5rem);
+  min-height: 100dvh;
+}
+
 @keyframes pulse-slow {
   0%, 100% { opacity: 0.6; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.05); }

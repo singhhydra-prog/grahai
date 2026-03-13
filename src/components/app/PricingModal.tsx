@@ -2,280 +2,178 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Check, X, ChevronRight } from "lucide-react"
+import { Check, X } from "lucide-react"
 
-/* ────────────────────────────────────────────────────
-   PRICING PLANS
-   ──────────────────────────────────────────────────── */
-const plans = [
+// ═══════════════════════════════════════════════════
+// PLAN DATA
+// ═══════════════════════════════════════════════════
+
+const PLANS = [
   {
-    id: "free",
+    id: "free" as const,
     name: "Free",
     price: "Free",
-    description: "Start your journey",
-    popular: false,
-    current: true,
+    period: "",
+    tagline: "Start your journey",
     features: [
-      "Onboarding reveal",
-      "Daily insight",
-      "1 question/day or 3 welcome questions",
-      "Basic chart summary",
+      "Onboarding chart reveal",
+      "1 question per day",
+      "Basic daily insight",
+      "Chart summary",
     ],
     cta: "Current Plan",
-    ctaDisabled: true,
+    disabled: true,
   },
   {
-    id: "plus",
+    id: "plus" as const,
     name: "Plus",
     price: "₹199",
     period: "/month",
-    description: "For the curious seeker",
+    tagline: "For the curious seeker",
     popular: true,
-    current: false,
     features: [
-      "More questions (10/day)",
-      "Full home dashboard",
-      "Saved history",
-      "Weekly guidance email",
+      "10 questions per day",
       "Full source explanations",
+      "Saved question history",
+      "Weekly guidance email",
+      "1 free report per month",
     ],
     cta: "Start Plus",
-    ctaDisabled: false,
+    disabled: false,
   },
   {
-    id: "premium",
+    id: "premium" as const,
     name: "Premium",
     price: "₹499",
     period: "/month",
-    description: "Complete cosmic intelligence",
-    popular: false,
-    current: false,
+    tagline: "Complete cosmic intelligence",
     features: [
-      "Unlimited ask",
-      "Compatibility reports",
+      "Unlimited questions",
+      "All reports included",
+      "Compatibility analysis",
       "Annual forecast",
-      "Deep timing analysis",
       "Family profiles (up to 5)",
-      "Advanced reports",
+      "Priority AI responses",
     ],
     cta: "Go Premium",
-    ctaDisabled: false,
+    disabled: false,
   },
 ]
 
-const oneTimePurchases = [
-  {
-    id: "kundli-export",
-    name: "PDF Kundli Export",
-    price: "₹149",
-    description: "Export your complete Kundli",
-  },
-  {
-    id: "compatibility-deepdive",
-    name: "Compatibility Deep-Dive",
-    price: "₹249",
-    description: "Detailed partner analysis",
-  },
-  {
-    id: "annual-forecast",
-    name: "Annual Forecast 2026",
-    price: "₹399",
-    description: "Year-long predictions",
-  },
-  {
-    id: "live-consult",
-    name: "Live Jyotishi Consult",
-    price: "₹999",
-    description: "30-min expert session",
-  },
-  {
-    id: "remedies-pack",
-    name: "Remedies Pack",
-    price: "₹149",
-    description: "Personalized remedies",
-  },
-]
+// ═══════════════════════════════════════════════════
+// PRICING MODAL (Screen 12 — Value-first Paywall)
+// ═══════════════════════════════════════════════════
 
-/* ════════════════════════════════════════════════════
-   PRICING MODAL
-   ════════════════════════════════════════════════════ */
 export default function PricingModal({ onClose }: { onClose: () => void }) {
-  const [scrollPosition, setScrollPosition] = useState(0)
-
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    setScrollPosition((e.target as HTMLDivElement).scrollLeft)
-  }
+  const [selectedPlan, setSelectedPlan] = useState<string>("plus")
 
   return (
-    <main className="fixed inset-0 z-[100] overflow-y-auto bg-[#060A14]">
-      {/* ═══ HEADER ═══ */}
-      <div className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 bg-[#060A14]/90 backdrop-blur-xl border-b border-white/[0.04]">
+    <main className="fixed inset-0 z-[100] overflow-y-auto bg-bg">
+      {/* Header */}
+      <div className="sticky top-0 z-50 flex items-center justify-between px-5 py-3 bg-bg/90 backdrop-blur-xl border-b border-white/[0.04]">
         <button
           onClick={onClose}
           className="p-2 -ml-2 rounded-xl hover:bg-white/[0.06] transition-colors"
         >
-          <X className="w-5 h-5 text-white/70" />
+          <X className="w-5 h-5 text-text-dim/50" />
         </button>
-        <h1 className="text-lg font-bold text-white">Choose Your Plan</h1>
+        <p className="text-[10px] uppercase tracking-[0.15em] text-text-dim/40 font-medium">Plans</p>
         <div className="w-9" />
       </div>
 
-      {/* ═══ PLANS SECTION ═══ */}
-      <section className="px-6 py-12 lg:py-16">
-        <div className="mx-auto max-w-6xl">
-          <div className="grid gap-6 lg:gap-8 lg:grid-cols-3 mb-16">
-            {plans.map((plan, i) => (
-              <motion.div
+      <div className="mx-auto max-w-lg px-5 pb-24">
+        {/* Value proposition */}
+        <section className="pt-8 pb-6 text-center">
+          <h2 className="text-lg font-semibold text-text mb-2">Get more from your chart</h2>
+          <p className="text-xs text-text-dim/60 leading-relaxed max-w-xs mx-auto">
+            Every feature unlocks deeper understanding of your birth chart — calculated from classical Vedic texts, not generic content.
+          </p>
+        </section>
+
+        {/* Plan cards */}
+        <section className="space-y-4">
+          {PLANS.map((plan, i) => {
+            const isSelected = selectedPlan === plan.id
+            return (
+              <motion.button
                 key={plan.id}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
+                transition={{ delay: i * 0.08, duration: 0.3 }}
+                onClick={() => !plan.disabled && setSelectedPlan(plan.id)}
+                className={`w-full text-left rounded-2xl border p-5 transition-all ${
+                  plan.popular && isSelected
+                    ? "border-gold/30 bg-gold/[0.04]"
+                    : isSelected
+                    ? "border-white/[0.08] bg-white/[0.03]"
+                    : "border-white/[0.04] bg-bg-card/40"
+                } ${plan.disabled ? "opacity-60" : ""}`}
               >
-                <div
-                  className={`relative flex flex-col rounded-2xl border p-8 lg:p-10 transition-all duration-500 ${
-                    plan.popular
-                      ? "border-amber-400/20 bg-white/[0.03] shadow-lg shadow-amber-400/[0.05]"
-                      : "border-white/[0.04] bg-white/[0.03] hover:border-white/[0.08]"
-                  }`}
-                >
-                  {/* Most Popular Badge */}
-                  {plan.popular && (
-                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/10 border border-amber-400/20 px-4 py-1.5 text-[10px] font-semibold tracking-widest uppercase text-amber-400">
-                        ⭐ Most Popular
-                      </span>
-                    </div>
-                  )}
+                {/* Popular badge */}
+                {plan.popular && (
+                  <span className="inline-block text-[9px] uppercase tracking-[0.15em] text-gold font-semibold bg-gold/10 px-2 py-0.5 rounded-full mb-3">
+                    Most popular
+                  </span>
+                )}
 
-                  {/* Plan Header */}
-                  <div className="mb-8">
-                    <h3 className="text-2xl font-bold text-white mb-2">
-                      {plan.name}
-                    </h3>
-                    <p className="text-sm text-white/60 mb-6">{plan.description}</p>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-4xl font-bold text-amber-400">
-                        {plan.price}
-                      </span>
-                      {plan.period && (
-                        <span className="text-sm text-white/50">{plan.period}</span>
-                      )}
-                    </div>
+                {/* Name + price row */}
+                <div className="flex items-baseline justify-between mb-2">
+                  <div>
+                    <h3 className="text-sm font-semibold text-text">{plan.name}</h3>
+                    <p className="text-[11px] text-text-dim/50 mt-0.5">{plan.tagline}</p>
                   </div>
-
-                  {/* Features */}
-                  <div className="flex-1 mb-8">
-                    <div className="space-y-3">
-                      {plan.features.map((feature) => (
-                        <div key={feature} className="flex items-start gap-3">
-                          <Check className="h-4 w-4 mt-0.5 shrink-0 text-amber-400" />
-                          <span className="text-sm text-white/70">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* CTA Button */}
-                  <button
-                    disabled={plan.ctaDisabled}
-                    className={`flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-semibold transition-all active:scale-[0.98] ${
-                      plan.current
-                        ? "bg-white/[0.05] text-white/60 cursor-default border border-white/[0.1]"
-                        : "bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:shadow-lg hover:shadow-amber-500/30 cursor-pointer"
-                    }`}
-                  >
-                    {plan.cta}
-                    {!plan.ctaDisabled && (
-                      <ChevronRight className="h-4 w-4" />
+                  <div className="text-right">
+                    <span className="text-lg font-bold text-text">{plan.price}</span>
+                    {plan.period && (
+                      <span className="text-[11px] text-text-dim/40">{plan.period}</span>
                     )}
-                  </button>
+                  </div>
                 </div>
-              </motion.div>
-            ))}
-          </div>
 
-          {/* Monetization Philosophy */}
+                {/* Features */}
+                <div className="space-y-2 mt-4">
+                  {plan.features.map((feature) => (
+                    <div key={feature} className="flex items-start gap-2.5">
+                      <Check className="w-3.5 h-3.5 mt-0.5 shrink-0 text-gold/60" />
+                      <span className="text-xs text-text-dim/70">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </motion.button>
+            )
+          })}
+        </section>
+
+        {/* CTA */}
+        {selectedPlan !== "free" && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="text-center mb-16"
+            className="mt-6"
           >
-            <p className="text-xs text-white/40 leading-relaxed">
-              We only suggest upgrades after you've felt personal value
+            <button
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-gold px-6 py-3.5 font-semibold text-bg transition-all hover:bg-gold/90 active:scale-[0.98]"
+            >
+              {PLANS.find(p => p.id === selectedPlan)?.cta}
+            </button>
+            <p className="text-center text-[10px] text-text-dim/30 mt-3">
+              Cancel anytime · No lock-in · Billed monthly
             </p>
           </motion.div>
-        </div>
-      </section>
+        )}
 
-      {/* ═══ ONE-TIME PURCHASES ═══ */}
-      <section className="px-6 py-12 lg:py-16 border-t border-white/[0.04]">
-        <div className="mx-auto max-w-6xl">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="mb-8"
-          >
-            <h2 className="text-2xl font-bold text-white mb-2">One-Time Purchases</h2>
-            <p className="text-sm text-white/60">Enhance your readings with specialized reports</p>
-          </motion.div>
-
-          {/* Horizontal Scroll Cards */}
-          <div
-            onScroll={handleScroll}
-            className="overflow-x-auto pb-4 -mx-6 px-6 scroll-smooth"
-            style={{ scrollBehavior: "smooth" }}
-          >
-            <div className="flex gap-4 min-w-min">
-              {oneTimePurchases.map((product, i) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 + i * 0.05 }}
-                  className="flex-shrink-0 w-80"
-                >
-                  <div className="rounded-xl border border-white/[0.04] bg-white/[0.03] p-6 hover:border-white/[0.08] transition-all cursor-pointer group">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-base font-semibold text-white group-hover:text-amber-400 transition-colors">
-                          {product.name}
-                        </h3>
-                        <p className="text-xs text-white/50 mt-1">
-                          {product.description}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-amber-400">
-                        {product.price}
-                      </span>
-                      <button className="p-2 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 transition-colors">
-                        <ChevronRight className="h-4 w-4 text-amber-400" />
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
-          {/* Scroll Indicator */}
-          {scrollPosition < 100 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex justify-center mt-6"
-            >
-              <p className="text-xs text-white/40">Scroll to see more →</p>
-            </motion.div>
-          )}
-        </div>
-      </section>
-
-      {/* Extra padding for mobile */}
-      <div className="h-12" />
+        {/* Philosophy note */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="mt-8 text-center"
+        >
+          <p className="text-[11px] text-text-dim/40 leading-relaxed max-w-xs mx-auto">
+            We only suggest upgrades after you&apos;ve felt personal value from GrahAI. Your trust matters more than our revenue.
+          </p>
+        </motion.div>
+      </div>
     </main>
   )
 }
