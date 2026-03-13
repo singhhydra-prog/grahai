@@ -13,7 +13,6 @@ import {
   Compass,
   MessageCircle,
   History,
-  Settings,
   LogOut,
   ChevronRight,
   Trophy,
@@ -22,8 +21,8 @@ import {
   TrendingDown,
   Minus,
   Calendar,
-  BookOpen,
   Heart,
+  Loader2,
 } from "lucide-react"
 import type { User } from "@supabase/supabase-js"
 import { useGamification } from "@/contexts/GamificationContext"
@@ -32,7 +31,7 @@ import { DailyInsightCard } from "@/components/gamification/DailyInsightCard"
 import { StreakCalendar } from "@/components/gamification/StreakCalendar"
 import { AchievementShowcase } from "@/components/gamification/AchievementShowcase"
 import { AchievementModal } from "@/components/gamification/AchievementModal"
-import AppHeader from "@/components/AppHeader"
+// AppHeader removed — dashboard has its own nav with signout + achievements
 
 interface UserProfile {
   full_name: string
@@ -169,7 +168,7 @@ export default function DashboardPage() {
       // Fetch report count (non-blocking)
       supabase
         .from("reports")
-        .select("id", { count: "exact", head: true })
+        .select("*", { count: "exact", head: true })
         .eq("user_id", user.id)
         .then(({ count }: { count: number | null }) => {
           if (count) setReportCount(count)
@@ -196,7 +195,7 @@ export default function DashboardPage() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-deep-space">
         <div className="flex flex-col items-center gap-4">
-          <Sparkles className="h-8 w-8 animate-pulse text-saffron" />
+          <Loader2 className="h-8 w-8 animate-spin text-saffron" />
           <p className="text-sm text-cosmic-white/40">Loading your cosmos...</p>
         </div>
       </main>
@@ -207,33 +206,36 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-deep-space">
-      <AppHeader />
       {/* Nav */}
-      <nav className="sticky top-0 z-50 glass-nav">
+      <nav className="sticky top-0 z-50 glass-nav border-b border-white/[0.04]">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-          <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-saffron" />
             <span className="font-bold text-cosmic-white">
               Grah<span className="text-saffron">AI</span>
             </span>
-          </div>
-          <div className="flex items-center gap-4">
+          </Link>
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setShowAchievements(true)}
-              className="rounded-lg p-2 text-cosmic-white/40 transition-colors hover:bg-indigo/20 hover:text-saffron"
+              className="rounded-lg p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center text-cosmic-white/40 transition-colors hover:bg-indigo/20 hover:text-saffron"
               title="Achievements"
+              aria-label="View achievements"
             >
               <Trophy className="h-5 w-5" />
             </button>
-            <button className="rounded-lg p-2 text-cosmic-white/40 transition-colors hover:bg-indigo/20 hover:text-cosmic-white">
+            <Link
+              href="/chat"
+              className="rounded-lg p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center text-cosmic-white/40 transition-colors hover:bg-indigo/20 hover:text-cosmic-white"
+              title="Chat History"
+              aria-label="Chat history"
+            >
               <History className="h-5 w-5" />
-            </button>
-            <button className="rounded-lg p-2 text-cosmic-white/40 transition-colors hover:bg-indigo/20 hover:text-cosmic-white">
-              <Settings className="h-5 w-5" />
-            </button>
+            </Link>
             <button
               onClick={handleSignOut}
-              className="rounded-lg p-2 text-cosmic-white/40 transition-colors hover:bg-error/10 hover:text-error"
+              className="rounded-lg p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center text-cosmic-white/40 transition-colors hover:bg-error/10 hover:text-error"
+              aria-label="Sign out"
             >
               <LogOut className="h-5 w-5" />
             </button>

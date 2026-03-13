@@ -885,23 +885,137 @@ export default function HoroscopePage() {
         {/* Panchang */}
         <PanchangWidget panchang={panchang} />
 
-        {/* CTA for Personalized */}
+        {/* Upgrade CTA */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.55 }}
-          className="glass-card p-4 text-center"
+          className="relative overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-br from-gold/[0.08] to-transparent p-6 text-center"
         >
-          <p className="text-xs text-text/70 mb-3">
-            Get your personalized horoscope based on your exact birth chart
-          </p>
-          <Link
-            href="/kundli"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-gold/70 hover:text-gold/90 transition-colors"
-          >
-            Create your Kundli
-            <ArrowRight className="h-3 w-3" />
-          </Link>
+          <div className="absolute -top-16 left-1/2 -translate-x-1/2 h-32 w-32 rounded-full bg-gold/10 blur-[60px]" />
+          <div className="relative z-10">
+            <Sparkles className="w-5 h-5 text-gold mx-auto mb-2" />
+            <p className="text-sm font-semibold text-text mb-1">
+              Want personalized predictions?
+            </p>
+            <p className="text-xs text-text/50 mb-4 max-w-xs mx-auto">
+              Get daily horoscopes based on your exact birth chart with Dasha analysis and remedies
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
+              <Link
+                href="/pricing"
+                className="inline-flex items-center gap-2 rounded-xl bg-gold px-5 py-2.5 text-xs font-semibold text-black hover:bg-gold/90 transition-all"
+              >
+                <Star className="h-3.5 w-3.5" />
+                Start Free, Upgrade Anytime
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+              <Link
+                href="/kundli"
+                className="text-xs text-gold/50 hover:text-gold/70 transition-colors"
+              >
+                Create free Kundli
+              </Link>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* ── Personalized Reading Conversion Funnel ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          <div className="mx-auto max-w-xl px-4 py-8">
+            <div className="relative rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/[0.06] to-orange-500/[0.03] overflow-hidden">
+              {/* Glow effect */}
+              <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full bg-amber-500/10 blur-[60px]" />
+
+              <div className="relative p-6">
+                {/* Badge */}
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/20 text-amber-400 text-[10px] font-bold">
+                    <Sparkles className="w-3 h-3" /> 10x More Accurate
+                  </span>
+                </div>
+
+                <h3 className="text-lg font-bold text-white leading-tight mb-1">
+                  Sun signs are just the surface
+                </h3>
+                <p className="text-sm text-white/50 mb-5">
+                  Your Vedic birth chart has 9 planets, 12 houses, and 27 nakshatras — each telling a unique story. Get your real reading.
+                </p>
+
+                {/* Quick birth detail capture */}
+                <div className="space-y-3 mb-4">
+                  <div>
+                    <label className="text-[10px] text-white/40 uppercase tracking-wider font-medium mb-1 block">Date of Birth</label>
+                    <input
+                      type="date"
+                      className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white focus:outline-none focus:border-amber-500/30 [color-scheme:dark]"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-white/40 uppercase tracking-wider font-medium mb-1 block">Birth City</label>
+                    <input
+                      type="text"
+                      placeholder="e.g., Mumbai, Delhi, Bangalore"
+                      className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-amber-500/30"
+                    />
+                  </div>
+                </div>
+
+                <Link
+                  href="/onboarding"
+                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-[#0a0e1a] font-bold text-sm hover:from-amber-400 hover:to-amber-500 transition-all active:scale-[0.98]"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Get My Vedic Reading — Free
+                </Link>
+                <p className="text-center text-[10px] text-white/25 mt-2">No credit card required · Takes 2 minutes</p>
+
+                {/* Social proof */}
+                <div className="flex items-center justify-center gap-3 mt-4 pt-3 border-t border-white/[0.05]">
+                  <div className="flex -space-x-1.5">
+                    {["🧑‍💼", "👩‍🦰", "👨‍🎓"].map((emoji, i) => (
+                      <div key={i} className="w-5 h-5 rounded-full bg-white/10 border border-[#0E1538] flex items-center justify-center text-[9px]">
+                        {emoji}
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-white/40">
+                    <span className="text-amber-400 font-bold">50,000+</span> Kundlis generated
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* ── Why Vedic Astrology ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55 }}
+          className="mx-auto max-w-xl px-4 pb-8"
+        >
+          <h3 className="text-sm font-bold text-white mb-3">Why Vedic is different from Western</h3>
+          <div className="space-y-2.5">
+            {[
+              { title: "Sidereal vs Tropical", desc: "Vedic uses the actual position of stars, not the shifted Western zodiac. Your real sign may be different.", icon: "🌟" },
+              { title: "Moon Sign Priority", desc: "Western focuses on Sun sign. Vedic prioritizes your Moon sign — the seat of your mind and emotions.", icon: "🌙" },
+              { title: "Nakshatra System", desc: "27 lunar mansions provide granularity Western astrology can't match. Each nakshatra has a ruling deity and nature.", icon: "⭐" },
+              { title: "Dasha Timing", desc: "Vedic uniquely predicts WHEN events happen using the Vimshottari Dasha system — not just what.", icon: "⏳" },
+            ].map((item) => (
+              <div key={item.title} className="flex items-start gap-3 p-3 rounded-xl border border-white/[0.06] bg-white/[0.02]">
+                <span className="text-lg mt-0.5">{item.icon}</span>
+                <div>
+                  <p className="text-xs font-bold text-white/80">{item.title}</p>
+                  <p className="text-[11px] text-white/40 leading-relaxed mt-0.5">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </motion.div>
 
         {/* CTAs */}
@@ -929,7 +1043,18 @@ export default function HoroscopePage() {
 
         {/* Share */}
         <div className="flex items-center justify-center pt-2">
-          <button className="flex items-center gap-2 text-xs text-text-dim/40 hover:text-gold/50 transition-colors">
+          <button
+            onClick={() => {
+              const text = `My ${selectedSign.name} horoscope today on GrahAI`
+              const url = `${window.location.origin}/horoscope?sign=${selectedSign.name.toLowerCase()}`
+              if (navigator.share) {
+                navigator.share({ title: text, url }).catch(() => {})
+              } else {
+                navigator.clipboard?.writeText(url)
+              }
+            }}
+            className="flex items-center gap-2 text-xs text-text-dim/40 hover:text-gold/50 transition-colors"
+          >
             <Share2 className="h-3 w-3" />
             Share today&apos;s reading
           </button>

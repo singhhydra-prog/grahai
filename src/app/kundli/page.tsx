@@ -28,6 +28,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import AppHeader from "@/components/AppHeader"
+import LocationAutocomplete, { type LocationSelection } from "@/components/LocationAutocomplete"
 
 /* ─── Types ────────────────────────────────────────────── */
 
@@ -38,6 +39,9 @@ interface BirthDetails {
   timeUnknown: boolean
   city: string
   country: string
+  lat?: number
+  lng?: number
+  tz?: number
 }
 
 interface PlanetData {
@@ -335,7 +339,9 @@ function getCityLat(city: string): number {
 function generateDemoKundli(details: BirthDetails): KundliResult {
   const d = new Date(details.date)
   const jde = dateToJDE(details.date, details.time || (details.timeUnknown ? "12:00" : "12:00"))
-  const lat = getCityLat(details.city)
+  // Use lat/lng from LocationAutocomplete selection, fallback to hardcoded lookup
+  const lat = details.lat || getCityLat(details.city)
+  const lng = details.lng || 77.21 // Default Delhi longitude
 
   const planetDefs = [
     { name: "Sun", short: "Su", symbol: "☉" },
@@ -741,7 +747,7 @@ function BirthDetailsForm({ onSubmit }: { onSubmit: (d: BirthDetails) => void })
         </div>
 
         {/* Date + Time row */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">
               <Calendar className="inline w-3 h-3 mr-1" />Date of Birth <span className="normal-case tracking-normal text-white/25">(DD/MM/YYYY)</span>
@@ -777,36 +783,24 @@ function BirthDetailsForm({ onSubmit }: { onSubmit: (d: BirthDetails) => void })
           </div>
         </div>
 
-        {/* City + Country */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="col-span-2">
-            <label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">
-              <MapPin className="inline w-3 h-3 mr-1" />Birth City
-            </label>
-            <input
-              type="text"
-              value={form.city}
-              onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
-              placeholder="e.g. Mumbai, Delhi"
-              className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white placeholder:text-white/20 focus:border-amber-500/30 focus:outline-none transition-colors"
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">Country</label>
-            <select
-              value={form.country}
-              onChange={e => setForm(f => ({ ...f, country: e.target.value }))}
-              className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm text-white focus:border-amber-500/30 focus:outline-none transition-colors"
-            >
-              <option value="India">India</option>
-              <option value="USA">USA</option>
-              <option value="UK">UK</option>
-              <option value="Canada">Canada</option>
-              <option value="Australia">Australia</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-        </div>
+        {/* Birth Place — Autocomplete Dropdown */}
+        <LocationAutocomplete
+          value={form.city}
+          onChange={(text) => setForm(f => ({ ...f, city: text }))}
+          onSelect={(loc: LocationSelection) =>
+            setForm(f => ({
+              ...f,
+              city: loc.displayLabel,
+              country: loc.country,
+              lat: loc.lat,
+              lng: loc.lng,
+              tz: loc.tz,
+            }))
+          }
+          label="Birth Place"
+          showIcon={true}
+          placeholder="Start typing — e.g. Mumbai, Delhi, New York"
+        />
 
         {/* Submit */}
         <motion.button
@@ -822,7 +816,11 @@ function BirthDetailsForm({ onSubmit }: { onSubmit: (d: BirthDetails) => void })
         </motion.button>
 
         <p className="text-center text-[10px] text-white/20 mt-3">
-          Want deeper insights? Upgrade for full Dasha analysis, Yoga breakdown, and personalized remedies.
+          Want deeper insights?{" "}
+          <Link href="/pricing" className="text-gold/50 hover:text-gold/70 underline transition-colors">
+            Upgrade
+          </Link>{" "}
+          for full Dasha analysis, Yoga breakdown, and personalized remedies.
         </p>
       </div>
     </motion.div>
@@ -861,7 +859,7 @@ function NorthIndianChart({ planets, houses, ascendantSign, size = 320 }: {
   const SIGN_SHORT = ["", "Ar", "Ta", "Ge", "Cn", "Le", "Vi", "Li", "Sc", "Sg", "Cp", "Aq", "Pi"]
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="select-none">
+    <svg width="100%" height="100%" viewBox={`0 0 ${size} ${size}`} className="select-none" style={{ maxWidth: size, maxHeight: size }}>
       <rect x={0} y={0} width={size} height={size} fill="rgba(12,18,36,0.9)" stroke="rgba(192,162,77,0.3)" strokeWidth={1.5} rx={8} />
       <line x1={0} y1={0} x2={size} y2={size} stroke="rgba(192,162,77,0.2)" strokeWidth={1} />
       <line x1={size} y1={0} x2={0} y2={size} stroke="rgba(192,162,77,0.2)" strokeWidth={1} />
@@ -1079,7 +1077,7 @@ function NakshatraProfile({ profile }: { profile: KundliResult["nakshatraProfile
       </div>
       <h4 className="text-lg font-bold text-violet-300 mb-1">{profile.name}</h4>
       <p className="text-xs text-white/50 mb-4">{profile.description}</p>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {[
           { label: "Lord", value: profile.lord },
           { label: "Deity", value: profile.deity },
@@ -1172,7 +1170,7 @@ function KundliResults({ result, details }: { result: KundliResult; details: Bir
           transition={{ duration: 0.2 }}
         >
           {activeTab === "chart" && (
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center w-full max-w-[340px] mx-auto">
               <NorthIndianChart
                 planets={result.planets}
                 houses={result.houses}
@@ -1262,6 +1260,68 @@ export default function KundliPage() {
       const kundli = generateDemoKundli(d)
       setResult(kundli)
       setStage("result")
+
+      // Save chart data to localStorage for MyChartTab consumption
+      try {
+        localStorage.setItem("grahai-chart-data", JSON.stringify({
+          // Flatten key data for MyChartTab consumption
+          moonSign: SIGN_NAMES[kundli.planets.find(p => p.name === "Moon")?.signIndex || 0],
+          sunSign: SIGN_NAMES[kundli.planets.find(p => p.name === "Sun")?.signIndex || 0],
+          lagna: SIGN_NAMES[kundli.ascendant.signIndex],
+          lagnaArabic: kundli.ascendant.signIndex,
+          nakshatra: kundli.nakshatraProfile.name,
+          nakshatraLord: kundli.nakshatraProfile.lord,
+          nakshatraDeity: kundli.nakshatraProfile.deity,
+          nakshatraSymbol: kundli.nakshatraProfile.symbol,
+          nakshatraGana: kundli.nakshatraProfile.gana,
+          nakshatraQualities: kundli.nakshatraProfile.qualities,
+          nakshatraDescription: kundli.nakshatraProfile.description,
+          planets: kundli.planets.map(p => ({
+            name: p.name,
+            shortName: p.shortName,
+            sign: p.sign,
+            signIndex: p.signIndex,
+            house: p.house,
+            degree: p.degree,
+            nakshatra: p.nakshatra,
+            nakshatraPada: p.nakshatraPada,
+            retrograde: p.retrograde,
+            dignity: p.dignity,
+            symbol: p.symbol,
+            color: p.color,
+          })),
+          yogas: kundli.yogas.map(y => ({
+            name: y.name,
+            nameSanskrit: y.nameSanskrit,
+            type: y.type,
+            effect: y.effect,
+            strength: y.strength,
+            classicalRef: y.classicalRef,
+          })),
+          doshas: kundli.doshas.filter(d => d.active).map(d => ({
+            name: d.name,
+            severity: d.severity,
+            remedy: d.remedy,
+          })),
+          currentDasha: (() => {
+            const cd = kundli.dashas.find(d => d.isCurrent)
+            if (!cd) return null
+            const currentSub = cd.subPeriods.find(s => s.isCurrent)
+            return {
+              planet: cd.planet,
+              start: cd.start,
+              end: cd.end,
+              subPlanet: currentSub?.planet || null,
+              subStart: currentSub?.start || null,
+              subEnd: currentSub?.end || null,
+            }
+          })(),
+          summary: kundli.summary,
+          computedAt: new Date().toISOString(),
+        }))
+      } catch (e) {
+        console.error("Failed to save chart data to localStorage:", e)
+      }
     }, 2500)
   }
 
@@ -1290,7 +1350,7 @@ export default function KundliPage() {
                 transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
                 className="w-16 h-16 rounded-full border border-amber-500/10 flex items-center justify-center"
               >
-                <Sparkles className="w-6 h-6 text-amber-400 animate-pulse" />
+                <Loader2 className="w-6 h-6 text-amber-400 animate-spin" />
               </motion.div>
             </motion.div>
             <p className="text-sm text-white/50 mb-2">Calculating planetary positions...</p>

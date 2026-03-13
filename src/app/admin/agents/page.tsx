@@ -138,6 +138,7 @@ export default function AgentDashboard() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [unauthorized, setUnauthorized] = useState(false)
   const [days, setDays] = useState(7)
   const [expandedVertical, setExpandedVertical] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<"overview" | "tools" | "delegations" | "hierarchy">("overview")
@@ -147,6 +148,10 @@ export default function AgentDashboard() {
     setError(null)
     try {
       const res = await fetch(`/api/admin/agents?days=${days}`)
+      if (res.status === 403) {
+        setUnauthorized(true)
+        return
+      }
       if (!res.ok) throw new Error("Failed to fetch")
       const json = await res.json()
       setData(json)
@@ -160,6 +165,24 @@ export default function AgentDashboard() {
   useEffect(() => {
     fetchData()
   }, [fetchData])
+
+  /* ── Unauthorized wall ── */
+  if (unauthorized) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+        <div className="text-center max-w-sm">
+          <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
+            <XCircle className="w-8 h-8 text-red-400" />
+          </div>
+          <h2 className="text-xl font-bold text-white mb-2">Access Denied</h2>
+          <p className="text-white/50 text-sm mb-6">This dashboard is restricted to admin users. Please log in with an authorized account.</p>
+          <a href="/app" className="px-5 py-2.5 bg-amber-500/20 text-amber-400 rounded-lg hover:bg-amber-500/30 transition text-sm font-medium">
+            Back to App
+          </a>
+        </div>
+      </div>
+    )
+  }
 
   if (loading && !data) {
     return (

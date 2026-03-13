@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.grahai.app",
+      "sha256_cert_fingerprints": [
+        "94:64:DB:AC:E4:40:48:E4:99:2B:7A:84:29:BD:F7:04:FF:52:14:75:04:BD:FF:D5:0D:2D:1E:33:4E:DE:B5:EF"
+      ]
+    }
+  }
+]

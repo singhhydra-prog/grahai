@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next"
+import PushNotificationManager from "@/components/PushNotificationManager"
 
 export const viewport: Viewport = {
   themeColor: "#0E1538",
@@ -18,6 +19,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[#060A14] overflow-x-hidden">
       {children}
+      <PushNotificationManager />
     </div>
   )
 }

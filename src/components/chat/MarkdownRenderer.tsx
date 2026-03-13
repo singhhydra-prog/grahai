@@ -14,7 +14,7 @@ interface MarkdownRendererProps {
 }
 
 export default function MarkdownRenderer({ content, className = "" }: MarkdownRendererProps) {
-  const rendered = useMemo(() => renderMarkdown(content), [content])
+  const rendered = useMemo(() => sanitizeOutput(renderMarkdown(content)), [content])
 
   return (
     <div
@@ -93,5 +93,22 @@ function escapeHtml(text: string): string {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    // Don't escape quotes since we're not in attributes
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;")
+}
+
+/**
+ * Post-sanitize: strip any tags that escaped our markdown rendering.
+ * This acts as a second defense layer after escapeHtml.
+ */
+function sanitizeOutput(html: string): string {
+  // Remove any script/iframe/object/embed tags that might have snuck through
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    .replace(/<iframe\b[^>]*>.*?<\/iframe>/gi, "")
+    .replace(/<object\b[^>]*>.*?<\/object>/gi, "")
+    .replace(/<embed\b[^>]*>/gi, "")
+    .replace(/on\w+\s*=\s*"[^"]*"/gi, "")
+    .replace(/on\w+\s*=\s*'[^']*'/gi, "")
+    .replace(/javascript\s*:/gi, "")
 }

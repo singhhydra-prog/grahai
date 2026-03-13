@@ -4,6 +4,8 @@ import LenisProvider from "@/components/LenisProvider"
 import { AppProviders } from "@/components/Providers"
 import CosmicBackground from "@/components/CosmicBackground"
 import PWARegister from "@/components/PWARegister"
+import PWAInstallPrompt from "@/components/PWAInstallPrompt"
+import PWAUpdatePrompt from "@/components/PWAUpdatePrompt"
 import "./globals.css"
 
 const inter = Inter({
@@ -96,10 +98,15 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
+        <a href="#main-content" className="skip-nav">Skip to main content</a>
         <PWARegister />
+        <PWAInstallPrompt />
+        <PWAUpdatePrompt />
         <CosmicBackground />
         <LenisProvider>
-          <AppProviders>{children}</AppProviders>
+          <AppProviders>
+            <div id="main-content">{children}</div>
+          </AppProviders>
         </LenisProvider>
       </body>
     </html>

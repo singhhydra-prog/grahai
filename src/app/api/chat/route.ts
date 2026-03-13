@@ -35,8 +35,14 @@ function getSupabase() {
 /* ────────────────────────────────────────────────────
    ANTHROPIC CLIENT
    ──────────────────────────────────────────────────── */
+/* Validate Anthropic API key at startup */
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
+if (!ANTHROPIC_API_KEY) {
+  console.error("CRITICAL: ANTHROPIC_API_KEY not configured — chat will not work")
+}
+
 const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "",
+  apiKey: ANTHROPIC_API_KEY || "missing-key",
 })
 
 /* ────────────────────────────────────────────────────
@@ -76,6 +82,14 @@ export async function POST(req: NextRequest) {
   const startTime = Date.now()
 
   try {
+    // Pre-flight: ensure API key is configured
+    if (!ANTHROPIC_API_KEY) {
+      return new Response(JSON.stringify({ error: "AI service not configured. Please contact support." }), {
+        status: 503,
+        headers: { "Content-Type": "application/json" },
+      })
+    }
+
     const body = await req.json()
     const { message, conversation_id, vertical: requestedVertical, user_id } = body
 
@@ -92,19 +106,26 @@ export async function POST(req: NextRequest) {
     const vertical = detectVertical(message, requestedVertical)
     const agentName = getAgentNameForVertical(vertical)
 
-    // 1a. USAGE LIMIT CHECK — enforce tier-based daily limits
-    const usageCheck = await checkUsage(user_id, vertical)
-    if (!usageCheck.allowed) {
-      return new Response(JSON.stringify({
-        error: "daily_limit_reached",
-        message: usageCheck.message,
-        tier: usageCheck.tier,
-        limit: usageCheck.limit,
-        upgradeNeeded: true,
-      }), {
-        status: 429,
-        headers: { "Content-Type": "application/json" },
-      })
+    // 1a. Check if anonymous onboarding user
+    const isAnonymous = user_id === "anonymous-onboarding"
+
+    // 1b. USAGE LIMIT CHECK — enforce tier-based daily limits
+    // Skip usage check for anonymous onboarding (limited by design — max 3 follow-ups)
+    let usageCheck: { allowed: boolean; shouldTruncate?: boolean; truncateMessage?: string; message?: string; tier?: string; limit?: number } = { allowed: true }
+    if (!isAnonymous) {
+      usageCheck = await checkUsage(user_id, vertical)
+      if (!usageCheck.allowed) {
+        return new Response(JSON.stringify({
+          error: "daily_limit_reached",
+          message: usageCheck.message,
+          tier: usageCheck.tier,
+          limit: usageCheck.limit,
+          upgradeNeeded: true,
+        }), {
+          status: 429,
+          headers: { "Content-Type": "application/json" },
+        })
+      }
     }
 
     // 1b. Detect sub-agent within the vertical
@@ -193,6 +214,9 @@ export async function POST(req: NextRequest) {
     let fullResponseText = ""
     let toolsExecuted: string[] = []
     let success = true
+    const shouldTruncate = usageCheck.shouldTruncate || false
+    const truncateMessage = usageCheck.truncateMessage
+    const TRUNCATE_LIMIT = 800 // ~200 tokens
 
     const stream = new ReadableStream({
       async start(controller) {
@@ -205,6 +229,8 @@ export async function POST(req: NextRequest) {
                 vertical,
                 agent_name: agentName,
                 sub_agent: activeSubAgent,
+                shouldTruncate: usageCheck.shouldTruncate,
+                truncateMessage: usageCheck.truncateMessage,
               })
             )
           )
@@ -243,7 +269,14 @@ export async function POST(req: NextRequest) {
             for (const block of response.content) {
               if (block.type === "text") {
                 // Stream text in chunks for typewriter effect
-                const text = block.text
+                let text = block.text
+
+                // Apply truncation if needed
+                if (shouldTruncate && fullResponseText.length + text.length > TRUNCATE_LIMIT) {
+                  const remaining = Math.max(0, TRUNCATE_LIMIT - fullResponseText.length)
+                  text = text.slice(0, remaining)
+                }
+
                 fullResponseText += text
 
                 // Send in ~50 char chunks for smooth streaming
@@ -251,6 +284,19 @@ export async function POST(req: NextRequest) {
                 for (let i = 0; i < text.length; i += chunkSize) {
                   const chunk = text.slice(i, i + chunkSize)
                   controller.enqueue(encoder.encode(sseEvent("text_delta", { text: chunk })))
+                }
+
+                // If truncated, append notice and stop processing
+                if (shouldTruncate && fullResponseText.length >= TRUNCATE_LIMIT) {
+                  const notice = `\n\n✨ *Upgrade to see the full analysis...*`
+                  fullResponseText += notice
+                  const chunkSize = 50
+                  for (let i = 0; i < notice.length; i += chunkSize) {
+                    const chunk = notice.slice(i, i + chunkSize)
+                    controller.enqueue(encoder.encode(sseEvent("text_delta", { text: chunk })))
+                  }
+                  continueLoop = false // Stop processing further
+                  break // Break from content blocks loop
                 }
               } else if (block.type === "tool_use") {
                 // Tool use detected — notify client
@@ -359,8 +405,10 @@ export async function POST(req: NextRequest) {
             trackAgentMetrics(subAgentRoute.displayName, vertical, Date.now() - startTime, success).catch(() => {})
           }
 
-          // 12. Increment daily usage counter (fire-and-forget)
-          incrementUsage(user_id, vertical).catch(() => {})
+          // 12. Increment daily usage counter (fire-and-forget) — skip for anonymous onboarding
+          if (!isAnonymous) {
+            incrementUsage(user_id, vertical).catch(() => {})
+          }
 
           controller.close()
         } catch (err) {

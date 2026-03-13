@@ -22,6 +22,13 @@ import {
   type ChartRemedySummary,
 } from "../astrology-data/remedy-database"
 import { SIGNS, HOUSE_SIGNIFICANCES } from "../ephemeris/constants"
+import { analyzeChartStrength, type ChartStrengthAnalysis } from "../ephemeris/planet-strength"
+import { calculateAshtakavarga, getAshtakavargaSummary, getAllHouseStrengths, type AshtakavargaResult, type AshtakavargaSummary } from "../ephemeris/ashtakavarga"
+import { analyzeVargas, type VargaInterpretation } from "../ephemeris/varga-interpretation"
+import { analyzeDoshaCancellations, type ComprehensiveDoshaAnalysis } from "../ephemeris/dosha-cancellations"
+import { getSAVTransitReport, type SAVTransitReport } from "../ephemeris/sav-transit-timing"
+import { getBhavaChalitReport, type BhavaChalitReport } from "../ephemeris/bhava-chalit"
+import { synthesizeChart, type FullChartSynthesis } from "../ephemeris/chart-synthesis"
 
 // ─── Report Data Structure ──────────────────────────────
 
@@ -70,8 +77,31 @@ export interface ReportData {
   // Remedies
   remedies: ChartRemedySummary
 
+  // Planet Strength Analysis (Shadbala + Combustion + Retrogression + Graha Yuddha)
+  strengthAnalysis: ChartStrengthAnalysis
+
   // Vargottama
   vargottamaPlanets: PlanetName[]
+
+  // Ashtakavarga (BPHS Ch.66-72)
+  ashtakavarga: AshtakavargaResult
+  ashtakavargaSummary: AshtakavargaSummary
+  houseStrengths: Array<{ house: number; sav: number; strength: string; meaning: string }>
+
+  // Varga Interpretation (D9 Navamsa + D10 Dasamsa)
+  vargaInterpretation: VargaInterpretation
+
+  // Dosha Cancellations (Dosha Bhanga)
+  doshaCancellations: ComprehensiveDoshaAnalysis
+
+  // SAV Transit Analysis (BPHS Ch.66-72 applied to Gochar)
+  savTransitReport: SAVTransitReport
+
+  // Bhava Chalit (Equal House System)
+  bhavaChalitReport: BhavaChalitReport
+
+  // Full Chart Synthesis (multi-factor analysis)
+  chartSynthesis: FullChartSynthesis
 
   // Classical references bibliography
   bibliography: Array<{ source: string, chapter: number, topic: string }>
@@ -199,10 +229,33 @@ export async function assembleReportData(
   }))
   const remedies = generateRemedySummary(afflictedPlanets, doshaForRemedies)
 
-  // 10. Vargottama
+  // 10. Planet Strength Analysis (Shadbala + Combustion + Retrogression + Graha Yuddha)
+  const strengthAnalysis = analyzeChartStrength(natalChart)
+
+  // 11. Vargottama
   const vargottamaPlanets = getVargottamaPlanets(natalChart)
 
-  // 11. Bibliography
+  // 12. Ashtakavarga (BPHS Ch.66-72)
+  const ashtakavarga = calculateAshtakavarga(natalChart)
+  const ashtakavargaSummary = getAshtakavargaSummary(ashtakavarga)
+  const houseStrengths = getAllHouseStrengths(ashtakavarga)
+
+  // 13. Varga Interpretation (D9 + D10)
+  const vargaInterpretation = analyzeVargas(natalChart)
+
+  // 14. Dosha Cancellations (Dosha Bhanga)
+  const doshaCancellations = analyzeDoshaCancellations(natalChart)
+
+  // 15. SAV Transit Report (Ashtakavarga-enhanced transits)
+  const savTransitReport = await getSAVTransitReport(natalChart)
+
+  // 16. Bhava Chalit Report (Equal house system)
+  const bhavaChalitReport = getBhavaChalitReport(natalChart)
+
+  // 17. Full Chart Synthesis (multi-factor analysis)
+  const chartSynthesis = synthesizeChart(natalChart)
+
+  // 18. Bibliography
   const bibliography = buildBibliography(yogas, doshas)
 
   return {
@@ -220,7 +273,16 @@ export async function assembleReportData(
     doshas,
     houseAnalysis,
     remedies,
+    strengthAnalysis,
     vargottamaPlanets,
+    ashtakavarga,
+    ashtakavargaSummary,
+    houseStrengths,
+    vargaInterpretation,
+    doshaCancellations,
+    savTransitReport,
+    bhavaChalitReport,
+    chartSynthesis,
     bibliography,
   }
 }
@@ -363,6 +425,7 @@ function buildBibliography(
     { source: "BPHS", chapter: 11, topic: "House Significations" },
     { source: "BPHS", chapter: 46, topic: "Vimshottari Dasha System" },
     { source: "BPHS", chapter: 65, topic: "Transit (Gochar) Effects" },
+    { source: "BPHS", chapter: 66, topic: "Ashtakavarga System" },
   ]
 
   for (const r of coreRefs) {

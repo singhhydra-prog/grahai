@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Send, Sparkles } from "lucide-react"
+import { X, Send, Sparkles, Loader2 } from "lucide-react"
 
 /* ═══════════════════════════════════════════════════
    PLANET CHAT — Talk to your planets 1-on-1
@@ -147,9 +147,83 @@ interface PlanetChatProps {
 export default function PlanetChat({ planetKey, onClose }: PlanetChatProps) {
   const [visibleMsgs, setVisibleMsgs] = useState(0)
   const [userInput, setUserInput] = useState("")
+  const [chatMessages, setChatMessages] = useState<{ role: "user" | "planet"; text: string }[]>([])
+  const [sending, setSending] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const planet = planetKey ? PLANETS[planetKey] : null
+
+  // Send message to the astrology chat API with planet context
+  const handleSend = useCallback(async () => {
+    if (!userInput.trim() || !planet || sending) return
+
+    const question = userInput.trim()
+    setUserInput("")
+    setChatMessages(prev => [...prev, { role: "user", text: question }])
+    setSending(true)
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: `[Speaking as ${planet.name} (${planet.nameHi}), the ${planet.role}. Stay in character as this planet deity. Be concise — 2-3 sentences max.]\n\nUser asks: ${question}`,
+          vertical: "astrology",
+          user_id: "planet-chat", // anonymous context
+        }),
+      })
+
+      if (!res.ok) {
+        setChatMessages(prev => [...prev, { role: "planet", text: "The cosmic connection wavered. Please try again." }])
+        return
+      }
+
+      // Read SSE stream
+      const reader = res.body?.getReader()
+      if (!reader) return
+
+      let fullText = ""
+      const decoder = new TextDecoder()
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value, { stream: true })
+        const lines = chunk.split("\n")
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const parsed = JSON.parse(line.slice(6))
+              if (parsed.text) {
+                fullText += parsed.text
+                // Update the last planet message progressively
+                setChatMessages(prev => {
+                  const updated = [...prev]
+                  const lastMsg = updated[updated.length - 1]
+                  if (lastMsg?.role === "planet") {
+                    lastMsg.text = fullText
+                  } else {
+                    updated.push({ role: "planet", text: fullText })
+                  }
+                  return updated
+                })
+              }
+            } catch { /* skip non-JSON lines */ }
+          }
+        }
+      }
+
+      // If no text was streamed, add a fallback
+      if (!fullText) {
+        setChatMessages(prev => [...prev, { role: "planet", text: `${planet.name} is meditating. Ask again in a moment.` }])
+      }
+    } catch {
+      setChatMessages(prev => [...prev, { role: "planet", text: "A cosmic disturbance occurred. Please try again." }])
+    } finally {
+      setSending(false)
+    }
+  }, [userInput, planet, sending])
 
   // Stagger messages appearing
   useEffect(() => {
@@ -165,10 +239,16 @@ export default function PlanetChat({ planetKey, onClose }: PlanetChatProps) {
     return () => timers.forEach(clearTimeout)
   }, [planet])
 
-  // Auto scroll
+  // Auto scroll on new messages
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" })
-  }, [visibleMsgs])
+  }, [visibleMsgs, chatMessages])
+
+  // Reset chat messages when planet changes
+  useEffect(() => {
+    setChatMessages([])
+    setSending(false)
+  }, [planetKey])
 
   if (!planet) return null
 
@@ -242,8 +322,57 @@ export default function PlanetChat({ planetKey, onClose }: PlanetChatProps) {
             </motion.div>
           ))}
 
-          {/* Typing indicator */}
+          {/* Typing indicator for scripted messages */}
           {visibleMsgs < planet.messages.length && (
+            <motion.div
+              className="flex gap-2.5"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <span className="text-lg mt-1">{planet.icon}</span>
+              <div className="rounded-2xl rounded-tl-sm px-4 py-3 bg-white/[0.03] border border-white/[0.06]">
+                <div className="flex gap-1.5">
+                  {[0, 1, 2].map((d) => (
+                    <motion.div
+                      key={d}
+                      className="w-1.5 h-1.5 rounded-full bg-white/30"
+                      animate={{ opacity: [0.3, 1, 0.3] }}
+                      transition={{ duration: 1, repeat: Infinity, delay: d * 0.2 }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Interactive chat messages */}
+          {chatMessages.map((msg, i) => (
+            <motion.div
+              key={`chat-${i}`}
+              className={`flex gap-2.5 ${msg.role === "user" ? "justify-end" : ""}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              {msg.role === "planet" && (
+                <span className="text-lg mt-1 shrink-0">{planet.icon}</span>
+              )}
+              <div
+                className={`rounded-2xl px-4 py-3 max-w-[85%] ${
+                  msg.role === "user"
+                    ? "rounded-tr-sm bg-gold/15 border border-gold/20"
+                    : "rounded-tl-sm"
+                }`}
+                style={msg.role === "planet" ? { background: `${planet.color}10`, border: `1px solid ${planet.color}15` } : undefined}
+              >
+                <p className="text-[15px] text-white/85 leading-relaxed whitespace-pre-wrap">
+                  {msg.text}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+
+          {/* Typing indicator for AI response */}
+          {sending && (
             <motion.div
               className="flex gap-2.5"
               initial={{ opacity: 0 }}
@@ -274,15 +403,19 @@ export default function PlanetChat({ planetKey, onClose }: PlanetChatProps) {
                 type="text"
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend() } }}
                 placeholder={`Ask ${planet.name} anything...`}
                 className="flex-1 bg-transparent text-sm text-white placeholder-white/25 outline-none"
+                disabled={sending}
               />
               <Sparkles className="h-4 w-4 text-gold/30 ml-2" />
             </div>
             <button
-              className="p-3 rounded-full bg-gold/10 border border-gold/20 text-gold hover:bg-gold/20 transition-all active:scale-90"
+              onClick={handleSend}
+              disabled={sending || !userInput.trim()}
+              className="p-3 rounded-full bg-gold/10 border border-gold/20 text-gold hover:bg-gold/20 transition-all active:scale-90 disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              <Send className="h-4 w-4" />
+              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             </button>
           </div>
         </div>

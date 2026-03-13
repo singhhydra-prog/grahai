@@ -34,7 +34,14 @@ export function BrandLogo({ size = 36 }: { size?: number }) {
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [productsOpen, setProductsOpen] = useState(false)
   const pathname = usePathname()
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false)
+    setProductsOpen(false)
+  }, [pathname])
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 50)
@@ -46,8 +53,6 @@ export function Navbar() {
     if (path === "/") return pathname === "/"
     return pathname === path
   }
-
-  const [productsOpen, setProductsOpen] = useState(false)
 
   const productLinks = [
     { href: "/kundli", label: "Kundli (Birth Chart)" },

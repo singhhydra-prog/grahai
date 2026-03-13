@@ -428,6 +428,421 @@ function detectParivartanaYogas(chart: NatalChart): YogaResult[] {
   return results
 }
 
+// ─── Saraswati Yoga ────────────────────────────────────
+
+function detectSaraswatiYoga(chart: NatalChart): YogaResult {
+  const mercury = getPlanetByName(chart, "Mercury")
+  const jupiter = getPlanetByName(chart, "Jupiter")
+  const venus = getPlanetByName(chart, "Venus")
+
+  // Check if all three are in Kendra, Trikona, or 2nd house
+  const validHouses = [...KENDRA_HOUSES, ...TRIKONA_HOUSES, 2]
+  const allThreeValid = validHouses.includes(mercury.house) &&
+                        validHouses.includes(jupiter.house) &&
+                        validHouses.includes(venus.house)
+
+  const jupiterStrong = isInOwnOrExalted(jupiter)
+  const isPresent = allThreeValid && jupiterStrong
+
+  return makeResult(
+    "Saraswati Yoga", "Other Auspicious", isPresent,
+    isPresent ? "strong" : "weak",
+    ["Mercury", "Jupiter", "Venus"], [mercury.house, jupiter.house, venus.house],
+    "Mercury, Jupiter, Venus in Kendra/Trikona/2nd with Jupiter strong — eloquence, learning, arts",
+    isPresent ? "Saraswati Yoga formed: Mercury, Jupiter, Venus well-placed for wisdom and arts" : "Not formed",
+  )
+}
+
+// ─── Lakshmi Yoga ──────────────────────────────────────
+
+function detectLakshmiYoga(chart: NatalChart): YogaResult {
+  const lagnaLord = getHouseLordPlanet(chart, 1)
+  const ninthLord = getHouseLordPlanet(chart, 9)
+
+  const ninthInKendra = isInKendra(ninthLord.house)
+  const ninthStrong = isInOwnOrExalted(ninthLord)
+  const lagnaStrong = isInOwnOrExalted(lagnaLord)
+  const isPresent = ninthInKendra && ninthStrong && lagnaStrong
+
+  return makeResult(
+    "Lakshmi Yoga", "Dhan Yoga", isPresent,
+    isPresent ? "strong" : "weak",
+    [lagnaLord.name, ninthLord.name], [1, 9],
+    "9th lord in Kendra in own/exalted sign + strong lagna lord — great wealth and fortune",
+    isPresent ? `Lakshmi Yoga: 9th lord (${ninthLord.name}) in Kendra with strength` : "Not formed",
+  )
+}
+
+// ─── Chandra Yoga (Amala Yoga) ─────────────────────────
+
+function detectChandraYogaAmala(chart: NatalChart): YogaResult {
+  const benefics: PlanetName[] = ["Jupiter", "Venus", "Mercury"]
+  const planetsInTenth = chart.planets.filter(p => p.house === 10)
+  const onlyBeneficsInTenth = planetsInTenth.length > 0 &&
+                              planetsInTenth.every(p => benefics.includes(p.name))
+  const noMaleficsInTenth = !planetsInTenth.some(p => ["Sun", "Mars", "Saturn", "Rahu", "Ketu"].includes(p.name))
+
+  const isPresent = onlyBeneficsInTenth && noMaleficsInTenth
+
+  return makeResult(
+    "Chandra Yoga (Amala Yoga)", "Lunar Yoga", isPresent,
+    isPresent ? "strong" : "weak",
+    benefics.filter(b => chart.planets.find(p => p.name === b && p.house === 10)), [10],
+    "Only benefics in 10th from Lagna — spotless reputation and honor",
+    isPresent ? "Chandra Yoga formed: Only benefics in 10th house" : "Not formed",
+  )
+}
+
+// ─── Dharma-Karmadhipati Yoga ──────────────────────────
+
+function detectDharmaKarmadhipatiYoga(chart: NatalChart): YogaResult {
+  const ninthLord = getHouseLordPlanet(chart, 9)
+  const tenthLord = getHouseLordPlanet(chart, 10)
+
+  const conjoined = arePlanetsConjunct(ninthLord, tenthLord)
+  const mutualAspect = planetsMutuallyAspect(ninthLord, tenthLord)
+  const exchanged = ninthLord.house === 10 && tenthLord.house === 9
+  const isPresent = conjoined || mutualAspect || exchanged
+
+  return makeResult(
+    "Dharma-Karmadhipati Yoga", "Raj Yoga", isPresent,
+    exchanged ? "strong" : isPresent ? "moderate" : "weak",
+    [ninthLord.name, tenthLord.name], [9, 10],
+    "9th and 10th lords conjoined/aspecting/exchanging — powerful career and dharma",
+    isPresent ? `Dharma-Karmadhipati: ${ninthLord.name} and ${tenthLord.name} ${exchanged ? "exchange" : mutualAspect ? "mutually aspect" : "conjoin"}` : "Not formed",
+  )
+}
+
+// ─── Kahala Yoga ───────────────────────────────────────
+
+function detectKahalaYoga(chart: NatalChart): YogaResult {
+  const jupiter = getPlanetByName(chart, "Jupiter")
+  const fourthLord = getHouseLordPlanet(chart, 4)
+  const lagnaLord = getHouseLordPlanet(chart, 1)
+
+  const jupHouseFrom4th = ((jupiter.house - fourthLord.house + 12) % 12) + 1
+  const in4thKendra = [1, 4, 7, 10].includes(jupHouseFrom4th)
+  const lagnaStrong = isInOwnOrExalted(lagnaLord)
+  const isPresent = in4thKendra && lagnaStrong
+
+  return makeResult(
+    "Kahala Yoga", "Other Auspicious", isPresent,
+    isPresent ? "strong" : "weak",
+    ["Jupiter", fourthLord.name, lagnaLord.name], [4, jupiter.house, lagnaLord.house],
+    "4th lord and Jupiter in mutual Kendras, lagna lord strong — bold and determined nature",
+    isPresent ? "Kahala Yoga: 4th lord and Jupiter in mutual Kendras with strong lagna lord" : "Not formed",
+  )
+}
+
+// ─── Chamara Yoga ──────────────────────────────────────
+
+function detectChamaraYoga(chart: NatalChart): YogaResult {
+  const lagnaLord = getHouseLordPlanet(chart, 1)
+  const jupiter = getPlanetByName(chart, "Jupiter")
+
+  const lagnaLordExaltedKendra = isInKendra(lagnaLord.house) && lagnaLord.isExalted
+  const jupiterAspectsLagna = planetAspectsHouse(jupiter, lagnaLord.house)
+  const isPresent = lagnaLordExaltedKendra && jupiterAspectsLagna
+
+  return makeResult(
+    "Chamara Yoga", "Raj Yoga", isPresent,
+    isPresent ? "strong" : "weak",
+    [lagnaLord.name, "Jupiter"], [lagnaLord.house, jupiter.house],
+    "Lagna lord exalted in Kendra, aspected by Jupiter — honored by rulers",
+    isPresent ? "Chamara Yoga: Lagna lord exalted in Kendra with Jupiter's aspect" : "Not formed",
+  )
+}
+
+// ─── Sankha Yoga ───────────────────────────────────────
+
+function detectSankhaYoga(chart: NatalChart): YogaResult {
+  const fifthLord = getHouseLordPlanet(chart, 5)
+  const sixthLord = getHouseLordPlanet(chart, 6)
+
+  const fifthHouseFrom6th = ((fifthLord.house - sixthLord.house + 12) % 12) + 1
+  const in6thKendra = [1, 4, 7, 10].includes(fifthHouseFrom6th)
+  const sixthHouseFrom5th = ((sixthLord.house - fifthLord.house + 12) % 12) + 1
+  const in5thKendra = [1, 4, 7, 10].includes(sixthHouseFrom5th)
+  const isPresent = in6thKendra && in5thKendra
+
+  return makeResult(
+    "Sankha Yoga", "Other Auspicious", isPresent,
+    isPresent ? "strong" : "weak",
+    [fifthLord.name, sixthLord.name], [5, 6],
+    "5th and 6th lords in mutual Kendras — good morals, wealth, long life",
+    isPresent ? "Sankha Yoga: 5th and 6th lords in mutual Kendras" : "Not formed",
+  )
+}
+
+// ─── Bheri Yoga ────────────────────────────────────────
+
+function detectBheriYoga(chart: NatalChart): YogaResult {
+  const venus = getPlanetByName(chart, "Venus")
+  const lagnaLord = getHouseLordPlanet(chart, 1)
+  const jupiter = getPlanetByName(chart, "Jupiter")
+
+  const venusInKendra = isInKendra(venus.house)
+  const lagnaLordInKendra = isInKendra(lagnaLord.house)
+  const jupiterInKendraOr7th = isInKendra(jupiter.house) || jupiter.house === 7
+  const isPresent = venusInKendra && lagnaLordInKendra && jupiterInKendraOr7th
+
+  return makeResult(
+    "Bheri Yoga", "Other Auspicious", isPresent,
+    isPresent ? "strong" : "weak",
+    ["Venus", lagnaLord.name, "Jupiter"], [venus.house, lagnaLord.house, jupiter.house],
+    "Venus and lagna lord in Kendra, Jupiter in Kendra/7th — wealthy, religious, happy",
+    isPresent ? "Bheri Yoga: Venus, lagna lord, and Jupiter all well-placed" : "Not formed",
+  )
+}
+
+// ─── Mridanga Yoga ─────────────────────────────────────
+
+function detectMridangaYoga(chart: NatalChart): YogaResult {
+  const lagnaLord = getHouseLordPlanet(chart, 1)
+  const lagnaLordStrong = isInOwnOrExalted(lagnaLord)
+  const allPlanetsInKendraOrTrikona = chart.planets.every(p =>
+    p.name !== "Rahu" && p.name !== "Ketu" &&
+    (isInKendra(p.house) || isInTrikona(p.house))
+  )
+
+  const isPresent = lagnaLordStrong && allPlanetsInKendraOrTrikona
+
+  return makeResult(
+    "Mridanga Yoga", "Raj Yoga", isPresent,
+    isPresent ? "strong" : "weak",
+    [lagnaLord.name], [lagnaLord.house],
+    "Lagna lord strong, all planets in Kendras/Trikonas — fame and rulership",
+    isPresent ? "Mridanga Yoga: Lagna lord strong with all planets in Kendras/Trikonas" : "Not formed",
+  )
+}
+
+// ─── Shakata Yoga (Inauspicious) ───────────────────────
+
+function detectShakataYoga(chart: NatalChart): YogaResult {
+  const moon = getPlanetByName(chart, "Moon")
+  const jupiter = getPlanetByName(chart, "Jupiter")
+
+  // Jupiter in 6th, 8th, or 12th from Moon
+  const jupHouseFromMoon = ((jupiter.house - moon.house + 12) % 12) + 1
+  const inDusthana = [6, 8, 12].includes(jupHouseFromMoon)
+
+  // Cancellation: Jupiter in Kendra from Lagna
+  const jupInKendraFromLagna = isInKendra(jupiter.house)
+  const isPresent = inDusthana && !jupInKendraFromLagna
+  const cancelled = inDusthana && jupInKendraFromLagna
+
+  return makeResult(
+    "Shakata Yoga", "Inauspicious", isPresent,
+    isPresent ? "moderate" : "weak",
+    ["Moon", "Jupiter"], [moon.house, jupiter.house],
+    "Jupiter in 6th/8th/12th from Moon — periodic ups and downs (cancelled if Jupiter in Kendra from Lagna)",
+    isPresent ? "Shakata Yoga active: Jupiter in dusthana from Moon" : cancelled ? "Shakata Yoga cancelled by Jupiter in Kendra from Lagna" : "Not formed",
+  )
+}
+
+// ─── Daridra Yoga (Inauspicious) ───────────────────────
+
+function detectDaridraDusthana(chart: NatalChart): YogaResult {
+  const eleventhLord = getHouseLordPlanet(chart, 11)
+  const inDusthana = DUSTHANA_HOUSES.includes(eleventhLord.house)
+  const isPresent = inDusthana
+
+  return makeResult(
+    "Daridra Yoga", "Inauspicious", isPresent,
+    isPresent ? "moderate" : "weak",
+    [eleventhLord.name], [11, eleventhLord.house],
+    "11th lord in 6th/8th/12th — financial difficulties and poverty",
+    isPresent ? `Daridra Yoga: 11th lord (${eleventhLord.name}) in dusthana (house ${eleventhLord.house})` : "Not formed",
+  )
+}
+
+// ─── Grahan Yoga (Lunar/Solar Eclipse Yoga) ────────────
+
+function detectGrahanYoga(chart: NatalChart): YogaResult {
+  const sun = getPlanetByName(chart, "Sun")
+  const moon = getPlanetByName(chart, "Moon")
+  const rahu = getPlanetByName(chart, "Rahu")
+  const ketu = getPlanetByName(chart, "Ketu")
+
+  const sunWithRahuKetu = arePlanetsConjunct(sun, rahu) || arePlanetsConjunct(sun, ketu)
+  const moonWithRahuKetu = arePlanetsConjunct(moon, rahu) || arePlanetsConjunct(moon, ketu)
+  const isPresent = sunWithRahuKetu || moonWithRahuKetu
+
+  const planets: PlanetName[] = []
+  if (sunWithRahuKetu) planets.push("Sun", arePlanetsConjunct(sun, rahu) ? "Rahu" : "Ketu")
+  if (moonWithRahuKetu) planets.push("Moon", arePlanetsConjunct(moon, rahu) ? "Rahu" : "Ketu")
+
+  return makeResult(
+    "Grahan Yoga", "Inauspicious", isPresent,
+    isPresent ? "moderate" : "weak",
+    planets, [sun.house, moon.house, rahu.house, ketu.house],
+    "Sun or Moon conjunct Rahu/Ketu — eclipsed significations, weakened benefits",
+    isPresent ? `Grahan Yoga: ${planets.join(", ")} conjunction` : "Not formed",
+  )
+}
+
+// ─── Guru-Chandal Yoga (Inauspicious) ──────────────────
+
+function detectGuruChandalYoga(chart: NatalChart): YogaResult {
+  const jupiter = getPlanetByName(chart, "Jupiter")
+  const rahu = getPlanetByName(chart, "Rahu")
+
+  const isPresent = arePlanetsConjunct(jupiter, rahu)
+
+  return makeResult(
+    "Guru-Chandal Yoga", "Inauspicious", isPresent,
+    isPresent ? "moderate" : "weak",
+    ["Jupiter", "Rahu"], [jupiter.house],
+    "Jupiter conjunct Rahu — unconventional beliefs, misuse of wisdom, spiritual confusion",
+    isPresent ? `Guru-Chandal Yoga in house ${jupiter.house}` : "Not formed",
+  )
+}
+
+// ─── Veshi Yoga ────────────────────────────────────────
+
+function detectVeshiYoga(chart: NatalChart): YogaResult {
+  const sun = getPlanetByName(chart, "Sun")
+  const others = chart.planets.filter(p => p.name !== "Sun" && p.name !== "Moon")
+
+  const h2FromSun = ((sun.house) % 12) + 1
+  const planetsIn2nd = others.filter(p => p.house === h2FromSun)
+  const isPresent = planetsIn2nd.length > 0
+
+  return makeResult(
+    "Veshi Yoga", "Solar Yoga", isPresent,
+    isPresent ? "moderate" : "weak",
+    planetsIn2nd.map(p => p.name), [h2FromSun],
+    "Planet(s) in 2nd from Sun — wealth, learning, and prosperity",
+    isPresent ? `Veshi Yoga: ${planetsIn2nd.map(p => p.name).join(", ")} in 2nd from Sun` : "Not formed",
+  )
+}
+
+// ─── Vashi Yoga ────────────────────────────────────────
+
+function detectVashiYoga(chart: NatalChart): YogaResult {
+  const sun = getPlanetByName(chart, "Sun")
+  const others = chart.planets.filter(p => p.name !== "Sun" && p.name !== "Moon")
+
+  const h12FromSun = ((sun.house - 2 + 12) % 12) + 1
+  const planetsIn12th = others.filter(p => p.house === h12FromSun)
+  const isPresent = planetsIn12th.length > 0
+
+  return makeResult(
+    "Vashi Yoga", "Solar Yoga", isPresent,
+    isPresent ? "moderate" : "weak",
+    planetsIn12th.map(p => p.name), [h12FromSun],
+    "Planet(s) in 12th from Sun — influence, authority, and hidden powers",
+    isPresent ? `Vashi Yoga: ${planetsIn12th.map(p => p.name).join(", ")} in 12th from Sun` : "Not formed",
+  )
+}
+
+// ─── Ubhayachari Yoga ──────────────────────────────────
+
+function detectUbhayachariYoga(chart: NatalChart): YogaResult {
+  const sun = getPlanetByName(chart, "Sun")
+  const others = chart.planets.filter(p => p.name !== "Sun" && p.name !== "Moon")
+
+  const h2FromSun = ((sun.house) % 12) + 1
+  const h12FromSun = ((sun.house - 2 + 12) % 12) + 1
+  const planetsIn2nd = others.filter(p => p.house === h2FromSun)
+  const planetsIn12th = others.filter(p => p.house === h12FromSun)
+
+  const isPresent = planetsIn2nd.length > 0 && planetsIn12th.length > 0
+
+  const planets = [
+    ...planetsIn2nd.map(p => p.name),
+    ...planetsIn12th.map(p => p.name),
+  ]
+
+  return makeResult(
+    "Ubhayachari Yoga", "Solar Yoga", isPresent,
+    isPresent ? "strong" : "weak",
+    planets, [h2FromSun, h12FromSun],
+    "Planets on both sides of Sun (2nd and 12th) — wealth, power, and prominence",
+    isPresent ? "Ubhayachari Yoga: Planets flanking Sun in 2nd and 12th" : "Not formed",
+  )
+}
+
+// ─── Nipuna Yoga (Budha-Aditya variant) ────────────────
+
+function detectNipunaYoga(chart: NatalChart): YogaResult {
+  const sun = getPlanetByName(chart, "Sun")
+  const mercury = getPlanetByName(chart, "Mercury")
+
+  // Sun and Mercury within 10 degrees (simplified: same sign or adjacent)
+  const sameSign = sun.sign.name === mercury.sign.name
+  const withinRange = Math.abs(sun.longitude - mercury.longitude) <= 10
+  const notCombust = !mercury.isCombust
+  const isPresent = (sameSign || withinRange) && notCombust
+
+  return makeResult(
+    "Nipuna Yoga", "Solar Yoga", isPresent,
+    isPresent ? "moderate" : "weak",
+    ["Sun", "Mercury"], [sun.house],
+    "Sun and Mercury within 10° (not combust) — skilled in arts and sciences",
+    isPresent ? "Nipuna Yoga: Sun and Mercury in close conjunction" : notCombust ? "Mercury combust" : "Not formed",
+  )
+}
+
+// ─── Akhanda Samrajya Yoga ─────────────────────────────
+
+function detectAkhandaSamrajyaYoga(chart: NatalChart): YogaResult {
+  const secondLord = getHouseLordPlanet(chart, 2)
+  const fifthLord = getHouseLordPlanet(chart, 5)
+  const eleventhLord = getHouseLordPlanet(chart, 11)
+  const moon = getPlanetByName(chart, "Moon")
+  const benefics: PlanetName[] = ["Jupiter", "Venus", "Mercury"]
+
+  // Jupiter as lord of 2nd, 5th, or 11th
+  const jupiterIsAnyLord = (secondLord.name === "Jupiter") ||
+                           (fifthLord.name === "Jupiter") ||
+                           (eleventhLord.name === "Jupiter")
+
+  // A benefic in Kendra from Moon
+  const beneficInKendraFromMoon = benefics.some(b => {
+    const p = getPlanetByName(chart, b)
+    const pHouseFromMoon = ((p.house - moon.house + 12) % 12) + 1
+    return [1, 4, 7, 10].includes(pHouseFromMoon)
+  })
+
+  const isPresent = jupiterIsAnyLord && beneficInKendraFromMoon
+
+  return makeResult(
+    "Akhanda Samrajya Yoga", "Raj Yoga", isPresent,
+    isPresent ? "strong" : "weak",
+    ["Jupiter"], [secondLord.house || fifthLord.house || eleventhLord.house],
+    "Jupiter as lord of 2nd/5th/11th, benefic in Kendra from Moon — undivided authority",
+    isPresent ? "Akhanda Samrajya Yoga: Jupiter lordship with benefic support from Moon" : "Not formed",
+  )
+}
+
+// ─── Amala Yoga (10th house purity) ────────────────────
+
+function detectAmalaYoga(chart: NatalChart): YogaResult {
+  const benefics: PlanetName[] = ["Jupiter", "Venus", "Mercury"]
+  const planetsIn10thLagna = getPlanetsInHouse(chart, 10)
+  const planetsIn10thMoon = chart.planets.filter(p => {
+    const moon = getPlanetByName(chart, "Moon")
+    const pHouseFromMoon = ((p.house - moon.house + 12) % 12) + 1
+    return pHouseFromMoon === 10
+  })
+
+  const onlyBeneficsLagna = planetsIn10thLagna.length > 0 &&
+                           planetsIn10thLagna.every(p => benefics.includes(p.name))
+  const onlyBeneficsMoon = planetsIn10thMoon.length > 0 &&
+                          planetsIn10thMoon.every(p => benefics.includes(p.name))
+
+  const isPresent = onlyBeneficsLagna && onlyBeneficsMoon
+
+  return makeResult(
+    "Amala Yoga", "Other Auspicious", isPresent,
+    isPresent ? "strong" : "weak",
+    benefics, [10],
+    "Only natural benefics in 10th from Lagna AND 10th from Moon — virtuous reputation",
+    isPresent ? "Amala Yoga: Only benefics in 10th from both Lagna and Moon" : "Not formed",
+  )
+}
+
 // ─── Master Yoga Detection ─────────────────────────────
 
 /**
@@ -466,6 +881,63 @@ export function analyzeAllYogas(chart: NatalChart): YogaResult[] {
 
   // Kemdrum (inauspicious)
   allYogas.push(detectKemdrumYoga(chart))
+
+  // NEW: Saraswati Yoga
+  allYogas.push(detectSaraswatiYoga(chart))
+
+  // NEW: Lakshmi Yoga
+  allYogas.push(detectLakshmiYoga(chart))
+
+  // NEW: Chandra Yoga (Amala)
+  allYogas.push(detectChandraYogaAmala(chart))
+
+  // NEW: Dharma-Karmadhipati Yoga
+  allYogas.push(detectDharmaKarmadhipatiYoga(chart))
+
+  // NEW: Kahala Yoga
+  allYogas.push(detectKahalaYoga(chart))
+
+  // NEW: Chamara Yoga
+  allYogas.push(detectChamaraYoga(chart))
+
+  // NEW: Sankha Yoga
+  allYogas.push(detectSankhaYoga(chart))
+
+  // NEW: Bheri Yoga
+  allYogas.push(detectBheriYoga(chart))
+
+  // NEW: Mridanga Yoga
+  allYogas.push(detectMridangaYoga(chart))
+
+  // NEW: Shakata Yoga (inauspicious)
+  allYogas.push(detectShakataYoga(chart))
+
+  // NEW: Daridra Yoga (inauspicious)
+  allYogas.push(detectDaridraDusthana(chart))
+
+  // NEW: Grahan Yoga (inauspicious)
+  allYogas.push(detectGrahanYoga(chart))
+
+  // NEW: Guru-Chandal Yoga (inauspicious)
+  allYogas.push(detectGuruChandalYoga(chart))
+
+  // NEW: Veshi Yoga
+  allYogas.push(detectVeshiYoga(chart))
+
+  // NEW: Vashi Yoga
+  allYogas.push(detectVashiYoga(chart))
+
+  // NEW: Ubhayachari Yoga
+  allYogas.push(detectUbhayachariYoga(chart))
+
+  // NEW: Nipuna Yoga
+  allYogas.push(detectNipunaYoga(chart))
+
+  // NEW: Akhanda Samrajya Yoga
+  allYogas.push(detectAkhandaSamrajyaYoga(chart))
+
+  // NEW: Amala Yoga
+  allYogas.push(detectAmalaYoga(chart))
 
   return allYogas
 }

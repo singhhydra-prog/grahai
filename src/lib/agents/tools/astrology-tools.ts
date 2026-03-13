@@ -20,6 +20,13 @@ import { calculatePanchang, getPanchangSummary } from "@/lib/ephemeris/panchang"
 import { getPlanetRemedies, getDoshaRemedies, generateRemedySummary } from "@/lib/astrology-data/remedy-database"
 import { getRelevantStories, getDailyStory } from "@/lib/astrology-data/vedic-stories"
 import { generateDailyInsight } from "@/lib/daily-insights/insight-generator"
+import { analyzeChartStrength, analyzePlanetStrength } from "@/lib/ephemeris/planet-strength"
+import { calculateAshtakavarga, getAshtakavargaSummary, getAllHouseStrengths } from "@/lib/ephemeris/ashtakavarga"
+import { analyzeVargas } from "@/lib/ephemeris/varga-interpretation"
+import { analyzeDoshaCancellations } from "@/lib/ephemeris/dosha-cancellations"
+import { getSAVTransitReport, getEnhancedGocharPhal } from "@/lib/ephemeris/sav-transit-timing"
+import { getBhavaChalitReport } from "@/lib/ephemeris/bhava-chalit"
+import { synthesizeChart, calculateLifeDomainScores, getChartSignature } from "@/lib/ephemeris/chart-synthesis"
 import type { BirthDetails, NatalChart, PlanetName } from "@/lib/ephemeris/types"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -426,6 +433,323 @@ async function getUserKundli(
   }
 }
 
+// ─── Tool: Analyze Planet Strength (Shadbala + War + Combustion + Retrogression) ──
+
+async function analyzePlanetStrengthTool(
+  input: Record<string, unknown>
+): Promise<unknown> {
+  const birthDetails = parseBirthDetails(input)
+  const chart = await generateNatalChart(birthDetails)
+  const planetName = input.planet as PlanetName | undefined
+
+  if (planetName) {
+    // Single planet analysis
+    const planetData = chart.planets.find(p => p.name === planetName)
+    if (!planetData) {
+      return { error: `Planet '${planetName}' not found in chart. Valid: Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, Rahu, Ketu` }
+    }
+
+    const report = analyzePlanetStrength(planetData, chart)
+    return {
+      planet: report.planet,
+      compositeStrength: report.compositeStrength,
+      shadbala: report.shadbala ? {
+        totalShadbala: report.shadbala.totalShadbala,
+        shadbalaRupa: report.shadbala.shadbalaRupa,
+        isStrong: report.shadbala.isStrong,
+        strengthLabel: report.shadbala.strengthLabel,
+        percentile: report.shadbala.percentile,
+      } : null,
+      warStatus: report.warStatus,
+      combustion: report.combustion,
+      retrogression: report.retrogression,
+      dignityAnalysis: report.dignityAnalysis,
+      keyStrengths: report.keyStrengths,
+      keyWeaknesses: report.keyWeaknesses,
+      recommendations: report.recommendations,
+      summary: report.summary,
+      source: "BPHS Chapters 17, 27 (Shadbala & Graha Yuddha)",
+    }
+  }
+
+  // Full chart strength analysis
+  const analysis = analyzeChartStrength(chart)
+
+  return {
+    strongestPlanet: analysis.strongestPlanet,
+    weakestPlanet: analysis.weakestPlanet,
+    yogaKaraka: analysis.yogaKaraka,
+    functionalBenefics: analysis.functionalBenefics,
+    functionalMalefics: analysis.functionalMalefics,
+    overallChartStrength: analysis.overallChartStrength,
+    planets: analysis.planets.map(r => ({
+      planet: r.planet,
+      compositeStrength: r.compositeStrength,
+      shadbalaRupa: r.shadbala?.shadbalaRupa ?? null,
+      isStrong: r.shadbala?.isStrong ?? null,
+      inWar: r.warStatus?.isInWar ?? false,
+      warWinner: r.warStatus?.isWinner ?? false,
+      isCombust: r.combustion.isCombust,
+      isRetrograde: r.retrogression.isRetrograde,
+      dignity: r.dignityAnalysis.dignity,
+      keyStrengths: r.keyStrengths,
+      keyWeaknesses: r.keyWeaknesses,
+    })),
+    summary: analysis.summary,
+    source: "BPHS Chapters 17, 27 (Shadbala & Graha Yuddha)",
+  }
+}
+
+// ─── Tool: Get Ashtakavarga ──────────────────────────────
+
+async function getAshtakavargaTool(
+  input: Record<string, unknown>
+): Promise<unknown> {
+  const birthDetails = parseBirthDetails(input)
+  const chart = await generateNatalChart(birthDetails)
+  const result = calculateAshtakavarga(chart)
+  const summary = getAshtakavargaSummary(result)
+  const houseStrengths = getAllHouseStrengths(result)
+
+  return {
+    sarvashtakavarga: result.sarvashtakavarga,
+    totalSAV: result.totalSAV,
+    strongHouses: result.strongHouses,
+    weakHouses: result.weakHouses,
+    houseStrengths: houseStrengths.map(h => ({
+      house: h.house,
+      sav: h.sav,
+      strength: h.strength,
+      meaning: h.meaning,
+    })),
+    planets: result.planetAshtakavargas.map(p => ({
+      planet: p.planet,
+      totalBindus: p.totalBindus,
+      strongSigns: p.strongSigns,
+      weakSigns: p.weakSigns,
+    })),
+    summary: {
+      overallStrength: summary.overallStrength,
+      bestHouses: summary.bestHouses,
+      worstHouses: summary.worstHouses,
+      planetRankings: summary.planetRankings,
+      transitGuidance: summary.transitGuidance,
+    },
+    source: "BPHS Chapters 66-72 (Ashtakavarga)",
+  }
+}
+
+// ─── Tool: Analyze Vargas (D9 + D10 Deep Interpretation) ──
+
+async function analyzeVargasTool(
+  input: Record<string, unknown>
+): Promise<unknown> {
+  const birthDetails = parseBirthDetails(input)
+  const chart = await generateNatalChart(birthDetails)
+  const interpretation = analyzeVargas(chart)
+
+  return {
+    navamsa: {
+      lagna: interpretation.navamsa.navamsaLagna,
+      dignityShifts: interpretation.navamsa.planetDignityShifts.map(d => ({
+        planet: d.planet,
+        d1Dignity: d.d1Dignity,
+        d9Dignity: d.d9Dignity,
+        shift: d.shift,
+        interpretation: d.interpretation,
+      })),
+      vargottamaPlanets: interpretation.navamsa.vargottamaPlanets,
+      pushkaraPlanets: interpretation.navamsa.pushkaraPlanets,
+      spouseIndicators: interpretation.navamsa.spouseIndicators,
+      karakamsha: interpretation.navamsa.karakamsha,
+      dharmaStrength: interpretation.navamsa.overallDharmaStrength,
+      summary: interpretation.navamsa.summary,
+    },
+    dasamsa: {
+      lagna: interpretation.dasamsa.dasamsaLagna,
+      tenthLordPlacement: interpretation.dasamsa.tenthLordPlacement,
+      strongestCareerPlanet: interpretation.dasamsa.strongestCareerPlanet,
+      planetsInKendra: interpretation.dasamsa.planetsInKendra,
+      d10Yogas: interpretation.dasamsa.d10Yogas,
+      careerIndicators: interpretation.dasamsa.careerIndicators,
+      primaryCareerDirection: interpretation.dasamsa.primaryCareerDirection,
+      careerStrength: interpretation.dasamsa.overallCareerStrength,
+      summary: interpretation.dasamsa.summary,
+    },
+    combinedInsights: interpretation.combinedInsights,
+    source: "BPHS Chapter 6 (Divisional Charts) & Jataka Parijata",
+  }
+}
+
+// ─── Tool: Analyze Dosha Cancellations ───────────────────
+
+async function analyzeDoshaCancellationsTool(
+  input: Record<string, unknown>
+): Promise<unknown> {
+  const birthDetails = parseBirthDetails(input)
+  const chart = await generateNatalChart(birthDetails)
+  const analysis = analyzeDoshaCancellations(chart)
+
+  return {
+    activeDoshaCount: analysis.activeDoshaCount,
+    effectiveDoshaCount: analysis.effectiveDoshaCount,
+    overallAfflictionLevel: analysis.overallAfflictionLevel,
+    doshas: analysis.doshas.map(d => ({
+      type: d.doshaType,
+      originalSeverity: d.originalSeverity,
+      adjustedSeverity: d.adjustedSeverity,
+      totalReduction: `${d.totalReduction}%`,
+      isEffectivelyCancelled: d.isEffectivelyCancelled,
+      activeCancellations: d.activeCancellations.map(c => ({
+        name: c.name,
+        description: c.description,
+        reductionPercent: c.reductionPercent,
+        source: c.source,
+      })),
+      interpretation: d.interpretation,
+      remainingEffects: d.remainingEffects,
+      adjustedRemedies: d.adjustedRemedies,
+    })),
+    summary: analysis.summary,
+    keyFindings: analysis.keyFindings,
+    source: "BPHS & Phaladeepika (Dosha Bhanga principles)",
+  }
+}
+
+// ─── Tool: SAV-Enhanced Transit Report ───────────────────
+
+async function getSAVTransitTool(
+  input: Record<string, unknown>
+): Promise<unknown> {
+  const birthDetails = parseBirthDetails(input)
+  const chart = await generateNatalChart(birthDetails)
+  const date = input.transit_date ? new Date(input.transit_date as string) : new Date()
+
+  const savReport = getSAVTransitReport(chart, date)
+  const enhanced = getEnhancedGocharPhal(chart, date)
+
+  return {
+    date: savReport.date.toISOString().split("T")[0],
+    overallSAVScore: savReport.overallSAVScore,
+    transitScores: savReport.transitScores.map(t => ({
+      planet: t.planet,
+      transitSign: t.transitSign,
+      houseFromMoon: t.houseFromMoon,
+      savScore: t.savScore,
+      planetBindus: t.planetBindus,
+      savQuality: t.savQuality,
+      combinedRating: t.combinedRating,
+      interpretation: t.interpretation,
+    })),
+    bestTransits: savReport.bestTransits,
+    challengingTransits: savReport.challengingTransits,
+    savGuidance: savReport.savGuidance,
+    enhancedGochar: {
+      overallPeriodRating: enhanced.overallPeriodRating,
+      transits: enhanced.transits.map(t => ({
+        planet: t.planet,
+        sign: t.sign,
+        house: t.house,
+        traditionalEffect: t.traditionalEffect,
+        savScore: t.savScore,
+        netBenefit: t.netBenefit,
+        combinedEffect: t.combinedEffect,
+      })),
+      summary: enhanced.summary,
+    },
+    source: "BPHS Chapters 65-72 (Gochar + Ashtakavarga)",
+  }
+}
+
+// ─── Tool: Bhava Chalit Analysis ─────────────────────────
+
+async function getBhavaChalitTool(
+  input: Record<string, unknown>
+): Promise<unknown> {
+  const birthDetails = parseBirthDetails(input)
+  const chart = await generateNatalChart(birthDetails)
+  const report = getBhavaChalitReport(chart)
+
+  return {
+    chalitPlanets: report.chalitChart.planets.map(p => ({
+      planet: p.name,
+      rashiHouse: p.rashiHouse,
+      bhavaHouse: p.bhavaHouse,
+      hasShifted: p.hasShifted,
+      shiftDirection: p.shiftDirection,
+      isNearSandhi: p.isNearSandhi,
+      interpretation: p.interpretation,
+    })),
+    houseShifts: {
+      totalShifts: report.houseShifts.totalShifts,
+      shiftedPlanets: report.houseShifts.shiftedPlanets,
+      stablePlanets: report.houseShifts.stablePlanets,
+      overallImpact: report.houseShifts.overallImpact,
+      summary: report.houseShifts.summary,
+    },
+    bhavaBala: {
+      strongestHouse: report.bhavaBala.strongestHouse,
+      weakestHouse: report.bhavaBala.weakestHouse,
+      houses: report.bhavaBala.houses.map(h => ({
+        house: h.house,
+        strength: h.strength,
+        strengthLabel: h.strengthLabel,
+        occupants: h.occupants,
+        interpretation: h.interpretation,
+      })),
+      summary: report.bhavaBala.summary,
+    },
+    keyInsights: report.keyInsights,
+    recommendation: report.recommendation,
+    source: "BPHS & Saravali (Bhava Chalit System)",
+  }
+}
+
+// ─── Tool: Full Chart Synthesis ──────────────────────────
+
+async function synthesizeChartTool(
+  input: Record<string, unknown>
+): Promise<unknown> {
+  const birthDetails = parseBirthDetails(input)
+  const chart = await generateNatalChart(birthDetails)
+  const synthesis = synthesizeChart(chart)
+
+  return {
+    overallChartRating: synthesis.overallChartRating,
+    overallLabel: synthesis.overallLabel,
+    executiveSummary: synthesis.executiveSummary,
+    chartSignature: {
+      dominantElement: synthesis.chartSignature.dominantElement,
+      dominantModality: synthesis.chartSignature.dominantModality,
+      dominantPlanet: synthesis.chartSignature.dominantPlanet,
+      chartPattern: synthesis.chartSignature.chartPattern,
+      keyThemes: synthesis.chartSignature.keyThemes,
+    },
+    lifeDomains: {
+      career: { score: synthesis.lifeDomainScores.career.score, label: synthesis.lifeDomainScores.career.label, summary: synthesis.lifeDomainScores.career.summary },
+      wealth: { score: synthesis.lifeDomainScores.wealth.score, label: synthesis.lifeDomainScores.wealth.label, summary: synthesis.lifeDomainScores.wealth.summary },
+      relationships: { score: synthesis.lifeDomainScores.relationships.score, label: synthesis.lifeDomainScores.relationships.label, summary: synthesis.lifeDomainScores.relationships.summary },
+      health: { score: synthesis.lifeDomainScores.health.score, label: synthesis.lifeDomainScores.health.label, summary: synthesis.lifeDomainScores.health.summary },
+      spirituality: { score: synthesis.lifeDomainScores.spirituality.score, label: synthesis.lifeDomainScores.spirituality.label, summary: synthesis.lifeDomainScores.spirituality.summary },
+      education: { score: synthesis.lifeDomainScores.education.score, label: synthesis.lifeDomainScores.education.label, summary: synthesis.lifeDomainScores.education.summary },
+      overallFortune: { score: synthesis.lifeDomainScores.overallFortune.score, label: synthesis.lifeDomainScores.overallFortune.label, summary: synthesis.lifeDomainScores.overallFortune.summary },
+    },
+    timingSynthesis: {
+      periodRating: synthesis.timingSynthesis.periodRating,
+      periodLabel: synthesis.timingSynthesis.periodLabel,
+      keyOpportunities: synthesis.timingSynthesis.keyOpportunities,
+      keyRisks: synthesis.timingSynthesis.keyRisks,
+      guidance: synthesis.timingSynthesis.guidance,
+    },
+    strengthRankings: synthesis.strengthRankings,
+    yogaImpact: synthesis.yogaImpact,
+    doshaImpact: synthesis.doshaImpact,
+    topStrengths: synthesis.topStrengths,
+    topChallenges: synthesis.topChallenges,
+    source: "Multi-factor synthesis: Shadbala, Ashtakavarga, Yogas, Doshas, Dasha, Varga",
+  }
+}
+
 // ═══════════════════════════════════════════════════════
 //  TOOL DEFINITIONS — Anthropic Tool Schema
 // ═══════════════════════════════════════════════════════
@@ -554,6 +878,73 @@ export const ASTROLOGY_TOOL_DEFINITIONS: Tool[] = [
       required: [],
     },
   },
+  {
+    name: "analyze_planet_strength",
+    description: "Comprehensive planetary strength analysis combining Shadbala (six-fold strength from BPHS Chapter 27), Graha Yuddha (planetary war detection), combustion interpretation, retrogression effects, dignity analysis, and functional benefic/malefic classification. Returns composite strength scores, rankings, and personalized interpretations. Analyze a single planet by name, or omit planet for full chart strength analysis including strongest/weakest planet, Yoga Karaka identification, and overall chart strength assessment.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        ...birthDetailsProperties,
+        planet: { type: "string" as const, description: "Planet to analyze (Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, Rahu, Ketu). Omit for full chart analysis." },
+      },
+      required: ["date", "latitude", "longitude"],
+    },
+  },
+  {
+    name: "get_ashtakavarga",
+    description: "Calculate complete Ashtakavarga analysis per BPHS Chapters 66-72. Returns Prashtarakha (individual bindu tables for 7 planets + Ascendant), Sarvashtakavarga (SAV — sum of all 8 tables, total 337 bindus), house strengths with SAV scores, planet rankings by bindu count, and transit guidance based on SAV scores. Use this for timing analysis and to identify strongest/weakest houses in the chart.",
+    input_schema: {
+      type: "object" as const,
+      properties: birthDetailsProperties,
+      required: ["date", "latitude", "longitude"],
+    },
+  },
+  {
+    name: "analyze_vargas",
+    description: "Deep interpretation of D9 Navamsa and D10 Dasamsa divisional charts. Navamsa analysis includes: spouse indicators (7th house), Pushkara Navamsa detection, Karakamsha (Atmakaraka in D9), dignity shifts (D1 → D9), Vargottama planets, and overall dharma strength. Dasamsa analysis includes: career planet mapping, 10th lord placement, D10 Raj Yogas, career type inference, and professional strength rating. Returns combined cross-chart insights.",
+    input_schema: {
+      type: "object" as const,
+      properties: birthDetailsProperties,
+      required: ["date", "latitude", "longitude"],
+    },
+  },
+  {
+    name: "analyze_dosha_cancellations",
+    description: "Advanced dosha analysis with cancellation detection (Dosha Bhanga). For each active dosha (Mangal, Kaal Sarp, Pitra, Sade Sati, Chandal, Grahan), checks 5-15 classical cancellation conditions from BPHS and Phaladeepika. Returns percentage-based severity reduction, adjusted severity rating, whether the dosha is effectively cancelled, remaining effects, and adjusted remedies. Provides a comprehensive view of actual dosha impact vs. raw detection.",
+    input_schema: {
+      type: "object" as const,
+      properties: birthDetailsProperties,
+      required: ["date", "latitude", "longitude"],
+    },
+  },
+  // ─── Release 3 Tools ─────────────────────────────────
+  {
+    name: "get_sav_transit",
+    description: "Advanced SAV-based transit analysis using Sarvashtakavarga scoring from BPHS Ch.66-72. Rates each current planetary transit by the SAV bindu score of the house it occupies, applies Kaksha (sub-sign division of 3°45' arcs) analysis for precision, and calculates enhanced Gochar results combining traditional Moon-sign transit rules with Ashtakavarga strength. Also finds the best upcoming transit windows across all 12 houses. Returns SAV transit scores, Kaksha details, enhanced transit effects, best transit windows, and overall period quality.",
+    input_schema: {
+      type: "object" as const,
+      properties: birthDetailsProperties,
+      required: ["date", "latitude", "longitude"],
+    },
+  },
+  {
+    name: "get_bhava_chalit",
+    description: "Calculates the Bhava Chalit (equal house) chart where each house spans exactly 30° centered on the ascendant degree. Detects planets that shift houses compared to the Rashi chart (sign-based houses), identifies Sandhi planets within 3° of house cusps, and computes Bhava Bala (house strength) based on occupants, aspects, and lord dignity. Provides interpretation of house shifts explaining where a planet's sign-based energy actually manifests.",
+    input_schema: {
+      type: "object" as const,
+      properties: birthDetailsProperties,
+      required: ["date", "latitude", "longitude"],
+    },
+  },
+  {
+    name: "synthesize_chart",
+    description: "Comprehensive multi-factor chart synthesis combining all analytical engines: Shadbala (planet strength), Ashtakavarga (house strength), Yogas, Doshas with cancellations, Dasha timing, and Varga charts. Produces: (1) Overall chart rating 0-100 with label, (2) Seven life domain scores (career, wealth, relationships, health, spirituality, education, fortune) each 0-100, (3) Chart signature (dominant element, modality, planet, pattern), (4) Current timing synthesis with opportunities and risks, (5) Executive summary. The most comprehensive single-call analysis available.",
+    input_schema: {
+      type: "object" as const,
+      properties: birthDetailsProperties,
+      required: ["date", "latitude", "longitude"],
+    },
+  },
 ]
 
 // ═══════════════════════════════════════════════════════
@@ -586,6 +977,20 @@ export async function executeAstrologyTool(
       return getPanchangTool(toolInput)
     case "get_user_kundli":
       return getUserKundli(toolInput, userId)
+    case "analyze_planet_strength":
+      return analyzePlanetStrengthTool(toolInput)
+    case "get_ashtakavarga":
+      return getAshtakavargaTool(toolInput)
+    case "analyze_vargas":
+      return analyzeVargasTool(toolInput)
+    case "analyze_dosha_cancellations":
+      return analyzeDoshaCancellationsTool(toolInput)
+    case "get_sav_transit":
+      return getSAVTransitTool(toolInput)
+    case "get_bhava_chalit":
+      return getBhavaChalitTool(toolInput)
+    case "synthesize_chart":
+      return synthesizeChartTool(toolInput)
     default:
       return { error: `Unknown astrology tool: ${toolName}` }
   }

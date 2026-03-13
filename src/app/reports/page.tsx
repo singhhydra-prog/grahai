@@ -153,13 +153,6 @@ export default function ReportsPage() {
   return (
     <div className="min-h-screen bg-bg pb-20">
       <AppHeader />
-      {/* Nav */}
-      <nav className="sticky top-0 z-50 glass-nav h-16 flex items-center px-6">
-        <button onClick={() => router.push("/dashboard")} className="flex items-center gap-2 text-text-dim hover:text-text transition-colors">
-          <ArrowLeft className="w-4 h-4" />
-          <span className="text-sm">Dashboard</span>
-        </button>
-      </nav>
 
       <div className="max-w-3xl mx-auto px-6 pt-6 space-y-8">
         {/* Header */}
@@ -186,7 +179,13 @@ export default function ReportsPage() {
             className="rounded-xl border border-red/20 bg-red/5 p-3 flex items-center gap-2"
           >
             <AlertCircle className="w-4 h-4 text-red flex-shrink-0" />
-            <p className="text-xs text-red">{error}</p>
+            <p className="text-xs text-red flex-1">{error}</p>
+            <button
+              onClick={() => { setError(null); setLoading(true); fetchData() }}
+              className="text-xs text-red font-semibold hover:text-red/80 transition-colors shrink-0"
+            >
+              Retry
+            </button>
           </motion.div>
         )}
 

@@ -77,12 +77,12 @@ function verifyCronAuth(req: NextRequest): boolean {
     return authHeader === `Bearer ${cronSecret}`
   }
 
-  // In development, allow without auth
-  if (process.env.NODE_ENV === "development") return true
-
-  // Check Vercel cron header
+  // Check Vercel cron header as fallback (only in production with Vercel)
   const vercelCron = req.headers.get("x-vercel-cron")
-  return vercelCron === "true"
+  if (vercelCron === "true" && process.env.VERCEL === "1") return true
+
+  // No valid auth found
+  return false
 }
 
 // ─── GET Handler (Vercel Cron uses GET) ─────────────────

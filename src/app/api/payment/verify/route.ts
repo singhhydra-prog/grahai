@@ -14,23 +14,37 @@ export async function POST(request: NextRequest) {
     const body: VerifyPaymentRequest = await request.json()
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = body
 
-    // Get Razorpay keys
+    // Get Razorpay keys — MUST be configured
     const keySecret = process.env.RAZORPAY_KEY_SECRET
+    if (!keySecret) {
+      console.error("CRITICAL: RAZORPAY_KEY_SECRET not configured — cannot verify payments")
+      return NextResponse.json(
+        { error: "Payment system not configured. Please contact support." },
+        { status: 503 }
+      )
+    }
 
-    // Verify signature
-    if (keySecret) {
-      const message = `${razorpay_order_id}|${razorpay_payment_id}`
-      const expectedSignature = crypto
-        .createHmac("sha256", keySecret)
-        .update(message)
-        .digest("hex")
+    // Validate all required fields
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return NextResponse.json(
+        { error: "Missing payment verification fields", verified: false },
+        { status: 400 }
+      )
+    }
 
-      if (expectedSignature !== razorpay_signature) {
-        return NextResponse.json(
-          { error: "Payment verification failed", verified: false },
-          { status: 400 }
-        )
-      }
+    // Verify signature using HMAC-SHA256
+    const hmacMessage = `${razorpay_order_id}|${razorpay_payment_id}`
+    const expectedSignature = crypto
+      .createHmac("sha256", keySecret)
+      .update(hmacMessage)
+      .digest("hex")
+
+    if (expectedSignature !== razorpay_signature) {
+      console.warn("Payment signature mismatch for order:", razorpay_order_id)
+      return NextResponse.json(
+        { error: "Payment verification failed", verified: false },
+        { status: 400 }
+      )
     }
 
     // Get authenticated user
@@ -66,10 +80,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Extract subscription tier from header (passed from client)
-    const planId = request.headers.get("x-plan-id") || "graha"
+    const planId = request.headers.get("x-plan-id") || "plus"
 
     // Map plan_id to subscription_tier
-    const subscriptionTier = planId === "rishi" ? "rishi" : "graha"
+    const subscriptionTier = planId === "premium" ? "premium" : "plus"
 
     // Update user's subscription in Supabase
     const { error: updateError } = await supabase

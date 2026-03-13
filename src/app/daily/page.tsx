@@ -13,11 +13,13 @@ import { motion } from "framer-motion"
 import {
   Sun, Moon, Star, ArrowLeft, RefreshCw, TrendingUp,
   TrendingDown, Minus, BookOpen, Sparkles, Shield,
-  CheckCircle, XCircle, Clock, MessageSquare,
+  CheckCircle, XCircle, Clock, MessageSquare, Lock,
 } from "lucide-react"
+import Link from "next/link"
 import { createBrowserClient } from "@supabase/ssr"
 import PanchangWidget from "@/components/astrology/PanchangWidget"
 import AppHeader from "@/components/AppHeader"
+import UpgradePrompt from "@/components/UpgradePrompt"
 
 // ─── Types ──────────────────────────────────────────────
 
@@ -127,6 +129,7 @@ export default function DailyInsightsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [refreshing, setRefreshing] = useState(false)
+  const [userTier, setUserTier] = useState<string>("free")
 
   const fetchInsight = useCallback(async () => {
     try {
@@ -136,6 +139,16 @@ export default function DailyInsightsPage() {
       if (!user) {
         router.push("/auth/login")
         return
+      }
+
+      // Check subscription tier
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("subscription_tier")
+        .eq("id", user.id)
+        .single()
+      if (profile?.subscription_tier) {
+        setUserTier(profile.subscription_tier)
       }
 
       const today = new Date().toISOString().split("T")[0]
@@ -279,10 +292,21 @@ export default function DailyInsightsPage() {
 
   const trend = TREND_CONFIG[insight.overall_trend] || TREND_CONFIG.mixed
   const TrendIcon = trend.icon
+  const isFreeUser = !userTier || userTier === "free" || userTier === "nakshatra"
 
   return (
     <div className="min-h-screen bg-bg pb-20">
       <AppHeader />
+
+      {/* Upgrade banner for free users */}
+      {isFreeUser && (
+        <UpgradePrompt
+          variant="banner"
+          feature="Daily Insights"
+          plan="plus"
+        />
+      )}
+
       {/* Nav */}
       <nav className="sticky top-0 z-50 glass-nav h-16 flex items-center justify-between px-6">
         <button onClick={() => router.push("/dashboard")} className="flex items-center gap-2 text-text-dim hover:text-text transition-colors">
@@ -428,13 +452,22 @@ export default function DailyInsightsPage() {
           </motion.div>
         )}
 
-        {/* Dasha Context */}
+        {/* Dasha Context — premium gated */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
-          className="rounded-xl border border-saffron/15 bg-saffron/5 p-4"
+          className="relative rounded-xl border border-saffron/15 bg-saffron/5 p-4"
         >
+          {isFreeUser && (
+            <div className="absolute inset-0 z-10 rounded-xl backdrop-blur-sm bg-bg/60 flex flex-col items-center justify-center text-center p-4">
+              <Lock className="w-5 h-5 text-gold/60 mb-2" />
+              <p className="text-xs text-text-dim mb-2">Dasha analysis is a premium feature</p>
+              <Link href="/pricing/checkout?plan=graha" className="text-xs font-semibold text-gold hover:text-gold-light transition-colors">
+                Upgrade to unlock
+              </Link>
+            </div>
+          )}
           <div className="flex items-center gap-2 mb-3">
             <Clock className="w-4 h-4 text-saffron" />
             <h3 className="text-sm font-semibold text-text">
@@ -494,13 +527,22 @@ export default function DailyInsightsPage() {
           </div>
         </motion.div>
 
-        {/* Daily Remedy */}
+        {/* Daily Remedy — premium gated */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
-          className="rounded-xl border border-gold/20 bg-gold/5 p-4"
+          className="relative rounded-xl border border-gold/20 bg-gold/5 p-4"
         >
+          {isFreeUser && (
+            <div className="absolute inset-0 z-10 rounded-xl backdrop-blur-sm bg-bg/60 flex flex-col items-center justify-center text-center p-4">
+              <Lock className="w-5 h-5 text-gold/60 mb-2" />
+              <p className="text-xs text-text-dim mb-2">Personalized remedies require premium</p>
+              <Link href="/pricing/checkout?plan=graha" className="text-xs font-semibold text-gold hover:text-gold-light transition-colors">
+                Upgrade to unlock
+              </Link>
+            </div>
+          )}
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="w-4 h-4 text-gold" />
             <h3 className="text-sm font-semibold text-text">
@@ -545,20 +587,36 @@ export default function DailyInsightsPage() {
           </p>
         </motion.div>
 
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="text-center pt-4"
-        >
-          <button
-            onClick={() => router.push("/chat?v=astrology")}
-            className="px-6 py-2.5 rounded-xl bg-saffron/15 text-saffron text-sm font-medium hover:bg-saffron/25 transition-colors"
+        {/* CTA — Upgrade for free users, chat for premium */}
+        {isFreeUser ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
           >
-            Ask Jyotish Guru for Detailed Analysis
-          </button>
-        </motion.div>
+            <UpgradePrompt
+              variant="card"
+              feature="Full Daily Insights"
+              description="Unlock Dasha analysis, personalized remedies, BPHS wisdom verses, and unlimited daily AI consultations."
+              plan="plus"
+              currentTier={userTier}
+            />
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="text-center pt-4"
+          >
+            <button
+              onClick={() => router.push("/chat?v=astrology")}
+              className="px-6 py-2.5 rounded-xl bg-saffron/15 text-saffron text-sm font-medium hover:bg-saffron/25 transition-colors"
+            >
+              Ask Jyotish Guru for Detailed Analysis
+            </button>
+          </motion.div>
+        )}
       </div>
     </div>
   )

@@ -331,7 +331,7 @@ export default function ChatPageWrapper() {
       fallback={
         <main className="flex h-screen items-center justify-center bg-[#050810]">
           <div className="flex flex-col items-center gap-4">
-            <Sparkles className="h-8 w-8 animate-pulse text-amber-400" />
+            <Loader2 className="h-8 w-8 animate-spin text-amber-400" />
             <p className="text-sm text-white/30">Preparing your reading space...</p>
           </div>
         </main>
@@ -448,8 +448,10 @@ function ChatPage() {
               try {
                 const data = JSON.parse(dataStr)
                 handleSSEEvent(eventType, data)
-              } catch {
-                // Partial JSON — put back in buffer
+              } catch (parseErr) {
+                // Log malformed data and skip the event
+                console.warn("Failed to parse SSE event data:", dataStr, parseErr)
+                // Partial JSON — put back in buffer for next chunk
                 buffer += `event: ${eventType}\ndata: ${dataStr}\n`
               }
             } else if (line.trim() === "") {
@@ -464,6 +466,14 @@ function ChatPage() {
       } catch (err) {
         if ((err as Error).name !== "AbortError") {
           console.error("Stream reading error:", err)
+          // Show connection error message to user
+          const errorMsg: ChatMessage = {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: "Connection lost. Your response may be incomplete. Please try again or refresh the page.",
+            created_at: new Date().toISOString(),
+          }
+          setMessages((prev) => [...prev, errorMsg])
         }
       } finally {
         // Finalize the streaming message
@@ -507,60 +517,85 @@ function ChatPage() {
       }
 
       function handleSSEEvent(event: string, data: Record<string, unknown>) {
-        switch (event) {
-          case "meta":
-            if (data.conversation_id) {
-              setConversationId(data.conversation_id as string)
-            }
-            if (data.agent_name) {
-              setStreamingAgentName(data.agent_name as string)
-            }
-            break
+        try {
+          switch (event) {
+            case "meta":
+              if (typeof data.conversation_id === "string") {
+                setConversationId(data.conversation_id)
+              }
+              if (typeof data.agent_name === "string") {
+                setStreamingAgentName(data.agent_name)
+              }
+              break
 
-          case "text_delta":
-            streamedText += data.text as string
-            setMessages((prev) =>
-              prev.map((m) => (m.id === streamMsgId ? { ...m, content: streamedText } : m))
-            )
-            break
+            case "text_delta":
+              if (typeof data.text === "string") {
+                streamedText += data.text
+                setMessages((prev) =>
+                  prev.map((m) => (m.id === streamMsgId ? { ...m, content: streamedText } : m))
+                )
+              }
+              break
 
-          case "tool_start":
-            setActiveTools((prev) => [
-              ...prev,
-              {
-                tool_name: data.tool_name as string,
-                tool_id: data.tool_id as string,
-                label: data.label as string,
-                icon: data.icon as string,
-                description: data.description as string,
-                isComplete: false,
-              },
-            ])
-            break
+            case "tool_start":
+              if (
+                typeof data.tool_name === "string" &&
+                typeof data.tool_id === "string" &&
+                typeof data.label === "string" &&
+                typeof data.icon === "string" &&
+                typeof data.description === "string"
+              ) {
+                setActiveTools((prev) => [
+                  ...prev,
+                  {
+                    tool_name: data.tool_name as string,
+                    tool_id: data.tool_id as string,
+                    label: data.label as string,
+                    icon: data.icon as string,
+                    description: data.description as string,
+                    isComplete: false,
+                  },
+                ])
+              }
+              break
 
-          case "tool_result":
-            toolsUsed.push(data.tool_name as string)
-            setActiveTools((prev) =>
-              prev.map((t) =>
-                t.tool_id === data.tool_id ? { ...t, isComplete: true } : t
+            case "tool_result":
+              if (typeof data.tool_name === "string" && typeof data.tool_id === "string") {
+                toolsUsed.push(data.tool_name)
+                setActiveTools((prev) =>
+                  prev.map((t) =>
+                    t.tool_id === data.tool_id ? { ...t, isComplete: true } : t
+                  )
+                )
+                // Remove completed tools after a brief delay
+                setTimeout(() => {
+                  setActiveTools((prev) => prev.filter((t) => t.tool_id !== data.tool_id))
+                }, 1500)
+              }
+              break
+
+            case "message_stop":
+              // Final cleanup handled in the finally block
+              break
+
+            case "error":
+              if (typeof data.message === "string") {
+                streamedText += "\n\n⚠️ " + data.message
+              } else {
+                streamedText += "\n\n⚠️ An error occurred."
+              }
+              setMessages((prev) =>
+                prev.map((m) => (m.id === streamMsgId ? { ...m, content: streamedText } : m))
               )
-            )
-            // Remove completed tools after a brief delay
-            setTimeout(() => {
-              setActiveTools((prev) => prev.filter((t) => t.tool_id !== data.tool_id))
-            }, 1500)
-            break
+              break
 
-          case "message_stop":
-            // Final cleanup handled in the finally block
-            break
-
-          case "error":
-            streamedText += "\n\n⚠️ " + (data.message || "An error occurred.")
-            setMessages((prev) =>
-              prev.map((m) => (m.id === streamMsgId ? { ...m, content: streamedText } : m))
-            )
-            break
+            default:
+              // Silently ignore unknown event types
+              break
+          }
+        } catch (err) {
+          console.error("Error handling SSE event:", event, err)
+          // Skip this event and continue processing
         }
       }
     },
@@ -603,6 +638,23 @@ function ChatPage() {
       })
 
       if (!res.ok) {
+        if (res.status === 429) {
+          // Daily limit reached — show upgrade prompt
+          try {
+            const limitData = JSON.parse(await res.text())
+            const limitMsg: ChatMessage = {
+              id: crypto.randomUUID(),
+              role: "assistant",
+              content: `🔒 **Daily limit reached**\n\nYou've used all ${limitData.limit || 3} messages on your **${limitData.tier || "free"}** plan today. Your messages will reset at midnight.\n\n[**Upgrade to unlock more →**](/pricing)`,
+              created_at: new Date().toISOString(),
+            }
+            setMessages((prev) => [...prev, limitMsg])
+            setSending(false)
+            return
+          } catch {
+            throw new Error("Daily message limit reached. Upgrade your plan for more.")
+          }
+        }
         const errorText = await res.text()
         throw new Error(errorText || "Failed to get response")
       }
@@ -653,7 +705,7 @@ function ChatPage() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#050810]">
         <div className="flex flex-col items-center gap-4">
-          <Sparkles className="h-8 w-8 animate-pulse text-amber-400" />
+          <Loader2 className="h-8 w-8 animate-spin text-amber-400" />
           <p className="text-sm text-white/30">Preparing your reading space...</p>
         </div>
       </main>
@@ -735,6 +787,7 @@ function ChatPage() {
                     onClick={() => {
                       setSelectedVertical("")
                       setShowVerticalPicker(false)
+                      router.push("?")
                     }}
                     className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-colors ${
                       !selectedVertical
@@ -751,6 +804,7 @@ function ChatPage() {
                       onClick={() => {
                         setSelectedVertical(v.id)
                         setShowVerticalPicker(false)
+                        router.push(`?v=${v.id}`)
                       }}
                       className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-colors ${
                         selectedVertical === v.id

@@ -27,18 +27,28 @@ export function useFreeTier() {
     matchChecks: 0,
   })
   const [isPremium, setIsPremium] = useState(false)
+  const [isHydrated, setIsHydrated] = useState(false)
 
   useEffect(() => {
-    // Load from localStorage
-    const today = new Date().toISOString().split("T")[0]
-    const stored = localStorage.getItem(`grahai_usage_${today}`)
-    if (stored) {
-      setUsage(JSON.parse(stored))
-    }
+    // SSR safety: only access localStorage after hydration
+    try {
+      const today = new Date().toISOString().split("T")[0]
+      const stored = localStorage.getItem(`grahai_usage_${today}`)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        if (parsed && typeof parsed === "object") {
+          setUsage(parsed)
+        }
+      }
 
-    // Check premium status
-    const tier = localStorage.getItem("grahai_tier")
-    setIsPremium(tier === "graha" || tier === "rishi")
+      // Check premium status
+      const tier = localStorage.getItem("grahai_tier")
+      setIsPremium(tier === "plus" || tier === "premium")
+    } catch {
+      // localStorage may not be available (SSR, private browsing)
+    } finally {
+      setIsHydrated(true)
+    }
   }, [])
 
   const trackUsage = useCallback((feature: keyof FreeTierLimits) => {

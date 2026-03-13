@@ -5,8 +5,14 @@ export async function POST(req: NextRequest) {
   try {
     const { userId, conversationId, rating, vertical } = await req.json()
 
-    if (!userId || !rating) {
+    if (!userId || rating === undefined || rating === null) {
       return NextResponse.json({ error: "Missing userId or rating" }, { status: 400 })
+    }
+
+    // Validate rating is a number between 1 and 5
+    const numRating = Number(rating)
+    if (!Number.isInteger(numRating) || numRating < 1 || numRating > 5) {
+      return NextResponse.json({ error: "Rating must be an integer between 1 and 5" }, { status: 400 })
     }
 
     const sb = createServerClient(
@@ -32,7 +38,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Award bonus XP for rating (5 XP per star, max 25)
-    const bonusXP = rating * 5
+    const bonusXP = Math.min(numRating * 5, 25)
     const { data: stats } = await sb
       .from("user_stats")
       .select("total_xp")

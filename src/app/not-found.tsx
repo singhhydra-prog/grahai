@@ -1,53 +1,30 @@
+"use client"
+
 import Link from "next/link"
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center pt-24">
-      <div
-        className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
-        style={{
-          background: "rgba(201,162,77,0.1)",
-          border: "1px solid rgba(201,162,77,0.2)",
-        }}
-      >
-        <span className="text-3xl">🔭</span>
-      </div>
-
-      <h1
-        className="text-2xl font-bold mb-2"
-        style={{ color: "#E8E4DB" }}
-      >
-        Lost in the Cosmos
-      </h1>
-
-      <p
-        className="max-w-md mb-8"
-        style={{ color: "rgba(232,228,219,0.6)" }}
-      >
-        This celestial path doesn&apos;t exist. Let the stars guide you back.
-      </p>
-
-      <div className="flex gap-4">
-        <Link
-          href="/"
-          className="px-6 py-2.5 rounded-lg font-medium text-sm transition-all hover:scale-105"
-          style={{
-            background: "linear-gradient(135deg, #C9A24D, #A07E30)",
-            color: "#0a0a1a",
-          }}
-        >
-          Return Home
-        </Link>
-        <Link
-          href="/horoscope"
-          className="px-6 py-2.5 rounded-lg font-medium text-sm transition-all hover:scale-105"
-          style={{
-            border: "1px solid rgba(201,162,77,0.3)",
-            color: "#C9A24D",
-          }}
-        >
-          Daily Horoscope
-        </Link>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#050810] text-white">
+      <div className="text-center">
+        <h1 className="mb-2 text-6xl font-bold text-amber-400">404</h1>
+        <p className="mb-1 text-xl text-white/60">Page not found</p>
+        <p className="mb-8 text-sm text-white/30">
+          The cosmic path you seek does not exist in this realm.
+        </p>
+        <div className="flex gap-4 justify-center">
+          <Link
+            href="/"
+            className="rounded-xl bg-amber-500 px-6 py-3 text-sm font-semibold text-[#050810] hover:bg-amber-400 transition-colors"
+          >
+            Return Home
+          </Link>
+          <Link
+            href="/dashboard"
+            className="rounded-xl border border-white/10 px-6 py-3 text-sm text-white/60 hover:text-white hover:border-white/20 transition-colors"
+          >
+            Go to Dashboard
+          </Link>
+        </div>
       </div>
     </div>
   )

@@ -194,10 +194,14 @@ async function trimCache(cacheName, maxItems) {
   }
 }
 
-// Trim caches periodically
+// Trim caches periodically & handle skip waiting
 self.addEventListener('message', (event) => {
   if (event.data === 'trimCaches') {
     trimCache(DYNAMIC_CACHE, 50)
     trimCache(IMAGE_CACHE, 30)
+  }
+  // Allow update prompt to trigger immediate activation
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting()
   }
 })

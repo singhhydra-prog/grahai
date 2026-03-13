@@ -3,15 +3,12 @@ import { createClient } from "@supabase/supabase-js"
 /* ════════════════════════════════════════════════════════
    USAGE LIMITER — Enforces tier-based daily limits
 
-   Free:        3 messages/day across all verticals
-   Seeker:      10 messages/day
-   Guru:        Unlimited
-   Graha:       50 messages/day
-   Rishi:       Unlimited
+   Free:        1 message/day (3/day for first 3 days)
+   Plus:        2 messages/day (~60/month, exceeds 30 promise)
+   Premium:     Unlimited
 
    Also enforces per-vertical limits for free tier:
-   - 1 kundli calculation per day
-   - 1 tarot reading per day
+   - Truncate after 1st message (soft paywall)
    ════════════════════════════════════════════════════════ */
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -28,16 +25,23 @@ export interface UsageLimitResult {
   tier: string
   upgradeNeeded: boolean
   message?: string
+  shouldTruncate?: boolean
+  truncateMessage?: string
 }
 
 // Daily message limits per tier
 const TIER_LIMITS: Record<string, number> = {
-  free: 3,
-  nakshatra: 3,
-  seeker: 10,
-  graha: 50,
-  guru: -1, // unlimited
-  rishi: -1, // unlimited
+  free: 1,
+  plus: 2,
+  premium: -1, // unlimited
+}
+
+const WELCOME_LIMIT = 3 // For new accounts in first 3 days
+const WELCOME_DAYS = 3
+
+// Point after which responses are truncated (soft paywall)
+const TRUNCATE_AFTER: Record<string, number> = {
+  free: 1, // Truncate after 1st message for free tier
 }
 
 /* ────────────────────────────────────────────────────
@@ -50,25 +54,39 @@ export async function checkUsage(
   const sb = getSupabase()
   const today = new Date().toISOString().split("T")[0]
 
-  // 1. Get user's subscription tier
+  // 1. Get user's subscription tier and created_at
   let tier = "free"
+  let createdAt: string | null = null
   try {
     const { data: profile } = await sb
       .from("profiles")
-      .select("subscription_tier")
+      .select("subscription_tier, created_at")
       .eq("id", userId)
       .single()
 
     if (profile?.subscription_tier) {
       tier = profile.subscription_tier.toLowerCase()
     }
+    createdAt = profile?.created_at || null
   } catch {
     // Default to free tier
   }
 
-  // 2. Check if unlimited
-  const limit = TIER_LIMITS[tier] ?? TIER_LIMITS.free
-  if (limit === -1) {
+  // 2. Calculate effective limit (with welcome period for free tier)
+  let effectiveLimit = TIER_LIMITS[tier] ?? TIER_LIMITS.free
+
+  // Check welcome period for free tier
+  if (tier === "free" && createdAt) {
+    const accountAge = Math.floor(
+      (new Date().getTime() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24)
+    )
+    if (accountAge < WELCOME_DAYS) {
+      effectiveLimit = WELCOME_LIMIT
+    }
+  }
+
+  // 3. Check if unlimited
+  if (effectiveLimit === -1) {
     return {
       allowed: true,
       remaining: -1,
@@ -78,7 +96,7 @@ export async function checkUsage(
     }
   }
 
-  // 3. Get today's usage count
+  // 4. Get today's usage count
   try {
     const { data: usage } = await sb
       .from("user_daily_limits")
@@ -91,8 +109,8 @@ export async function checkUsage(
       // No usage today — first message
       return {
         allowed: true,
-        remaining: limit - 1,
-        limit,
+        remaining: effectiveLimit - 1,
+        limit: effectiveLimit,
         tier,
         upgradeNeeded: false,
       }
@@ -106,30 +124,38 @@ export async function checkUsage(
       (usage.vastu_count || 0) +
       (usage.pipeline_count || 0)
 
-    if (totalUsed >= limit) {
+    if (totalUsed >= effectiveLimit) {
       return {
         allowed: false,
         remaining: 0,
-        limit,
+        limit: effectiveLimit,
         tier,
         upgradeNeeded: true,
-        message: `You've used all ${limit} daily messages on your ${tier} plan. Upgrade for more.`,
+        message: `You've used all ${effectiveLimit} daily messages on your ${tier} plan. Upgrade for more.`,
       }
     }
 
+    // Check if response should be truncated (soft paywall)
+    const truncateAfter = TRUNCATE_AFTER[tier]
+    const shouldTruncate = truncateAfter !== undefined && totalUsed >= truncateAfter
+
     return {
       allowed: true,
-      remaining: limit - totalUsed - 1,
-      limit,
+      remaining: effectiveLimit - totalUsed - 1,
+      limit: effectiveLimit,
       tier,
       upgradeNeeded: false,
+      shouldTruncate,
+      truncateMessage: shouldTruncate
+        ? "Upgrade to see the full analysis. Your response has been shortened."
+        : undefined,
     }
   } catch {
     // If usage table query fails, allow the message (don't block on infra errors)
     return {
       allowed: true,
-      remaining: limit,
-      limit,
+      remaining: effectiveLimit,
+      limit: effectiveLimit,
       tier,
       upgradeNeeded: false,
     }
@@ -201,16 +227,27 @@ export async function getUsageSummary(userId: string): Promise<{
   const today = new Date().toISOString().split("T")[0]
 
   let tier = "free"
+  let createdAt: string | null = null
   try {
     const { data: profile } = await sb
       .from("profiles")
-      .select("subscription_tier")
+      .select("subscription_tier, created_at")
       .eq("id", userId)
       .single()
     if (profile?.subscription_tier) tier = profile.subscription_tier.toLowerCase()
+    createdAt = profile?.created_at || null
   } catch {}
 
-  const limit = TIER_LIMITS[tier] ?? TIER_LIMITS.free
+  // Calculate effective limit with welcome period
+  let effectiveLimit = TIER_LIMITS[tier] ?? TIER_LIMITS.free
+  if (tier === "free" && createdAt) {
+    const accountAge = Math.floor(
+      (new Date().getTime() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24)
+    )
+    if (accountAge < WELCOME_DAYS) {
+      effectiveLimit = WELCOME_LIMIT
+    }
+  }
 
   try {
     const { data: usage } = await sb
@@ -233,11 +270,11 @@ export async function getUsageSummary(userId: string): Promise<{
     return {
       tier,
       today: todayUsage,
-      limit,
+      limit: effectiveLimit,
       totalUsed,
-      remaining: limit === -1 ? -1 : Math.max(0, limit - totalUsed),
+      remaining: effectiveLimit === -1 ? -1 : Math.max(0, effectiveLimit - totalUsed),
     }
   } catch {
-    return { tier, today: {}, limit, totalUsed: 0, remaining: limit }
+    return { tier, today: {}, limit: effectiveLimit, totalUsed: 0, remaining: effectiveLimit }
   }
 }

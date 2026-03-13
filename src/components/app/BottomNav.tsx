@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { Home, Search, User, BookOpen } from "lucide-react"
+import { usePathname, useSearchParams } from "next/navigation"
+import { Home, MessageCircle, User, FileText } from "lucide-react"
 
 /* ═══════════════════════════════════════════════════
    BOTTOM NAV — Frosted glass navigation bar
@@ -12,17 +12,39 @@ import { Home, Search, User, BookOpen } from "lucide-react"
 
 const NAV_ITEMS = [
   { icon: Home, label: "Home", href: "/app" },
-  { icon: Search, label: "Explore", href: "/app/explore" },
-  { icon: null, label: "Kundli", href: "/app" }, // center mandala
-  { icon: BookOpen, label: "Learn", href: "/blog" },
-  { icon: User, label: "Profile", href: "/dashboard" },
+  { icon: MessageCircle, label: "Ask", href: "/chat" },
+  { icon: null, label: "Kundli", href: "/kundli" },
+  { icon: User, label: "My Chart", href: "/app?tab=mychart" },
+  { icon: FileText, label: "Reports", href: "/reports" },
 ]
 
 export default function BottomNav() {
-  const [active, setActive] = useState(0)
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const isActive = (href: string) => {
+    // Handle query parameter-based routes (e.g., /app?tab=mychart)
+    if (href.includes("?")) {
+      const hrefPath = href.split("?")[0]
+      const hrefParams = new URLSearchParams(href.split("?")[1])
+
+      // Check if pathname matches and all query params match
+      if (pathname !== hrefPath) return false
+      for (const [key, value] of hrefParams) {
+        if (searchParams.get(key) !== value) return false
+      }
+      return true
+    }
+
+    // For /app, only match if pathname is exactly /app (no query params active)
+    if (href === "/app") return pathname === "/app" && searchParams.toString() === ""
+
+    // Standard path matching for other routes
+    return pathname.startsWith(href)
+  }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40">
+    <nav className="fixed bottom-0 left-0 right-0 z-40" role="navigation" aria-label="Main navigation">
       {/* Frosted glass */}
       <div className="relative mx-auto max-w-lg">
         <div className="absolute inset-0 bg-[#060A14]/80 backdrop-blur-2xl border-t border-white/[0.06]" />
@@ -30,14 +52,15 @@ export default function BottomNav() {
         <div className="relative flex items-end justify-around px-2 pb-[env(safe-area-inset-bottom,8px)] pt-2">
           {NAV_ITEMS.map((item, i) => {
             const isCenter = i === 2
-            const isActive = active === i
+            const active = isActive(item.href)
 
             if (isCenter) {
               return (
-                <button
+                <Link
                   key={i}
-                  onClick={() => setActive(i)}
+                  href={item.href}
                   className="relative -mt-5"
+                  aria-label="Generate Kundli"
                 >
                   {/* Spinning border */}
                   <motion.div
@@ -52,7 +75,7 @@ export default function BottomNav() {
                   <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-gold/30 to-gold/10 border border-gold/20 flex items-center justify-center shadow-lg shadow-gold/10">
                     <span className="text-2xl">🕉️</span>
                   </div>
-                </button>
+                </Link>
               )
             }
 
@@ -61,22 +84,23 @@ export default function BottomNav() {
               <Link
                 key={i}
                 href={item.href}
-                onClick={() => setActive(i)}
-                className="flex flex-col items-center gap-1 py-2 px-3 min-w-[56px]"
+                className="flex flex-col items-center gap-1 py-2 px-3 min-w-[56px] min-h-[44px] justify-center"
+                aria-label={item.label}
+                aria-current={active ? "page" : undefined}
               >
                 <Icon
                   className={`h-5 w-5 transition-colors ${
-                    isActive ? "text-gold" : "text-white/30"
+                    active ? "text-gold" : "text-white/30"
                   }`}
                 />
                 <span
                   className={`text-[10px] font-medium transition-colors ${
-                    isActive ? "text-gold/80" : "text-white/25"
+                    active ? "text-gold/80" : "text-white/25"
                   }`}
                 >
                   {item.label}
                 </span>
-                {isActive && (
+                {active && (
                   <motion.div
                     layoutId="nav-dot"
                     className="w-1 h-1 rounded-full bg-gold"

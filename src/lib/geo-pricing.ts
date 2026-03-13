@@ -10,6 +10,7 @@ export type Currency = "INR" | "USD"
 export interface PricingTier {
   id: string
   name: string
+  nameHi?: string
   description: string
   priceINR: number
   priceUSD: number
@@ -31,42 +32,47 @@ export interface MicroTransaction {
 export const PRICING_TIERS: PricingTier[] = [
   {
     id: "free",
-    name: "Free Preview",
-    description: "Taste the cosmic wisdom",
+    name: "Free",
+    description: "Begin your cosmic journey",
     priceINR: 0,
     priceUSD: 0,
     features: [
-      "Ask 1 question per day",
-      "Basic Sun sign analysis",
-      "Daily Panchang",
-      "Name numerology",
-      "Community verse discussions",
+      "3 welcome questions to start",
+      "1 question per day after",
+      "Basic Kundli generation",
+      "Daily Panchang overview",
+      "Name numerology reading",
+      "Sun sign daily insight",
     ],
     cta: "Start Free",
   },
   {
-    id: "seeker",
-    name: "Cosmic Seeker",
-    description: "For those beginning their journey",
+    id: "plus",
+    name: "Plus",
+    nameHi: "प्लस",
+    description: "For the curious seeker",
     priceINR: 199,
     priceUSD: 5,
+    popular: true,
     features: [
-      "10 questions per month",
-      "Full Kundli generation",
-      "Nakshatra + Dasha analysis",
+      "30 questions per month",
+      "Full Kundli with Dasha analysis",
+      "Nakshatra deep dive",
       "Sanskrit verse references",
       "Tarot 3-card spread",
       "Basic Vastu guidance",
+      "Bilingual: Hindi + English",
+      "Gemstone recommendations",
     ],
-    cta: "Begin Your Journey",
+    cta: "Upgrade to Plus",
   },
   {
-    id: "guru",
-    name: "Guru Access",
+    id: "premium",
+    name: "Premium",
+    nameHi: "प्रीमियम",
     description: "Complete cosmic intelligence",
-    priceINR: 399,
+    priceINR: 499,
     priceUSD: 10,
-    popular: true,
     features: [
       "Unlimited conversations",
       "Full Kundli + Divisional charts",
@@ -75,9 +81,12 @@ export const PRICING_TIERS: PricingTier[] = [
       "Full 78-card Tarot",
       "Complete Vastu mapping",
       "Monthly transit reports",
-      "Priority response",
+      "Priority response speed",
+      "Annual prediction reports",
+      "Muhurta — auspicious timing",
+      "Export to PDF",
     ],
-    cta: "Unlock Full Power",
+    cta: "Go Premium",
   },
 ]
 

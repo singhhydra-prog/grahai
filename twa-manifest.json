@@ -1,0 +1,59 @@
+{
+  "packageId": "com.grahai.app",
+  "host": "grahai.vercel.app",
+  "name": "GrahAI — Vedic Astrology AI",
+  "launcherName": "GrahAI",
+  "display": "standalone",
+  "themeColor": "#0E1538",
+  "themeColorDark": "#060A14",
+  "navigationColor": "#060A14",
+  "navigationColorDark": "#060A14",
+  "navigationDividerColor": "#060A14",
+  "navigationDividerColorDark": "#060A14",
+  "backgroundColor": "#060A14",
+  "enableNotifications": true,
+  "startUrl": "/app",
+  "iconUrl": "https://grahai.vercel.app/icon-512.png",
+  "maskableIconUrl": "https://grahai.vercel.app/icon-maskable-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "grahai"
+  },
+  "appVersionCode": 1,
+  "appVersionName": "1.0.0",
+  "shortcuts": [
+    {
+      "name": "My Kundli",
+      "shortName": "Kundli",
+      "url": "/kundli",
+      "chosenIconUrl": "https://grahai.vercel.app/icon-96.png"
+    },
+    {
+      "name": "Daily Horoscope",
+      "shortName": "Horoscope",
+      "url": "/horoscope",
+      "chosenIconUrl": "https://grahai.vercel.app/icon-96.png"
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://grahai.vercel.app/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {
+    "locationDelegation": {
+      "enabled": false
+    },
+    "playBilling": {
+      "enabled": false
+    }
+  },
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://grahai.vercel.app/",
+  "minSdkVersion": 23,
+  "orientation": "portrait"
+}

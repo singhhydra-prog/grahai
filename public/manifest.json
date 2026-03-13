@@ -2,7 +2,9 @@
   "name": "GrahAI — Vedic Astrology AI",
   "short_name": "GrahAI",
   "description": "Your Planets, Your Path. AI-powered Vedic astrology with Kundli, Tarot, Numerology & Vastu readings grounded in classical Sanskrit texts.",
-  "start_url": "/",
+  "start_url": "/app",
+  "scope": "/",
+  "id": "/app",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#060A14",
@@ -107,6 +109,16 @@
       "url": "url"
     }
   },
-  "related_applications": [],
-  "prefer_related_applications": false
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.grahai.app",
+      "id": "com.grahai.app"
+    }
+  ],
+  "prefer_related_applications": true,
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  }
 }

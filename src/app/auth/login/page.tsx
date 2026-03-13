@@ -11,7 +11,8 @@ function LoginForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "sent" | "error">("idle")
   const [errorMsg, setErrorMsg] = useState("")
   const searchParams = useSearchParams()
-  const redirect = searchParams.get("redirect") || "/dashboard"
+  const rawRedirect = searchParams.get("redirect") || "/dashboard"
+  const redirect = rawRedirect.startsWith("/") ? rawRedirect : "/dashboard"
   const reason = searchParams.get("reason")
 
   async function handleMagicLink(e: React.FormEvent) {
@@ -190,9 +191,19 @@ function LoginForm() {
           )}
         </div>
 
+        {/* What you get */}
+        <div className="mt-6 flex items-center justify-center gap-4 text-[11px] text-cosmic-white/30">
+          <span>✓ 3 daily AI readings</span>
+          <span>✓ Free Kundli</span>
+          <span>✓ Daily Horoscope</span>
+        </div>
+
         {/* Footer */}
-        <p className="mt-6 text-center text-xs text-cosmic-white/20">
-          By signing in, you agree to our Terms of Service and Privacy Policy
+        <p className="mt-4 text-center text-xs text-cosmic-white/20">
+          By signing in, you agree to our{" "}
+          <a href="/terms" className="underline hover:text-cosmic-white/40 transition-colors">Terms of Service</a>
+          {" "}and{" "}
+          <a href="/privacy" className="underline hover:text-cosmic-white/40 transition-colors">Privacy Policy</a>
         </p>
       </motion.div>
     </main>

@@ -1,5 +1,31 @@
 @import "tailwindcss";
 
+/* ══════════════════════════════════════════════════════
+   COLOR SYSTEM GUIDE
+   ══════════════════════════════════════════════════════
+   Brand Colors (via @theme — use as text-gold, bg-bg, etc.):
+     gold (#C9A24D)     — Primary brand color, CTAs, emphasis
+     gold-light (#E2C474) — Lighter gold for gradients
+     gold-dark (#A07E30)  — Darker gold for depth
+     saffron (#E2994A)    — Warm accent, secondary CTAs
+     indigo (#3044A0)     — Cool accent, borders, charts
+     bg (#050810)         — Page background (deep space)
+     bg-card (#0C1224)    — Card/surface background
+     text (#E8E4DB)       — Primary text color
+     text-dim (#8A8690)   — Secondary/muted text
+
+   Tailwind Built-ins (used for semantic/contextual colors):
+     amber-400/500  — Used in chat, kundli for AI-themed accents
+     emerald-400    — Success states, positive indicators
+     violet-400     — Tarot/mystical theme accent
+     red-400/500    — Error states, danger indicators
+     orange-400     — Warning states
+
+   Convention: Prefer theme variables (text-gold, bg-bg-card) for
+   brand consistency. Tailwind built-ins are acceptable for
+   semantic colors in specific feature pages.
+   ══════════════════════════════════════════════════════ */
+
 @theme inline {
   /* Core palette */
   --color-bg: #050810;
@@ -436,4 +462,61 @@ body {
 
 .delay-2000 {
   animation-delay: 2s;
+}
+
+/* ═══════════════════════════════════════════════════
+   ACCESSIBILITY: Reduced Motion
+   Disable all animations for users who prefer
+   reduced motion (motion sensitivity, vestibular)
+   ═══════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .gold-text,
+  .cosmic-text {
+    animation: none;
+    background-size: 100% 100%;
+  }
+
+  .marquee-belt {
+    animation: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   ACCESSIBILITY: Focus Visible
+   Clear focus indicators for keyboard navigation
+   ═══════════════════════════════════════════════════ */
+:focus-visible {
+  outline: 2px solid #C9A24D;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ═══════════════════════════════════════════════════
+   SKIP NAVIGATION LINK
+   ═══════════════════════════════════════════════════ */
+.skip-nav {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  padding: 0.75rem 1.5rem;
+  background: #C9A24D;
+  color: #050810;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 0 0 0.5rem 0.5rem;
+  transition: top 0.15s ease;
+}
+.skip-nav:focus {
+  top: 0;
 }

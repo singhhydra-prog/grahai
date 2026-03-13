@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { supabase } from "@/lib/supabase"
+import { SUPPORT_EMAIL } from "@/lib/constants"
 import Link from "next/link"
 import { ArrowRight, Check, AlertCircle, Loader2 } from "lucide-react"
 import type { User } from "@supabase/supabase-js"
@@ -13,48 +14,48 @@ interface Plan {
   nameHi: string
   price: string
   amount: number
-  planId: "graha" | "rishi"
+  planId: "plus" | "premium"
   features: string[]
   description: string
 }
 
 const PLANS: Record<string, Plan> = {
-  graha: {
-    name: "Graha",
-    nameHi: "ग्रह",
-    price: "₹499",
-    amount: 49900,
-    planId: "graha",
-    description: "Comprehensive readings with full classical depth",
+  plus: {
+    name: "Plus",
+    nameHi: "प्लस",
+    price: "₹199",
+    amount: 19900,
+    planId: "plus",
+    description: "For the curious seeker",
     features: [
+      "30 questions per month",
       "Full Kundli with Dasha analysis",
-      "Unlimited Tarot spreads",
-      "Complete Numerology profile",
-      "Detailed Vastu room mapping",
-      "Yoga & Dosha identification",
-      "Transit predictions",
+      "Nakshatra deep dive",
+      "Sanskrit verse references",
+      "Tarot 3-card spread",
+      "Basic Vastu guidance",
       "Bilingual: Hindi + English",
       "Gemstone recommendations",
-      "Compatibility matching",
     ],
   },
-  rishi: {
-    name: "Rishi",
-    nameHi: "ऋषि",
-    price: "₹1,499",
-    amount: 149900,
-    planId: "rishi",
-    description: "For serious practitioners who demand the highest precision",
+  premium: {
+    name: "Premium",
+    nameHi: "प्रीमियम",
+    price: "₹499",
+    amount: 49900,
+    planId: "premium",
+    description: "Complete cosmic intelligence",
     features: [
-      "Everything in Graha plan",
-      "Prashna Kundli (Horary)",
-      "Muhurta — auspicious timing",
+      "Unlimited conversations",
+      "Full Kundli + Divisional charts",
+      "Advanced Dasha predictions",
+      "Compatibility analysis",
+      "Full 78-card Tarot",
+      "Complete Vastu mapping",
+      "Monthly transit reports",
+      "Priority response speed",
       "Annual prediction reports",
-      "Remedial consultation",
-      "Priority support",
-      "API access for developers",
-      "Custom report templates",
-      "Family chart comparisons",
+      "Muhurta — auspicious timing",
       "Export to PDF",
     ],
   },
@@ -73,7 +74,7 @@ declare global {
 function CheckoutPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const planId = (searchParams.get("plan") as "graha" | "rishi") || "graha"
+  const planId = (searchParams.get("plan") as "plus" | "premium") || "plus"
 
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(false)
@@ -132,7 +133,7 @@ function CheckoutPageContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           plan_id: planId,
-          email: user.email,
+          email: user.email || user.user_metadata?.email || "",
           phone: user.phone || "+91",
           name: user.user_metadata?.full_name || user.email?.split("@")[0] || "User",
         }),
@@ -349,17 +350,27 @@ function CheckoutPageContent() {
               <div className="mb-6 rounded-lg bg-bg p-4 border border-white/[0.04]">
                 <div className="text-sm">
                   <p className="text-text-dim/60 mb-1">Paying as</p>
-                  <p className="font-semibold text-text">{user.email}</p>
+                  <p className="font-semibold text-text">{user.email || user.user_metadata?.email || ""}</p>
                 </div>
               </div>
 
               {/* Payment Button */}
               <button
                 onClick={handlePayment}
-                disabled={true}
+                disabled={loading}
                 className="w-full py-3.5 px-4 rounded-xl bg-gold text-bg font-semibold transition-all disabled:opacity-60 disabled:cursor-not-allowed hover:enabled:bg-gold-light active:enabled:scale-[0.98] flex items-center justify-center gap-2 mb-4"
               >
-                <span>Coming Soon - Launch Special: First month FREE!</span>
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Pay {plan.price} — Subscribe Now</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
               </button>
 
               {/* Alternative Text */}
@@ -387,7 +398,7 @@ function CheckoutPageContent() {
               <div className="mt-8 pt-8 border-t border-white/[0.04]">
                 <p className="text-xs text-text-dim/60 mb-2">Need help?</p>
                 <Link
-                  href="mailto:support@grahai.com"
+                  href={`mailto:${SUPPORT_EMAIL}`}
                   className="text-sm text-gold/60 hover:text-gold transition-colors"
                 >
                   Contact support →

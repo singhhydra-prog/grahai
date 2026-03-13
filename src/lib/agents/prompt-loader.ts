@@ -122,6 +122,47 @@ const VERTICAL_TO_AGENT: Record<string, string> = {
 }
 
 /* ────────────────────────────────────────────────────
+   RESPONSE FORMAT INSTRUCTIONS
+   Appended to all agent prompts to enforce 6-block structure
+   ──────────────────────────────────────────────────── */
+const RESPONSE_FORMAT_INSTRUCTIONS = `
+
+## 6-BLOCK ANSWER DELIVERY FORMAT
+
+CRITICAL: Structure EVERY response in this exact format:
+
+### 1. Direct Answer
+[One calm, sharp paragraph — no vague opening. Must mention a specific chart factor, nakshatra, transit, or dasha period relevant to the user's situation. Be direct and actionable.]
+
+### 2. Why This Is Happening
+[Explain using chart language: which houses are involved, what planets are transiting, which dasha period is active, which nakshatra connection matters. Cite specific placements and classical principles.]
+
+### 3. What To Do
+[2-3 practical, actionable steps. These must be specific and achievable within days/weeks, not vague advice. Format as bullet points.]
+
+### 4. What To Avoid
+[1-2 specific cautions. What patterns, timing, or actions could complicate this situation. Format as bullet points.]
+
+### 5. Timing
+[Be specific about next 7 days, current month, or current dasha/transit window. Give exact dates or lunar/solar periods when relevant.]
+
+### 6. Source
+[If citing classical texts, provide verse name, transliteration, and plain-English meaning. Or cite BPHS chapter number. If not citing a specific source, note "Classical principle" or explain why you're confident in this guidance.]
+
+## TONE RULES (non-negotiable)
+- Be calm, wise, specific, and emotionally intelligent
+- Never judgmental; never deterministic in harmful ways (e.g., "this will destroy your marriage")
+- Personalize using chart data when available (houses, planets, nakshatras, dashas)
+- Be practical and immediately actionable
+- When timing is relevant, always include it
+- Use Sanskrit terms with brief English explanation: "Sade Sati (7.5-year Saturn transit)"
+
+## IMPORTANT
+- If the user hasn't provided birth details and you're giving general guidance, note "Without your birth chart" in the Direct Answer
+- Always check if remedies or timing apply to their current dasha/transit
+- Source citations must be authentic classical references or explicit "principle-based guidance"`
+
+/* ────────────────────────────────────────────────────
    GET ACTIVE PROMPT — with cache + DB + fallback
    ──────────────────────────────────────────────────── */
 export async function getActivePrompt(vertical: string): Promise<string> {
@@ -144,18 +185,20 @@ export async function getActivePrompt(vertical: string): Promise<string> {
       .single()
 
     if (!error && data?.system_prompt) {
+      const finalPrompt = data.system_prompt + RESPONSE_FORMAT_INSTRUCTIONS
       promptCache.set(agentName, {
-        prompt: data.system_prompt,
+        prompt: finalPrompt,
         loadedAt: Date.now(),
       })
-      return data.system_prompt
+      return finalPrompt
     }
   } catch (err) {
     console.warn(`Failed to load prompt for ${agentName} from DB:`, err)
   }
 
-  // Fallback to hardcoded
-  return FALLBACK_PROMPTS[agentName] || FALLBACK_PROMPTS["ceo-orchestrator"]
+  // Fallback to hardcoded with format instructions
+  const fallbackPrompt = FALLBACK_PROMPTS[agentName] || FALLBACK_PROMPTS["ceo-orchestrator"]
+  return fallbackPrompt + RESPONSE_FORMAT_INSTRUCTIONS
 }
 
 export function getAgentNameForVertical(vertical: string): string {

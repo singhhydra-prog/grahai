@@ -6,6 +6,7 @@ import type { AuthChangeEvent, Session, User } from "@supabase/supabase-js"
 import { GamificationProvider } from "@/contexts/GamificationContext"
 import { LevelUpCelebration } from "@/components/gamification/LevelUpCelebration"
 import { AchievementUnlock } from "@/components/gamification/AchievementUnlock"
+import { ToastProvider } from "@/components/Toast"
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   const [userId, setUserId] = useState<string | undefined>(undefined)
@@ -24,8 +25,10 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
 
   return (
     <GamificationProvider userId={userId}>
-      {children}
-      <GamificationOverlays />
+      <ToastProvider>
+        {children}
+        <GamificationOverlays />
+      </ToastProvider>
     </GamificationProvider>
   )
 }

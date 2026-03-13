@@ -1,14 +1,20 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
+import { createServerClient } from "@supabase/ssr"
 import { getAllSubAgents } from "@/lib/agents/delegation"
 
 /* ════════════════════════════════════════════════════════
    AGENT ANALYTICS API — Returns metrics, delegations,
    conversation stats, and tool usage for the dashboard
+   Protected: Only admin users can access this endpoint
    ════════════════════════════════════════════════════════ */
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey
+
+/* Admin emails allowed to access this dashboard */
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "singhhydra@gmail.com").split(",").map(e => e.trim().toLowerCase())
 
 function getSupabase() {
   return createClient(supabaseUrl, supabaseServiceKey)
@@ -16,6 +22,19 @@ function getSupabase() {
 
 export async function GET(req: NextRequest) {
   try {
+    /* ── Auth guard: verify user is admin ── */
+    const authClient = createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        getAll() { return req.cookies.getAll() },
+        setAll() { /* API route — no writes */ },
+      },
+    })
+
+    const { data: { user }, error: authError } = await authClient.auth.getUser()
+    if (authError || !user || !ADMIN_EMAILS.includes(user.email?.toLowerCase() || "")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
+    }
+
     const sb = getSupabase()
     const { searchParams } = new URL(req.url)
     const days = parseInt(searchParams.get("days") || "7")
