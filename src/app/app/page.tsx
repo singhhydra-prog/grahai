@@ -739,139 +739,287 @@ function TopUpModules({ onAction }: { onAction: (action: string) => void }) {
   )
 }
 
-/* ─── Discover Tab (EliteEdge-inspired smooth-ride engagement) ─── */
-/* ─── Today Tab — Daily cosmic destination ─── */
+/* ─── Home Tab — 6-section layout ─── */
 function HomeTab({ onShowOverlay, onTabChange, isNewUser }: { onShowOverlay: (o: OverlayType) => void; onTabChange: (t: TabType) => void; isNewUser?: boolean }) {
   const verse = getTodaysVerse()
   const today = new Date()
   const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+  const [askInput, setAskInput] = useState("")
+  const [cosmicSnap, setCosmicSnap] = useState<{ moonSign?: string; nakshatra?: string; transitVibe?: string; lifeTheme?: string } | null>(null)
+  const [savedQuestions, setSavedQuestions] = useState<string[]>([])
+  const [userName, setUserName] = useState("")
+
+  useEffect(() => {
+    try {
+      const snap = localStorage.getItem("grahai-cosmic-snapshot")
+      if (snap) setCosmicSnap(JSON.parse(snap))
+      const name = localStorage.getItem("userNameForGreeting")
+      if (name) setUserName(name)
+      const qs = localStorage.getItem("grahai-saved-questions")
+      if (qs) setSavedQuestions(JSON.parse(qs).slice(0, 3))
+    } catch { /* ignore */ }
+  }, [])
+
+  const todayTheme = cosmicSnap?.transitVibe || verse.meaning
+  const greeting = userName ? `Good ${today.getHours() < 12 ? "morning" : today.getHours() < 17 ? "afternoon" : "evening"}, ${userName.split(" ")[0]}` : `${dayNames[today.getDay()]}, ${monthNames[today.getMonth()]} ${today.getDate()}`
 
   return (
     <div className="overflow-y-auto h-full">
-      {/* ─── Hero Section (Acquisition) ─── */}
+      {/* ─── Acquisition Hero (new users only) ─── */}
       {isNewUser && (
         <div className="relative px-4 pt-8 pb-6 overflow-hidden">
-          {/* Background glow */}
           <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 h-80 w-80 rounded-full bg-amber-400/[0.06] blur-[100px]" />
-
           <div className="relative z-10 text-center">
             <div className="inline-flex items-center gap-2 mb-4">
               <Sparkles className="w-6 h-6 text-amber-400" />
-              <span className="text-xl font-bold text-white">
-                Grah<span className="text-amber-400">AI</span>
-              </span>
+              <span className="text-xl font-bold text-white">Grah<span className="text-amber-400">AI</span></span>
             </div>
-
             <h1 className="text-[22px] leading-tight font-bold text-white max-w-xs mx-auto">
               Get chart-based clarity for love, career, timing, and life decisions.
             </h1>
             <p className="mt-3 text-sm text-white/50 max-w-sm mx-auto leading-relaxed">
               AI Jyotish guidance, personalized from your birth chart, with source-backed explanations.
             </p>
-
             <div className="mt-6 space-y-3 max-w-xs mx-auto">
-              <button
-                onClick={() => onShowOverlay("onboarding")}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 py-3.5 font-semibold text-[#050810] transition-all hover:bg-amber-300 active:scale-[0.98]"
-              >
-                Get my first insight
-                <ArrowRight className="w-4 h-4" />
+              <button onClick={() => onShowOverlay("onboarding")} className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 py-3.5 font-semibold text-[#050810] transition-all hover:bg-amber-300 active:scale-[0.98]">
+                Get my first insight <ArrowRight className="w-4 h-4" />
               </button>
-              <button
-                onClick={() => onShowOverlay("sample-preview")}
-                className="w-full flex items-center justify-center gap-2 rounded-xl border border-white/[0.1] bg-white/[0.03] px-6 py-3 text-sm font-medium text-white/70 transition-all hover:border-amber-400/30 hover:text-white active:scale-[0.98]"
-              >
+              <button onClick={() => onShowOverlay("sample-preview")} className="w-full flex items-center justify-center gap-2 rounded-xl border border-white/[0.1] bg-white/[0.03] px-6 py-3 text-sm font-medium text-white/70 transition-all hover:border-amber-400/30 hover:text-white active:scale-[0.98]">
                 See a sample answer
               </button>
             </div>
-
-            {/* Trust badges */}
             <div className="mt-6 flex items-center justify-center gap-3 flex-wrap">
               {["Personalized", "Classical sources", "Real decisions"].map((badge) => (
                 <span key={badge} className="flex items-center gap-1 text-[10px] text-white/30">
-                  <span className="w-1 h-1 rounded-full bg-amber-400/50" />
-                  {badge}
+                  <span className="w-1 h-1 rounded-full bg-amber-400/50" />{badge}
                 </span>
               ))}
             </div>
           </div>
-
-          {/* Divider */}
           <div className="mt-6 h-px bg-gradient-to-r from-transparent via-amber-500/15 to-transparent" />
         </div>
       )}
 
-      {/* ─── Daily Content (for all users) ─── */}
-      <div className="px-4 pt-4 pb-3">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <p className="text-[11px] text-amber-400/60 font-medium uppercase tracking-wider">
-              {dayNames[today.getDay()]}, {monthNames[today.getMonth()]} {today.getDate()}
-            </p>
-            <h2 className="text-xl font-bold text-white mt-0.5">Your Cosmic Day</h2>
-            <p className="text-[11px] text-white/30 font-hindi">आज का राशिफल</p>
-          </div>
-          <button
-            onClick={() => onShowOverlay("daily")}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 text-amber-400 text-[10px] font-semibold hover:bg-amber-500/20 transition-colors"
-          >
-            Full Insights <ArrowRight className="w-3 h-3" />
-          </button>
-        </div>
-
-        {/* Today's Mantra Card */}
-        <div className="rounded-xl border border-amber-500/15 bg-gradient-to-br from-amber-500/[0.06] to-orange-500/[0.03] p-4 mb-4">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-base">🕉️</span>
-            <span className="text-[10px] font-bold text-amber-400/60 uppercase tracking-wider">Today&apos;s Mantra</span>
-          </div>
-          <p className="text-lg font-hindi font-bold text-amber-200/90 leading-relaxed mb-1.5">
-            {verse.sanskrit}
-          </p>
-          <p className="text-xs text-white/50 italic leading-relaxed">{verse.meaning}</p>
-          <div className="flex items-center gap-4 mt-3 pt-3 border-t border-amber-500/10">
-            <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: verse.lucky.color.toLowerCase() === "gold" ? "#D4A853" : verse.lucky.color.toLowerCase() }} />
-              <span className="text-[10px] text-white/40">Lucky Color: <span className="text-white/60 font-medium">{verse.lucky.color}</span></span>
+      {/* ═══ SECTION 1: "Today for You" Hero Card ═══ */}
+      <div className="px-4 pt-4 pb-2">
+        <p className="text-xs text-white/40 mb-1">{greeting}</p>
+        <div className="rounded-2xl border border-amber-500/15 bg-gradient-to-br from-amber-500/[0.08] to-orange-500/[0.03] p-5 relative overflow-hidden">
+          <div className="pointer-events-none absolute -top-10 -right-10 w-40 h-40 rounded-full bg-amber-400/[0.05] blur-[60px]" />
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-3">
+              <Sunrise className="w-4 h-4 text-amber-400" />
+              <span className="text-[10px] font-bold text-amber-400/60 uppercase tracking-wider">Today&apos;s Theme</span>
             </div>
-            <div className="flex items-center gap-1">
-              <Star className="w-2.5 h-2.5 text-amber-400/40" />
-              <span className="text-[10px] text-white/40">Lucky Number: <span className="text-white/60 font-medium">{verse.lucky.number}</span></span>
-            </div>
-          </div>
-        </div>
+            <h2 className="text-lg font-bold text-white leading-snug mb-2">{todayTheme}</h2>
+            <p className="text-xs text-white/50 leading-relaxed mb-3">{verse.meaning}</p>
 
-        {/* Quick Action Tiles */}
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          {[
-            { icon: <Sun className="w-4 h-4 text-amber-400" />, label: "Horoscope", overlay: "horoscope" as OverlayType },
-            { icon: <Moon className="w-4 h-4 text-blue-300" />, label: "Kundli", overlay: "kundli" as OverlayType },
-            { icon: <MessageCircle className="w-4 h-4 text-emerald-400" />, label: "Ask AI", tab: "ask" as TabType },
-          ].map((item) => (
+            {/* Summary row */}
+            <div className="flex gap-3 mb-3">
+              {cosmicSnap?.moonSign && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-500/10 border border-blue-500/15 text-[10px] text-blue-300 font-medium">
+                  <Moon className="w-3 h-3" /> {cosmicSnap.moonSign}
+                </span>
+              )}
+              {cosmicSnap?.nakshatra && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-500/10 border border-purple-500/15 text-[10px] text-purple-300 font-medium">
+                  <Star className="w-3 h-3" /> {cosmicSnap.nakshatra}
+                </span>
+              )}
+            </div>
+
+            {/* Action & Caution */}
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              <div className="px-3 py-2 rounded-lg bg-emerald-500/[0.06] border border-emerald-500/10">
+                <p className="text-[9px] uppercase tracking-wider text-emerald-400/60 font-bold mb-0.5">Action</p>
+                <p className="text-[11px] text-white/60">Focus on {dayNames[today.getDay()] === "Monday" ? "emotional clarity" : dayNames[today.getDay()] === "Tuesday" ? "decisive action" : dayNames[today.getDay()] === "Wednesday" ? "clear communication" : dayNames[today.getDay()] === "Thursday" ? "wisdom & learning" : dayNames[today.getDay()] === "Friday" ? "relationships & beauty" : dayNames[today.getDay()] === "Saturday" ? "discipline & patience" : "self-expression"}</p>
+              </div>
+              <div className="px-3 py-2 rounded-lg bg-red-500/[0.06] border border-red-500/10">
+                <p className="text-[9px] uppercase tracking-wider text-red-400/60 font-bold mb-0.5">Caution</p>
+                <p className="text-[11px] text-white/60">Avoid {dayNames[today.getDay()] === "Tuesday" ? "impulsive decisions" : dayNames[today.getDay()] === "Saturday" ? "shortcuts" : "overthinking"}</p>
+              </div>
+            </div>
+
             <button
-              key={item.label}
-              onClick={() => item.overlay ? onShowOverlay(item.overlay) : item.tab ? onTabChange(item.tab) : null}
-              className="w-full flex flex-col items-center gap-1.5 py-3 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:border-amber-500/20 hover:bg-amber-500/[0.03] transition-all active:scale-[0.97]"
+              onClick={() => onTabChange("ask")}
+              className="flex items-center gap-1.5 text-xs text-amber-400 font-semibold hover:text-amber-300 transition-colors"
             >
-              {item.icon}
-              <span className="text-[10px] font-medium text-white/60">{item.label}</span>
+              <MessageCircle className="w-3.5 h-3.5" /> Ask about this <ChevronRight className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ SECTION 2: "Why this is active" ═══ */}
+      <div className="px-4 pt-2 pb-2">
+        <div className="flex items-center gap-2 mb-2">
+          <Info className="w-3.5 h-3.5 text-white/30" />
+          <span className="text-[10px] text-white/30 uppercase tracking-wider font-medium">Why this is active today</span>
+        </div>
+        <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">
+          <p className="text-xs text-white/50 leading-relaxed">
+            {cosmicSnap?.moonSign
+              ? `The Moon is transiting through influences related to your ${cosmicSnap.moonSign} Moon sign. Current planetary positions are creating a unique energy pattern for your chart today.`
+              : `Today is ruled by ${verse.lucky.color === "Gold" ? "the Sun" : verse.lucky.color === "White" ? "the Moon" : verse.lucky.color === "Red" ? "Mars" : verse.lucky.color === "Green" ? "Mercury" : verse.lucky.color === "Yellow" ? "Jupiter" : verse.lucky.color === "Pink" ? "Venus" : "Saturn"}. The planetary hour aligns with ${dayNames[today.getDay()]}&apos;s natural rhythms.`
+            }
+          </p>
+          <div className="flex items-center gap-3 mt-2 pt-2 border-t border-white/[0.04]">
+            <div className="flex items-center gap-1">
+              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: verse.lucky.color.toLowerCase() === "gold" ? "#D4A853" : verse.lucky.color.toLowerCase() }} />
+              <span className="text-[10px] text-white/35">Lucky: {verse.lucky.color}</span>
+            </div>
+            <span className="text-[10px] text-white/35">Number: {verse.lucky.number}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ SECTION 3: Quick Guidance Lanes ═══ */}
+      <div className="px-4 pt-2 pb-2">
+        <div className="flex items-center gap-2 mb-2.5">
+          <Zap className="w-3.5 h-3.5 text-amber-400" />
+          <span className="text-xs font-bold text-white">Quick Guidance</span>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { icon: <Heart className="w-4 h-4 text-pink-400" />, label: "Love", sublabel: "Today", question: "How is my love life looking today?", bg: "from-pink-500/10 to-rose-500/5", border: "border-pink-500/15" },
+            { icon: <Briefcase className="w-4 h-4 text-blue-400" />, label: "Career", sublabel: "Today", question: "Any career opportunities today?", bg: "from-blue-500/10 to-indigo-500/5", border: "border-blue-500/15" },
+            { icon: <Flame className="w-4 h-4 text-orange-400" />, label: "Energy", sublabel: "Today", question: "What is my energy level like today?", bg: "from-orange-500/10 to-amber-500/5", border: "border-orange-500/15" },
+          ].map((lane) => (
+            <button
+              key={lane.label}
+              onClick={() => onTabChange("ask")}
+              className={`flex flex-col items-center gap-1.5 py-3.5 rounded-xl border ${lane.border} bg-gradient-to-br ${lane.bg} hover:scale-[1.02] transition-all active:scale-[0.97]`}
+            >
+              {lane.icon}
+              <span className="text-[11px] font-semibold text-white">{lane.label}</span>
+              <span className="text-[9px] text-white/30">{lane.sublabel}</span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Cosmic Stories — swipeable daily insight cards */}
+      {/* ═══ SECTION 4: Ask GrahAI ═══ */}
+      <div className="px-4 pt-3 pb-2">
+        <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500/20 to-orange-500/10 flex items-center justify-center">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            </div>
+            <span className="text-sm font-bold text-white">Ask GrahAI</span>
+          </div>
+          <div className="flex gap-2 mb-3">
+            <input
+              type="text"
+              value={askInput}
+              onChange={(e) => setAskInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter" && askInput.trim()) { onTabChange("ask") } }}
+              placeholder="What's on your mind?"
+              className="flex-1 px-3 py-2.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-amber-400/30"
+            />
+            <button
+              onClick={() => onTabChange("ask")}
+              className="px-3 py-2.5 rounded-lg bg-amber-400 text-[#050810] font-semibold text-sm hover:bg-amber-300 transition-colors active:scale-[0.97]"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
+          {/* Topic chips */}
+          <div className="flex flex-wrap gap-1.5">
+            {["Career timing", "Love match", "Health today", "Money flow", "Auspicious dates"].map((chip) => (
+              <button
+                key={chip}
+                onClick={() => onTabChange("ask")}
+                className="px-2.5 py-1 rounded-full border border-white/[0.06] bg-white/[0.02] text-[10px] text-white/50 hover:border-amber-400/20 hover:text-white/70 transition-all"
+              >
+                {chip}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ SECTION 5: Saved Momentum ═══ */}
+      <div className="px-4 pt-3 pb-2">
+        <div className="flex items-center gap-2 mb-2.5">
+          <Award className="w-3.5 h-3.5 text-emerald-400" />
+          <span className="text-xs font-bold text-white">Your Momentum</span>
+        </div>
+        <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+          {/* Streak */}
+          <div className="flex items-center gap-3 mb-3 pb-3 border-b border-white/[0.04]">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/15 to-orange-500/10 border border-amber-500/15 flex items-center justify-center">
+              <Flame className="w-5 h-5 text-amber-400" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-white">1 day streak</p>
+              <p className="text-[10px] text-white/40">Keep asking daily for deeper insights</p>
+            </div>
+          </div>
+
+          {/* Last questions */}
+          {savedQuestions.length > 0 ? (
+            <div className="space-y-2">
+              <p className="text-[10px] text-white/30 uppercase tracking-wider font-medium">Recent Questions</p>
+              {savedQuestions.map((q, i) => (
+                <button
+                  key={i}
+                  onClick={() => onTabChange("ask")}
+                  className="w-full text-left flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.02] border border-white/[0.04] hover:border-amber-500/15 transition-colors"
+                >
+                  <MessageCircle className="w-3 h-3 text-amber-400/40 flex-shrink-0" />
+                  <span className="text-[11px] text-white/50 truncate">{q}</span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-2">
+              <p className="text-[11px] text-white/30">Ask your first question to start building your cosmic journal</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ═══ SECTION 6: Premium Depth (upsells last) ═══ */}
+      <div className="px-4 pt-3 pb-4">
+        <div className="flex items-center gap-2 mb-2.5">
+          <Crown className="w-3.5 h-3.5 text-amber-400" />
+          <span className="text-xs font-bold text-white">Go Deeper</span>
+          <span className="text-[10px] text-white/30 font-hindi">गहन विश्लेषण</span>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { icon: <CalendarDays className="w-4 h-4" />, title: "Annual Forecast", desc: "Month-by-month predictions for 2026", price: "₹399", action: "pricing" as OverlayType, gradient: "from-violet-500/10 to-purple-500/5", border: "border-violet-500/15" },
+            { icon: <Heart className="w-4 h-4" />, title: "Compatibility", desc: "Deep Ashtakoot + Mangal Dosha", price: "₹249", action: "compatibility" as OverlayType, gradient: "from-pink-500/10 to-rose-500/5", border: "border-pink-500/15" },
+            { icon: <Download className="w-4 h-4" />, title: "Kundli PDF", desc: "Complete birth chart export", price: "₹149", action: "pricing" as OverlayType, gradient: "from-amber-500/10 to-orange-500/5", border: "border-amber-500/15" },
+            { icon: <ExternalLink className="w-4 h-4" />, title: "Live Jyotishi", desc: "1-on-1 session with expert", price: "₹999", action: "astrologer" as OverlayType, gradient: "from-emerald-500/10 to-teal-500/5", border: "border-emerald-500/15" },
+          ].map((item) => (
+            <button
+              key={item.title}
+              onClick={() => onShowOverlay(item.action)}
+              className={`text-left p-3.5 rounded-xl border ${item.border} bg-gradient-to-br ${item.gradient} hover:scale-[1.01] transition-all active:scale-[0.98]`}
+            >
+              <div className="text-amber-400 mb-2">{item.icon}</div>
+              <h4 className="text-[11px] font-bold text-white mb-0.5">{item.title}</h4>
+              <p className="text-[10px] text-white/40 mb-2 line-clamp-1">{item.desc}</p>
+              <span className="text-[11px] font-bold text-amber-400">{item.price}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Cosmic Stories */}
       <CosmicStories onAction={(a) => onShowOverlay(a as OverlayType)} />
 
-      {/* Cosmic Divider */}
       <div className="mx-4 my-1 h-px bg-gradient-to-r from-transparent via-amber-500/15 to-transparent" />
 
-      {/* Top-Up Micro-Modules */}
-      <TopUpModules onAction={(a) => onShowOverlay(a as OverlayType)} />
-
-      {/* Cosmic Divider */}
-      <div className="mx-4 my-1 h-px bg-gradient-to-r from-transparent via-amber-500/15 to-transparent" />
+      {/* Mantra of the day */}
+      <div className="px-4 pt-2 pb-6">
+        <div className="rounded-xl border border-amber-500/10 bg-amber-500/[0.03] p-4 text-center">
+          <span className="text-[10px] text-amber-400/40 uppercase tracking-wider font-bold">🕉️ Today&apos;s Mantra</span>
+          <p className="text-base font-hindi font-bold text-amber-200/80 mt-2 leading-relaxed">{verse.sanskrit}</p>
+          <p className="text-[11px] text-white/40 italic mt-1">{verse.meaning}</p>
+        </div>
+      </div>
     </div>
   )
 }
@@ -908,7 +1056,10 @@ function QuestionCounter({
   )
 }
 
-/* ─── Ask Tab (AI Chat with real SSE streaming) ─── */
+/* ─── Ask Tab (Structured 7-part response format with SSE streaming) ─── */
+const ASK_TOPIC_CHIPS = ["Career timing", "Love compatibility", "Money & wealth", "Health check", "Best dates", "Current Dasha"]
+const ASK_FOLLOWUP_CHIPS = ["Tell me more", "What should I avoid?", "Best timing for this?", "Any remedies?"]
+
 function AskTab({ onUpgrade }: { onUpgrade: () => void }) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
@@ -916,6 +1067,7 @@ function AskTab({ onUpgrade }: { onUpgrade: () => void }) {
   const [questionsLeft, setQuestionsLeft] = useState(3)
   const [totalQuestions, setTotalQuestions] = useState(3)
   const [usageLoaded, setUsageLoaded] = useState(false)
+  const [lastResponseDone, setLastResponseDone] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
@@ -937,11 +1089,20 @@ function AskTab({ onUpgrade }: { onUpgrade: () => void }) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
+  const saveQuestion = useCallback((q: string) => {
+    try {
+      const existing = JSON.parse(localStorage.getItem("grahai-saved-questions") || "[]")
+      const updated = [q, ...existing.filter((x: string) => x !== q)].slice(0, 10)
+      localStorage.setItem("grahai-saved-questions", JSON.stringify(updated))
+    } catch { /* ignore */ }
+  }, [])
+
   const handleSend = useCallback(async (overrideText?: string) => {
     const text = (overrideText || input).trim()
     if (!text || sending || questionsLeft <= 0) return
 
     setInput("")
+    setLastResponseDone(false)
     if (inputRef.current) inputRef.current.style.height = "auto"
 
     const userMsg: ChatMessage = {
@@ -952,6 +1113,7 @@ function AskTab({ onUpgrade }: { onUpgrade: () => void }) {
     }
     setMessages(prev => [...prev, userMsg])
     setSending(true)
+    saveQuestion(text)
 
     try {
       const res = await fetch("/api/chat", {
@@ -967,7 +1129,7 @@ function AskTab({ onUpgrade }: { onUpgrade: () => void }) {
         setMessages(prev => [...prev, {
           id: crypto.randomUUID(),
           role: "assistant",
-          content: "You've reached your daily question limit. Upgrade to Pro for unlimited questions! 🌟",
+          content: "You've reached your daily question limit. Upgrade to Pro for unlimited questions!",
           created_at: new Date().toISOString(),
         }])
         setQuestionsLeft(0)
@@ -984,7 +1146,6 @@ function AskTab({ onUpgrade }: { onUpgrade: () => void }) {
         return
       }
 
-      // Read SSE stream
       const reader = res.body?.getReader()
       if (!reader) return
 
@@ -1004,7 +1165,6 @@ function AskTab({ onUpgrade }: { onUpgrade: () => void }) {
               const parsed = JSON.parse(line.slice(6))
               if (parsed.text) {
                 fullText += parsed.text
-                // Update the assistant message progressively
                 setMessages(prev => {
                   const updated = [...prev]
                   const lastMsg = updated[updated.length - 1]
@@ -1026,7 +1186,6 @@ function AskTab({ onUpgrade }: { onUpgrade: () => void }) {
         }
       }
 
-      // Fallback if no text streamed
       if (!fullText) {
         setMessages(prev => [...prev, {
           id: assistantId,
@@ -1036,8 +1195,8 @@ function AskTab({ onUpgrade }: { onUpgrade: () => void }) {
         }])
       }
 
-      // Decrement local count after successful response
       setQuestionsLeft(prev => Math.max(0, prev - 1))
+      setLastResponseDone(true)
     } catch {
       setMessages(prev => [...prev, {
         id: crypto.randomUUID(),
@@ -1048,7 +1207,7 @@ function AskTab({ onUpgrade }: { onUpgrade: () => void }) {
     } finally {
       setSending(false)
     }
-  }, [input, sending, questionsLeft])
+  }, [input, sending, questionsLeft, saveQuestion])
 
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -1056,6 +1215,18 @@ function AskTab({ onUpgrade }: { onUpgrade: () => void }) {
       handleSend()
     }
   }
+
+  const handleCopyLast = useCallback(() => {
+    const lastAssistant = [...messages].reverse().find(m => m.role === "assistant")
+    if (lastAssistant) navigator.clipboard?.writeText(lastAssistant.content)
+  }, [messages])
+
+  const handleShareLast = useCallback(() => {
+    const lastAssistant = [...messages].reverse().find(m => m.role === "assistant")
+    if (lastAssistant && navigator.share) {
+      navigator.share({ title: "GrahAI Insight", text: lastAssistant.content.slice(0, 200) + "..." }).catch(() => {})
+    }
+  }, [messages])
 
   return (
     <div className="flex flex-col h-full">
@@ -1066,21 +1237,33 @@ function AskTab({ onUpgrade }: { onUpgrade: () => void }) {
       <div className="flex-1 overflow-y-auto px-4">
         {messages.length === 0 ? (
           <div className="py-8">
-            {/* AI Avatar & Name */}
             <div className="text-center mb-6">
               <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-500/20 flex items-center justify-center">
                 <Sparkles className="w-7 h-7 text-amber-400" />
               </div>
-              <h3 className="text-lg font-bold text-white">GrahAI Jyotishi</h3>
-              <p className="text-xs text-white/40 mt-1">Your personal Vedic astrology guide</p>
+              <h3 className="text-lg font-bold text-white">Ask GrahAI</h3>
+              <p className="text-xs text-white/40 mt-1 max-w-xs mx-auto">
+                Calm, specific guidance rooted in your birth chart. Ask anything about career, love, timing, or life.
+              </p>
             </div>
 
-            {/* Suggested Questions */}
+            {/* Topic chips */}
+            <div className="flex flex-wrap gap-2 justify-center mb-6">
+              {ASK_TOPIC_CHIPS.map((chip) => (
+                <button
+                  key={chip}
+                  onClick={() => handleSend(chip === "Career timing" ? "When is the best time for career growth?" : chip === "Love compatibility" ? "Is this person right for me?" : chip === "Money & wealth" ? "When will my finances improve?" : chip === "Health check" ? "What health aspects should I watch?" : chip === "Best dates" ? "What are the most auspicious dates this month?" : "What is my current Dasha period telling me?")}
+                  className="px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-xs text-white/50 hover:border-amber-400/25 hover:text-white/70 transition-all"
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
+
+            {/* Popular questions */}
             <div className="space-y-2">
-              <p className="text-xs text-white/30 uppercase tracking-wider font-medium mb-3">
-                Popular Questions
-              </p>
-              {SUGGESTED_QUESTIONS.map((q, i) => (
+              <p className="text-[10px] text-white/25 uppercase tracking-wider font-medium mb-2">Popular Questions</p>
+              {SUGGESTED_QUESTIONS.slice(0, 4).map((q, i) => (
                 <motion.button
                   key={q}
                   initial={{ opacity: 0, x: -10 }}
@@ -1114,6 +1297,41 @@ function AskTab({ onUpgrade }: { onUpgrade: () => void }) {
                 </div>
               </div>
             )}
+
+            {/* Footer actions after response */}
+            {lastResponseDone && !sending && messages.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="pt-2 space-y-3"
+              >
+                {/* Action buttons */}
+                <div className="flex items-center gap-2">
+                  <button onClick={handleCopyLast} className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-white/[0.06] bg-white/[0.02] text-[10px] text-white/40 hover:text-white/60 transition-colors">
+                    <Copy className="w-3 h-3" /> Save
+                  </button>
+                  <button onClick={handleShareLast} className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-white/[0.06] bg-white/[0.02] text-[10px] text-white/40 hover:text-white/60 transition-colors">
+                    <Share2 className="w-3 h-3" /> Share
+                  </button>
+                  <button onClick={onUpgrade} className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-amber-500/20 bg-amber-500/[0.06] text-[10px] text-amber-400/70 hover:text-amber-400 transition-colors">
+                    <Lock className="w-3 h-3" /> Deeper report
+                  </button>
+                </div>
+
+                {/* Follow-up chips */}
+                <div className="flex flex-wrap gap-1.5">
+                  {ASK_FOLLOWUP_CHIPS.map((chip) => (
+                    <button
+                      key={chip}
+                      onClick={() => handleSend(chip)}
+                      className="px-2.5 py-1 rounded-full border border-white/[0.06] bg-white/[0.02] text-[10px] text-white/50 hover:border-amber-400/20 hover:text-white/70 transition-all"
+                    >
+                      {chip}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
             <div ref={messagesEndRef} />
           </div>
         )}
@@ -1123,7 +1341,7 @@ function AskTab({ onUpgrade }: { onUpgrade: () => void }) {
       <div className="shrink-0 px-4 py-3 border-t border-white/[0.06] bg-[#0a0e1a]/90 backdrop-blur-xl">
         {questionsLeft <= 0 ? (
           <div className="text-center py-2">
-            <p className="text-sm text-white/50 mb-2">You've used all free questions today</p>
+            <p className="text-sm text-white/50 mb-2">You&apos;ve used all free questions today</p>
             <button
               onClick={onUpgrade}
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-[#0a0e1a] font-bold text-sm hover:from-amber-400 hover:to-orange-400 transition-all"

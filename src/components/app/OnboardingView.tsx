@@ -28,7 +28,7 @@ import LocationAutocomplete, { type LocationSelection } from "@/components/Locat
 // TYPES
 // ═══════════════════════════════════════════════════
 
-type Step = 1 | 2 | 3 | 4 | 5
+type Step = 1 | 2 | 3 | 4 | 5 | 6
 
 interface BirthData {
   date: string
@@ -119,6 +119,12 @@ export default function OnboardingView({
   const [showSampleDemo, setShowSampleDemo] = useState(false)
   const [demoTypingIndex, setDemoTypingIndex] = useState(0)
   const [demoComplete, setDemoComplete] = useState(false)
+
+  // Step 5: First Question state
+  const [editableQuestion, setEditableQuestion] = useState("")
+  const [aiResponse, setAiResponse] = useState("")
+  const [questionLoading, setQuestionLoading] = useState(false)
+  const [questionSubmitted, setQuestionSubmitted] = useState(false)
 
   // Auth state
   const [authEmail, setAuthEmail] = useState("")
@@ -245,7 +251,53 @@ export default function OnboardingView({
   const canProceedBirth = birthData.date.trim().length > 0
   const suggestedQuestion = intent ? INTENT_FIRST_QUESTIONS[intent] : "What does my chart reveal about me?"
 
-  const stepProgress = step === 5 ? 100 : ((step - 1) / 4) * 100
+  // Initialize editable question when entering step 5
+  useEffect(() => {
+    if (step === 5 && !editableQuestion) {
+      setEditableQuestion(suggestedQuestion)
+    }
+  }, [step, suggestedQuestion, editableQuestion])
+
+  async function submitQuestion() {
+    if (!editableQuestion.trim()) return
+    setQuestionLoading(true)
+    setAiResponse("")
+    setQuestionSubmitted(true)
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          question: editableQuestion,
+          birthData: birthData,
+          intent: intent,
+        }),
+      })
+
+      if (!response.ok) throw new Error("Failed to get response")
+
+      const reader = response.body?.getReader()
+      const decoder = new TextDecoder()
+
+      if (reader) {
+        let fullText = ""
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          const chunk = decoder.decode(value, { stream: true })
+          fullText += chunk
+          setAiResponse(fullText)
+        }
+      }
+    } catch (error) {
+      setAiResponse("I encountered an issue retrieving your answer. Please try again.")
+    } finally {
+      setQuestionLoading(false)
+    }
+  }
+
+  const stepProgress = step === 6 ? 100 : ((step - 1) / 5) * 100
 
   return (
     <main className="relative min-h-screen bg-[#050810]">
@@ -269,7 +321,7 @@ export default function OnboardingView({
         </button>
         <div className="flex-1">
           <span className="text-xs text-white/40 font-medium">
-            {step <= 4 ? `Step ${step} of 4` : "Create Account"}
+            {step <= 5 ? `Step ${step} of 5` : "Create Account"}
           </span>
         </div>
         {step < 4 && (
@@ -625,7 +677,7 @@ export default function OnboardingView({
                 <p className="text-sm text-white/80 font-medium">{suggestedQuestion}</p>
               </motion.div>
 
-              {/* CTA: Save & Continue */}
+              {/* CTA: Ask First Question or Sign Up */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -636,8 +688,8 @@ export default function OnboardingView({
                   onClick={() => setStep(5)}
                   className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 py-3.5 font-semibold text-[#050810] transition-all hover:bg-amber-300 active:scale-[0.98]"
                 >
-                  Save my chart & sign up
-                  <Lock className="w-4 h-4" />
+                  Ask your first question
+                  <Zap className="w-4 h-4" />
                 </button>
                 <button
                   onClick={onComplete}
@@ -650,9 +702,166 @@ export default function OnboardingView({
           )}
 
           {/* ═══════════════════════════════════════════
-              STEP 5: SOFT ACCOUNT CREATION
+              STEP 5: FIRST QUESTION
               ═══════════════════════════════════════════ */}
           {step === 5 && (
+            <motion.div
+              key="firstQuestion"
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -30 }}
+              transition={{ duration: 0.3 }}
+              className="pt-6"
+            >
+              <div className="mb-6 text-center">
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <MessageSquare className="w-8 h-8 text-amber-400 mx-auto mb-3" />
+                </motion.div>
+                <h2 className="text-2xl font-bold text-white">Your First Question</h2>
+                <p className="mt-1.5 text-sm text-white/50">Ask about {intent} and get your answer</p>
+              </div>
+
+              {!questionSubmitted ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-4"
+                >
+                  {/* Suggested Question Badge */}
+                  <div className="rounded-2xl border border-amber-500/15 bg-amber-500/[0.05] p-3">
+                    <p className="text-[10px] uppercase tracking-wider text-amber-400/60 font-bold mb-2">Suggested</p>
+                    <p className="text-sm text-white/70">{suggestedQuestion}</p>
+                  </div>
+
+                  {/* Editable Question Input */}
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-white/60">
+                      Or ask something else:
+                    </label>
+                    <textarea
+                      value={editableQuestion}
+                      onChange={(e) => setEditableQuestion(e.target.value)}
+                      placeholder="Type your question..."
+                      className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-white placeholder:text-white/25 focus:border-amber-400/50 focus:outline-none focus:ring-2 focus:ring-amber-400/20 resize-none"
+                      rows={3}
+                    />
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    onClick={submitQuestion}
+                    disabled={!editableQuestion.trim() || questionLoading}
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 py-3.5 font-semibold text-[#050810] transition-all hover:bg-amber-300 disabled:opacity-40 active:scale-[0.98]"
+                  >
+                    {questionLoading ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <>
+                        Get Your Answer
+                        <Sparkles className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-4"
+                >
+                  {/* Your Question */}
+                  <div className="ml-4 mb-4 rounded-2xl rounded-tr-md bg-amber-400/10 border border-amber-400/20 px-4 py-3">
+                    <p className="text-sm text-white font-medium">{editableQuestion}</p>
+                  </div>
+
+                  {/* AI Response */}
+                  {questionLoading ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="rounded-2xl rounded-tl-md border border-white/[0.06] bg-white/[0.02] px-4 py-4"
+                    >
+                      <div className="flex items-center gap-2 mb-3">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                        <span className="text-[10px] uppercase tracking-wider text-amber-400/60 font-bold">GrahAI</span>
+                      </div>
+                      <motion.div
+                        animate={{ opacity: [0.5, 1, 0.5] }}
+                        transition={{ repeat: Infinity, duration: 1.5 }}
+                        className="flex gap-1"
+                      >
+                        <div className="w-2 h-2 bg-amber-400/50 rounded-full" />
+                        <div className="w-2 h-2 bg-amber-400/50 rounded-full" />
+                        <div className="w-2 h-2 bg-amber-400/50 rounded-full" />
+                      </motion.div>
+                    </motion.div>
+                  ) : aiResponse ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="rounded-2xl rounded-tl-md border border-white/[0.06] bg-white/[0.02] px-4 py-4 space-y-3 max-h-96 overflow-y-auto"
+                    >
+                      <div className="flex items-center gap-2 mb-3">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                        <span className="text-[10px] uppercase tracking-wider text-amber-400/60 font-bold">GrahAI</span>
+                      </div>
+                      {aiResponse.split("\n").map((line, idx) => {
+                        if (!line.trim()) return <div key={idx} className="h-2" />
+                        if (line.startsWith("**") && line.endsWith("**")) {
+                          return (
+                            <p key={idx} className="text-sm font-semibold text-amber-300/90">
+                              {line.replace(/\*\*/g, "")}
+                            </p>
+                          )
+                        }
+                        return (
+                          <p key={idx} className="text-sm text-white/70 leading-relaxed">
+                            {line}
+                          </p>
+                        )
+                      })}
+                    </motion.div>
+                  ) : null}
+
+                  {/* Footer Actions - After Response Finishes */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="mt-6 space-y-3"
+                  >
+                    <button
+                      onClick={() => {
+                        setQuestionSubmitted(false)
+                        setAiResponse("")
+                        setEditableQuestion("")
+                      }}
+                      className="w-full flex items-center justify-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.05] px-6 py-3.5 font-semibold text-white transition-all hover:border-amber-400/30 hover:bg-white/[0.1]"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      Ask a follow-up question
+                    </button>
+                    <button
+                      onClick={() => setStep(6)}
+                      className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 py-3.5 font-semibold text-[#050810] transition-all hover:bg-amber-300 active:scale-[0.98]"
+                    >
+                      Save chart & sign up
+                      <Lock className="w-4 h-4" />
+                    </button>
+                  </motion.div>
+                </motion.div>
+              )}
+            </motion.div>
+          )}
+
+          {/* ═══════════════════════════════════════════
+              STEP 6: SOFT ACCOUNT CREATION
+              ═══════════════════════════════════════════ */}
+          {step === 6 && (
             <motion.div
               key="auth"
               initial={{ opacity: 0, x: 30 }}
@@ -664,10 +873,10 @@ export default function OnboardingView({
               <div className="mb-8 text-center">
                 <Lock className="mx-auto mb-4 h-10 w-10 text-amber-400" />
                 <h2 className="text-2xl font-bold text-white">
-                  Save your cosmic profile
+                  Create your account
                 </h2>
                 <p className="mt-2 text-sm text-white/50">
-                  Keep your chart, get daily guidance, and unlimited questions
+                  Save your chart, keep your readings, get unlimited questions
                 </p>
               </div>
 
