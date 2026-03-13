@@ -739,74 +739,6 @@ function TopUpModules({ onAction }: { onAction: (action: string) => void }) {
   )
 }
 
-/* ─── Consultation CTA ─── */
-function ConsultationCTA({ onUpgrade }: { onUpgrade: () => void }) {
-  return (
-    <div className="px-4 pt-2 pb-6">
-      <div className="relative rounded-2xl overflow-hidden border border-amber-500/15">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent" />
-
-        <div className="relative p-5">
-          {/* Badge */}
-          <div className="flex items-center gap-2 mb-3">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/20 text-amber-400 text-[10px] font-bold">
-              <Star className="w-3 h-3" /> Expert Guidance
-            </span>
-          </div>
-
-          {/* Heading */}
-          <h3 className="text-lg font-bold text-white leading-tight mb-1">
-            Book a Live Jyotishi Reading
-          </h3>
-          <p className="text-[11px] text-white/30 font-hindi mb-3">व्यक्तिगत ज्योतिष परामर्श</p>
-
-          {/* Value props */}
-          <div className="space-y-2 mb-4">
-            {[
-              "30-min 1:1 video call with certified Vedic astrologer",
-              "Personalized Dasha analysis with remedies",
-              "Unlimited follow-up questions during session",
-            ].map((item, i) => (
-              <div key={i} className="flex items-start gap-2">
-                <Check className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
-                <p className="text-xs text-white/60 leading-relaxed">{item}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Social proof */}
-          <div className="flex items-center gap-3 mb-4 px-3 py-2 rounded-lg bg-black/20">
-            <div className="flex -space-x-2">
-              {["🧑‍💼", "👩‍🦰", "👨‍🎓", "👩‍💻"].map((emoji, i) => (
-                <div key={i} className="w-6 h-6 rounded-full bg-white/10 border-2 border-[#0a0e1a] flex items-center justify-center text-[10px]">
-                  {emoji}
-                </div>
-              ))}
-            </div>
-            <div>
-              <p className="text-[10px] text-white/50">
-                <span className="text-amber-400 font-bold">2,400+</span> consultations completed
-              </p>
-              <p className="text-[9px] text-white/25">4.9 ★ average rating</p>
-            </div>
-          </div>
-
-          {/* CTA Button */}
-          <button
-            onClick={onUpgrade}
-            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-[#0a0e1a] font-bold text-sm hover:from-amber-400 hover:to-orange-400 transition-all active:scale-[0.98]"
-          >
-            <Sparkles className="w-4 h-4" />
-            Book Now — ₹999
-          </button>
-          <p className="text-center text-[10px] text-white/25 mt-2">100% satisfaction guarantee · Reschedule anytime</p>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 /* ─── Discover Tab (EliteEdge-inspired smooth-ride engagement) ─── */
 /* ─── Today Tab — Daily cosmic destination ─── */
 function HomeTab({ onShowOverlay, onTabChange }: { onShowOverlay: (o: OverlayType) => void; onTabChange: (t: TabType) => void }) {
@@ -887,9 +819,6 @@ function HomeTab({ onShowOverlay, onTabChange }: { onShowOverlay: (o: OverlayTyp
 
       {/* Cosmic Divider */}
       <div className="mx-4 my-1 h-px bg-gradient-to-r from-transparent via-amber-500/15 to-transparent" />
-
-      {/* Consultation CTA */}
-      <ConsultationCTA onUpgrade={() => onShowOverlay("pricing")} />
     </div>
   )
 }
