@@ -43,7 +43,7 @@ export async function GET() {
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select(
-        "id, name, email, birth_data, preferences, entitlements, question_count_today"
+        "id, name, email, birth_data, preferences, plan, question_count_today, streak_days, last_active_at"
       )
       .eq("id", user.id)
       .single()
@@ -68,7 +68,7 @@ export async function GET() {
           { onConflict: "id" }
         )
         .select(
-          "id, name, email, birth_data, preferences, entitlements, question_count_today"
+          "id, name, email, birth_data, preferences, plan, question_count_today, streak_days, last_active_at"
         )
         .single()
 
