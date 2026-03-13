@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback, type FormEvent, type KeyboardEvent } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import Link from "next/link"
 import { createBrowserClient } from "@supabase/ssr"
 import {
   Heart, MessageCircle, FileText, Menu, X, Plus,
@@ -13,15 +12,36 @@ import {
   HeartHandshake, Stethoscope, Gem, Clock,
   ChevronDown, ChevronUp, Copy, Check, ArrowRight,
   Compass, ChevronLeft, Zap, Download,
-  Bell, Eye, Flame, Award, ExternalLink, CalendarDays, Sunrise, Info, AlertTriangle
+  Bell, Eye, Flame, Award, ExternalLink, CalendarDays, Sunrise, Info, AlertTriangle, Mail
 } from "lucide-react"
 import ChatResponseParser from "@/components/chat/ChatResponseParser"
+import KundliView from "@/components/app/KundliView"
+import DailyView from "@/components/app/DailyView"
+import PricingModal from "@/components/app/PricingModal"
+import CompatibilityView from "@/components/app/CompatibilityView"
+import OnboardingView from "@/components/app/OnboardingView"
+import DashboardView from "@/components/app/DashboardView"
+import HoroscopeView from "@/components/app/HoroscopeView"
+import ReportsDetailView from "@/components/app/ReportsDetailView"
+import SettingsView from "@/components/app/SettingsView"
+import BlogView from "@/components/app/BlogView"
+import ChatView from "@/components/app/ChatView"
+import AstrologerView from "@/components/app/AstrologerView"
+import CheckoutView from "@/components/app/CheckoutView"
+import AuthLoginView from "@/components/app/AuthLoginView"
+import AboutView from "@/components/app/AboutView"
+import ContactView from "@/components/app/ContactView"
+import ProductView from "@/components/app/ProductView"
+import PrivacyView from "@/components/app/PrivacyView"
+import TermsView from "@/components/app/TermsView"
+import BlogPostView from "@/components/app/BlogPostView"
 
 // ═══════════════════════════════════════════════════
 // TYPES
 // ═══════════════════════════════════════════════════
 
 type TabType = "home" | "ask" | "mychart" | "reports"
+type OverlayType = "kundli" | "daily" | "pricing" | "compatibility" | "onboarding" | "dashboard" | "horoscope" | "reports-detail" | "settings" | "blog" | "chat" | "astrologer" | "checkout" | "auth-login" | "about" | "contact" | "product" | "privacy" | "terms" | "blog-post" | null
 
 interface ChatMessage {
   id: string
@@ -203,7 +223,7 @@ interface CosmicStory {
   body: string
   source: string
   sourceRef: string
-  cta: { label: string; href: string }
+  cta: { label: string; action: string }
   gradient: string
 }
 
@@ -218,7 +238,7 @@ const COSMIC_STORIES: CosmicStory[] = [
     body: "Every 29.5 years, Saturn returns to its natal position in your chart. This isn't punishment — it's a cosmic audit. Those who built solid foundations thrive; those who took shortcuts face restructuring. Saturn rewards discipline, always.",
     source: "Brihat Parashara Hora Shastra",
     sourceRef: "Ch. 34, Verse 8-12",
-    cta: { label: "Check Your Saturn Return", href: "/kundli" },
+    cta: { label: "Check Your Saturn Return", action: "kundli" },
     gradient: "from-blue-600/30 via-indigo-600/20 to-purple-600/10",
   },
   {
@@ -231,7 +251,7 @@ const COSMIC_STORIES: CosmicStory[] = [
     body: "Rahu shows where you're obsessively drawn — material desires, worldly ambitions. Ketu reveals where you must let go — past life attachments. Together, they define your soul's evolutionary path in this lifetime.",
     source: "Brihat Jataka by Varahamihira",
     sourceRef: "Ch. 25, Verse 1-4",
-    cta: { label: "Discover Your Rahu-Ketu Axis", href: "/kundli" },
+    cta: { label: "Discover Your Rahu-Ketu Axis", action: "kundli" },
     gradient: "from-violet-600/30 via-purple-600/20 to-fuchsia-600/10",
   },
   {
@@ -244,7 +264,7 @@ const COSMIC_STORIES: CosmicStory[] = [
     body: "When Jupiter aspects Venus or they conjoin in angular houses, a powerful wealth combination activates. This yoga brings not just money, but abundance in relationships, creativity, and life pleasures. Check if you have it.",
     source: "Phaladeepika by Mantreshwara",
     sourceRef: "Ch. 6, Verse 21-24",
-    cta: { label: "Check Your Dhana Yogas", href: "/reports?type=wealth" },
+    cta: { label: "Check Your Dhana Yogas", action: "reports" },
     gradient: "from-amber-600/30 via-orange-600/20 to-yellow-600/10",
   },
   {
@@ -257,7 +277,7 @@ const COSMIC_STORIES: CosmicStory[] = [
     body: "40% of people have Mangal Dosha — it's common, not a death sentence for love. Mars in 1st, 4th, 7th, 8th, or 12th house creates it. But dozens of cancellation rules exist. A proper analysis reveals the truth.",
     source: "Brihat Parashara Hora Shastra",
     sourceRef: "Ch. 81, Verse 47-52",
-    cta: { label: "Check Mangal Dosha Free", href: "/compatibility" },
+    cta: { label: "Check Mangal Dosha Free", action: "compatibility" },
     gradient: "from-rose-600/30 via-pink-600/20 to-red-600/10",
   },
   {
@@ -270,7 +290,7 @@ const COSMIC_STORIES: CosmicStory[] = [
     body: "The same planet gives opposite results in different Dashas. A well-placed Jupiter brings fortune during its Mahadasha. But even an exalted planet underperforms in a hostile sub-period. Timing is everything in Jyotish.",
     source: "Vimshottari Dasha System — BPHS",
     sourceRef: "Ch. 46, Verse 1-8",
-    cta: { label: "Know Your Current Dasha", href: "/kundli" },
+    cta: { label: "Know Your Current Dasha", action: "kundli" },
     gradient: "from-emerald-600/30 via-green-600/20 to-teal-600/10",
   },
 ]
@@ -284,7 +304,7 @@ interface TopUpModule {
   priceLabel: string
   description: string
   tag?: string
-  href: string
+  action: string
   gradient: string
 }
 
@@ -298,7 +318,7 @@ const TOP_UP_MODULES: TopUpModule[] = [
     priceLabel: "one-time",
     description: "Download your complete birth chart as a beautifully formatted PDF with all 12 houses, Dashas, and Yogas",
     tag: "Popular",
-    href: "/pricing",
+    action: "pricing",
     gradient: "from-amber-500/20 to-orange-500/10",
   },
   {
@@ -309,7 +329,7 @@ const TOP_UP_MODULES: TopUpModule[] = [
     price: "₹199",
     priceLabel: "/month",
     description: "Get notified when major planets change signs or aspect your key houses — never miss an opportunity window",
-    href: "/pricing",
+    action: "pricing",
     gradient: "from-blue-500/20 to-indigo-500/10",
   },
   {
@@ -320,7 +340,7 @@ const TOP_UP_MODULES: TopUpModule[] = [
     price: "₹249",
     priceLabel: "one-time",
     description: "Beyond Ashtakoot — includes Bhakoot, Nadi analysis, Mangal Dosha cross-check with remedies",
-    href: "/compatibility",
+    action: "compatibility",
     gradient: "from-pink-500/20 to-rose-500/10",
   },
   {
@@ -332,7 +352,7 @@ const TOP_UP_MODULES: TopUpModule[] = [
     priceLabel: "one-time",
     description: "Month-by-month predictions for career, health, love, and finance based on your exact Dasha + transits",
     tag: "Best Value",
-    href: "/pricing",
+    action: "pricing",
     gradient: "from-violet-500/20 to-purple-500/10",
   },
 ]
@@ -358,9 +378,11 @@ function getTodaysVerse() {
 function AppTopHeader({
   userName,
   onMenuOpen,
+  onAddMember,
 }: {
   userName: string
   onMenuOpen: () => void
+  onAddMember: () => void
 }) {
   return (
     <header className="sticky top-0 z-40 bg-[#0a0e1a]/95 backdrop-blur-xl border-b border-white/[0.06]">
@@ -385,13 +407,13 @@ function AppTopHeader({
 
         {/* Right: Add Member + Avatar */}
         <div className="flex items-center gap-2">
-          <Link
-            href="/onboarding"
+          <button
+            onClick={onAddMember}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 text-xs font-medium hover:bg-amber-500/20 transition-colors"
           >
             <Plus className="w-3 h-3" />
             Add Member
-          </Link>
+          </button>
           <button
             onClick={onMenuOpen}
             className="w-9 h-9 rounded-full border-2 border-pink-500/50 bg-gradient-to-br from-pink-500/20 to-purple-500/20 flex items-center justify-center"
@@ -490,7 +512,7 @@ function BottomTabs({
 }
 
 /* ─── Cosmic Stories (Swipeable Insight Cards) ─── */
-function CosmicStories() {
+function CosmicStories({ onAction }: { onAction: (action: string) => void }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [readStories, setReadStories] = useState<Set<string>>(new Set())
   const containerRef = useRef<HTMLDivElement>(null)
@@ -613,13 +635,13 @@ function CosmicStories() {
               </div>
 
               {/* CTA */}
-              <Link
-                href={story.cta.href}
+              <button
+                onClick={() => onAction(story.cta.action)}
                 className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-white/[0.08] border border-white/[0.1] text-sm font-medium text-white/80 hover:bg-white/[0.12] hover:text-white transition-all active:scale-[0.98]"
               >
                 {story.cta.label}
                 <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
+              </button>
             </div>
 
             {/* Left/Right tap zones for desktop */}
@@ -663,7 +685,7 @@ function CosmicStories() {
 }
 
 /* ─── Top-Up Micro Modules ─── */
-function TopUpModules() {
+function TopUpModules({ onAction }: { onAction: (action: string) => void }) {
   return (
     <div className="px-4 pt-2 pb-3">
       <div className="flex items-center gap-2 mb-3">
@@ -680,9 +702,9 @@ function TopUpModules() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.06 }}
           >
-            <Link
-              href={mod.href}
-              className={`block relative rounded-xl border border-white/[0.08] bg-gradient-to-br ${mod.gradient} p-4 hover:border-amber-500/20 transition-all active:scale-[0.97] h-full`}
+            <button
+              onClick={() => onAction(mod.action)}
+              className={`block w-full text-left relative rounded-xl border border-white/[0.08] bg-gradient-to-br ${mod.gradient} p-4 hover:border-amber-500/20 transition-all active:scale-[0.97] h-full`}
             >
               {/* Tag badge */}
               {mod.tag && (
@@ -708,7 +730,7 @@ function TopUpModules() {
                 <span className="text-sm font-bold text-amber-400">{mod.price}</span>
                 <span className="text-[9px] text-white/30">{mod.priceLabel}</span>
               </div>
-            </Link>
+            </button>
           </motion.div>
         ))}
       </div>
@@ -717,7 +739,7 @@ function TopUpModules() {
 }
 
 /* ─── Consultation CTA ─── */
-function ConsultationCTA() {
+function ConsultationCTA({ onUpgrade }: { onUpgrade: () => void }) {
   return (
     <div className="px-4 pt-2 pb-6">
       <div className="relative rounded-2xl overflow-hidden border border-amber-500/15">
@@ -770,13 +792,13 @@ function ConsultationCTA() {
           </div>
 
           {/* CTA Button */}
-          <Link
-            href="/pricing"
+          <button
+            onClick={onUpgrade}
             className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-[#0a0e1a] font-bold text-sm hover:from-amber-400 hover:to-orange-400 transition-all active:scale-[0.98]"
           >
             <Sparkles className="w-4 h-4" />
             Book Now — ₹999
-          </Link>
+          </button>
           <p className="text-center text-[10px] text-white/25 mt-2">100% satisfaction guarantee · Reschedule anytime</p>
         </div>
       </div>
@@ -786,7 +808,7 @@ function ConsultationCTA() {
 
 /* ─── Discover Tab (EliteEdge-inspired smooth-ride engagement) ─── */
 /* ─── Today Tab — Daily cosmic destination ─── */
-function HomeTab() {
+function HomeTab({ onShowOverlay, onTabChange }: { onShowOverlay: (o: OverlayType) => void; onTabChange: (t: TabType) => void }) {
   const verse = getTodaysVerse()
   const today = new Date()
   const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
@@ -804,12 +826,12 @@ function HomeTab() {
             <h2 className="text-xl font-bold text-white mt-0.5">Your Cosmic Day</h2>
             <p className="text-[11px] text-white/30 font-hindi">आज का राशिफल</p>
           </div>
-          <Link
-            href="/daily"
+          <button
+            onClick={() => onShowOverlay("daily")}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 text-amber-400 text-[10px] font-semibold hover:bg-amber-500/20 transition-colors"
           >
             Full Insights <ArrowRight className="w-3 h-3" />
-          </Link>
+          </button>
         </div>
 
         {/* Today's Mantra Card */}
@@ -837,68 +859,36 @@ function HomeTab() {
         {/* Quick Action Tiles */}
         <div className="grid grid-cols-3 gap-2 mb-4">
           {[
-            { icon: <Sun className="w-4 h-4 text-amber-400" />, label: "Horoscope", href: "/horoscope" },
-            { icon: <Moon className="w-4 h-4 text-blue-300" />, label: "Kundli", href: "/kundli" },
-            { icon: <MessageCircle className="w-4 h-4 text-emerald-400" />, label: "Ask AI", action: "questions" },
+            { icon: <Sun className="w-4 h-4 text-amber-400" />, label: "Horoscope", overlay: "horoscope" as OverlayType },
+            { icon: <Moon className="w-4 h-4 text-blue-300" />, label: "Kundli", overlay: "kundli" as OverlayType },
+            { icon: <MessageCircle className="w-4 h-4 text-emerald-400" />, label: "Ask AI", tab: "ask" as TabType },
           ].map((item) => (
-            <div key={item.label}>
-              {item.href ? (
-                <Link
-                  href={item.href}
-                  className="flex flex-col items-center gap-1.5 py-3 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:border-amber-500/20 hover:bg-amber-500/[0.03] transition-all active:scale-[0.97]"
-                >
-                  {item.icon}
-                  <span className="text-[10px] font-medium text-white/60">{item.label}</span>
-                </Link>
-              ) : (
-                <button
-                  onClick={() => {/* Tab switch handled by parent */}}
-                  className="w-full flex flex-col items-center gap-1.5 py-3 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:border-amber-500/20 hover:bg-amber-500/[0.03] transition-all active:scale-[0.97]"
-                >
-                  {item.icon}
-                  <span className="text-[10px] font-medium text-white/60">{item.label}</span>
-                </button>
-              )}
-            </div>
+            <button
+              key={item.label}
+              onClick={() => item.overlay ? onShowOverlay(item.overlay) : item.tab ? onTabChange(item.tab) : null}
+              className="w-full flex flex-col items-center gap-1.5 py-3 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:border-amber-500/20 hover:bg-amber-500/[0.03] transition-all active:scale-[0.97]"
+            >
+              {item.icon}
+              <span className="text-[10px] font-medium text-white/60">{item.label}</span>
+            </button>
           ))}
         </div>
       </div>
 
       {/* Cosmic Stories — swipeable daily insight cards */}
-      <CosmicStories />
+      <CosmicStories onAction={(a) => onShowOverlay(a as OverlayType)} />
 
       {/* Cosmic Divider */}
       <div className="mx-4 my-1 h-px bg-gradient-to-r from-transparent via-amber-500/15 to-transparent" />
 
       {/* Top-Up Micro-Modules */}
-      <TopUpModules />
+      <TopUpModules onAction={(a) => onShowOverlay(a as OverlayType)} />
 
       {/* Cosmic Divider */}
       <div className="mx-4 my-1 h-px bg-gradient-to-r from-transparent via-amber-500/15 to-transparent" />
 
       {/* Consultation CTA */}
-      <ConsultationCTA />
-    </div>
-  )
-}
-
-function DiscoverTab() {
-  return (
-    <div className="overflow-y-auto h-full">
-      {/* Cosmic Stories — swipeable daily insight cards */}
-      <CosmicStories />
-
-      {/* Cosmic Divider */}
-      <div className="mx-4 my-1 h-px bg-gradient-to-r from-transparent via-amber-500/15 to-transparent" />
-
-      {/* Top-Up Micro-Modules */}
-      <TopUpModules />
-
-      {/* Cosmic Divider */}
-      <div className="mx-4 my-1 h-px bg-gradient-to-r from-transparent via-amber-500/15 to-transparent" />
-
-      {/* Consultation CTA */}
-      <ConsultationCTA />
+      <ConsultationCTA onUpgrade={() => onShowOverlay("pricing")} />
     </div>
   )
 }
@@ -907,9 +897,11 @@ function DiscoverTab() {
 function QuestionCounter({
   questionsLeft,
   totalQuestions,
+  onUpgrade,
 }: {
   questionsLeft: number
   totalQuestions: number
+  onUpgrade: () => void
 }) {
   return (
     <div className="mx-4 mt-3 mb-2">
@@ -921,20 +913,20 @@ function QuestionCounter({
             <span className="text-white/50"> / {totalQuestions} Questions left</span>
           </span>
         </div>
-        <Link
-          href="/pricing"
+        <button
+          onClick={onUpgrade}
           className="flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500 text-[#0a0e1a] text-xs font-bold hover:bg-amber-400 transition-colors"
         >
           <Crown className="w-3 h-3" />
           Buy More
-        </Link>
+        </button>
       </div>
     </div>
   )
 }
 
 /* ─── Ask Tab (AI Chat with real SSE streaming) ─── */
-function AskTab() {
+function AskTab({ onUpgrade }: { onUpgrade: () => void }) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
   const [sending, setSending] = useState(false)
@@ -1085,7 +1077,7 @@ function AskTab() {
   return (
     <div className="flex flex-col h-full">
       {/* Question counter */}
-      <QuestionCounter questionsLeft={questionsLeft} totalQuestions={totalQuestions} />
+      <QuestionCounter questionsLeft={questionsLeft} totalQuestions={totalQuestions} onUpgrade={onUpgrade} />
 
       {/* Messages or Welcome */}
       <div className="flex-1 overflow-y-auto px-4">
@@ -1149,13 +1141,13 @@ function AskTab() {
         {questionsLeft <= 0 ? (
           <div className="text-center py-2">
             <p className="text-sm text-white/50 mb-2">You've used all free questions today</p>
-            <Link
-              href="/pricing"
+            <button
+              onClick={onUpgrade}
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-[#0a0e1a] font-bold text-sm hover:from-amber-400 hover:to-orange-400 transition-all"
             >
               <Crown className="w-4 h-4" />
               Unlock Unlimited Questions
-            </Link>
+            </button>
           </div>
         ) : (
           <form
@@ -1248,18 +1240,18 @@ function ChatBubble({ message }: { message: ChatMessage }) {
 }
 
 /* ─── Reports Tab ─── */
-function ReportsTab() {
+function ReportsTab({ onUpgrade }: { onUpgrade: () => void }) {
   return (
     <div className="overflow-y-auto px-4 pt-4 pb-4">
       {/* Buy Reports sticky CTA */}
       <div className="mb-4">
-        <Link
-          href="/pricing"
+        <button
+          onClick={onUpgrade}
           className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-[#0a0e1a] font-bold text-sm hover:from-amber-400 hover:to-orange-400 transition-all active:scale-[0.98]"
         >
           <Crown className="w-4 h-4" />
           Buy Reports — Get Complete Guidance
-        </Link>
+        </button>
       </div>
 
       {/* Report Categories */}
@@ -1280,7 +1272,7 @@ function ReportsTab() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: catIdx * 0.05 + idx * 0.03 }}
               >
-                <ReportCardComponent report={report} />
+                <ReportCardComponent report={report} onUpgrade={onUpgrade} />
               </motion.div>
             ))}
           </div>
@@ -1291,11 +1283,11 @@ function ReportsTab() {
 }
 
 /* ─── Single Report Card ─── */
-function ReportCardComponent({ report }: { report: ReportCard }) {
+function ReportCardComponent({ report, onUpgrade }: { report: ReportCard; onUpgrade: () => void }) {
   return (
-    <Link
-      href={report.isFree ? `/reports?type=${report.id}` : "/pricing"}
-      className="block rounded-xl border border-white/[0.08] bg-white/[0.02] overflow-hidden hover:border-amber-500/20 transition-all active:scale-[0.97]"
+    <button
+      onClick={onUpgrade}
+      className="block w-full text-left rounded-xl border border-white/[0.08] bg-white/[0.02] overflow-hidden hover:border-amber-500/20 transition-all active:scale-[0.97]"
     >
       {/* Top badge bar */}
       <div className="flex items-center justify-between px-3 pt-3">
@@ -1329,12 +1321,12 @@ function ReportCardComponent({ report }: { report: ReportCard }) {
         <p className="text-[10px] text-white/30 font-hindi mb-1">{report.titleHi}</p>
         <p className="text-[10px] text-white/40 leading-relaxed line-clamp-2">{report.description}</p>
       </div>
-    </Link>
+    </button>
   )
 }
 
 /* ─── Compatibility Tab ─── */
-function CompatibilityTab() {
+function CompatibilityTab({ onShowOverlay }: { onShowOverlay: (o: OverlayType) => void }) {
   const [partner1, setPartner1] = useState("")
   const [partner2, setPartner2] = useState("")
 
@@ -1380,13 +1372,13 @@ function CompatibilityTab() {
         </div>
       </div>
 
-      <Link
-        href={`/compatibility?p1=${encodeURIComponent(partner1)}&p2=${encodeURIComponent(partner2)}`}
+      <button
+        onClick={() => onShowOverlay("compatibility")}
         className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold text-sm hover:from-pink-400 hover:to-rose-400 transition-all active:scale-[0.98]"
       >
         <Heart className="w-4 h-4" />
         Check Compatibility
-      </Link>
+      </button>
 
       {/* Info cards */}
       <div className="mt-8 space-y-3">
@@ -1494,7 +1486,7 @@ const DOSHA_SEVERITY_COLORS: Record<string, string> = {
   severe: "bg-red-500/15 text-red-400 border-red-500/30",
 }
 
-function MyChartTab() {
+function MyChartTab({ onShowKundli }: { onShowKundli: () => void }) {
   const [chartData, setChartData] = useState<ChartData | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -1531,13 +1523,13 @@ function MyChartTab() {
         <p className="text-sm text-white/40 mb-6 max-w-xs">
           Generate your Kundli to see your Moon sign, Nakshatra, planetary placements, and life themes.
         </p>
-        <Link
-          href="/kundli"
+        <button
+          onClick={onShowKundli}
           className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-sm font-bold text-[#0a0e1a] hover:from-amber-400 hover:to-orange-400 transition-all"
         >
           <Sparkles className="w-4 h-4" />
           Generate My Kundli
-        </Link>
+        </button>
       </div>
     )
   }
@@ -1819,10 +1811,14 @@ function ProfileDrawer({
   isOpen,
   onClose,
   userName,
+  onShowOverlay,
+  onAddMember,
 }: {
   isOpen: boolean
   onClose: () => void
   userName: string
+  onShowOverlay: (o: OverlayType) => void
+  onAddMember: () => void
 }) {
   const verse = getTodaysVerse()
 
@@ -1864,13 +1860,13 @@ function ProfileDrawer({
                 <div>
                   <h2 className="text-lg font-bold text-white">{userName}</h2>
                   <p className="text-xs text-white/40">Free Plan · 3 Questions/day</p>
-                  <Link
-                    href="/pricing"
+                  <button
+                    onClick={() => { onClose(); onShowOverlay("pricing") }}
                     className="inline-flex items-center gap-1 text-xs text-amber-400 font-medium mt-1 hover:text-amber-300"
                   >
                     <Crown className="w-3 h-3" />
                     Upgrade to Pro
-                  </Link>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1893,13 +1889,13 @@ function ProfileDrawer({
                   </div>
                 ))}
               </div>
-              <Link
-                href="/onboarding"
-                className="flex items-center justify-center gap-1.5 mt-3 py-2 rounded-lg border border-amber-500/20 bg-amber-500/10 text-amber-400 text-xs font-medium hover:bg-amber-500/20 transition-colors"
+              <button
+                onClick={() => { onClose(); onAddMember() }}
+                className="flex items-center justify-center gap-1.5 w-full mt-3 py-2 rounded-lg border border-amber-500/20 bg-amber-500/10 text-amber-400 text-xs font-medium hover:bg-amber-500/20 transition-colors"
               >
                 <Plus className="w-3 h-3" />
                 Add Birth Details
-              </Link>
+              </button>
             </div>
 
             {/* Astrological Summary */}
@@ -1952,21 +1948,30 @@ function ProfileDrawer({
             {/* Menu Links */}
             <div className="px-6 py-4 border-b border-white/[0.06]">
               {[
-                { icon: <Gift className="w-4 h-4 text-green-400" />, label: "Refer & Earn", href: "/referral" },
-                { icon: <BookOpen className="w-4 h-4 text-blue-400" />, label: "Latest Blogs", href: "/blog" },
-                { icon: <Share2 className="w-4 h-4 text-purple-400" />, label: "Share App", href: "#share" },
-                { icon: <Settings className="w-4 h-4 text-white/40" />, label: "Settings", href: "/settings" },
+                { icon: <Gift className="w-4 h-4 text-green-400" />, label: "Refer & Earn", action: null as OverlayType },
+                { icon: <BookOpen className="w-4 h-4 text-blue-400" />, label: "Latest Blogs", action: "blog" as OverlayType },
+                { icon: <Info className="w-4 h-4 text-cyan-400" />, label: "About GrahAI", action: "about" as OverlayType },
+                { icon: <Compass className="w-4 h-4 text-emerald-400" />, label: "Our Product", action: "product" as OverlayType },
+                { icon: <Mail className="w-4 h-4 text-orange-400" />, label: "Contact Us", action: "contact" as OverlayType },
+                { icon: <Share2 className="w-4 h-4 text-purple-400" />, label: "Share App", action: null as OverlayType },
+                { icon: <Settings className="w-4 h-4 text-white/40" />, label: "Settings", action: "settings" as OverlayType },
               ].map((item) => (
-                <Link
+                <button
                   key={item.label}
-                  href={item.href}
-                  className="flex items-center gap-3 py-3 text-sm text-white/70 hover:text-white transition-colors"
-                  onClick={onClose}
+                  onClick={() => {
+                    onClose()
+                    if (item.action) {
+                      onShowOverlay(item.action)
+                    } else if (item.label === "Share App" && navigator.share) {
+                      navigator.share({ title: "GrahAI", url: window.location.href }).catch(() => {})
+                    }
+                  }}
+                  className="flex items-center gap-3 py-3 w-full text-left text-sm text-white/70 hover:text-white transition-colors"
                 >
                   {item.icon}
                   {item.label}
                   <ChevronRight className="w-4 h-4 text-white/20 ml-auto" />
-                </Link>
+                </button>
               ))}
             </div>
 
@@ -2022,6 +2027,15 @@ export default function GrahAIApp() {
   const [activeTab, setActiveTab] = useState<TabType>("home")
   const [menuOpen, setMenuOpen] = useState(false)
   const [userName, setUserName] = useState("Seeker")
+  const [overlayView, setOverlayView] = useState<OverlayType>(null)
+  const [blogPostSlug, setBlogPostSlug] = useState<string>("")
+  const [checkoutPlanId, setCheckoutPlanId] = useState<"plus" | "premium">("plus")
+
+  const showOverlay = useCallback((overlay: OverlayType) => setOverlayView(overlay), [])
+  const closeOverlay = useCallback(() => setOverlayView(null), [])
+  const showBlogPost = useCallback((slug: string) => { setBlogPostSlug(slug); setOverlayView("blog-post") }, [])
+  const showCheckout = useCallback((plan: "plus" | "premium") => { setCheckoutPlanId(plan); setOverlayView("checkout") }, [])
+  const handleAddMember = useCallback(() => setOverlayView("onboarding"), [])
 
   useEffect(() => {
     try {
@@ -2038,6 +2052,7 @@ export default function GrahAIApp() {
       <AppTopHeader
         userName={userName}
         onMenuOpen={() => setMenuOpen(true)}
+        onAddMember={handleAddMember}
       />
 
       {/* Tab content — pb-20 prevents bottom nav overlap */}
@@ -2052,7 +2067,7 @@ export default function GrahAIApp() {
               transition={{ duration: 0.2 }}
               className="h-full overflow-y-auto"
             >
-              <HomeTab />
+              <HomeTab onShowOverlay={showOverlay} onTabChange={setActiveTab} />
             </motion.div>
           )}
           {activeTab === "ask" && (
@@ -2064,7 +2079,7 @@ export default function GrahAIApp() {
               transition={{ duration: 0.2 }}
               className="h-full flex flex-col"
             >
-              <AskTab />
+              <AskTab onUpgrade={() => showOverlay("pricing")} />
             </motion.div>
           )}
           {activeTab === "mychart" && (
@@ -2076,7 +2091,7 @@ export default function GrahAIApp() {
               transition={{ duration: 0.2 }}
               className="h-full overflow-y-auto"
             >
-              <MyChartTab />
+              <MyChartTab onShowKundli={() => showOverlay("kundli")} />
             </motion.div>
           )}
           {activeTab === "reports" && (
@@ -2088,7 +2103,7 @@ export default function GrahAIApp() {
               transition={{ duration: 0.2 }}
               className="h-full overflow-y-auto"
             >
-              <ReportsTab />
+              <ReportsTab onUpgrade={() => showOverlay("pricing")} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -2106,7 +2121,253 @@ export default function GrahAIApp() {
         isOpen={menuOpen}
         onClose={() => setMenuOpen(false)}
         userName={userName}
+        onShowOverlay={showOverlay}
+        onAddMember={handleAddMember}
       />
+
+      {/* Overlay Views */}
+      <AnimatePresence>
+        {overlayView === "kundli" && (
+          <motion.div
+            key="overlay-kundli"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
+          >
+            <KundliView onBack={closeOverlay} onAskAI={() => { closeOverlay(); setActiveTab("ask") }} />
+          </motion.div>
+        )}
+        {overlayView === "daily" && (
+          <motion.div
+            key="overlay-daily"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
+          >
+            <DailyView onBack={closeOverlay} onUpgrade={() => { setOverlayView("pricing") }} onAskAI={() => { closeOverlay(); setActiveTab("ask") }} />
+          </motion.div>
+        )}
+        {overlayView === "pricing" && (
+          <motion.div
+            key="overlay-pricing"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[70]"
+          >
+            <PricingModal onClose={closeOverlay} />
+          </motion.div>
+        )}
+        {overlayView === "compatibility" && (
+          <motion.div
+            key="overlay-compatibility"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
+          >
+            <CompatibilityView onBack={closeOverlay} onAskAI={() => { closeOverlay(); setActiveTab("ask") }} />
+          </motion.div>
+        )}
+        {overlayView === "onboarding" && (
+          <motion.div
+            key="overlay-onboarding"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
+          >
+            <OnboardingView onBack={closeOverlay} onComplete={() => { closeOverlay(); setActiveTab("home") }} />
+          </motion.div>
+        )}
+        {overlayView === "dashboard" && (
+          <motion.div
+            key="overlay-dashboard"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
+          >
+            <DashboardView onBack={closeOverlay} onAskAI={() => { closeOverlay(); setActiveTab("ask") }} onUpgrade={() => setOverlayView("pricing")} />
+          </motion.div>
+        )}
+        {overlayView === "horoscope" && (
+          <motion.div
+            key="overlay-horoscope"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
+          >
+            <HoroscopeView onBack={closeOverlay} onAskAI={() => { closeOverlay(); setActiveTab("ask") }} onUpgrade={() => setOverlayView("pricing")} />
+          </motion.div>
+        )}
+        {overlayView === "reports-detail" && (
+          <motion.div
+            key="overlay-reports-detail"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
+          >
+            <ReportsDetailView onBack={closeOverlay} onUpgrade={() => setOverlayView("pricing")} onAskAI={() => { closeOverlay(); setActiveTab("ask") }} />
+          </motion.div>
+        )}
+        {overlayView === "settings" && (
+          <motion.div
+            key="overlay-settings"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
+          >
+            <SettingsView onBack={closeOverlay} onUpgrade={() => setOverlayView("pricing")} />
+          </motion.div>
+        )}
+        {overlayView === "blog" && (
+          <motion.div
+            key="overlay-blog"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
+          >
+            <BlogView onBack={closeOverlay} />
+          </motion.div>
+        )}
+        {overlayView === "chat" && (
+          <motion.div
+            key="overlay-chat"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
+          >
+            <ChatView onBack={closeOverlay} onUpgrade={() => setOverlayView("pricing")} />
+          </motion.div>
+        )}
+        {overlayView === "astrologer" && (
+          <motion.div
+            key="overlay-astrologer"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
+          >
+            <AstrologerView onBack={closeOverlay} onUpgrade={() => setOverlayView("pricing")} />
+          </motion.div>
+        )}
+        {overlayView === "checkout" && (
+          <motion.div
+            key="overlay-checkout"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
+          >
+            <CheckoutView onBack={closeOverlay} onSuccess={() => { closeOverlay(); setActiveTab("home") }} planId={checkoutPlanId} />
+          </motion.div>
+        )}
+        {overlayView === "auth-login" && (
+          <motion.div
+            key="overlay-auth-login"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
+          >
+            <AuthLoginView onBack={closeOverlay} onSuccess={closeOverlay} />
+          </motion.div>
+        )}
+        {overlayView === "about" && (
+          <motion.div
+            key="overlay-about"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
+          >
+            <AboutView onBack={closeOverlay} />
+          </motion.div>
+        )}
+        {overlayView === "contact" && (
+          <motion.div
+            key="overlay-contact"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
+          >
+            <ContactView onBack={closeOverlay} />
+          </motion.div>
+        )}
+        {overlayView === "product" && (
+          <motion.div
+            key="overlay-product"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
+          >
+            <ProductView onBack={closeOverlay} onUpgrade={() => setOverlayView("pricing")} />
+          </motion.div>
+        )}
+        {overlayView === "privacy" && (
+          <motion.div
+            key="overlay-privacy"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
+          >
+            <PrivacyView onBack={closeOverlay} />
+          </motion.div>
+        )}
+        {overlayView === "terms" && (
+          <motion.div
+            key="overlay-terms"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
+          >
+            <TermsView onBack={closeOverlay} />
+          </motion.div>
+        )}
+        {overlayView === "blog-post" && blogPostSlug && (
+          <motion.div
+            key="overlay-blog-post"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
+          >
+            <BlogPostView onBack={() => setOverlayView("blog")} slug={blogPostSlug} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
