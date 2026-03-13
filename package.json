@@ -30,6 +30,7 @@
     "sweph": "^2.10.3-b-1"
   },
   "devDependencies": {
+    "@rolldown/binding-linux-x64-gnu": "^1.0.0-rc.9",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/pdfkit": "^0.17.5",
