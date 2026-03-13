@@ -42,7 +42,7 @@ import ReferEarnView from "@/components/app/ReferEarnView"
 // ═══════════════════════════════════════════════════
 
 type TabType = "home" | "ask" | "mychart" | "reports"
-type OverlayType = "kundli" | "daily" | "pricing" | "compatibility" | "onboarding" | "dashboard" | "horoscope" | "reports-detail" | "settings" | "blog" | "chat" | "astrologer" | "checkout" | "auth-login" | "about" | "contact" | "product" | "privacy" | "terms" | "blog-post" | "refer-earn" | null
+type OverlayType = "kundli" | "daily" | "pricing" | "compatibility" | "onboarding" | "dashboard" | "horoscope" | "reports-detail" | "settings" | "blog" | "chat" | "astrologer" | "checkout" | "auth-login" | "about" | "contact" | "product" | "privacy" | "terms" | "blog-post" | "refer-earn" | "sample-preview" | null
 
 interface ChatMessage {
   id: string
@@ -741,7 +741,7 @@ function TopUpModules({ onAction }: { onAction: (action: string) => void }) {
 
 /* ─── Discover Tab (EliteEdge-inspired smooth-ride engagement) ─── */
 /* ─── Today Tab — Daily cosmic destination ─── */
-function HomeTab({ onShowOverlay, onTabChange }: { onShowOverlay: (o: OverlayType) => void; onTabChange: (t: TabType) => void }) {
+function HomeTab({ onShowOverlay, onTabChange, isNewUser }: { onShowOverlay: (o: OverlayType) => void; onTabChange: (t: TabType) => void; isNewUser?: boolean }) {
   const verse = getTodaysVerse()
   const today = new Date()
   const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
@@ -749,7 +749,60 @@ function HomeTab({ onShowOverlay, onTabChange }: { onShowOverlay: (o: OverlayTyp
 
   return (
     <div className="overflow-y-auto h-full">
-      {/* Date & Greeting */}
+      {/* ─── Hero Section (Acquisition) ─── */}
+      {isNewUser && (
+        <div className="relative px-4 pt-8 pb-6 overflow-hidden">
+          {/* Background glow */}
+          <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 h-80 w-80 rounded-full bg-amber-400/[0.06] blur-[100px]" />
+
+          <div className="relative z-10 text-center">
+            <div className="inline-flex items-center gap-2 mb-4">
+              <Sparkles className="w-6 h-6 text-amber-400" />
+              <span className="text-xl font-bold text-white">
+                Grah<span className="text-amber-400">AI</span>
+              </span>
+            </div>
+
+            <h1 className="text-[22px] leading-tight font-bold text-white max-w-xs mx-auto">
+              Get chart-based clarity for love, career, timing, and life decisions.
+            </h1>
+            <p className="mt-3 text-sm text-white/50 max-w-sm mx-auto leading-relaxed">
+              AI Jyotish guidance, personalized from your birth chart, with source-backed explanations.
+            </p>
+
+            <div className="mt-6 space-y-3 max-w-xs mx-auto">
+              <button
+                onClick={() => onShowOverlay("onboarding")}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 py-3.5 font-semibold text-[#050810] transition-all hover:bg-amber-300 active:scale-[0.98]"
+              >
+                Get my first insight
+                <ArrowRight className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => onShowOverlay("sample-preview")}
+                className="w-full flex items-center justify-center gap-2 rounded-xl border border-white/[0.1] bg-white/[0.03] px-6 py-3 text-sm font-medium text-white/70 transition-all hover:border-amber-400/30 hover:text-white active:scale-[0.98]"
+              >
+                See a sample answer
+              </button>
+            </div>
+
+            {/* Trust badges */}
+            <div className="mt-6 flex items-center justify-center gap-3 flex-wrap">
+              {["Personalized", "Classical sources", "Real decisions"].map((badge) => (
+                <span key={badge} className="flex items-center gap-1 text-[10px] text-white/30">
+                  <span className="w-1 h-1 rounded-full bg-amber-400/50" />
+                  {badge}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="mt-6 h-px bg-gradient-to-r from-transparent via-amber-500/15 to-transparent" />
+        </div>
+      )}
+
+      {/* ─── Daily Content (for all users) ─── */}
       <div className="px-4 pt-4 pb-3">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -1736,6 +1789,121 @@ function MyChartTab({ onShowKundli }: { onShowKundli: () => void }) {
   )
 }
 
+/* ─── Sample Preview Overlay (Interactive Demo) ─── */
+function SamplePreviewOverlay({ onClose, onGetStarted }: { onClose: () => void; onGetStarted: () => void }) {
+  const [typingIndex, setTypingIndex] = useState(0)
+  const [demoComplete, setDemoComplete] = useState(false)
+
+  const DEMO_LINES = [
+    "Based on your birth chart, Saturn is currently transiting your 10th house of career.",
+    "",
+    "This is a period of hard work being recognized. Your Dashamsha chart shows Jupiter aspecting your 10th lord.",
+    "",
+    "**Key Timing:** April\u2013July 2026 looks especially favorable for career advancement.",
+    "",
+    "**Classical Reference:** Brihat Parashara Hora Shastra indicates professional elevation when Jupiter aspects the 10th lord during Saturn transit.",
+    "",
+    "**Practical Advice:** Focus on visibility in your current role. Avoid switching before May.",
+  ]
+
+  useEffect(() => {
+    if (typingIndex < DEMO_LINES.length) {
+      const timer = setTimeout(() => setTypingIndex((i) => i + 1), 350)
+      return () => clearTimeout(timer)
+    } else {
+      setDemoComplete(true)
+    }
+  }, [typingIndex, DEMO_LINES.length])
+
+  return (
+    <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
+      <motion.div
+        initial={{ y: 100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 100, opacity: 0 }}
+        transition={{ type: "spring", damping: 30, stiffness: 300 }}
+        className="w-full max-w-md max-h-[85vh] overflow-y-auto rounded-t-3xl sm:rounded-2xl border border-white/[0.08] bg-[#0a0e1a] p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center gap-2 mb-5">
+          <div className="w-8 h-8 rounded-full bg-amber-400/20 flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-amber-400" />
+          </div>
+          <div>
+            <p className="text-xs text-white/40">Interactive Preview</p>
+            <p className="text-sm font-semibold text-white">See how GrahAI works</p>
+          </div>
+        </div>
+
+        {/* User profile badge */}
+        <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/[0.06]">
+          <Moon className="w-3.5 h-3.5 text-blue-300" />
+          <span className="text-xs text-white/50">Taurus Moon \u2022 Rohini Nakshatra</span>
+        </div>
+
+        {/* User question */}
+        <div className="ml-8 mb-4 rounded-2xl rounded-tr-md bg-amber-400/10 border border-amber-400/20 px-4 py-3">
+          <p className="text-sm text-white font-medium">Will I get a promotion this year?</p>
+        </div>
+
+        {/* AI answer */}
+        <div className="rounded-2xl rounded-tl-md border border-white/[0.06] bg-white/[0.02] px-4 py-4 mr-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span className="text-[10px] uppercase tracking-wider text-amber-400/60 font-bold">GrahAI</span>
+          </div>
+          <div className="space-y-1">
+            {DEMO_LINES.slice(0, typingIndex).map((line, i) => (
+              <p
+                key={i}
+                className={`text-sm leading-relaxed ${
+                  line.startsWith("**") ? "text-amber-300/90 font-semibold" : "text-white/70"
+                }`}
+              >
+                {line.replace(/\*\*/g, "")}
+              </p>
+            ))}
+            {!demoComplete && (
+              <motion.span
+                animate={{ opacity: [0.2, 1, 0.2] }}
+                transition={{ repeat: Infinity, duration: 1 }}
+                className="inline-block w-2 h-4 bg-amber-400/50 rounded-sm"
+              />
+            )}
+          </div>
+        </div>
+
+        {/* CTA after demo */}
+        {demoComplete && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-6 space-y-3"
+          >
+            <p className="text-center text-xs text-white/40 mb-3">
+              This is a real example. Get answers personalized to YOUR chart.
+            </p>
+            <button
+              onClick={onGetStarted}
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 py-3.5 font-semibold text-[#050810] transition-all hover:bg-amber-300 active:scale-[0.98]"
+            >
+              Get my first insight
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            <button
+              onClick={onClose}
+              className="w-full text-center text-sm text-white/30 hover:text-white/50 transition-colors py-1"
+            >
+              Close
+            </button>
+          </motion.div>
+        )}
+      </motion.div>
+    </div>
+  )
+}
+
 /* ─── Profile / Menu Drawer ─── */
 function ProfileDrawer({
   isOpen,
@@ -1960,6 +2128,7 @@ export default function GrahAIApp() {
   const [overlayView, setOverlayView] = useState<OverlayType>(null)
   const [blogPostSlug, setBlogPostSlug] = useState<string>("")
   const [checkoutPlanId, setCheckoutPlanId] = useState<"plus" | "premium">("plus")
+  const [isNewUser, setIsNewUser] = useState(true)
 
   const showOverlay = useCallback((overlay: OverlayType) => setOverlayView(overlay), [])
   const closeOverlay = useCallback(() => setOverlayView(null), [])
@@ -1971,6 +2140,10 @@ export default function GrahAIApp() {
     try {
       const stored = localStorage.getItem("userNameForGreeting")
       if (stored) setUserName(stored)
+      // Check if user has completed onboarding before
+      const hasBirthData = localStorage.getItem("grahai-onboarding-birthdata")
+      const hasCosmicSnap = localStorage.getItem("grahai-cosmic-snapshot")
+      if (hasBirthData || hasCosmicSnap) setIsNewUser(false)
     } catch {
       // SSR or localStorage unavailable
     }
@@ -1997,7 +2170,7 @@ export default function GrahAIApp() {
               transition={{ duration: 0.2 }}
               className="h-full overflow-y-auto"
             >
-              <HomeTab onShowOverlay={showOverlay} onTabChange={setActiveTab} />
+              <HomeTab onShowOverlay={showOverlay} onTabChange={setActiveTab} isNewUser={isNewUser} />
             </motion.div>
           )}
           {activeTab === "ask" && (
@@ -2114,7 +2287,7 @@ export default function GrahAIApp() {
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
             className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
           >
-            <OnboardingView onBack={closeOverlay} onComplete={() => { closeOverlay(); setActiveTab("home") }} />
+            <OnboardingView onBack={closeOverlay} onComplete={() => { closeOverlay(); setIsNewUser(false); setActiveTab("home") }} />
           </motion.div>
         )}
         {overlayView === "dashboard" && (
@@ -2307,6 +2480,21 @@ export default function GrahAIApp() {
             className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
           >
             <ReferEarnView onBack={closeOverlay} onUpgrade={() => setOverlayView("pricing")} />
+          </motion.div>
+        )}
+        {overlayView === "sample-preview" && (
+          <motion.div
+            key="overlay-sample-preview"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[70]"
+          >
+            <SamplePreviewOverlay
+              onClose={closeOverlay}
+              onGetStarted={() => { closeOverlay(); setOverlayView("onboarding") }}
+            />
           </motion.div>
         )}
       </AnimatePresence>
