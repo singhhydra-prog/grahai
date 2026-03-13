@@ -35,13 +35,14 @@ import ProductView from "@/components/app/ProductView"
 import PrivacyView from "@/components/app/PrivacyView"
 import TermsView from "@/components/app/TermsView"
 import BlogPostView from "@/components/app/BlogPostView"
+import ReferEarnView from "@/components/app/ReferEarnView"
 
 // ═══════════════════════════════════════════════════
 // TYPES
 // ═══════════════════════════════════════════════════
 
 type TabType = "home" | "ask" | "mychart" | "reports"
-type OverlayType = "kundli" | "daily" | "pricing" | "compatibility" | "onboarding" | "dashboard" | "horoscope" | "reports-detail" | "settings" | "blog" | "chat" | "astrologer" | "checkout" | "auth-login" | "about" | "contact" | "product" | "privacy" | "terms" | "blog-post" | null
+type OverlayType = "kundli" | "daily" | "pricing" | "compatibility" | "onboarding" | "dashboard" | "horoscope" | "reports-detail" | "settings" | "blog" | "chat" | "astrologer" | "checkout" | "auth-login" | "about" | "contact" | "product" | "privacy" | "terms" | "blog-post" | "refer-earn" | null
 
 interface ChatMessage {
   id: string
@@ -1948,7 +1949,7 @@ function ProfileDrawer({
             {/* Menu Links */}
             <div className="px-6 py-4 border-b border-white/[0.06]">
               {[
-                { icon: <Gift className="w-4 h-4 text-green-400" />, label: "Refer & Earn", action: null as OverlayType },
+                { icon: <Gift className="w-4 h-4 text-green-400" />, label: "Refer & Earn", action: "refer-earn" as OverlayType },
                 { icon: <BookOpen className="w-4 h-4 text-blue-400" />, label: "Latest Blogs", action: "blog" as OverlayType },
                 { icon: <Info className="w-4 h-4 text-cyan-400" />, label: "About GrahAI", action: "about" as OverlayType },
                 { icon: <Compass className="w-4 h-4 text-emerald-400" />, label: "Our Product", action: "product" as OverlayType },
@@ -2232,7 +2233,7 @@ export default function GrahAIApp() {
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
             className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
           >
-            <SettingsView onBack={closeOverlay} onUpgrade={() => setOverlayView("pricing")} />
+            <SettingsView onBack={closeOverlay} onUpgrade={() => setOverlayView("pricing")} onShowOverlay={showOverlay} />
           </motion.div>
         )}
         {overlayView === "blog" && (
@@ -2365,6 +2366,18 @@ export default function GrahAIApp() {
             className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
           >
             <BlogPostView onBack={() => setOverlayView("blog")} slug={blogPostSlug} />
+          </motion.div>
+        )}
+        {overlayView === "refer-earn" && (
+          <motion.div
+            key="overlay-refer-earn"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-0 z-[60] bg-[#060A14] overflow-y-auto"
+          >
+            <ReferEarnView onBack={closeOverlay} onUpgrade={() => setOverlayView("pricing")} />
           </motion.div>
         )}
       </AnimatePresence>

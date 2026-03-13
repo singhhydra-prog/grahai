@@ -5,7 +5,7 @@ import type { NextRequest } from "next/server"
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get("code")
-  const redirect = searchParams.get("redirect") || "/dashboard"
+  const redirect = searchParams.get("redirect") || "/app"
 
   if (code) {
     const cookiesToSet: { name: string; value: string; options: Record<string, unknown> }[] = []
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
             .single()
 
           if (!profileError && profile && !profile.onboarding_completed) {
-            redirectPath = "/onboarding"
+            redirectPath = "/app"
           }
         }
       } catch {
@@ -70,5 +70,5 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return NextResponse.redirect(`${origin}/auth/login?error=auth_failed`)
+  return NextResponse.redirect(`${origin}/app?error=auth_failed`)
 }

@@ -60,8 +60,8 @@ export default function AuthLoginView({ onBack, onSuccess }: AuthLoginViewProps)
       </div>
 
       {/* Background */}
-      <div className="pointer-events-none absolute left-1/3 top-1/4 h-96 w-96 rounded-full bg-indigo/20 blur-[128px]" />
-      <div className="pointer-events-none absolute bottom-1/3 right-1/4 h-64 w-64 rounded-full bg-saffron/10 blur-[96px]" />
+      <div className="pointer-events-none absolute left-1/3 top-1/4 h-96 w-96 rounded-full bg-white/[0.06] blur-[128px]" />
+      <div className="pointer-events-none absolute bottom-1/3 right-1/4 h-64 w-64 rounded-full bg-amber-400/10 blur-[96px]" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -72,41 +72,41 @@ export default function AuthLoginView({ onBack, onSuccess }: AuthLoginViewProps)
         {/* Logo */}
         <div className="mb-10 text-center">
           <div className="mb-4 inline-flex items-center gap-2">
-            <Sparkles className="h-8 w-8 text-saffron" />
-            <span className="text-2xl font-bold text-cosmic-white">
-              Grah<span className="text-saffron">AI</span>
+            <Sparkles className="h-8 w-8 text-amber-400" />
+            <span className="text-2xl font-bold text-white">
+              Grah<span className="text-amber-400">AI</span>
             </span>
           </div>
-          <h1 className="text-xl font-semibold text-cosmic-white">
+          <h1 className="text-xl font-semibold text-white">
             Begin your cosmic journey
           </h1>
-          <p className="mt-2 text-sm text-cosmic-white/40">
+          <p className="mt-2 text-sm text-white/40">
             Sign in to access personalized Vedic readings
           </p>
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl border border-indigo/30 bg-navy-light/50 p-8 backdrop-blur-sm">
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-8 backdrop-blur-sm">
           {status === "sent" ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               className="text-center"
             >
-              <div className="mx-auto mb-4 inline-flex rounded-full bg-success/20 p-4">
-                <Check className="h-8 w-8 text-success" />
+              <div className="mx-auto mb-4 inline-flex rounded-full bg-emerald-400/20 p-4">
+                <Check className="h-8 w-8 text-emerald-400" />
               </div>
-              <h2 className="mb-2 text-lg font-semibold text-cosmic-white">
+              <h2 className="mb-2 text-lg font-semibold text-white">
                 Check your email
               </h2>
-              <p className="text-sm text-cosmic-white/50">
+              <p className="text-sm text-white/50">
                 We sent a magic link to{" "}
-                <span className="font-medium text-saffron">{email}</span>.
+                <span className="font-medium text-amber-400">{email}</span>.
                 Click it to sign in.
               </p>
               <button
                 onClick={() => setStatus("idle")}
-                className="mt-6 text-sm text-saffron/70 transition-colors hover:text-saffron"
+                className="mt-6 text-sm text-amber-400/70 transition-colors hover:text-amber-400"
               >
                 Use a different email
               </button>
@@ -116,7 +116,7 @@ export default function AuthLoginView({ onBack, onSuccess }: AuthLoginViewProps)
               {/* Google Login */}
               <button
                 onClick={handleGoogleLogin}
-                className="flex w-full items-center justify-center gap-3 rounded-xl border border-indigo/30 bg-cosmic-white/5 py-3.5 text-sm font-medium text-cosmic-white transition-all hover:border-saffron/30 hover:bg-cosmic-white/10"
+                className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.05] py-3.5 text-sm font-medium text-white transition-all hover:border-amber-400/30 hover:bg-white/[0.1]"
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
                   <path
@@ -141,19 +141,19 @@ export default function AuthLoginView({ onBack, onSuccess }: AuthLoginViewProps)
 
               {/* Divider */}
               <div className="my-6 flex items-center gap-4">
-                <div className="h-px flex-1 bg-indigo/20" />
-                <span className="text-xs text-cosmic-white/30">or</span>
-                <div className="h-px flex-1 bg-indigo/20" />
+                <div className="h-px flex-1 bg-white/[0.06]" />
+                <span className="text-xs text-white/30">or</span>
+                <div className="h-px flex-1 bg-white/[0.06]" />
               </div>
 
               {/* Magic Link */}
               <form onSubmit={handleMagicLink} className="space-y-4">
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-cosmic-white/60">
+                  <label className="mb-2 block text-sm font-medium text-white/60">
                     Email address
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-cosmic-white/30" />
+                    <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
                     <input
                       type="email"
                       value={email}
@@ -163,7 +163,7 @@ export default function AuthLoginView({ onBack, onSuccess }: AuthLoginViewProps)
                       }}
                       placeholder="you@example.com"
                       required
-                      className="h-12 w-full rounded-xl border border-indigo/30 bg-deep-space/50 pl-11 pr-4 text-cosmic-white placeholder:text-cosmic-white/25 transition-all focus:border-saffron/50 focus:outline-none focus:ring-2 focus:ring-saffron/20"
+                      className="h-12 w-full rounded-xl border border-white/[0.08] bg-[#050810]/50 pl-11 pr-4 text-white placeholder:text-white/25 transition-all focus:border-amber-400/50 focus:outline-none focus:ring-2 focus:ring-amber-400/20"
                     />
                   </div>
                 </div>
@@ -171,7 +171,7 @@ export default function AuthLoginView({ onBack, onSuccess }: AuthLoginViewProps)
                 <button
                   type="submit"
                   disabled={status === "loading"}
-                  className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-saffron font-semibold text-deep-space transition-all hover:bg-gold-light disabled:opacity-50"
+                  className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-amber-400 font-semibold text-[#050810] transition-all hover:bg-amber-300 disabled:opacity-50"
                 >
                   {status === "loading" ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
@@ -184,7 +184,7 @@ export default function AuthLoginView({ onBack, onSuccess }: AuthLoginViewProps)
                 </button>
 
                 {status === "error" && errorMsg && (
-                  <p className="text-center text-sm text-error">{errorMsg}</p>
+                  <p className="text-center text-sm text-red-400">{errorMsg}</p>
                 )}
               </form>
             </>
@@ -192,18 +192,18 @@ export default function AuthLoginView({ onBack, onSuccess }: AuthLoginViewProps)
         </div>
 
         {/* What you get */}
-        <div className="mt-6 flex items-center justify-center gap-4 text-[11px] text-cosmic-white/30">
+        <div className="mt-6 flex items-center justify-center gap-4 text-[11px] text-white/30">
           <span>✓ 3 daily AI readings</span>
           <span>✓ Free Kundli</span>
           <span>✓ Daily Horoscope</span>
         </div>
 
         {/* Footer */}
-        <p className="mt-4 text-center text-xs text-cosmic-white/20">
+        <p className="mt-4 text-center text-xs text-white/20">
           By signing in, you agree to our{" "}
-          <span className="underline hover:text-cosmic-white/40 transition-colors cursor-pointer">Terms of Service</span>
+          <span className="underline hover:text-white/40 transition-colors cursor-pointer">Terms of Service</span>
           {" "}and{" "}
-          <span className="underline hover:text-cosmic-white/40 transition-colors cursor-pointer">Privacy Policy</span>
+          <span className="underline hover:text-white/40 transition-colors cursor-pointer">Privacy Policy</span>
         </p>
       </motion.div>
     </main>
