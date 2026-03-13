@@ -7,7 +7,7 @@
     },
     {
       "path": "/api/cron/daily-push",
-      "schedule": "0 * * * *"
+      "schedule": "0 6 * * *"
     },
     {
       "path": "/api/cron/weekly-push",
