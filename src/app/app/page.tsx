@@ -12,7 +12,7 @@ import {
   HeartHandshake, Stethoscope, Gem, Clock,
   ChevronDown, ChevronUp, Copy, Check, ArrowRight,
   Compass, ChevronLeft, Zap, Download,
-  Bell, Eye, Flame, Award, ExternalLink, CalendarDays, Sunrise, Info, AlertTriangle, Mail
+  Bell, Eye, Flame, Award, ExternalLink, CalendarDays, Sunrise, Info, AlertTriangle, Mail, Calendar
 } from "lucide-react"
 import ChatResponseParser from "@/components/chat/ChatResponseParser"
 import KundliView from "@/components/app/KundliView"
@@ -64,6 +64,20 @@ interface ReportCard {
   bgGradient: string
 }
 
+interface MarketplaceReport {
+  id: string
+  icon: React.ReactNode
+  title: string
+  subtitle: string
+  description: string
+  whoFor: string
+  includes: string[]
+  price: string
+  priceNote?: string
+  color: string
+  bgGradient: string
+}
+
 // ═══════════════════════════════════════════════════
 // DATA
 // ═══════════════════════════════════════════════════
@@ -87,126 +101,79 @@ const SUGGESTED_QUESTIONS = [
   "Is this person right for me?",
 ]
 
-const REPORT_CATEGORIES: { title: string; titleHi: string; reports: ReportCard[] }[] = [
+const REPORTS_MARKETPLACE: MarketplaceReport[] = [
   {
-    title: "The Story of Love",
-    titleHi: "प्रेम कथा",
-    reports: [
-      {
-        id: "love-1yr",
-        icon: <Heart className="w-6 h-6" />,
-        title: "Love & Relationships",
-        titleHi: "प्रेम और रिश्ते",
-        description: "Deep analysis of your romantic compatibility, Venus placement, and 7th house predictions",
-        category: "Love",
-        duration: "1 Year",
-        isFree: false,
-        color: "text-pink-400",
-        bgGradient: "from-pink-500/20 to-rose-500/10",
-      },
-      {
-        id: "marriage",
-        icon: <HeartHandshake className="w-6 h-6" />,
-        title: "Everything About Marriage",
-        titleHi: "विवाह विश्लेषण",
-        description: "Mangal Dosha check, ideal timing for marriage, and partner compatibility guide",
-        category: "Marriage",
-        duration: "Lifetime",
-        isFree: false,
-        color: "text-rose-400",
-        bgGradient: "from-rose-500/20 to-pink-500/10",
-      },
-    ],
+    id: "career-blueprint",
+    icon: <Briefcase className="w-6 h-6" />,
+    title: "Career Blueprint",
+    subtitle: "₹299",
+    description: "Find your ideal career path, promotion windows, and business timing based on your 10th house and Dasha periods",
+    whoFor: "Anyone at a career crossroads",
+    includes: ["10th house analysis", "Dasha career timeline", "Promotion windows", "Job change timing"],
+    price: "₹299",
+    color: "text-blue-400",
+    bgGradient: "from-blue-500/20 to-indigo-500/10",
   },
   {
-    title: "Get Rich & Prosper",
-    titleHi: "धन और समृद्धि",
-    reports: [
-      {
-        id: "wealth",
-        icon: <Gem className="w-6 h-6" />,
-        title: "Wealth & Finance",
-        titleHi: "धन और वित्त",
-        description: "2nd & 11th house analysis, Dhana Yogas, best periods for investments and gains",
-        category: "Wealth",
-        duration: "5 Years",
-        isFree: false,
-        color: "text-amber-400",
-        bgGradient: "from-amber-500/20 to-yellow-500/10",
-      },
-      {
-        id: "career-5yr",
-        icon: <TrendingUp className="w-6 h-6" />,
-        title: "Career Growth Path",
-        titleHi: "करियर मार्गदर्शन",
-        description: "10th house analysis, Dasha-based career timeline, promotion & job change windows",
-        category: "Career",
-        duration: "5 Years",
-        isFree: true,
-        color: "text-emerald-400",
-        bgGradient: "from-emerald-500/20 to-green-500/10",
-      },
-    ],
+    id: "love-compatibility",
+    icon: <Heart className="w-6 h-6" />,
+    title: "Love Compatibility",
+    subtitle: "₹249",
+    description: "Deep Ashtakoot analysis plus Bhakoot, Nadi, and Mangal Dosha cross-check with remedies",
+    whoFor: "Couples or those seeking a partner",
+    includes: ["36-point Guna score", "Mangal Dosha check", "Nakshatra matching", "Remedies"],
+    price: "₹249",
+    color: "text-pink-400",
+    bgGradient: "from-pink-500/20 to-rose-500/10",
   },
   {
-    title: "Plan Your Professional Roadmap",
-    titleHi: "व्यावसायिक मार्गदर्शन",
-    reports: [
-      {
-        id: "business",
-        icon: <Building2 className="w-6 h-6" />,
-        title: "Growing Your Business",
-        titleHi: "व्यापार वृद्धि",
-        description: "Best time to start ventures, partnership compatibility, and business Muhurta",
-        category: "Business",
-        duration: "1 Year",
-        isFree: false,
-        color: "text-blue-400",
-        bgGradient: "from-blue-500/20 to-indigo-500/10",
-      },
-      {
-        id: "education",
-        icon: <GraduationCap className="w-6 h-6" />,
-        title: "Education Journey",
-        titleHi: "शैक्षिक मार्ग",
-        description: "5th house analysis, best fields of study, competitive exam timing, study abroad Yogas",
-        category: "Education",
-        duration: "5 Years",
-        isFree: false,
-        color: "text-violet-400",
-        bgGradient: "from-violet-500/20 to-purple-500/10",
-      },
-    ],
+    id: "marriage-timing",
+    icon: <Calendar className="w-6 h-6" />,
+    title: "Marriage Timing",
+    subtitle: "₹349",
+    description: "When will you marry? Precise Dasha + transit windows for marriage, with Muhurta guidance",
+    whoFor: "Those planning marriage",
+    includes: ["7th house analysis", "Venus Dasha timing", "Transit windows", "Auspicious dates"],
+    price: "₹349",
+    color: "text-rose-400",
+    bgGradient: "from-rose-500/20 to-pink-500/10",
   },
   {
-    title: "Health & Wellness",
-    titleHi: "स्वास्थ्य",
-    reports: [
-      {
-        id: "health",
-        icon: <Stethoscope className="w-6 h-6" />,
-        title: "Health & Vitality",
-        titleHi: "स्वास्थ्य और जीवन शक्ति",
-        description: "6th & 8th house analysis, vulnerable periods, Ayurvedic constitution from chart",
-        category: "Health",
-        duration: "1 Year",
-        isFree: false,
-        color: "text-teal-400",
-        bgGradient: "from-teal-500/20 to-cyan-500/10",
-      },
-      {
-        id: "complete",
-        icon: <Star className="w-6 h-6" />,
-        title: "Complete Life Report",
-        titleHi: "सम्पूर्ण जीवन रिपोर्ट",
-        description: "All 12 houses, Dasha timeline, Yogas, Doshas, remedies — your complete cosmic blueprint",
-        category: "Premium",
-        duration: "Lifetime",
-        isFree: false,
-        color: "text-amber-300",
-        bgGradient: "from-amber-500/25 to-orange-500/15",
-      },
-    ],
+    id: "annual-forecast",
+    icon: <TrendingUp className="w-6 h-6" />,
+    title: "Annual Forecast 2026",
+    subtitle: "₹399",
+    description: "Month-by-month predictions for career, health, love, and finance based on your exact Dasha + transits",
+    whoFor: "Anyone planning their year",
+    includes: ["12-month forecast", "Key decision windows", "Cautions", "Remedies"],
+    price: "₹399",
+    color: "text-amber-400",
+    bgGradient: "from-amber-500/20 to-yellow-500/10",
+  },
+  {
+    id: "dasha-deep-dive",
+    icon: <BookOpen className="w-6 h-6" />,
+    title: "Dasha Deep Dive",
+    subtitle: "₹199",
+    description: "Understand your current planetary period — what it activates, what to expect, and how to navigate it",
+    whoFor: "Those in a life transition",
+    includes: ["Mahadasha analysis", "Antardasha breakdown", "Key themes", "Practical guidance"],
+    price: "₹199",
+    color: "text-violet-400",
+    bgGradient: "from-violet-500/20 to-purple-500/10",
+  },
+  {
+    id: "remedies-guide",
+    icon: <Gem className="w-6 h-6" />,
+    title: "Remedies Guide",
+    subtitle: "Free with Plus / ₹149",
+    description: "Personalized remedies based on your chart — mantras, gemstones, donations, and daily practices",
+    whoFor: "Anyone seeking solutions",
+    includes: ["Dosha remedies", "Planet-specific mantras", "Gemstone recommendations", "Daily practices"],
+    price: "₹149",
+    priceNote: "Free with Plus",
+    color: "text-teal-400",
+    bgGradient: "from-teal-500/20 to-cyan-500/10",
   },
 ]
 
@@ -1441,86 +1408,86 @@ function ChatBubble({ message }: { message: ChatMessage }) {
 }
 
 /* ─── Reports Tab ─── */
-function ReportsTab({ onUpgrade }: { onUpgrade: () => void }) {
+function ReportsTab({ onShowOverlay }: { onShowOverlay: (o: OverlayType) => void }) {
   return (
-    <div className="overflow-y-auto px-4 pt-4 pb-4">
-      {/* Buy Reports sticky CTA */}
-      <div className="mb-4">
-        <button
-          onClick={onUpgrade}
-          className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-[#0a0e1a] font-bold text-sm hover:from-amber-400 hover:to-orange-400 transition-all active:scale-[0.98]"
-        >
-          <Crown className="w-4 h-4" />
-          Buy Reports — Get Complete Guidance
-        </button>
+    <div className="overflow-y-auto px-4 pt-6 pb-4">
+      {/* Header Section */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-white mb-1">Reports</h2>
+        <p className="text-xs text-white/50 font-hindi mb-3">गहन मार्गदर्शन — Deep Guidance</p>
+        <p className="text-sm text-white/40 leading-relaxed">
+          Turn insight into action. Each report solves a specific life question.
+        </p>
       </div>
 
-      {/* Report Categories */}
-      {REPORT_CATEGORIES.map((category, catIdx) => (
-        <div key={category.title} className="mb-6">
-          {/* Category header */}
-          <div className="mb-3">
-            <h3 className="text-sm font-bold text-white">{category.title}</h3>
-            <p className="text-[11px] text-white/30 font-hindi">{category.titleHi}</p>
-          </div>
-
-          {/* 2-column grid */}
-          <div className="grid grid-cols-2 gap-3">
-            {category.reports.map((report, idx) => (
-              <motion.div
-                key={report.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: catIdx * 0.05 + idx * 0.03 }}
-              >
-                <ReportCardComponent report={report} onUpgrade={onUpgrade} />
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      ))}
+      {/* Report Cards - Single Column Layout */}
+      <div className="space-y-3">
+        {REPORTS_MARKETPLACE.map((report, idx) => (
+          <motion.div
+            key={report.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.05 }}
+          >
+            <ReportCardComponent report={report} onShowOverlay={onShowOverlay} />
+          </motion.div>
+        ))}
+      </div>
     </div>
   )
 }
 
 /* ─── Single Report Card ─── */
-function ReportCardComponent({ report, onUpgrade }: { report: ReportCard; onUpgrade: () => void }) {
+function ReportCardComponent({ report, onShowOverlay }: { report: MarketplaceReport; onShowOverlay: (o: OverlayType) => void }) {
   return (
     <button
-      onClick={onUpgrade}
-      className="block w-full text-left rounded-xl border border-white/[0.08] bg-white/[0.02] overflow-hidden hover:border-amber-500/20 transition-all active:scale-[0.97]"
+      onClick={() => onShowOverlay("pricing")}
+      className="block w-full text-left rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 hover:border-amber-500/20 transition-all active:scale-[0.98]"
     >
-      {/* Top badge bar */}
-      <div className="flex items-center justify-between px-3 pt-3">
-        <span className="text-[9px] uppercase tracking-wider font-bold text-white/30">
-          Guidance
-        </span>
-        <div className="flex items-center gap-1.5">
-          <span className="text-[9px] text-white/40 flex items-center gap-0.5">
-            <Clock className="w-2.5 h-2.5" />
-            {report.duration}
-          </span>
-          {!report.isFree && (
-            <Lock className="w-3 h-3 text-white/25" />
-          )}
-          {report.isFree && (
-            <span className="px-1.5 py-0.5 rounded-full bg-green-500/20 text-green-400 text-[8px] font-bold">
-              FREE
-            </span>
-          )}
+      {/* Icon + Title + Price Header */}
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${report.bgGradient} flex items-center justify-center flex-shrink-0`}>
+            <div className={report.color}>{report.icon}</div>
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-white">{report.title}</h3>
+            <p className="text-xs text-amber-400 font-bold">{report.price}</p>
+          </div>
         </div>
       </div>
 
-      {/* Icon + gradient bg */}
-      <div className={`mx-3 mt-2 mb-2 h-20 rounded-lg bg-gradient-to-br ${report.bgGradient} flex items-center justify-center`}>
-        <div className={report.color}>{report.icon}</div>
+      {/* What Problem It Solves */}
+      <div className="mb-3">
+        <p className="text-xs font-bold text-white/50 uppercase tracking-wider mb-1">What problem it solves</p>
+        <p className="text-sm text-white/70 leading-relaxed">{report.description}</p>
       </div>
 
-      {/* Title & description */}
-      <div className="px-3 pb-3">
-        <h4 className="text-xs font-bold text-white leading-tight mb-0.5">{report.title}</h4>
-        <p className="text-[10px] text-white/30 font-hindi mb-1">{report.titleHi}</p>
-        <p className="text-[10px] text-white/40 leading-relaxed line-clamp-2">{report.description}</p>
+      {/* Who It's For Badge */}
+      <div className="mb-3">
+        <span className="inline-block px-2.5 py-1 rounded-full bg-white/[0.05] border border-white/[0.1] text-xs text-white/60">
+          For: {report.whoFor}
+        </span>
+      </div>
+
+      {/* What's Included */}
+      <div className="mb-4">
+        <p className="text-xs font-bold text-white/50 uppercase tracking-wider mb-2">What's included</p>
+        <ul className="space-y-1">
+          {report.includes.map((item, idx) => (
+            <li key={idx} className="text-xs text-white/60 flex items-center gap-2">
+              <span className="text-amber-400">•</span>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* CTA Button */}
+      <div
+        className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-[#0a0e1a] text-xs font-bold hover:from-amber-400 hover:to-orange-400 transition-all active:scale-[0.98] text-center"
+      >
+        Get This Report
       </div>
     </button>
   )
@@ -1687,16 +1654,23 @@ const DOSHA_SEVERITY_COLORS: Record<string, string> = {
   severe: "bg-red-500/15 text-red-400 border-red-500/30",
 }
 
-function MyChartTab({ onShowKundli }: { onShowKundli: () => void }) {
+
+function MyChartTab({ onShowKundli, onShowOverlay, onTabChange }: { onShowKundli: () => void; onShowOverlay: (o: OverlayType) => void; onTabChange: (t: TabType) => void }) {
   const [chartData, setChartData] = useState<ChartData | null>(null)
+  const [cosmicSnapshot, setCosmicSnapshot] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [showAdvanced, setShowAdvanced] = useState(false)
 
   useEffect(() => {
-    // Try to load saved chart from localStorage
+    // Try to load saved chart and cosmic snapshot from localStorage
     try {
       const saved = localStorage.getItem("grahai-chart-data")
+      const snap = localStorage.getItem("grahai-cosmic-snapshot")
       if (saved) {
         setChartData(JSON.parse(saved) as ChartData)
+      }
+      if (snap) {
+        setCosmicSnapshot(JSON.parse(snap))
       }
     } catch (e) {
       console.error("Failed to load chart data:", e)
@@ -1735,272 +1709,338 @@ function MyChartTab({ onShowKundli }: { onShowKundli: () => void }) {
     )
   }
 
+  // Mock strengths and sensitivities if not available
+  const strengths = [
+    "Intuitive decision-making",
+    "Natural charisma and influence",
+    "Quick learning ability",
+  ]
+  const sensitivities = [
+    "Tendency to overthink",
+    "Emotional sensitivity in relationships",
+    "Need for external validation",
+  ]
+
+  // Mock transit info
+  const transitInfo =
+    cosmicSnapshot?.currentTransits || "Your planets are moving through favorable phases. Focus on areas where positive shifts are occurring."
+
+  // Mock life patterns
+  const lifePatterns = {
+    relationships: "Venus influence suggests deep emotional connections and loyalty.",
+    career: "Mercury and Jupiter combination indicates communication skills and opportunity.",
+    money: "Financial growth potential with strategic planning and patience.",
+    emotional: "Moon position shows emotional depth and need for security.",
+  }
+
   return (
-    <div className="overflow-y-auto h-full px-4 pt-4 pb-6 space-y-4">
+    <div className="overflow-y-auto h-full px-4 pt-4 pb-6 space-y-4 bg-[#050810]">
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-2">
         <h2 className="text-lg font-bold text-white">My Chart</h2>
         <p className="text-[11px] text-white/30 font-hindi">मेरी कुंडली</p>
       </motion.div>
 
-      {/* 1. Identity Header - Moon Sign, Lagna, Nakshatra */}
+      {/* 1. Top Summary Card - Cosmic Identity */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="rounded-xl border border-amber-500/15 bg-gradient-to-br from-amber-500/[0.08] to-orange-500/[0.04] p-4"
+        transition={{ delay: 0.05 }}
+        className="rounded-xl border border-white/[0.04] bg-white/[0.03] p-4"
       >
-        <h3 className="text-xs font-bold text-amber-400/70 uppercase tracking-wider mb-3">Your Cosmic Identity</h3>
-        <div className="grid grid-cols-3 gap-2">
+        <h3 className="text-xs font-bold text-white/50 uppercase tracking-wider mb-3">Your Cosmic Identity</h3>
+        <div className="grid grid-cols-4 gap-2">
           {[
             {
               label: "Moon Sign",
               value: chartData.moonSign,
               icon: <Moon className="w-4 h-4 text-blue-300" />,
-              subtext: "Emotional nature",
             },
             {
               label: "Lagna",
               value: chartData.lagna,
               icon: <Sunrise className="w-4 h-4 text-amber-400" />,
-              subtext: "Ascendant",
             },
             {
               label: "Nakshatra",
               value: chartData.nakshatra,
               icon: <Star className="w-4 h-4 text-purple-300" />,
-              subtext: "Lunar mansion",
+            },
+            {
+              label: "Dasha",
+              value: chartData.currentDasha?.planet || "—",
+              icon: <Clock className="w-4 h-4 text-indigo-400" />,
             },
           ].map((item) => (
             <div key={item.label} className="text-center">
-              <div className="flex justify-center mb-1.5">{item.icon}</div>
-              <p className="text-sm font-bold text-white">{item.value}</p>
-              <p className="text-[10px] text-white/40">{item.label}</p>
-              <p className="text-[9px] text-white/30">{item.subtext}</p>
+              <div className="flex justify-center mb-1">{item.icon}</div>
+              <p className="text-xs font-bold text-white">{item.value}</p>
+              <p className="text-[9px] text-white/40">{item.label}</p>
             </div>
           ))}
         </div>
       </motion.div>
 
-      {/* 2. Nakshatra Profile */}
+      {/* 2. Your Recurring Themes - Strengths & Sensitivities */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-        className="rounded-xl border border-purple-500/15 bg-purple-500/[0.04] p-4"
+        transition={{ delay: 0.1 }}
+        className="space-y-3"
       >
-        <div className="flex items-start gap-2 mb-3">
-          <Gem className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
-          <h3 className="text-xs font-bold text-purple-400/80 uppercase tracking-wider">Nakshatra Profile</h3>
+        <h3 className="text-xs font-bold text-white/50 uppercase tracking-wider px-1">Your Recurring Themes</h3>
+
+        {/* Strengths */}
+        <div className="space-y-2">
+          <p className="text-[10px] text-white/30 px-1">Strengths</p>
+          <div className="space-y-2">
+            {strengths.map((strength, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.12 + i * 0.03 }}
+                className="rounded-lg border border-emerald-500/20 bg-emerald-500/[0.08] p-3"
+              >
+                <div className="flex items-start gap-2">
+                  <Award className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-white/80">{strength}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
-        <div className="space-y-2 text-xs">
-          <div>
-            <p className="text-white/40 mb-0.5">Deity</p>
-            <p className="text-white font-semibold">{chartData.nakshatraDeity}</p>
+
+        {/* Sensitivities */}
+        <div className="space-y-2 pt-2">
+          <p className="text-[10px] text-white/30 px-1">Sensitivities</p>
+          <div className="space-y-2">
+            {sensitivities.map((sensitivity, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.18 + i * 0.03 }}
+                className="rounded-lg border border-amber-500/20 bg-amber-500/[0.08] p-3"
+              >
+                <div className="flex items-start gap-2">
+                  <Flame className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-white/80">{sensitivity}</p>
+                </div>
+              </motion.div>
+            ))}
           </div>
-          <div>
-            <p className="text-white/40 mb-0.5">Symbol</p>
-            <p className="text-white font-semibold">{chartData.nakshatraSymbol}</p>
-          </div>
-          <div>
-            <p className="text-white/40 mb-0.5">Nature (Gana)</p>
-            <p className="text-white font-semibold">{chartData.nakshatraGana}</p>
-          </div>
-          {chartData.nakshatraQualities.length > 0 && (
-            <div>
-              <p className="text-white/40 mb-1.5">Key Qualities</p>
-              <div className="flex flex-wrap gap-1">
-                {chartData.nakshatraQualities.slice(0, 3).map((q, i) => (
-                  <span key={i} className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[9px]">
-                    {q}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </motion.div>
 
-      {/* 3. Your Cosmic DNA - Planet Placements */}
-      {chartData.planets.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="rounded-xl border border-white/10 bg-white/[0.02] p-4"
-        >
-          <div className="flex items-start gap-2 mb-3">
-            <Sun className="w-4 h-4 text-amber-300 flex-shrink-0 mt-0.5" />
-            <h3 className="text-xs font-bold text-white/70 uppercase tracking-wider">Your Cosmic DNA</h3>
+      {/* 3. Current Active Energies */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25 }}
+        className="rounded-xl border border-white/[0.04] bg-white/[0.03] p-4"
+      >
+        <div className="flex items-start gap-2 mb-3">
+          <Zap className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+          <h3 className="text-xs font-bold text-white/50 uppercase tracking-wider">Current Active Energies</h3>
+        </div>
+        <p className="text-sm text-white/70 leading-relaxed">{transitInfo}</p>
+        {chartData.currentDasha && (
+          <div className="mt-3 pt-3 border-t border-white/10">
+            <p className="text-[10px] text-white/40 mb-2">Active Dasha Period</p>
+            <p className="text-sm font-semibold text-white">
+              {chartData.currentDasha.planet}
+              {chartData.currentDasha.subPlanet && ` (in ${chartData.currentDasha.subPlanet})`}
+            </p>
           </div>
-          <div className="space-y-2">
-            {chartData.planets.map((planet) => {
-              const badge = DIGNITY_BADGE_COLORS[planet.dignity]
-              return (
-                <motion.div
-                  key={planet.name}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center justify-between p-2 rounded-lg bg-white/[0.03] border border-white/5 hover:bg-white/[0.05] transition-colors"
-                >
-                  <div className="flex items-center gap-2 flex-1">
-                    <span className="text-lg font-semibold" style={{ color: planet.color }}>
-                      {planet.symbol}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-white truncate">{planet.name}</p>
-                      <p className="text-[10px] text-white/40">
-                        {planet.sign} {planet.house}H • {planet.nakshatra}
-                      </p>
-                    </div>
-                  </div>
-                  <div className={`px-2 py-1 rounded-md text-[10px] font-semibold ${badge.bg} ${badge.text} flex-shrink-0`}>
-                    {badge.icon} {planet.dignity}
-                  </div>
-                </motion.div>
-              )
-            })}
-          </div>
-        </motion.div>
-      )}
+        )}
+      </motion.div>
 
-      {/* 4. Yogas Found */}
-      {chartData.yogas.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="rounded-xl border border-amber-500/15 bg-amber-500/[0.04] p-4"
-        >
-          <div className="flex items-start gap-2 mb-3">
-            <Crown className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-            <h3 className="text-xs font-bold text-amber-400/80 uppercase tracking-wider">Yogas Found</h3>
-          </div>
-          <div className="space-y-2">
-            {chartData.yogas.map((yoga) => {
-              const colorScheme = YOGA_TYPE_COLORS[yoga.type]
-              return (
-                <motion.div
-                  key={yoga.name}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="p-3 rounded-lg border border-white/5 bg-white/[0.02] space-y-1.5"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-semibold text-white">{yoga.name}</p>
-                    <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold border ${colorScheme.badge} flex-shrink-0 whitespace-nowrap`}>
-                      {colorScheme.icon} {yoga.type.replace("_", " ")}
-                    </span>
-                  </div>
-                  <p className="text-xs text-white/60 leading-relaxed">{yoga.effect}</p>
-                  <div className="flex items-center gap-2 text-[10px]">
-                    <span className={`px-1.5 py-0.5 rounded bg-white/10 text-white/50`}>
-                      Strength: {yoga.strength}
-                    </span>
-                    <span className="text-white/30">{yoga.classicalRef}</span>
-                  </div>
-                </motion.div>
-              )
-            })}
-          </div>
-        </motion.div>
-      )}
-
-      {/* 5. Active Doshas */}
-      {chartData.doshas.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="rounded-xl border border-red-500/15 bg-red-500/[0.04] p-4"
-        >
-          <div className="flex items-start gap-2 mb-3">
-            <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
-            <h3 className="text-xs font-bold text-red-400/80 uppercase tracking-wider">Active Doshas (Afflictions)</h3>
-          </div>
-          <div className="space-y-2">
-            {chartData.doshas.map((dosha) => {
-              const colorClass = DOSHA_SEVERITY_COLORS[dosha.severity] || DOSHA_SEVERITY_COLORS.mild
-              return (
-                <motion.div
-                  key={dosha.name}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className={`p-3 rounded-lg border ${colorClass}`}
-                >
-                  <p className="text-sm font-semibold mb-1">{dosha.name}</p>
-                  <p className="text-xs opacity-80 leading-relaxed">{dosha.remedy}</p>
-                </motion.div>
-              )
-            })}
-          </div>
-        </motion.div>
-      )}
-
-      {/* 6. Current Dasha Period */}
-      {chartData.currentDasha && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="rounded-xl border border-indigo-500/15 bg-indigo-500/[0.04] p-4"
-        >
-          <div className="flex items-start gap-2 mb-3">
-            <Clock className="w-4 h-4 text-indigo-400 flex-shrink-0 mt-0.5" />
-            <h3 className="text-xs font-bold text-indigo-400/80 uppercase tracking-wider">Current Dasha Period</h3>
-          </div>
-          <div className="space-y-2 text-sm">
-            <div>
-              <p className="text-white/40 text-xs mb-1">Mahadasha (Main Period)</p>
-              <p className="text-white font-semibold">{chartData.currentDasha.planet}</p>
-              <p className="text-[10px] text-white/40">
-                {chartData.currentDasha.start} to {chartData.currentDasha.end}
-              </p>
-            </div>
-            {chartData.currentDasha.subPlanet && (
-              <div>
-                <p className="text-white/40 text-xs mb-1">Antardasha (Sub-period)</p>
-                <p className="text-white font-semibold">{chartData.currentDasha.subPlanet}</p>
-                <p className="text-[10px] text-white/40">
-                  {chartData.currentDasha.subStart} to {chartData.currentDasha.subEnd}
-                </p>
+      {/* 4. Life Map - 4 Cards */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="space-y-3"
+      >
+        <h3 className="text-xs font-bold text-white/50 uppercase tracking-wider px-1">Life Map</h3>
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { title: "Relationships", pattern: lifePatterns.relationships, icon: <Heart className="w-4 h-4" /> },
+            { title: "Career", pattern: lifePatterns.career, icon: <Briefcase className="w-4 h-4" /> },
+            { title: "Money", pattern: lifePatterns.money, icon: <TrendingUp className="w-4 h-4" /> },
+            { title: "Emotional", pattern: lifePatterns.emotional, icon: <Gem className="w-4 h-4" /> },
+          ].map((card, i) => (
+            <motion.button
+              key={card.title}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.32 + i * 0.04 }}
+              onClick={() => onTabChange("ask")}
+              className="rounded-lg border border-white/[0.04] bg-white/[0.03] p-3 text-left hover:bg-white/[0.06] transition-colors"
+            >
+              <div className="flex items-start gap-2 mb-2">
+                <span className="text-amber-400">{card.icon}</span>
+                <p className="text-xs font-bold text-white">{card.title}</p>
               </div>
-            )}
-          </div>
-        </motion.div>
-      )}
+              <p className="text-[11px] text-white/60 leading-snug">{card.pattern}</p>
+              <div className="mt-2 flex items-center text-amber-400/60 group-hover:text-amber-400 transition-colors">
+                <span className="text-[9px] font-semibold">Ask GrahAI</span>
+                <ArrowRight className="w-3 h-3 ml-1" />
+              </div>
+            </motion.button>
+          ))}
+        </div>
+      </motion.div>
 
-      {/* 7. Chart Summary */}
-      {chartData.summary && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4"
-        >
-          <div className="flex items-start gap-2 mb-3">
-            <BookOpen className="w-4 h-4 text-white/50 flex-shrink-0 mt-0.5" />
-            <h3 className="text-xs font-bold text-white/60 uppercase tracking-wider">Chart Summary</h3>
-          </div>
-          <p className="text-sm text-white/70 leading-relaxed">{chartData.summary}</p>
-        </motion.div>
-      )}
-
-      {/* 8. Educational Footer */}
+      {/* 5. Learn Your Chart - with Advanced toggle */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.45 }}
-        className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 mb-2"
+        className="rounded-xl border border-white/[0.04] bg-white/[0.03] p-4"
       >
-        <div className="flex items-start gap-2 mb-3">
-          <Info className="w-4 h-4 text-white/40 flex-shrink-0 mt-0.5" />
-          <h3 className="text-xs font-bold text-white/40 uppercase tracking-wider">How GrahAI Reads Your Chart</h3>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-start gap-2">
+            <BookOpen className="w-4 h-4 text-white/50 flex-shrink-0 mt-0.5" />
+            <h3 className="text-xs font-bold text-white/50 uppercase tracking-wider">Learn Your Chart</h3>
+          </div>
+          <button
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="flex items-center gap-1 text-[10px] text-white/40 hover:text-white/60 transition-colors"
+          >
+            Advanced details
+            {showAdvanced ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+          </button>
         </div>
+
+        {/* Simple Mode - Always Show */}
+        <div className="space-y-3 pb-3 border-b border-white/10">
+          <div>
+            <p className="text-xs text-white/40 mb-2">Your Moon Sign</p>
+            <p className="text-sm text-white/80">
+              {chartData.moonSign} is your emotional nature. This sign governs your inner world, needs, and how you process feelings.
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-white/40 mb-2">Your Lagna (Ascendant)</p>
+            <p className="text-sm text-white/80">
+              {chartData.lagna} is how the world sees you. It shapes your appearance, demeanor, and first impressions.
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-white/40 mb-2">Your Nakshatra</p>
+            <p className="text-sm text-white/80">
+              Born under {chartData.nakshatra}, ruled by {chartData.nakshatraDeity}. Your lunar mansion defines your core nature.
+            </p>
+          </div>
+        </div>
+
+        {/* Advanced Mode - Conditional */}
+        {showAdvanced && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="pt-3 space-y-3"
+          >
+            {/* Planet Placements */}
+            {chartData.planets.length > 0 && (
+              <div>
+                <p className="text-xs font-bold text-white/50 uppercase tracking-wider mb-2">Planet Placements</p>
+                <div className="space-y-1">
+                  {chartData.planets.map((planet) => {
+                    const badge = DIGNITY_BADGE_COLORS[planet.dignity]
+                    return (
+                      <div key={planet.name} className="flex items-center justify-between p-2 rounded-lg bg-white/[0.02] border border-white/5">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <span className="text-lg" style={{ color: planet.color }}>
+                            {planet.symbol}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-semibold text-white truncate">{planet.name}</p>
+                            <p className="text-[9px] text-white/40">
+                              {planet.sign} {planet.house}H • {planet.nakshatra}
+                            </p>
+                          </div>
+                        </div>
+                        <div className={`px-2 py-0.5 rounded text-[9px] font-semibold ${badge.bg} ${badge.text} flex-shrink-0`}>
+                          {badge.icon} {planet.dignity}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Yogas */}
+            {chartData.yogas.length > 0 && (
+              <div>
+                <p className="text-xs font-bold text-white/50 uppercase tracking-wider mb-2">Yogas Found</p>
+                <div className="space-y-1">
+                  {chartData.yogas.map((yoga) => {
+                    const colorScheme = YOGA_TYPE_COLORS[yoga.type]
+                    return (
+                      <div key={yoga.name} className="p-2 rounded-lg border border-white/5 bg-white/[0.02]">
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <p className="text-xs font-semibold text-white">{yoga.name}</p>
+                          <span className={`px-1.5 py-0.5 rounded text-[8px] font-semibold border ${colorScheme.badge} flex-shrink-0 whitespace-nowrap`}>
+                            {yoga.type.replace("_", " ")}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-white/60 leading-snug">{yoga.effect}</p>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Doshas */}
+            {chartData.doshas.length > 0 && (
+              <div>
+                <p className="text-xs font-bold text-white/50 uppercase tracking-wider mb-2">Active Doshas</p>
+                <div className="space-y-1">
+                  {chartData.doshas.map((dosha) => {
+                    const colorClass = DOSHA_SEVERITY_COLORS[dosha.severity] || DOSHA_SEVERITY_COLORS.mild
+                    return (
+                      <div key={dosha.name} className={`p-2 rounded-lg border ${colorClass}`}>
+                        <p className="text-xs font-semibold mb-0.5">{dosha.name}</p>
+                        <p className="text-[9px] opacity-80 leading-snug">{dosha.remedy}</p>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Nakshatra Details */}
+            {chartData.nakshatraQualities.length > 0 && (
+              <div>
+                <p className="text-xs font-bold text-white/50 uppercase tracking-wider mb-2">Nakshatra Qualities</p>
+                <div className="flex flex-wrap gap-1">
+                  {chartData.nakshatraQualities.map((q, i) => (
+                    <span key={i} className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[9px]">
+                      {q}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </motion.div>
+
+      {/* Footer */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="rounded-xl border border-white/[0.04] bg-white/[0.02] p-3 text-center mb-2"
+      >
         <p className="text-xs text-white/40 leading-relaxed">
-          GrahAI uses Swiss Ephemeris calculations with Lahiri Ayanamsa for astronomical precision, combined with
-          interpretations from Brihat Parashara Hora Shastra, Saravali, and Phaladeepika. Every insight is traceable to
-          classical sources.
+          GrahAI uses Swiss Ephemeris with Lahiri Ayanamsa. All interpretations trace to classical Vedic sources.
         </p>
       </motion.div>
     </div>
@@ -2412,7 +2452,7 @@ export default function GrahAIApp() {
               transition={{ duration: 0.2 }}
               className="h-full overflow-y-auto"
             >
-              <MyChartTab onShowKundli={() => showOverlay("kundli")} />
+              <MyChartTab onShowKundli={() => showOverlay("kundli")} onShowOverlay={showOverlay} onTabChange={setActiveTab} />
             </motion.div>
           )}
           {activeTab === "reports" && (
@@ -2424,7 +2464,7 @@ export default function GrahAIApp() {
               transition={{ duration: 0.2 }}
               className="h-full overflow-y-auto"
             >
-              <ReportsTab onUpgrade={() => showOverlay("pricing")} />
+              <ReportsTab onShowOverlay={showOverlay} />
             </motion.div>
           )}
         </AnimatePresence>

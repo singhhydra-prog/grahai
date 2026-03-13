@@ -2,207 +2,280 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Check, ArrowRight, Sparkles, X } from "lucide-react"
+import { Check, X, ChevronRight } from "lucide-react"
 
 /* ────────────────────────────────────────────────────
-   PRICING DATA
+   PRICING PLANS
    ──────────────────────────────────────────────────── */
 const plans = [
   {
+    id: "free",
     name: "Free",
-    nameHi: "मुफ़्त",
     price: "Free",
-    priceNote: "Forever",
-    description: "Begin your cosmic journey",
+    description: "Start your journey",
     popular: false,
+    current: true,
     features: [
-      "3 welcome questions to start",
-      "1 question per day after",
-      "Basic Kundli generation",
-      "Daily Panchang overview",
-      "Name numerology reading",
-      "Sun sign daily insight",
+      "Onboarding reveal",
+      "Daily insight",
+      "1 question/day or 3 welcome questions",
+      "Basic chart summary",
     ],
-    cta: "Start Free",
-    href: "/auth/login",
+    cta: "Current Plan",
+    ctaDisabled: true,
   },
   {
+    id: "plus",
     name: "Plus",
-    nameHi: "प्लस",
     price: "₹199",
-    priceNote: "/month",
+    period: "/month",
     description: "For the curious seeker",
     popular: true,
+    current: false,
     features: [
-      "30 questions per month",
-      "Full Kundli with Dasha analysis",
-      "Nakshatra deep dive",
-      "Sanskrit verse references",
-      "Tarot 3-card spread",
-      "Basic Vastu guidance",
-      "Bilingual: Hindi + English",
-      "Gemstone recommendations",
+      "More questions (10/day)",
+      "Full home dashboard",
+      "Saved history",
+      "Weekly guidance email",
+      "Full source explanations",
     ],
-    cta: "Upgrade to Plus",
-    href: "/pricing/checkout?plan=plus",
+    cta: "Start Plus",
+    ctaDisabled: false,
   },
   {
+    id: "premium",
     name: "Premium",
-    nameHi: "प्रीमियम",
     price: "₹499",
-    priceNote: "/month",
+    period: "/month",
     description: "Complete cosmic intelligence",
     popular: false,
+    current: false,
     features: [
-      "Unlimited conversations",
-      "Full Kundli + Divisional charts",
-      "Advanced Dasha predictions",
-      "Compatibility analysis",
-      "Full 78-card Tarot",
-      "Complete Vastu mapping",
-      "Monthly transit reports",
-      "Priority response speed",
-      "Annual prediction reports",
-      "Muhurta — auspicious timing",
-      "Export to PDF",
+      "Unlimited ask",
+      "Compatibility reports",
+      "Annual forecast",
+      "Deep timing analysis",
+      "Family profiles (up to 5)",
+      "Advanced reports",
     ],
     cta: "Go Premium",
-    href: "/pricing/checkout?plan=premium",
+    ctaDisabled: false,
   },
 ]
 
-const faqs = [
-  { q: "Is GrahAI a replacement for a human astrologer?", a: "GrahAI is a tool that provides precision readings grounded in classical texts. It complements traditional consultation — think of it as a detailed second opinion computed with mathematical accuracy." },
-  { q: "How accurate are the readings?", a: "We use the Swiss Ephemeris engine for planetary calculations — the same tool used by professional astrologers worldwide. Every interpretation traces back to specific verses in BPHS, Saravali, and other classical texts." },
-  { q: "Can I cancel my subscription anytime?", a: "Yes. Cancel anytime from your dashboard. You'll retain access until the end of your billing period with no hidden fees." },
-  { q: "What languages are supported?", a: "Currently English and Hindi with authentic Devanagari script. We plan to add Tamil, Telugu, Kannada, Bengali, and Marathi by Q3 2026." },
-  { q: "Is my birth data safe?", a: "All personal data is encrypted at rest (AES-256) and in transit (TLS 1.3). We never share your information with third parties. You can request complete data deletion at any time." },
+const oneTimePurchases = [
+  {
+    id: "kundli-export",
+    name: "PDF Kundli Export",
+    price: "₹149",
+    description: "Export your complete Kundli",
+  },
+  {
+    id: "compatibility-deepdive",
+    name: "Compatibility Deep-Dive",
+    price: "₹249",
+    description: "Detailed partner analysis",
+  },
+  {
+    id: "annual-forecast",
+    name: "Annual Forecast 2026",
+    price: "₹399",
+    description: "Year-long predictions",
+  },
+  {
+    id: "live-consult",
+    name: "Live Jyotishi Consult",
+    price: "₹999",
+    description: "30-min expert session",
+  },
+  {
+    id: "remedies-pack",
+    name: "Remedies Pack",
+    price: "₹149",
+    description: "Personalized remedies",
+  },
 ]
 
 /* ════════════════════════════════════════════════════
    PRICING MODAL
    ════════════════════════════════════════════════════ */
 export default function PricingModal({ onClose }: { onClose: () => void }) {
-  const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [scrollPosition, setScrollPosition] = useState(0)
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    setScrollPosition((e.target as HTMLDivElement).scrollLeft)
+  }
 
   return (
-    <main className="fixed inset-0 z-[100] overflow-y-auto bg-[#0a0a0f]">
-      <div className="sticky top-0 z-50 flex items-center justify-between px-4 py-3 bg-[#0a0a0f]/90 backdrop-blur-xl border-b border-white/[0.04]">
-        <button onClick={onClose} className="p-2 -ml-2 rounded-xl hover:bg-white/[0.06] transition-colors">
+    <main className="fixed inset-0 z-[100] overflow-y-auto bg-[#060A14]">
+      {/* ═══ HEADER ═══ */}
+      <div className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 bg-[#060A14]/90 backdrop-blur-xl border-b border-white/[0.04]">
+        <button
+          onClick={onClose}
+          className="p-2 -ml-2 rounded-xl hover:bg-white/[0.06] transition-colors"
+        >
           <X className="w-5 h-5 text-white/70" />
         </button>
         <h1 className="text-lg font-bold text-white">Choose Your Plan</h1>
         <div className="w-9" />
       </div>
 
-      {/* ═══ HERO ═══ */}
-      <section className="relative pt-16 pb-12 px-6 lg:px-10">
-        <div className="mx-auto max-w-4xl text-center">
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0 }}>
-            <p className="text-label text-gold/30 mb-6">Pricing</p>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <h1 className="heading-section mb-6">
-              Choose your <span className="gold-text">cosmic plan</span>
-            </h1>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <p className="text-body mx-auto max-w-lg">
-              Start free with essential readings. Upgrade for full classical depth,
-              unlimited consultations, and bilingual support.
+      {/* ═══ PLANS SECTION ═══ */}
+      <section className="px-6 py-12 lg:py-16">
+        <div className="mx-auto max-w-6xl">
+          <div className="grid gap-6 lg:gap-8 lg:grid-cols-3 mb-16">
+            {plans.map((plan, i) => (
+              <motion.div
+                key={plan.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <div
+                  className={`relative flex flex-col rounded-2xl border p-8 lg:p-10 transition-all duration-500 ${
+                    plan.popular
+                      ? "border-amber-400/20 bg-white/[0.03] shadow-lg shadow-amber-400/[0.05]"
+                      : "border-white/[0.04] bg-white/[0.03] hover:border-white/[0.08]"
+                  }`}
+                >
+                  {/* Most Popular Badge */}
+                  {plan.popular && (
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400/10 border border-amber-400/20 px-4 py-1.5 text-[10px] font-semibold tracking-widest uppercase text-amber-400">
+                        ⭐ Most Popular
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Plan Header */}
+                  <div className="mb-8">
+                    <h3 className="text-2xl font-bold text-white mb-2">
+                      {plan.name}
+                    </h3>
+                    <p className="text-sm text-white/60 mb-6">{plan.description}</p>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-4xl font-bold text-amber-400">
+                        {plan.price}
+                      </span>
+                      {plan.period && (
+                        <span className="text-sm text-white/50">{plan.period}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Features */}
+                  <div className="flex-1 mb-8">
+                    <div className="space-y-3">
+                      {plan.features.map((feature) => (
+                        <div key={feature} className="flex items-start gap-3">
+                          <Check className="h-4 w-4 mt-0.5 shrink-0 text-amber-400" />
+                          <span className="text-sm text-white/70">{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* CTA Button */}
+                  <button
+                    disabled={plan.ctaDisabled}
+                    className={`flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-semibold transition-all active:scale-[0.98] ${
+                      plan.current
+                        ? "bg-white/[0.05] text-white/60 cursor-default border border-white/[0.1]"
+                        : "bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:shadow-lg hover:shadow-amber-500/30 cursor-pointer"
+                    }`}
+                  >
+                    {plan.cta}
+                    {!plan.ctaDisabled && (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Monetization Philosophy */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="text-center mb-16"
+          >
+            <p className="text-xs text-white/40 leading-relaxed">
+              We only suggest upgrades after you've felt personal value
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* ═══ PLANS ═══ */}
-      <section className="px-6 lg:px-10 pb-32 lg:pb-48">
-        <div className="mx-auto max-w-6xl grid gap-6 lg:gap-8 md:grid-cols-3">
-          {plans.map((plan, i) => (
-            <motion.div key={plan.name} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.12 }}>
-              <div className={`relative flex flex-col rounded-2xl border p-8 lg:p-10 transition-all duration-500 ${
-                plan.popular
-                  ? "border-gold/20 bg-bg-2/60 shadow-xl shadow-gold/[0.03]"
-                  : "border-white/[0.04] bg-bg-2/30 hover:border-white/[0.08]"
-              }`}>
-                {plan.popular && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-gold/10 border border-gold/20 px-4 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase text-gold">
-                      <Sparkles className="h-3 w-3" /> Most Popular
-                    </span>
-                  </div>
-                )}
-
-                <div className="mb-8">
-                  <div className="flex items-baseline gap-2 mb-1">
-                    <h3 className="text-xl font-bold text-text">{plan.name}</h3>
-                    <span className="font-hindi text-xs text-gold/45">{plan.nameHi}</span>
-                  </div>
-                  <p className="text-caption mb-6">{plan.description}</p>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold text-text">{plan.price}</span>
-                    <span className="text-sm text-text-dim/60">{plan.priceNote}</span>
-                  </div>
-                </div>
-
-                <div className="flex-1 mb-8">
-                  <div className="space-y-3">
-                    {plan.features.map(f => (
-                      <div key={f} className="flex items-start gap-3">
-                        <Check className="h-4 w-4 mt-0.5 shrink-0 text-gold/50" />
-                        <span className="text-sm text-text-dim/80">{f}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <button onClick={onClose}
-                  className={`flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-semibold transition-all active:scale-[0.98] ${
-                    plan.popular
-                      ? "bg-gold text-bg hover:bg-gold-light"
-                      : "border border-gold/15 text-gold/60 hover:border-gold/25 hover:bg-gold/[0.04]"
-                  }`}>
-                  {plan.cta}
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ═══ FAQ ═══ */}
-      <section className="px-6 lg:px-10 pb-32 lg:pb-48">
-        <div className="mx-auto max-w-3xl">
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0 }}>
-            <h2 className="heading-section text-center mb-16">
-              Frequently <span className="gold-text">asked</span>
-            </h2>
+      {/* ═══ ONE-TIME PURCHASES ═══ */}
+      <section className="px-6 py-12 lg:py-16 border-t border-white/[0.04]">
+        <div className="mx-auto max-w-6xl">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mb-8"
+          >
+            <h2 className="text-2xl font-bold text-white mb-2">One-Time Purchases</h2>
+            <p className="text-sm text-white/60">Enhance your readings with specialized reports</p>
           </motion.div>
 
-          <div className="space-y-4">
-            {faqs.map((faq, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}>
-                <button
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full text-left rounded-xl border border-white/[0.04] bg-bg-2/30 p-6 transition-all hover:border-white/[0.08]"
+          {/* Horizontal Scroll Cards */}
+          <div
+            onScroll={handleScroll}
+            className="overflow-x-auto pb-4 -mx-6 px-6 scroll-smooth"
+            style={{ scrollBehavior: "smooth" }}
+          >
+            <div className="flex gap-4 min-w-min">
+              {oneTimePurchases.map((product, i) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 + i * 0.05 }}
+                  className="flex-shrink-0 w-80"
                 >
-                  <div className="flex items-center justify-between gap-4">
-                    <h3 className="text-base font-semibold text-text">{faq.q}</h3>
-                    <span className={`text-gold/50 transition-transform duration-300 ${openFaq === i ? "rotate-45" : ""}`}>+</span>
+                  <div className="rounded-xl border border-white/[0.04] bg-white/[0.03] p-6 hover:border-white/[0.08] transition-all cursor-pointer group">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="text-base font-semibold text-white group-hover:text-amber-400 transition-colors">
+                          {product.name}
+                        </h3>
+                        <p className="text-xs text-white/50 mt-1">
+                          {product.description}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl font-bold text-amber-400">
+                        {product.price}
+                      </span>
+                      <button className="p-2 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 transition-colors">
+                        <ChevronRight className="h-4 w-4 text-amber-400" />
+                      </button>
+                    </div>
                   </div>
-                  {openFaq === i && (
-                    <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
-                      className="mt-4 text-sm text-text-dim/75 leading-relaxed">
-                      {faq.a}
-                    </motion.p>
-                  )}
-                </button>
-              </motion.div>
-            ))}
+                </motion.div>
+              ))}
+            </div>
           </div>
+
+          {/* Scroll Indicator */}
+          {scrollPosition < 100 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex justify-center mt-6"
+            >
+              <p className="text-xs text-white/40">Scroll to see more →</p>
+            </motion.div>
+          )}
         </div>
       </section>
+
+      {/* Extra padding for mobile */}
+      <div className="h-12" />
     </main>
   )
 }
