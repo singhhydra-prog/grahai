@@ -180,7 +180,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
   const isEmpty = messages.length === 0
 
   return (
-    <div className="min-h-dvh flex flex-col bg-[#0A0E1A]">
+    <div className="min-h-dvh flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-3 px-5 py-3 shrink-0 border-b border-white/[0.04] bg-[#0A0E1A]/80 backdrop-blur-md">
         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#D4A054] to-[#A16E2A] flex items-center justify-center gold-shimmer">

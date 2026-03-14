@@ -50,7 +50,7 @@ export default function AppPage() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-dvh flex items-center justify-center bg-[#0A0E1A]">
+      <div className="min-h-dvh flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#D4A054] to-[#A16E2A] animate-pulse
             flex items-center justify-center">
@@ -63,9 +63,7 @@ export default function AppPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-[#0A0E1A]">
-      {/* Subtle starfield background */}
-      <div className="starfield" />
+    <div className="min-h-dvh relative">
 
       {/* Onboarding */}
       <AnimatePresence>

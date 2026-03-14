@@ -181,7 +181,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-[#0A0E1A] flex flex-col"
+      className="fixed inset-0 z-50 flex flex-col"
     >
       {/* Progress dots */}
       {step < 4 && (
