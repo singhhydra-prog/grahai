@@ -9,6 +9,7 @@ import type { ReportCategoryId } from "@/types/app"
 interface ReportItem {
   id: string
   title: string
+  outcome: string          // what life outcome it addresses
   description: string
   whatItHelps: string
   whatsInside: string[]
@@ -23,6 +24,7 @@ interface ReportSection {
   title: string
   Icon: typeof Heart
   color: string
+  bgColor: string
   reports: ReportItem[]
 }
 
@@ -32,23 +34,26 @@ const REPORT_SECTIONS: ReportSection[] = [
     title: "Love & Compatibility",
     Icon: Heart,
     color: "text-rose-400",
+    bgColor: "bg-rose-500/10",
     reports: [
       {
         id: "love-compat",
         title: "Love & Compatibility",
-        description: "Understand your relationship dynamics and compatibility patterns",
+        outcome: "Understand your relationship dynamics",
+        description: "Why certain patterns keep showing up in your relationships, what creates closeness, and what creates strain.",
         whatItHelps: "Know your romantic strengths, challenges, and ideal partner qualities",
-        whatsInside: ["Relationship style analysis", "Compatibility indicators", "Communication patterns", "Emotional needs mapping"],
+        whatsInside: ["Relationship style from Venus & 7th house", "Compatibility indicators", "Communication patterns", "What creates closeness vs strain"],
         pricing: "premium",
         price: 299,
         icon: "💕",
-        previewSnippet: "Your Venus placement suggests a deep need for emotional security in relationships. You value loyalty and consistency over excitement.",
+        previewSnippet: "Your Venus placement suggests a deep need for emotional security. You value loyalty and consistency over excitement — and your chart shows why.",
       },
       {
         id: "kundli-match",
         title: "Kundli Matching",
-        description: "Traditional 36 Guna Milan for marriage compatibility",
-        whatItHelps: "Evaluate marriage compatibility with a specific partner",
+        outcome: "Evaluate marriage compatibility",
+        description: "Traditional 36 Guna Milan with dosha analysis and remedies for a specific partner.",
+        whatItHelps: "Marriage compatibility score with detailed breakdowns",
         whatsInside: ["36 Guna score", "Manglik analysis", "Dasha compatibility", "Remedies for doshas"],
         pricing: "one-time",
         price: 499,
@@ -61,26 +66,18 @@ const REPORT_SECTIONS: ReportSection[] = [
     title: "Career Blueprint",
     Icon: Briefcase,
     color: "text-amber-400",
+    bgColor: "bg-amber-500/10",
     reports: [
       {
         id: "career-blueprint",
         title: "Career Blueprint",
-        description: "See where your chart supports progress and when pressure peaks",
-        whatItHelps: "Career direction, timing of promotions, industry alignment",
-        whatsInside: ["Career strength analysis", "Industry recommendations", "Promotion windows", "Professional challenges"],
+        outcome: "Find your professional direction",
+        description: "Where your chart supports progress, when pressure peaks, and what industries align with your planetary strengths.",
+        whatItHelps: "Career direction, promotion timing, industry alignment",
+        whatsInside: ["10th house & Dasamsa analysis", "Industry recommendations", "Promotion windows", "Best timing for career moves"],
         pricing: "plus",
         icon: "📊",
-        previewSnippet: "Your 10th house lord is strong, indicating natural leadership abilities. The current period favors strategic career moves over impulsive changes.",
-      },
-      {
-        id: "job-vs-business",
-        title: "Job vs Business",
-        description: "Discover whether employment or entrepreneurship suits your chart",
-        whatItHelps: "Decision clarity on career path direction",
-        whatsInside: ["Entrepreneurial indicators", "Employment stability", "Risk assessment", "Timing recommendations"],
-        pricing: "one-time",
-        price: 199,
-        icon: "⚖️",
+        previewSnippet: "Your 10th house lord is strong, indicating natural leadership. The current dasha favors strategic career moves over impulsive changes.",
       },
     ],
   },
@@ -89,13 +86,15 @@ const REPORT_SECTIONS: ReportSection[] = [
     title: "Marriage Timing",
     Icon: Gem,
     color: "text-purple-400",
+    bgColor: "bg-purple-500/10",
     reports: [
       {
         id: "marriage-timing",
         title: "Marriage Timing",
-        description: "Yogas, timing windows, and remedies for marriage",
-        whatItHelps: "When to expect marriage, what may cause delays, how to improve prospects",
-        whatsInside: ["Marriage yoga analysis", "Timing windows", "Delay factors", "Practical remedies"],
+        outcome: "Know when you're ready",
+        description: "Readiness indicators, timing windows, what may cause delays, and practical remedies.",
+        whatItHelps: "When to expect marriage, blockers, quality of the timing window",
+        whatsInside: ["7th house yoga analysis", "Timing windows from Dasha", "Delay factors & doshas", "Practical remedies"],
         pricing: "premium",
         price: 399,
         icon: "🗓️",
@@ -108,13 +107,15 @@ const REPORT_SECTIONS: ReportSection[] = [
     title: "Annual Forecast",
     Icon: Calendar,
     color: "text-teal-400",
+    bgColor: "bg-teal-500/10",
     reports: [
       {
         id: "annual-forecast",
         title: "Annual Forecast 2026",
-        description: "Month-by-month guidance for the year ahead",
-        whatItHelps: "Plan your year with chart-aligned timing for major decisions",
-        whatsInside: ["Monthly breakdowns", "Key transit impacts", "Best periods for action", "Caution windows"],
+        outcome: "Plan your year with confidence",
+        description: "Month-by-month guidance so you know when to push, when to pause, and when big shifts are likely.",
+        whatItHelps: "Plan your year with chart-aligned timing",
+        whatsInside: ["Monthly transit impacts", "Best periods for major decisions", "Caution windows", "Key planetary shifts"],
         pricing: "premium",
         price: 599,
         icon: "📅",
@@ -126,13 +127,15 @@ const REPORT_SECTIONS: ReportSection[] = [
     title: "Wealth & Growth Cycle",
     Icon: TrendingUp,
     color: "text-emerald-400",
+    bgColor: "bg-emerald-500/10",
     reports: [
       {
         id: "wealth-growth",
         title: "Wealth & Growth",
-        description: "Your financial patterns and wealth-building windows",
+        outcome: "Understand your financial patterns",
+        description: "Your natural wealth-building strengths, when income peaks, and which financial risks your chart supports.",
         whatItHelps: "Investment timing, income peaks, financial risk periods",
-        whatsInside: ["Wealth yogas", "Income growth periods", "Investment sectors", "Financial caution zones"],
+        whatsInside: ["Wealth yogas (Dhan yoga, Lakshmi yoga)", "Income growth periods", "Investment sectors", "Financial caution zones"],
         pricing: "plus",
         icon: "💰",
       },
@@ -143,17 +146,19 @@ const REPORT_SECTIONS: ReportSection[] = [
     title: "Dasha Deep Dive",
     Icon: BookOpen,
     color: "text-blue-400",
+    bgColor: "bg-blue-500/10",
     reports: [
       {
         id: "dasha-deep-dive",
         title: "Dasha Deep Dive",
-        description: "Understand your current planetary period in detail",
-        whatItHelps: "Why certain themes keep repeating and when they shift",
+        outcome: "Why certain themes keep repeating",
+        description: "Understand your current planetary period in detail — what it's activating, when it shifts, and how to work with it.",
+        whatItHelps: "Clarity on recurring life themes and when they change",
         whatsInside: ["Current Mahadasha analysis", "Antardasha breakdowns", "Life theme mapping", "Transition forecasts"],
         pricing: "premium",
         price: 499,
         icon: "🔮",
-        previewSnippet: "You're in a Venus Mahadasha, which brings focus to relationships, creativity, and material comforts. This period emphasizes balance and beauty.",
+        previewSnippet: "You're in a Venus Mahadasha, bringing focus to relationships, creativity, and material comfort. This period rewards patience over force.",
       },
     ],
   },
@@ -172,13 +177,10 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
   const [genError, setGenError] = useState<string | null>(null)
 
   const handleUnlock = async (report: ReportItem) => {
-    // Free reports → generate directly
     if (report.pricing === "free") {
       await handleGenerate()
       return
     }
-
-    // Paid (plus/premium/one-time) → open pricing overlay
     onPricingClick()
   }
 
@@ -225,29 +227,31 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
     }
   }
 
-  const handleAskAboutTopic = (report: ReportItem) => {
-    const question = `Tell me about my ${report.title.toLowerCase()} based on my birth chart`
-    onAskQuestion(question)
-  }
-
   return (
     <div className="min-h-full pb-24">
-      <AppHeader onProfileClick={onProfileClick} subtitle="Organized by life outcomes" />
+      <AppHeader onProfileClick={onProfileClick} subtitle="Life-outcome reports" />
 
       <div className="px-5 pt-4">
+        {/* Intro text */}
+        <p className="text-xs text-[#5A6478] mb-5 leading-relaxed">
+          Each report maps to a real life outcome — not a generic product. Pick what matters most to you right now.
+        </p>
+
         {/* Report sections */}
         {REPORT_SECTIONS.map((section, si) => (
           <motion.div
             key={section.id}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: si * 0.06 }}
-            className="mb-6"
+            transition={{ delay: si * 0.05 }}
+            className="mb-5"
           >
             {/* Section header */}
-            <div className="flex items-center gap-2 mb-3">
-              <section.Icon className={`w-4 h-4 ${section.color}`} />
-              <h2 className="text-sm font-semibold text-[#F1F0F5] text-visible">{section.title}</h2>
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className={`w-7 h-7 rounded-lg ${section.bgColor} flex items-center justify-center`}>
+                <section.Icon className={`w-3.5 h-3.5 ${section.color}`} />
+              </div>
+              <h2 className="text-sm font-semibold text-[#F1F0F5]">{section.title}</h2>
             </div>
 
             {/* Report cards */}
@@ -256,8 +260,7 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
                 <button
                   key={report.id}
                   onClick={() => { setSelectedReport(report); setDownloadUrl(null); setGenError(null) }}
-                  className="w-full text-left glass-card card-lift p-4
-                    hover:border-[#D4A054]/15 transition-colors"
+                  className="w-full text-left glass-card card-lift p-4 hover:border-[#D4A054]/15 transition-colors"
                 >
                   <div className="flex items-start gap-3">
                     <span className="text-xl mt-0.5">{report.icon}</span>
@@ -265,18 +268,15 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
                       <div className="flex items-center gap-2 mb-0.5">
                         <h3 className="text-sm font-semibold text-[#F1F0F5]">{report.title}</h3>
                         {report.pricing === "free" ? (
-                          <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-medium">
-                            FREE
-                          </span>
+                          <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-medium">FREE</span>
                         ) : report.pricing === "one-time" ? (
-                          <span className="text-[9px] bg-[#D4A054]/10 text-[#D4A054] px-1.5 py-0.5 rounded font-medium">
-                            ₹{report.price}
-                          </span>
+                          <span className="text-[9px] bg-[#D4A054]/10 text-[#D4A054] px-1.5 py-0.5 rounded font-medium">₹{report.price}</span>
                         ) : (
                           <Lock className="w-3 h-3 text-[#5A6478]" />
                         )}
                       </div>
-                      <p className="text-xs text-[#5A6478] leading-relaxed">{report.description}</p>
+                      <p className="text-[11px] text-[#D4A054]/70 font-medium mb-1">{report.outcome}</p>
+                      <p className="text-xs text-[#5A6478] leading-relaxed line-clamp-2">{report.description}</p>
                     </div>
                     <ChevronRight className="w-4 h-4 text-[#5A6478] shrink-0 mt-1" />
                   </div>
@@ -297,12 +297,10 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
             className="fixed inset-0 z-50 bg-[#0A0E1A] overflow-y-auto"
           >
-            {/* Close button */}
             <div className="flex items-center justify-between px-5 pt-4 pb-2">
               <button
                 onClick={() => setSelectedReport(null)}
-                className="w-10 h-10 rounded-full bg-[#1E2638] border border-[#1E293B]
-                  flex items-center justify-center"
+                className="w-10 h-10 rounded-full bg-[#1E2638] border border-[#1E293B] flex items-center justify-center"
               >
                 <X className="w-4 h-4 text-[#5A6478]" />
               </button>
@@ -314,16 +312,16 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
             </div>
 
             <div className="px-5 pt-4 pb-32">
-              {/* Title */}
               <div className="text-center mb-6">
                 <span className="text-4xl block mb-3">{selectedReport.icon}</span>
-                <h1 className="text-xl font-bold text-[#F1F0F5] mb-2">{selectedReport.title}</h1>
+                <h1 className="text-xl font-bold text-[#F1F0F5] mb-1">{selectedReport.title}</h1>
+                <p className="text-sm text-[#D4A054]/80 font-medium mb-2">{selectedReport.outcome}</p>
                 <p className="text-sm text-[#94A3B8]">{selectedReport.whatItHelps}</p>
               </div>
 
               {/* What's inside */}
               <div className="glass-card p-4 mb-4">
-                <h3 className="text-sm font-semibold text-[#F1F0F5] text-visible mb-3 relative z-10">What&apos;s inside</h3>
+                <h3 className="text-sm font-semibold text-[#F1F0F5] mb-3">What&apos;s inside</h3>
                 <div className="space-y-2">
                   {selectedReport.whatsInside.map((item, i) => (
                     <div key={i} className="flex items-center gap-2">
@@ -344,51 +342,32 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
                 </div>
               )}
 
-              {/* Ask AI about this topic shortcut */}
+              {/* Ask AI shortcut */}
               <button
-                onClick={() => { handleAskAboutTopic(selectedReport); setSelectedReport(null) }}
-                className="w-full flex items-center gap-3 glass-card-hero px-4 py-3.5 mb-4
-                  hover:border-[#D4A054]/30 transition-colors"
+                onClick={() => { onAskQuestion(`Tell me about my ${selectedReport.title.toLowerCase()} based on my birth chart`); setSelectedReport(null) }}
+                className="w-full flex items-center gap-3 glass-card-hero px-4 py-3.5 mb-4 hover:border-[#D4A054]/30 transition-colors"
               >
                 <Sparkles className="w-4 h-4 text-[#D4A054]" />
                 <span className="text-sm text-[#94A3B8] flex-1">Ask GrahAI about this topic</span>
                 <ArrowRight className="w-4 h-4 text-[#5A6478]" />
               </button>
 
-              {/* Download link (if generated) */}
               {downloadUrl && (
                 <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                   className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 mb-4 text-center">
                   <p className="text-sm text-emerald-400 font-medium mb-2">Report ready!</p>
                   <a href={downloadUrl} target="_blank" rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/20 rounded-lg text-sm text-emerald-400 font-medium">
-                    <Download className="w-4 h-4" />
-                    Download PDF
+                    <Download className="w-4 h-4" />Download PDF
                   </a>
                 </motion.div>
               )}
 
-              {/* Generation error */}
               {genError && (
                 <div className="bg-rose-500/10 border border-rose-500/20 rounded-xl p-4 mb-4 text-center">
                   <p className="text-sm text-rose-400">{genError}</p>
                 </div>
               )}
-
-              {/* FAQ */}
-              <div className="glass-card p-4">
-                <h3 className="text-sm font-semibold text-[#F1F0F5] text-visible mb-3 relative z-10">Common questions</h3>
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-xs font-medium text-[#94A3B8] mb-1">How accurate is this report?</p>
-                    <p className="text-xs text-[#5A6478]">Based on classical Jyotish principles and your exact birth data. Accuracy increases with precise birth time.</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-[#94A3B8] mb-1">Can I get a refund?</p>
-                    <p className="text-xs text-[#5A6478]">Yes, within 7 days if you&apos;re not satisfied with the insights.</p>
-                  </div>
-                </div>
-              </div>
             </div>
 
             {/* Sticky unlock button */}
@@ -401,25 +380,15 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
                   flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {generating ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Generating report...
-                  </>
+                  <><Loader2 className="w-4 h-4 animate-spin" />Generating report...</>
                 ) : downloadUrl ? (
-                  <>
-                    <Download className="w-4 h-4" />
-                    Download Report
-                  </>
+                  <><Download className="w-4 h-4" />Download Report</>
                 ) : selectedReport.pricing === "free" ? (
                   <>Generate Report<ArrowRight className="w-4 h-4" /></>
                 ) : selectedReport.pricing === "one-time" ? (
                   <>Unlock for ₹{selectedReport.price}<ArrowRight className="w-4 h-4" /></>
                 ) : (
-                  <>
-                    <Lock className="w-4 h-4" />
-                    Upgrade to {selectedReport.pricing === "plus" ? "Graha" : "Rishi"}
-                    <ArrowRight className="w-4 h-4" />
-                  </>
+                  <><Lock className="w-4 h-4" />Upgrade to {selectedReport.pricing === "plus" ? "Graha" : "Rishi"}<ArrowRight className="w-4 h-4" /></>
                 )}
               </button>
             </div>

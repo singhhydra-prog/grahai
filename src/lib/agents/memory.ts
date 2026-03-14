@@ -1,9 +1,17 @@
 import { createClient } from "@supabase/supabase-js"
 
-/* ────────────────────────────────────────────────────
-   MEMORY SYSTEM — Context injection from memories table
-   Supports retrieval and persistence of user memories
-   ──────────────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════════
+   MEMORY SYSTEM — V2 with Thread Tracking
+
+   Supports:
+   - Basic memory retrieval & persistence (unchanged)
+   - Memory thread tracking (recurring life themes)
+   - Life-area tagging for continuity cards
+   - Pattern detection across conversations
+   - Context injection into AI prompts
+
+   Per Execution Document Module E (User Memory Layer)
+   ════════════════════════════════════════════════════════ */
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -21,6 +29,17 @@ const VERTICAL_MEMORY_TYPES: Record<string, string[]> = {
   general: ["birth_data", "preference", "life_context"],
 }
 
+// Life area keywords for auto-tagging threads
+const LIFE_AREA_KEYWORDS: Record<string, string[]> = {
+  love: ["relationship", "partner", "marriage", "love", "dating", "spouse", "compatibility", "breakup", "romance"],
+  career: ["career", "job", "work", "promotion", "business", "salary", "profession", "interview", "resign"],
+  health: ["health", "illness", "disease", "medical", "surgery", "wellness", "mental health", "anxiety", "stress"],
+  family: ["family", "parent", "child", "mother", "father", "sibling", "son", "daughter", "home"],
+  wealth: ["money", "wealth", "investment", "property", "finance", "debt", "savings", "income", "loss"],
+  education: ["education", "study", "exam", "college", "university", "degree", "course", "learning"],
+  spiritual: ["spiritual", "karma", "meditation", "mantra", "remedy", "temple", "prayer", "puja"],
+}
+
 /* ────────────────────────────────────────────────────
    GET RELEVANT MEMORIES — Retrieves user context
    ──────────────────────────────────────────────────── */
@@ -33,37 +52,67 @@ export async function getRelevantMemories(
   const memoryTypes = VERTICAL_MEMORY_TYPES[vertical] || VERTICAL_MEMORY_TYPES.general
 
   try {
-    const { data: memories, error } = await sb
-      .from("memories")
-      .select("id, memory_type, content, importance, created_at")
-      .eq("user_id", userId)
-      .in("memory_type", memoryTypes)
-      .order("importance", { ascending: false })
-      .order("last_accessed_at", { ascending: false, nullsFirst: false })
-      .limit(limit)
+    // Fetch memories and active threads in parallel
+    const [memoriesResult, threadsResult] = await Promise.all([
+      sb
+        .from("memories")
+        .select("id, memory_type, content, importance, created_at")
+        .eq("user_id", userId)
+        .in("memory_type", memoryTypes)
+        .order("importance", { ascending: false })
+        .order("last_accessed_at", { ascending: false, nullsFirst: false })
+        .limit(limit),
+      sb
+        .from("memory_threads")
+        .select("theme, life_area, intensity_score, summary, occurrence_count, last_seen_at")
+        .eq("user_id", userId)
+        .order("intensity_score", { ascending: false })
+        .limit(3),
+    ])
 
-    if (error || !memories || memories.length === 0) {
+    const memories = memoriesResult.data
+    const threads = threadsResult.data
+
+    const hasMemories = memories && memories.length > 0
+    const hasThreads = threads && threads.length > 0
+
+    if (!hasMemories && !hasThreads) {
       return ""
     }
 
-    // Update access counts (fire-and-forget)
-    const memoryIds = memories.map((m) => m.id)
-    Promise.resolve(
-      sb.from("memories")
-        .update({
-          access_count: 1,
-          last_accessed_at: new Date().toISOString(),
-        })
-        .in("id", memoryIds)
-    ).catch(() => {})
+    const contextParts: string[] = []
 
-    // Format memories as context block
-    const contextLines = memories.map((m) => {
-      const typeLabel = m.memory_type.replace(/_/g, " ")
-      return `- [${typeLabel}] ${m.content}`
-    })
+    // Format memories
+    if (hasMemories) {
+      const memoryIds = memories.map((m) => m.id)
+      // Update access counts (fire-and-forget)
+      Promise.resolve(
+        sb.from("memories")
+          .update({
+            access_count: 1,
+            last_accessed_at: new Date().toISOString(),
+          })
+          .in("id", memoryIds)
+      ).catch(() => {})
 
-    return `\n\n--- USER CONTEXT (from previous interactions) ---\n${contextLines.join("\n")}\n--- END USER CONTEXT ---\n\nUse this context to personalize your response. Reference known details naturally.`
+      const contextLines = memories.map((m) => {
+        const typeLabel = m.memory_type.replace(/_/g, " ")
+        return `- [${typeLabel}] ${m.content}`
+      })
+      contextParts.push(`KNOWN FACTS:\n${contextLines.join("\n")}`)
+    }
+
+    // Format active threads (recurring themes)
+    if (hasThreads) {
+      const threadLines = threads.map((t) => {
+        const area = t.life_area ? ` (${t.life_area})` : ""
+        const freq = t.occurrence_count > 2 ? " [recurring]" : ""
+        return `- ${t.theme}${area}${freq}: ${t.summary || "Active concern"}`
+      })
+      contextParts.push(`RECURRING THEMES:\n${threadLines.join("\n")}`)
+    }
+
+    return `\n\n--- USER CONTEXT (from previous interactions) ---\n${contextParts.join("\n\n")}\n--- END USER CONTEXT ---\n\nUse this context to personalize your response. Reference known details and recurring themes naturally. If a user keeps asking about the same life area, acknowledge the continuity.`
   } catch (err) {
     console.warn("Failed to fetch memories:", err)
     return ""
@@ -94,6 +143,126 @@ export async function saveMemory(
     })
   } catch (err) {
     console.warn("Failed to save memory:", err)
+  }
+}
+
+/* ────────────────────────────────────────────────────
+   DETECT LIFE AREA — Auto-tag from question text
+   ──────────────────────────────────────────────────── */
+export function detectLifeArea(text: string): string | null {
+  const lower = text.toLowerCase()
+  let bestArea: string | null = null
+  let bestScore = 0
+
+  for (const [area, keywords] of Object.entries(LIFE_AREA_KEYWORDS)) {
+    const score = keywords.filter((kw) => lower.includes(kw)).length
+    if (score > bestScore) {
+      bestScore = score
+      bestArea = area
+    }
+  }
+
+  return bestArea
+}
+
+/* ────────────────────────────────────────────────────
+   UPDATE MEMORY THREAD — Track recurring themes
+   Creates or updates a thread for a life-area topic
+   ──────────────────────────────────────────────────── */
+export async function updateMemoryThread(
+  userId: string,
+  question: string,
+  questionId?: string
+): Promise<void> {
+  const sb = getSupabase()
+  const lifeArea = detectLifeArea(question)
+  if (!lifeArea) return
+
+  // Generate a normalized theme from the question
+  const theme = generateTheme(question, lifeArea)
+
+  try {
+    // Check if a similar thread exists
+    const { data: existing } = await sb
+      .from("memory_threads")
+      .select("id, occurrence_count, related_questions, intensity_score")
+      .eq("user_id", userId)
+      .eq("life_area", lifeArea)
+      .order("last_seen_at", { ascending: false })
+      .limit(1)
+
+    if (existing && existing.length > 0) {
+      const thread = existing[0]
+      const relatedQuestions = thread.related_questions || []
+      if (questionId) relatedQuestions.push(questionId)
+
+      // Increase intensity with each occurrence (capped at 1.0)
+      const newIntensity = Math.min(1.0, thread.intensity_score + 0.1)
+
+      await sb
+        .from("memory_threads")
+        .update({
+          occurrence_count: thread.occurrence_count + 1,
+          intensity_score: newIntensity,
+          last_seen_at: new Date().toISOString(),
+          related_questions: relatedQuestions.slice(-10), // Keep last 10
+          summary: `User has asked about ${lifeArea} ${thread.occurrence_count + 1} times. Latest: "${question.substring(0, 100)}"`,
+        })
+        .eq("id", thread.id)
+    } else {
+      // Create new thread
+      await sb.from("memory_threads").insert({
+        user_id: userId,
+        theme,
+        life_area: lifeArea,
+        intensity_score: 0.3,
+        occurrence_count: 1,
+        related_questions: questionId ? [questionId] : [],
+        summary: `User asked about ${lifeArea}: "${question.substring(0, 100)}"`,
+      })
+    }
+  } catch (err) {
+    console.warn("Failed to update memory thread:", err)
+  }
+}
+
+/* ────────────────────────────────────────────────────
+   GET ACTIVE THREADS — For continuity cards on Home
+   ──────────────────────────────────────────────────── */
+export async function getActiveThreads(
+  userId: string,
+  limit: number = 3
+): Promise<Array<{
+  theme: string
+  lifeArea: string
+  intensity: number
+  occurrences: number
+  summary: string
+  lastSeen: string
+}>> {
+  const sb = getSupabase()
+
+  try {
+    const { data: threads } = await sb
+      .from("memory_threads")
+      .select("theme, life_area, intensity_score, occurrence_count, summary, last_seen_at")
+      .eq("user_id", userId)
+      .gte("intensity_score", 0.2) // Only meaningful threads
+      .order("intensity_score", { ascending: false })
+      .limit(limit)
+
+    if (!threads || threads.length === 0) return []
+
+    return threads.map((t) => ({
+      theme: t.theme,
+      lifeArea: t.life_area || "general",
+      intensity: t.intensity_score,
+      occurrences: t.occurrence_count,
+      summary: t.summary || "",
+      lastSeen: t.last_seen_at,
+    }))
+  } catch {
+    return []
   }
 }
 
@@ -130,4 +299,20 @@ export async function extractAndSaveBirthData(
       )
     }
   }
+}
+
+/* ────────────────────────────────────────────────────
+   HELPER: Generate theme label from question
+   ──────────────────────────────────────────────────── */
+function generateTheme(question: string, lifeArea: string): string {
+  const themeMap: Record<string, string> = {
+    love: "Relationship clarity",
+    career: "Career direction",
+    health: "Health & wellness",
+    family: "Family dynamics",
+    wealth: "Financial growth",
+    education: "Academic progress",
+    spiritual: "Spiritual journey",
+  }
+  return themeMap[lifeArea] || `${lifeArea.charAt(0).toUpperCase() + lifeArea.slice(1)} guidance`
 }

@@ -1,18 +1,151 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Send, Sparkles, Clock, ChevronDown, ChevronUp, BookOpen, ArrowRight, ArrowLeft, X, Trash2 } from "lucide-react"
+import {
+  Send, Sparkles, Clock, ArrowLeft, Trash2,
+  CheckCircle, AlertTriangle, Timer, Lightbulb, BookOpen,
+  MessageCircle, ChevronRight
+} from "lucide-react"
 import type { ChatMessage, BirthData } from "@/types/app"
+import SourceDrawer from "@/components/ui/SourceDrawer"
 
-const TOPIC_CHIPS = ["Love", "Career", "Timing", "Family", "Health", "Money"]
-const SUGGESTIONS = [
-  "What career direction does my chart support right now?",
-  "What is my emotional pattern this month?",
-  "When is a good time for important financial decisions?",
+/* ─── Topic chips per document spec ───────────────────── */
+const TOPIC_CHIPS = [
+  { label: "Love", query: "What does my chart say about my love life right now?" },
+  { label: "Career", query: "What career direction does my chart support right now?" },
+  { label: "Timing", query: "Is this a good time for important decisions?" },
+  { label: "Family", query: "What does my chart show about my family life?" },
+  { label: "Health", query: "What should I watch out for regarding my health?" },
+  { label: "Money", query: "What does my chart say about financial growth?" },
 ]
-const FOLLOW_UPS = ["Tell me more", "Why now?", "When does this change?", "What should I do next?"]
 
+const SUGGESTIONS = [
+  "What should I focus on this week based on my chart?",
+  "Why have I been feeling restless or stuck lately?",
+  "When is my next big opportunity coming?",
+]
+
+const FOLLOW_UPS = [
+  "Tell me more",
+  "When does this change?",
+  "Why does this keep repeating?",
+  "What should I do next?",
+]
+
+/* ─── Structured answer section parser ────────────────── */
+interface AnswerSection {
+  id: string
+  title: string
+  content: string
+  icon: "answer" | "why" | "do" | "avoid" | "timing" | "reflect" | "source"
+}
+
+function parseStructuredAnswer(text: string): AnswerSection[] | null {
+  const sections: AnswerSection[] = []
+
+  const sectionDefs: { pattern: RegExp; id: string; title: string; icon: AnswerSection["icon"] }[] = [
+    { pattern: /###\s*(?:1\.\s*)?Direct Answer/i, id: "direct", title: "Direct Answer", icon: "answer" },
+    { pattern: /###\s*(?:2\.\s*)?Why This Is (?:Showing Up|Happening)/i, id: "why", title: "Why This Is Showing Up", icon: "why" },
+    { pattern: /###\s*(?:3\.\s*)?What To Do/i, id: "do", title: "What To Do", icon: "do" },
+    { pattern: /###\s*(?:4\.\s*)?What To Avoid/i, id: "avoid", title: "What To Avoid", icon: "avoid" },
+    { pattern: /###\s*(?:5\.\s*)?Timing/i, id: "timing", title: "Timing", icon: "timing" },
+    { pattern: /###\s*(?:6\.\s*)?Reflection(?:\s*(?:or|\/)\s*Remedy)?/i, id: "reflect", title: "Reflection", icon: "reflect" },
+    { pattern: /###\s*(?:7\.\s*)?(?:Why GrahAI Says This|Source)/i, id: "source", title: "Why GrahAI Says This", icon: "source" },
+  ]
+
+  // Find all section positions
+  const found: { def: typeof sectionDefs[0]; start: number; headerEnd: number }[] = []
+  for (const def of sectionDefs) {
+    const match = text.match(def.pattern)
+    if (match && match.index !== undefined) {
+      found.push({ def, start: match.index, headerEnd: match.index + match[0].length })
+    }
+  }
+
+  // Need at least 2 sections to consider it structured
+  if (found.length < 2) return null
+
+  // Sort by position
+  found.sort((a, b) => a.start - b.start)
+
+  // Extract content between sections
+  for (let i = 0; i < found.length; i++) {
+    const contentStart = found[i].headerEnd
+    const contentEnd = i + 1 < found.length ? found[i + 1].start : text.length
+    const content = text.slice(contentStart, contentEnd).trim()
+    if (content) {
+      sections.push({
+        id: found[i].def.id,
+        title: found[i].def.title,
+        content,
+        icon: found[i].def.icon,
+      })
+    }
+  }
+
+  return sections.length >= 2 ? sections : null
+}
+
+/* ─── Section icon component ──────────────────────────── */
+function SectionIcon({ type }: { type: AnswerSection["icon"] }) {
+  const configs = {
+    answer: { Icon: Sparkles, color: "text-[#D4A054]", bg: "bg-[#D4A054]/10" },
+    why: { Icon: MessageCircle, color: "text-blue-400", bg: "bg-blue-500/10" },
+    do: { Icon: CheckCircle, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+    avoid: { Icon: AlertTriangle, color: "text-amber-400", bg: "bg-amber-500/10" },
+    timing: { Icon: Timer, color: "text-purple-400", bg: "bg-purple-500/10" },
+    reflect: { Icon: Lightbulb, color: "text-teal-400", bg: "bg-teal-500/10" },
+    source: { Icon: BookOpen, color: "text-[#94A3B8]", bg: "bg-[#94A3B8]/10" },
+  }
+  const { Icon, color, bg } = configs[type]
+  return (
+    <div className={`w-7 h-7 rounded-lg ${bg} flex items-center justify-center shrink-0`}>
+      <Icon className={`w-3.5 h-3.5 ${color}`} />
+    </div>
+  )
+}
+
+/* ─── Structured answer renderer ──────────────────────── */
+function StructuredAnswer({ sections, onViewSource }: { sections: AnswerSection[]; onViewSource: (text: string) => void }) {
+  return (
+    <div className="space-y-3">
+      {sections.map((section, i) => (
+        <motion.div
+          key={section.id}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.05 }}
+          className={`rounded-xl p-3.5 ${
+            section.icon === "answer"
+              ? "bg-[#111827] border border-[#D4A054]/15"
+              : section.icon === "source"
+              ? "bg-[#0A0E1A] border border-[#1E293B]"
+              : "bg-[#111827] border border-[#1E293B]"
+          }`}
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <SectionIcon type={section.icon} />
+            <span className="text-xs font-semibold text-[#F1F0F5]">{section.title}</span>
+          </div>
+          <div className="text-sm text-[#94A3B8] leading-relaxed whitespace-pre-wrap pl-9">
+            {section.content}
+          </div>
+          {section.icon === "source" && (
+            <button
+              onClick={() => onViewSource(section.content)}
+              className="flex items-center gap-1 mt-2 pl-9 text-[11px] text-[#D4A054] hover:text-[#E8C278] transition-colors"
+            >
+              View full source <ChevronRight className="w-3 h-3" />
+            </button>
+          )}
+        </motion.div>
+      ))}
+    </div>
+  )
+}
+
+/* ─── Main AskTab component ───────────────────────────── */
 interface AskTabProps {
   initialQuestion?: string
 }
@@ -24,8 +157,9 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
   const [userName, setUserName] = useState("")
   const [birthData, setBirthData] = useState<BirthData | null>(null)
   const [questionsLeft, setQuestionsLeft] = useState(3)
-  const [expandedSource, setExpandedSource] = useState<string | null>(null)
   const [showHistory, setShowHistory] = useState(false)
+  const [sourceDrawerOpen, setSourceDrawerOpen] = useState(false)
+  const [sourceText, setSourceText] = useState("")
   const scrollRef = useRef<HTMLDivElement>(null)
   const hasProcessedInitial = useRef(false)
 
@@ -45,6 +179,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
         setTimeout(() => handleSend(pending), 300)
       }
     } catch {}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -52,6 +187,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
       hasProcessedInitial.current = true
       setTimeout(() => handleSend(initialQuestion), 300)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialQuestion])
 
   useEffect(() => {
@@ -93,7 +229,6 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
 
       if (!res.ok) throw new Error("Failed")
 
-      // Handle SSE streaming
       const reader = res.body?.getReader()
       const decoder = new TextDecoder()
       let fullText = ""
@@ -105,7 +240,6 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
           if (done) break
           buffer += decoder.decode(value, { stream: true })
 
-          // Parse SSE events
           const lines = buffer.split("\n")
           buffer = lines.pop() || ""
 
@@ -120,7 +254,6 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
                   )
                 }
               } catch {
-                // Non-JSON SSE data — treat as raw text
                 const raw = line.slice(6)
                 if (raw && raw !== "[DONE]") {
                   fullText += raw
@@ -134,7 +267,6 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
         }
       }
 
-      // If no text was streamed (maybe non-SSE response), try reading as plain text
       if (!fullText && res.headers.get("content-type")?.includes("text/plain")) {
         fullText = await res.text()
       }
@@ -145,7 +277,6 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
         )
       )
 
-      // Save to history
       try {
         await fetch("/api/user/history", {
           method: "POST",
@@ -154,7 +285,6 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
         })
       } catch {}
 
-      // Award XP
       try {
         await fetch("/api/gamification/award-xp", {
           method: "POST",
@@ -163,9 +293,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
         })
       } catch {}
 
-      // Update questions remaining
       setQuestionsLeft((prev) => Math.max(0, prev - 1))
-
     } catch {
       setMessages((prev) =>
         prev.map((m) =>
@@ -176,6 +304,21 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
       setIsStreaming(false)
     }
   }
+
+  const openSourceDrawer = (text: string) => {
+    setSourceText(text)
+    setSourceDrawerOpen(true)
+  }
+
+  // Parse source text into SourceDrawer format
+  const sourceData = useMemo(() => {
+    if (!sourceText) return null
+    return {
+      principle: "Classical Jyotish Principle",
+      text: sourceText,
+      reference: "Brihat Parashara Hora Shastra",
+    }
+  }, [sourceText])
 
   const isEmpty = messages.length === 0
 
@@ -218,19 +361,23 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
             <p className="text-sm text-[#5A6478] mb-6 max-w-xs mx-auto text-visible">
               Ask about love, work, timing, emotions, or anything you need clarity on.
             </p>
+
+            {/* Topic chips — 6 categories from document */}
             <div className="flex flex-wrap justify-center gap-2 mb-8">
-              {TOPIC_CHIPS.map((topic) => (
+              {TOPIC_CHIPS.map((chip) => (
                 <button
-                  key={topic}
-                  onClick={() => setInput(`Tell me about my ${topic.toLowerCase()} right now`)}
+                  key={chip.label}
+                  onClick={() => handleSend(chip.query)}
                   className="px-3.5 py-1.5 rounded-full glass-inner
                     text-xs text-[#94A3B8] font-medium hover:border-[#D4A054]/30 hover:text-[#D4A054]
                     transition-all card-scale"
                 >
-                  {topic}
+                  {chip.label}
                 </button>
               ))}
             </div>
+
+            {/* Suggestion cards */}
             <div className="space-y-2.5 max-w-sm mx-auto">
               {SUGGESTIONS.map((q) => (
                 <button key={q} onClick={() => handleSend(q)}
@@ -244,49 +391,47 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
         ) : (
           <div className="pt-4 space-y-5">
             <AnimatePresence>
-              {messages.map((msg) => (
-                <motion.div key={msg.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-                  {msg.role === "user" ? (
-                    <div className="flex justify-end">
-                      <div className="max-w-[85%] bg-[#1E2638] rounded-2xl rounded-tr-md px-4 py-3">
-                        <p className="text-sm text-[#F1F0F5]">{msg.content}</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-6 h-6 rounded-md bg-gradient-to-br from-[#D4A054] to-[#A16E2A] flex items-center justify-center">
-                          <span className="text-[9px] font-bold text-[#0A0E1A]">G</span>
+              {messages.map((msg) => {
+                const structured = !msg.isStreaming && msg.role === "assistant" && msg.content
+                  ? parseStructuredAnswer(msg.content)
+                  : null
+
+                return (
+                  <motion.div key={msg.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+                    {msg.role === "user" ? (
+                      <div className="flex justify-end">
+                        <div className="max-w-[85%] bg-[#1E2638] rounded-2xl rounded-tr-md px-4 py-3">
+                          <p className="text-sm text-[#F1F0F5]">{msg.content}</p>
                         </div>
-                        <span className="text-[11px] text-[#5A6478] font-medium">GrahAI</span>
-                        {msg.isStreaming && <span className="text-[11px] text-[#D4A054]/60 animate-pulse">thinking...</span>}
                       </div>
-                      <div className="max-w-[95%] text-sm text-[#94A3B8] leading-relaxed whitespace-pre-wrap">
-                        {msg.content}
-                        {msg.isStreaming && !msg.content && (
-                          <span className="flex gap-1 py-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#D4A054]/40 animate-pulse" />
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#D4A054]/40 animate-pulse [animation-delay:150ms]" />
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#D4A054]/40 animate-pulse [animation-delay:300ms]" />
-                          </span>
+                    ) : (
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-6 h-6 rounded-md bg-gradient-to-br from-[#D4A054] to-[#A16E2A] flex items-center justify-center">
+                            <span className="text-[9px] font-bold text-[#0A0E1A]">G</span>
+                          </div>
+                          <span className="text-[11px] text-[#5A6478] font-medium">GrahAI</span>
+                          {msg.isStreaming && <span className="text-[11px] text-[#D4A054]/60 animate-pulse">thinking...</span>}
+                        </div>
+
+                        {/* Structured answer (post-stream) or raw text (during stream) */}
+                        {structured ? (
+                          <StructuredAnswer sections={structured} onViewSource={openSourceDrawer} />
+                        ) : (
+                          <div className="max-w-[95%] text-sm text-[#94A3B8] leading-relaxed whitespace-pre-wrap">
+                            {msg.content}
+                            {msg.isStreaming && !msg.content && (
+                              <span className="flex gap-1 py-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#D4A054]/40 animate-pulse" />
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#D4A054]/40 animate-pulse [animation-delay:150ms]" />
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#D4A054]/40 animate-pulse [animation-delay:300ms]" />
+                              </span>
+                            )}
+                          </div>
                         )}
-                      </div>
-                      {!msg.isStreaming && msg.content && (
-                        <div className="mt-3">
-                          <button onClick={() => setExpandedSource(expandedSource === msg.id ? null : msg.id)}
-                            className="flex items-center gap-1.5 text-[11px] text-[#5A6478] hover:text-[#D4A054] transition-colors">
-                            <BookOpen className="w-3 h-3" />Why GrahAI says this
-                            {expandedSource === msg.id ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                          </button>
-                          {expandedSource === msg.id && (
-                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
-                              className="mt-2 bg-[#0D1220] border border-[#1E293B] rounded-lg p-3">
-                              <p className="text-xs text-[#5A6478] leading-relaxed">
-                                This guidance is based on your birth chart analysis including current planetary transits
-                                and dasha period. Classical Jyotish principles from Brihat Parashara Hora Shastra inform the interpretation.
-                              </p>
-                            </motion.div>
-                          )}
+
+                        {/* Follow-up chips (after answer completes) */}
+                        {!msg.isStreaming && msg.content && (
                           <div className="flex flex-wrap gap-1.5 mt-3">
                             {FOLLOW_UPS.map((chip) => (
                               <button key={chip} onClick={() => handleSend(chip)}
@@ -296,12 +441,12 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
                               </button>
                             ))}
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </motion.div>
-              ))}
+                        )}
+                      </div>
+                    )}
+                  </motion.div>
+                )
+              })}
             </AnimatePresence>
           </div>
         )}
@@ -331,7 +476,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
         </div>
       </div>
 
-      {/* ═══ History Overlay ═══ */}
+      {/* History Overlay */}
       <AnimatePresence>
         {showHistory && (
           <motion.div
@@ -351,7 +496,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
             <div className="px-5 pt-8">
               {messages.filter(m => m.role === "user").length > 0 ? (
                 <div className="space-y-3">
-                  {messages.filter(m => m.role === "user").map((msg, i) => (
+                  {messages.filter(m => m.role === "user").map((msg) => (
                     <button key={msg.id}
                       onClick={() => { setShowHistory(false); handleSend(msg.content) }}
                       className="w-full text-left bg-[#111827] border border-[#1E293B] rounded-xl px-4 py-3.5
@@ -372,6 +517,14 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Source Drawer */}
+      <SourceDrawer
+        isOpen={sourceDrawerOpen}
+        onClose={() => setSourceDrawerOpen(false)}
+        source={sourceData}
+        context="Based on your question and chart analysis"
+      />
     </div>
   )
 }

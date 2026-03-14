@@ -103,6 +103,67 @@ const LUCKY_NUMBERS: Record<string, number[]> = {
   Capricorn: [8, 4, 6], Aquarius: [4, 7, 8], Pisces: [3, 7, 9],
 }
 
+// ─── Today's Theme generation ─────────────────────────
+function generateTodayTheme(
+  moonSign: string,
+  sunSign: string,
+  dayLord: string,
+  moonLong: number,
+  sunLong: number,
+  nakshatra: string,
+  date: Date,
+) {
+  const seed = date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate()
+  const hash = (s: number, offset: number) => ((s * 31 + offset) % 100) / 100
+  const moonInSign = SIGNS[Math.floor(moonLong / 30)]?.name || moonSign
+
+  const themes = [
+    {
+      title: "Clarity Over Reaction",
+      headline: `Moon in ${moonInSign} favors thoughtful decisions. Today rewards patience and careful judgment over impulsive action.`,
+      action: "Take 10 minutes before any major decision. Write down your real priorities — the clearest path will reveal itself.",
+      caution: "Avoid reactive emails, confrontations, or commitments made in frustration. Your judgment improves with space.",
+      whyActive: `The Moon is transiting ${moonInSign}, creating a reflective mental quality. ${dayLord} as the day lord adds a layer of ${dayLord === "Saturn" ? "discipline and depth" : dayLord === "Jupiter" ? "wisdom and expansion" : dayLord === "Mars" ? "drive but also impatience" : dayLord === "Venus" ? "harmony-seeking" : dayLord === "Mercury" ? "mental agility" : dayLord === "Sun" ? "confidence and visibility" : "intuitive processing"}.`,
+      source: { principle: `Moon in ${moonInSign} (Chandra Rashi Gochara)`, text: `Classical Jyotish holds that the Moon's transit through ${moonInSign} colors the emotional and mental landscape. ${moonInSign} as a Moon-sign transit activates themes of ${moonInSign === "Aries" ? "initiative and courage" : moonInSign === "Taurus" ? "stability and comfort" : moonInSign === "Gemini" ? "communication and curiosity" : moonInSign === "Cancer" ? "nurturing and emotional depth" : moonInSign === "Leo" ? "creativity and self-expression" : moonInSign === "Virgo" ? "analysis and service" : moonInSign === "Libra" ? "balance and partnership" : moonInSign === "Scorpio" ? "transformation and intensity" : moonInSign === "Sagittarius" ? "expansion and philosophy" : moonInSign === "Capricorn" ? "structure and ambition" : moonInSign === "Aquarius" ? "innovation and detachment" : "intuition and surrender"}.`, reference: "Brihat Parashara Hora Shastra — Transit of Chandra" },
+    },
+    {
+      title: "Momentum Building",
+      headline: `${dayLord}'s energy combines with Moon in ${moonInSign} to create forward thrust. Act on what you've been planning.`,
+      action: "Take one concrete step on a stalled project or goal. The energy supports initiation — even a small move creates compounding momentum.",
+      caution: "Don't start multiple things at once. Channel the available energy into your highest-priority item only.",
+      whyActive: `${dayLord} is the ruling planet of today (Vara Lord), and its energy harmonizes with the Moon's transit through ${moonInSign}. This creates a window of aligned action.`,
+      source: { principle: `Vara Lord (${dayLord}) + Chandra in ${moonInSign}`, text: `The Vara Lord determines the day's overarching energy signature. When ${dayLord}'s influence aligns with the Moon's emotional tone in ${moonInSign}, it creates a supportive window for decisive action.`, reference: "Muhurta Chintamani — Vara Phala" },
+    },
+    {
+      title: "Inner Work Day",
+      headline: `Today's chart favors reflection and self-understanding. Go inward before pushing outward.`,
+      action: "Journal, meditate, or have a meaningful conversation. Insights that emerge today will guide better decisions this week.",
+      caution: "Avoid overcommitting to social plans or taking on new obligations. Protect your energy for what truly matters.",
+      whyActive: `The Moon's placement in ${moonInSign} activates the more introspective houses of your chart today. ${nakshatra} nakshatra adds a contemplative quality.`,
+      source: { principle: `Moon Nakshatra: ${nakshatra}`, text: `The Moon's nakshatra transit influences subtle emotional and spiritual undertones. ${nakshatra} brings themes that favor inner processing and meaning-making over external activity.`, reference: "Jataka Parijata — Nakshatra Phala" },
+    },
+    {
+      title: "Communication Sharpens",
+      headline: `Words carry extra weight today. Use this for important conversations, writing, or negotiations.`,
+      action: "Have the conversation you've been putting off. Express something you've been holding back — clarity serves you now.",
+      caution: "Be precise with your language. Casual remarks may be taken more seriously than intended today.",
+      whyActive: `Mercury-influenced energy is prominent today through ${dayLord}'s lordship and Moon in ${moonInSign}. This sharpens mental acuity and verbal expression.`,
+      source: { principle: `Budha (Mercury) influence via Vara and Rashi`, text: `When Mercury's energy is prominent — through day lordship, transit, or rashi affinity — communication, trade, and intellectual activities receive a boost. This is recognized in Muhurta Shastra as favorable for Vidya (learning) and Vak (speech).`, reference: "Muhurta Chintamani — Budha Phala" },
+    },
+    {
+      title: "Steady Persistence Wins",
+      headline: `No breakthroughs today — and that's perfect. Focus on consistency and small progress.`,
+      action: "Do the boring-but-important work. Pay bills, organize, follow up. Today rewards discipline, not inspiration.",
+      caution: "Don't chase excitement or make dramatic changes. The chart favors stability and reliability right now.",
+      whyActive: `Saturn's influence through the day's energy pattern creates a grounding, serious tone. Moon in ${moonInSign} supports methodical work.`,
+      source: { principle: `Shani (Saturn) influence pattern`, text: `Saturn's influence in daily Muhurta encourages patience, duty, and long-term thinking. Results from Shani periods are delayed but durable — the classical texts call this "fruits that ripen slowly."`, reference: "Phaladeepika — Shani Gochara Phala" },
+    },
+  ]
+
+  const idx = Math.floor(hash(seed, 7) * themes.length)
+  return themes[idx]
+}
+
 // ─── Category insight generation ───────────────────────
 function generateCategoryInsights(
   moonSign: string,
@@ -222,6 +283,17 @@ export async function POST(req: NextRequest) {
     const luckyColour = colours[seed % colours.length]
     const luckyNumber = numbers[seed % numbers.length]
 
+    // Today's theme (hero section)
+    const todayTheme = generateTodayTheme(
+      moonSign?.name || "Cancer",
+      signName,
+      dayLord?.lord || "Sun",
+      todayMoonLong,
+      todaySunLong,
+      nakshatra?.name || "Unknown",
+      targetDate,
+    )
+
     // Category insights
     const categories = generateCategoryInsights(
       moonSign?.name || "Cancer",
@@ -239,6 +311,7 @@ export async function POST(req: NextRequest) {
       success: true,
       date: dateLabel,
       dayOffset,
+      theme: todayTheme,
       panchang: {
         tithi: TITHI_NAMES[tithiNumber] || "Unknown",
         paksha,

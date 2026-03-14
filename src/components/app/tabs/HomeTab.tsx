@@ -3,15 +3,27 @@
 import { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
-  Sparkles, ArrowRight, Heart, Briefcase, User,
-  DollarSign
+  Sparkles, ArrowRight, Heart, Briefcase, Zap,
+  BookOpen, MessageCircle, ChevronRight,
+  CheckCircle, AlertTriangle
 } from "lucide-react"
 import AppHeader from "@/components/ui/AppHeader"
+import SourceDrawer from "@/components/ui/SourceDrawer"
 import type { BirthData } from "@/types/app"
+
+interface ThemeData {
+  title: string
+  headline: string
+  action: string
+  caution: string
+  whyActive: string
+  source: { principle: string; text: string; reference: string }
+}
 
 interface DailyHoroscope {
   date: string
   dayOffset: number
+  theme: ThemeData
   panchang: { tithi: string; paksha: string; nakshatra: string; vara: string; varaLord: string }
   timing: { auspiciousTime: { start: string; end: string }; rahuKaal: { start: string; end: string } }
   lucky: { colour: string; number: number }
@@ -27,11 +39,17 @@ interface HomeTabProps {
   onViewReports: () => void
 }
 
-const CATEGORY_CARDS: { key: keyof DailyHoroscope["categories"]; label: string; Icon: typeof Heart; color: string }[] = [
-  { key: "wealth", label: "Wealth", Icon: DollarSign, color: "text-emerald-400" },
-  { key: "relationship", label: "Relationship", Icon: Heart, color: "text-rose-400" },
-  { key: "career", label: "Job", Icon: Briefcase, color: "text-amber-400" },
-  { key: "self", label: "Self", Icon: User, color: "text-purple-400" },
+const LIFE_AREA_CARDS: {
+  key: "relationship" | "career" | "self"
+  label: string
+  subtitle: string
+  Icon: typeof Heart
+  color: string
+  bgColor: string
+}[] = [
+  { key: "relationship", label: "Love", subtitle: "Emotional & relationship", Icon: Heart, color: "text-rose-400", bgColor: "bg-rose-500/10" },
+  { key: "career", label: "Career", subtitle: "Work & professional", Icon: Briefcase, color: "text-amber-400", bgColor: "bg-amber-500/10" },
+  { key: "self", label: "Energy", subtitle: "Wellbeing & vitality", Icon: Zap, color: "text-purple-400", bgColor: "bg-purple-500/10" },
 ]
 
 export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }: HomeTabProps) {
@@ -40,6 +58,9 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
   const [loading, setLoading] = useState(true)
   const [userName, setUserName] = useState("")
   const [birthData, setBirthData] = useState<BirthData | null>(null)
+  const [sourceDrawerOpen, setSourceDrawerOpen] = useState(false)
+  const [activeSource, setActiveSource] = useState<ThemeData["source"] | null>(null)
+  const [sourceContext, setSourceContext] = useState("")
 
   useEffect(() => {
     try {
@@ -78,6 +99,12 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
     if (birthData) fetchHoroscope(dayOffset)
   }, [birthData, dayOffset, fetchHoroscope])
 
+  const openSource = (source: ThemeData["source"], context: string) => {
+    setActiveSource(source)
+    setSourceContext(context)
+    setSourceDrawerOpen(true)
+  }
+
   const today = new Date()
   const tomorrow = new Date(today)
   tomorrow.setDate(tomorrow.getDate() + 1)
@@ -90,33 +117,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
       <AppHeader onProfileClick={onProfileClick} subtitle="Your daily guidance" />
 
       <div className="px-5 pt-2">
-        {/* ═══ Daily Horoscope Header with animated text ═══ */}
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2
-              className="text-base font-bold"
-              style={{
-                background: "linear-gradient(270deg, #E8C278, #D4A054, #F59E0B, #E8C278, #D4A054)",
-                backgroundSize: "300% 100%",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-                animation: "gradient-text-flow 4s ease-in-out infinite",
-              }}
-            >Daily Horoscope</h2>
-            {userName && (
-              <p className="text-[11px] text-[#5A6478] text-visible">Personalized for {userName}</p>
-            )}
-          </div>
-          {horoscope?.panchang && (
-            <div className="text-right glass-inner rounded-lg px-3 py-1.5">
-              <p className="text-[10px] text-[#94A3B8]">{horoscope.panchang.tithi} &middot; {horoscope.panchang.paksha}</p>
-              <p className="text-[10px] text-[#5A6478]">{horoscope.panchang.vara}</p>
-            </div>
-          )}
-        </div>
-
-        {/* ═══ Today / Tomorrow Toggle — elastic pills ═══ */}
+        {/* ═══ Day Toggle ═══ */}
         <div className="flex items-center gap-2 mb-5 glass-inner rounded-2xl p-1">
           <button
             onClick={() => setDayOffset(0)}
@@ -164,107 +165,200 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
               exit={{ opacity: 0, x: dayOffset === 1 ? -20 : 20 }}
               transition={{ duration: 0.2 }}
             >
-              {/* ═══ Lucky Elements ═══ */}
-              <div className="glass-card p-4 mb-4">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs text-[#94A3B8] text-visible">
-                    Lucky elements based on {userName}&apos;s birth details
-                  </p>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="glass-inner rounded-xl p-3 text-center">
-                    <p className="text-[10px] text-[#5A6478] mb-1">Lucky Colour</p>
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-3 h-3 rounded-full shadow-lg" style={{
-                        backgroundColor: horoscope.lucky.colour.toLowerCase() === "white" ? "#f0f0f0" :
-                          horoscope.lucky.colour.toLowerCase() === "red" ? "#ef4444" :
-                          horoscope.lucky.colour.toLowerCase() === "green" ? "#22c55e" :
-                          horoscope.lucky.colour.toLowerCase() === "gold" ? "#D4A054" :
-                          horoscope.lucky.colour.toLowerCase() === "yellow" ? "#eab308" :
-                          horoscope.lucky.colour.toLowerCase() === "blue" ? "#3b82f6" :
-                          horoscope.lucky.colour.toLowerCase() === "black" ? "#1a1a1a" :
-                          horoscope.lucky.colour.toLowerCase()
-                      }} />
-                      <p className="text-sm font-semibold text-[#F1F0F5] text-visible">{horoscope.lucky.colour}</p>
+              {/* ═══ 1. Today for You — Hero Theme ═══ */}
+              <div className="glass-card-hero gold-shimmer p-5 mb-4">
+                {/* Panchang badge */}
+                {horoscope.panchang && (
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <span className="text-[10px] text-[#94A3B8] bg-[#1E2638] px-2 py-0.5 rounded-full">
+                      {horoscope.panchang.tithi} &middot; {horoscope.panchang.paksha}
+                    </span>
+                    <span className="text-[10px] text-[#5A6478] bg-[#1E2638] px-2 py-0.5 rounded-full">
+                      {horoscope.panchang.vara}
+                    </span>
+                  </div>
+                )}
+
+                {/* Theme title */}
+                <h2
+                  className="text-xl font-bold mb-2"
+                  style={{
+                    background: "linear-gradient(270deg, #E8C278, #D4A054, #F59E0B, #E8C278, #D4A054)",
+                    backgroundSize: "300% 100%",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                    animation: "gradient-text-flow 4s ease-in-out infinite",
+                  }}
+                >
+                  {horoscope.theme?.title || "Today for You"}
+                </h2>
+
+                {/* One-line summary */}
+                <p className="text-sm text-[#94A3B8] leading-relaxed mb-4">
+                  {horoscope.theme?.headline || "Your daily guidance is being prepared."}
+                </p>
+
+                {/* Action + Caution */}
+                <div className="space-y-3 mb-4">
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-medium text-emerald-400 uppercase tracking-wider mb-0.5">Do this</p>
+                      <p className="text-xs text-[#94A3B8] leading-relaxed">{horoscope.theme?.action}</p>
                     </div>
                   </div>
-                  <div className="glass-inner rounded-xl p-3 text-center">
-                    <p className="text-[10px] text-[#5A6478] mb-1">Lucky Number</p>
-                    <p className="text-sm font-semibold text-[#F1F0F5] text-visible">{horoscope.lucky.number}</p>
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-6 h-6 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-medium text-amber-400 uppercase tracking-wider mb-0.5">Be careful</p>
+                      <p className="text-xs text-[#94A3B8] leading-relaxed">{horoscope.theme?.caution}</p>
+                    </div>
                   </div>
+                </div>
+
+                {/* Ask Why + View Source buttons */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => onAskQuestion(`Why is "${horoscope.theme?.title}" my theme today?`)}
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl
+                      bg-[#D4A054]/10 border border-[#D4A054]/20 text-xs font-medium text-[#D4A054]
+                      hover:bg-[#D4A054]/15 transition-colors"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    Ask why
+                  </button>
+                  <button
+                    onClick={() => horoscope.theme?.source && openSource(horoscope.theme.source, horoscope.theme.headline)}
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl
+                      bg-[#1E2638] border border-[#1E293B] text-xs font-medium text-[#94A3B8]
+                      hover:border-[#D4A054]/20 transition-colors"
+                  >
+                    <BookOpen className="w-3.5 h-3.5" />
+                    View source
+                  </button>
                 </div>
               </div>
 
-              {/* ═══ Timing Section ═══ */}
-              <div className="glass-card p-4 mb-4">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs text-[#94A3B8] text-visible">
-                    Time period at {horoscope.place}
-                  </p>
-                </div>
-                <div className="space-y-2.5">
-                  <div className="glass-inner rounded-xl p-3 text-center">
-                    <p className="text-[10px] text-[#5A6478] mb-1">Auspicious Time</p>
-                    <p className="text-sm font-semibold text-[#F1F0F5] text-visible">
-                      {horoscope.timing.auspiciousTime.start} to {horoscope.timing.auspiciousTime.end}
-                    </p>
-                  </div>
-                  <div className="glass-inner rounded-xl p-3 text-center">
-                    <p className="text-[10px] text-[#5A6478] mb-1">Rahu Kaal</p>
-                    <p className="text-sm font-semibold text-rose-400/80 text-visible">
-                      {horoscope.timing.rahuKaal.start} to {horoscope.timing.rahuKaal.end}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* ═══ Category Cards ═══ */}
-              {CATEGORY_CARDS.map((cat, i) => (
+              {/* ═══ 2. Why This Is Active ═══ */}
+              {horoscope.theme?.whyActive && (
                 <motion.div
-                  key={cat.key}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.05 * i }}
+                  transition={{ delay: 0.1 }}
+                  className="glass-card p-4 mb-4"
+                >
+                  <p className="text-[10px] font-medium text-[#5A6478] uppercase tracking-wider mb-2">
+                    Why this is active
+                  </p>
+                  <p className="text-xs text-[#94A3B8] leading-relaxed">
+                    {horoscope.theme.whyActive}
+                  </p>
+                </motion.div>
+              )}
+
+              {/* ═══ 3. Love / Career / Energy Cards ═══ */}
+              {LIFE_AREA_CARDS.map((card, i) => (
+                <motion.div
+                  key={card.key}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15 + 0.05 * i }}
                   className="glass-card card-lift p-4 mb-3"
                 >
-                  <div className="flex items-center gap-2 mb-2 relative z-10">
-                    <div className={`w-7 h-7 rounded-full bg-[#1E2638]/80 flex items-center justify-center`}>
-                      <cat.Icon className={`w-3.5 h-3.5 ${cat.color}`} />
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <div className={`w-8 h-8 rounded-lg ${card.bgColor} flex items-center justify-center`}>
+                      <card.Icon className={`w-4 h-4 ${card.color}`} />
                     </div>
-                    <span className="text-sm font-semibold text-[#F1F0F5] text-visible">{cat.label}</span>
+                    <div>
+                      <span className="text-sm font-semibold text-[#F1F0F5]">{card.label}</span>
+                      <p className="text-[10px] text-[#5A6478]">{card.subtitle}</p>
+                    </div>
                   </div>
-                  <p className="text-sm text-[#94A3B8] leading-relaxed relative z-10 text-visible">
-                    {horoscope.categories[cat.key]}
+                  <p className="text-sm text-[#94A3B8] leading-relaxed mb-3">
+                    {horoscope.categories[card.key]}
                   </p>
+                  <button
+                    onClick={() => onAskQuestion(`Tell me more about my ${card.label.toLowerCase()} today`)}
+                    className="flex items-center gap-1.5 text-[11px] text-[#D4A054] font-medium
+                      hover:text-[#E8C278] transition-colors"
+                  >
+                    Ask more <ChevronRight className="w-3 h-3" />
+                  </button>
                 </motion.div>
               ))}
 
-              {/* ═══ Ask Shortcut ═══ */}
+              {/* ═══ 4. Ask GrahAI Prompt ═══ */}
               <motion.button
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
+                transition={{ delay: 0.35 }}
                 onClick={() => onAskQuestion()}
                 className="w-full flex items-center gap-3 glass-card-hero gold-shimmer
-                  px-4 py-3.5 mb-5 hover:border-[#D4A054]/30 transition-colors"
+                  px-4 py-4 mb-4 hover:border-[#D4A054]/30 transition-colors"
               >
-                <div className="w-9 h-9 rounded-lg bg-[#D4A054]/10 flex items-center justify-center shrink-0">
-                  <Sparkles className="w-4 h-4 text-[#D4A054]" />
+                <div className="w-10 h-10 rounded-xl bg-[#D4A054]/10 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-5 h-5 text-[#D4A054]" />
                 </div>
                 <div className="text-left flex-1">
-                  <p className="text-sm font-medium text-[#F1F0F5]">Ask about anything</p>
-                  <p className="text-[11px] text-[#5A6478]">Love, work, timing, emotions...</p>
+                  <p className="text-sm font-medium text-[#F1F0F5]">Ask GrahAI anything</p>
+                  <p className="text-[11px] text-[#5A6478]">Love, career, timing, life decisions...</p>
                 </div>
                 <ArrowRight className="w-4 h-4 text-[#D4A054]" />
               </motion.button>
 
-              {/* ═══ Premium Depth ═══ */}
-              <motion.button
+              {/* ═══ 5. Lucky Elements (compact) ═══ */}
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
+                className="glass-card p-4 mb-4"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="text-center">
+                      <p className="text-[10px] text-[#5A6478] mb-1">Lucky Colour</p>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-3 h-3 rounded-full shadow-lg" style={{
+                          backgroundColor: horoscope.lucky.colour.toLowerCase() === "white" ? "#f0f0f0" :
+                            horoscope.lucky.colour.toLowerCase() === "red" ? "#ef4444" :
+                            horoscope.lucky.colour.toLowerCase() === "green" ? "#22c55e" :
+                            horoscope.lucky.colour.toLowerCase() === "gold" ? "#D4A054" :
+                            horoscope.lucky.colour.toLowerCase() === "yellow" ? "#eab308" :
+                            horoscope.lucky.colour.toLowerCase() === "blue" ? "#3b82f6" :
+                            horoscope.lucky.colour.toLowerCase() === "black" ? "#1a1a1a" :
+                            horoscope.lucky.colour.toLowerCase()
+                        }} />
+                        <span className="text-xs font-medium text-[#F1F0F5]">{horoscope.lucky.colour}</span>
+                      </div>
+                    </div>
+                    <div className="w-px h-8 bg-[#1E293B]" />
+                    <div className="text-center">
+                      <p className="text-[10px] text-[#5A6478] mb-1">Lucky Number</p>
+                      <span className="text-xs font-medium text-[#F1F0F5]">{horoscope.lucky.number}</span>
+                    </div>
+                    <div className="w-px h-8 bg-[#1E293B]" />
+                    <div className="text-center">
+                      <p className="text-[10px] text-[#5A6478] mb-1">Auspicious</p>
+                      <span className="text-xs font-medium text-[#F1F0F5]">
+                        {horoscope.timing.auspiciousTime.start}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* ═══ 6. Premium Depth ═══ */}
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.45 }}
                 onClick={onViewReports}
-                className="w-full glass-card p-4 text-left
+                className="w-full glass-card p-4 text-left mb-4
                   hover:border-[#D4A054]/20 transition-colors"
               >
                 <div className="flex items-center justify-between">
@@ -279,10 +373,18 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
           </AnimatePresence>
         ) : (
           <div className="text-center py-12">
-            <p className="text-sm text-[#5A6478]">Complete onboarding to see your daily horoscope</p>
+            <p className="text-sm text-[#5A6478]">Complete onboarding to see your daily guidance</p>
           </div>
         )}
       </div>
+
+      {/* Source Drawer */}
+      <SourceDrawer
+        isOpen={sourceDrawerOpen}
+        onClose={() => setSourceDrawerOpen(false)}
+        source={activeSource}
+        context={sourceContext}
+      />
     </div>
   )
 }

@@ -68,7 +68,13 @@ export default function AppPage() {
       {/* Onboarding */}
       <AnimatePresence>
         {showOnboarding && (
-          <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
+          <OnboardingFlow onComplete={(goToAsk, firstQuestion) => {
+            setShowOnboarding(false)
+            if (goToAsk && firstQuestion) {
+              setAskQuestion(firstQuestion)
+              setActiveTab("ask")
+            }
+          }} />
         )}
       </AnimatePresence>
 

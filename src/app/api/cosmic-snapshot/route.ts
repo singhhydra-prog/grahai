@@ -84,15 +84,71 @@ function getSiderealSunLongitude(date: Date): number {
   return siderealLong
 }
 
-// ─── Approximate Moon longitude (very rough for demo) ──
+// ─── Approximate Moon longitude (improved) ──────────────
 function getApproxMoonLongitude(date: Date): number {
   const j2000 = new Date("2000-01-01T12:00:00Z")
   const days = (date.getTime() - j2000.getTime()) / 86400000
-  // Moon's mean longitude (simplified)
-  const L = (218.316 + 13.176396 * days) % 360
+  // Moon's mean longitude with basic perturbation terms
+  const L0 = 218.316 + 13.176396 * days
+  const M = ((134.963 + 13.064993 * days) % 360) * (Math.PI / 180)
+  const F = ((93.272 + 13.229350 * days) % 360) * (Math.PI / 180)
+  // Major perturbation: evection + variation
+  const perturbation = 6.289 * Math.sin(M) + 1.274 * Math.sin(2 * F - M)
+  const tropicalLong = ((L0 + perturbation) % 360 + 360) % 360
   const year = date.getFullYear() + (date.getMonth() + 1) / 12
   const ayanamsa = 23.85 + (year - 2000) * 0.01397
-  return ((L - ayanamsa) % 360 + 360) % 360
+  return ((tropicalLong - ayanamsa) % 360 + 360) % 360
+}
+
+// ─── Approximate Rising Sign (Lagna / Ascendant) ────────
+// Uses Local Sidereal Time to estimate the rising sign
+function getApproxRisingSign(date: Date, birthTime: string, latitude: number, longitude: number): { sign: string; sanskrit: string; degree: string } | null {
+  try {
+    if (!birthTime || !latitude || !longitude) return null
+
+    // Parse birth time
+    const [hours, minutes] = birthTime.split(":").map(Number)
+    if (isNaN(hours) || isNaN(minutes)) return null
+
+    // Create datetime combining date + time in UTC approximation
+    const dt = new Date(date)
+    dt.setHours(hours, minutes, 0, 0)
+
+    // Julian centuries since J2000.0
+    const j2000 = new Date("2000-01-01T12:00:00Z")
+    const JD = 2451545.0 + (dt.getTime() - j2000.getTime()) / 86400000
+    const T = (JD - 2451545.0) / 36525
+
+    // Greenwich Mean Sidereal Time (in degrees)
+    const GMST = (280.46061837 + 360.98564736629 * (JD - 2451545.0) + 0.000387933 * T * T) % 360
+
+    // Local Sidereal Time
+    const LST = ((GMST + longitude) % 360 + 360) % 360
+
+    // Obliquity of ecliptic
+    const obliquity = (23.4393 - 0.0130 * T) * (Math.PI / 180)
+    const lstRad = LST * (Math.PI / 180)
+    const latRad = latitude * (Math.PI / 180)
+
+    // Ascendant formula
+    const y = -Math.cos(lstRad)
+    const x = Math.sin(obliquity) * Math.tan(latRad) + Math.cos(obliquity) * Math.sin(lstRad)
+    let ascendantTropical = Math.atan2(y, x) * (180 / Math.PI)
+    ascendantTropical = ((ascendantTropical % 360) + 360) % 360
+
+    // Convert to sidereal
+    const year = dt.getFullYear() + (dt.getMonth() + 1) / 12
+    const ayanamsa = 23.85 + (year - 2000) * 0.01397
+    const ascendantSidereal = ((ascendantTropical - ayanamsa) % 360 + 360) % 360
+
+    const signIndex = Math.floor(ascendantSidereal / 30)
+    const sign = SIGNS[signIndex]
+    const degree = (ascendantSidereal % 30).toFixed(1)
+
+    return { sign: sign.name, sanskrit: sign.sanskrit, degree }
+  } catch {
+    return null
+  }
 }
 
 // ─── Today's Transit Vibe ──────────────────────────────
@@ -125,7 +181,7 @@ function getElementInsight(element: string): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const { birthDate } = await req.json()
+    const { birthDate, birthTime, latitude, longitude } = await req.json()
 
     if (!birthDate) {
       return NextResponse.json({ error: "Birth date is required" }, { status: 400 })
@@ -142,10 +198,33 @@ export async function POST(req: NextRequest) {
     const sunSign = SIGNS[sunSignIndex]
     const sunDegree = (sunLong % 30).toFixed(1)
 
-    // ── Nakshatra ──
-    const nakshatraIndex = Math.floor(sunLong / NAKSHATRA_SPAN)
-    const nakshatra = NAKSHATRAS[nakshatraIndex]
-    const pada = Math.floor((sunLong - nakshatraIndex * NAKSHATRA_SPAN) / (NAKSHATRA_SPAN / 4)) + 1
+    // ── Moon Sign (Sidereal / Vedic) ──
+    // Use birth time if available for better Moon accuracy
+    const moonDate = birthTime ? (() => {
+      const [h, m] = birthTime.split(":").map(Number)
+      const d = new Date(date)
+      d.setHours(h || 0, m || 0, 0, 0)
+      return d
+    })() : date
+    const moonLong = getApproxMoonLongitude(moonDate)
+    const moonSignIndex = Math.floor(moonLong / 30)
+    const moonSign = SIGNS[moonSignIndex]
+    const moonDegree = (moonLong % 30).toFixed(1)
+
+    // ── Moon Nakshatra (Janma Nakshatra — the primary nakshatra in Jyotish) ──
+    const moonNakshatraIndex = Math.floor(moonLong / NAKSHATRA_SPAN)
+    const moonNakshatra = NAKSHATRAS[moonNakshatraIndex]
+    const moonNakshatraPada = Math.floor((moonLong - moonNakshatraIndex * NAKSHATRA_SPAN) / (NAKSHATRA_SPAN / 4)) + 1
+
+    // ── Sun Nakshatra (secondary) ──
+    const sunNakshatraIndex = Math.floor(sunLong / NAKSHATRA_SPAN)
+    const sunNakshatra = NAKSHATRAS[sunNakshatraIndex]
+    const sunNakshatraPada = Math.floor((sunLong - sunNakshatraIndex * NAKSHATRA_SPAN) / (NAKSHATRA_SPAN / 4)) + 1
+
+    // ── Rising Sign (Lagna) — requires birth time + location ──
+    const rising = (birthTime && latitude && longitude)
+      ? getApproxRisingSign(date, birthTime, latitude, longitude)
+      : null
 
     // ── Ruling Planet ──
     const rulingPlanet = sunSign.lord
@@ -179,16 +258,34 @@ export async function POST(req: NextRequest) {
           lordSanskrit: rulingPlanetSanskrit,
           gender: sunSign.gender,
         },
+        moonSign: {
+          name: moonSign.name,
+          sanskrit: moonSign.sanskrit,
+          degree: moonDegree,
+          element: moonSign.element,
+          lord: moonSign.lord,
+        },
+        risingSign: rising ? {
+          name: rising.sign,
+          sanskrit: rising.sanskrit,
+          degree: rising.degree,
+        } : null,
         nakshatra: {
-          name: nakshatra.name,
-          sanskrit: nakshatra.sanskrit,
-          lord: nakshatra.lord,
-          deity: nakshatra.deity,
-          pada,
-          symbol: nakshatra.symbol,
-          shakti: nakshatra.shakti,
-          animal: nakshatra.animal,
-          gana: nakshatra.gana,
+          name: moonNakshatra.name,
+          sanskrit: moonNakshatra.sanskrit,
+          lord: moonNakshatra.lord,
+          deity: moonNakshatra.deity,
+          pada: moonNakshatraPada,
+          symbol: moonNakshatra.symbol,
+          shakti: moonNakshatra.shakti,
+          animal: moonNakshatra.animal,
+          gana: moonNakshatra.gana,
+        },
+        sunNakshatra: {
+          name: sunNakshatra.name,
+          sanskrit: sunNakshatra.sanskrit,
+          lord: sunNakshatra.lord,
+          pada: sunNakshatraPada,
         },
         lifePath: {
           number: lifePath.number,
