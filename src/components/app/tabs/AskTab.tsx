@@ -202,7 +202,17 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
         {isEmpty ? (
           <div className="pt-10 text-center">
             <div className="cosmic-orb-sm mx-auto mb-5" />
-            <h2 className="text-lg font-bold animated-gradient-text mb-1">
+            <h2
+              className="text-lg font-bold mb-1"
+              style={{
+                background: "linear-gradient(270deg, #E8C278, #D4A054, #2DD4BF, #E8C278, #D4A054)",
+                backgroundSize: "300% 100%",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                animation: "gradient-text-flow 6s ease-in-out infinite",
+              }}
+            >
               What&apos;s on your mind{userName ? `, ${userName}` : ""}?
             </h2>
             <p className="text-sm text-[#5A6478] mb-6 max-w-xs mx-auto text-visible">

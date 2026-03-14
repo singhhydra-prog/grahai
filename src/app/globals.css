@@ -86,8 +86,8 @@ body {
 }
 
 @keyframes pulse-soft {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.7; }
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
 }
 
 @keyframes shimmer {
@@ -169,16 +169,16 @@ body {
 /* ─── Constellation form/dissolve ─── */
 @keyframes const-form {
   0%, 100% { opacity: 0; transform: scale(0.9); }
-  15%      { opacity: 0.12; transform: scale(1); }
-  50%      { opacity: 0.08; transform: scale(1.02); }
-  85%      { opacity: 0.12; transform: scale(1); }
+  15%      { opacity: 0.25; transform: scale(1); }
+  50%      { opacity: 0.15; transform: scale(1.02); }
+  85%      { opacity: 0.25; transform: scale(1); }
 }
 
 @keyframes const-form-2 {
   0%, 100% { opacity: 0; transform: scale(0.95) rotate(0deg); }
-  20%      { opacity: 0.1; transform: scale(1) rotate(2deg); }
-  60%      { opacity: 0.06; transform: scale(1.01) rotate(-1deg); }
-  80%      { opacity: 0.1; transform: scale(1) rotate(0deg); }
+  20%      { opacity: 0.2; transform: scale(1) rotate(2deg); }
+  60%      { opacity: 0.12; transform: scale(1.01) rotate(-1deg); }
+  80%      { opacity: 0.2; transform: scale(1) rotate(0deg); }
 }
 
 /* ─── Animated gradient text ─── */
@@ -544,7 +544,7 @@ body {
   width: 600px;
   height: 600px;
   border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(212, 160, 84, 0.04) 0%, rgba(212, 160, 84, 0.01) 40%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(212, 160, 84, 0.08) 0%, rgba(212, 160, 84, 0.03) 40%, transparent 70%);
   filter: blur(60px);
   animation: nebula-drift 30s ease-in-out infinite;
 }
@@ -556,7 +556,7 @@ body {
   width: 500px;
   height: 500px;
   border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(45, 212, 191, 0.03) 0%, rgba(45, 212, 191, 0.01) 40%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(45, 212, 191, 0.06) 0%, rgba(45, 212, 191, 0.02) 40%, transparent 70%);
   filter: blur(80px);
   animation: nebula-drift-2 40s ease-in-out infinite;
 }
@@ -569,7 +569,7 @@ body {
   width: 400px;
   height: 300px;
   border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(139, 92, 246, 0.025) 0%, transparent 60%);
+  background: radial-gradient(ellipse, rgba(139, 92, 246, 0.05) 0%, transparent 60%);
   filter: blur(50px);
   animation: nebula-drift 25s ease-in-out infinite;
   animation-delay: -12s;
@@ -590,22 +590,21 @@ body {
 
 .shooting-stars [class^="star-"] {
   position: absolute;
-  height: 2px;
-  background: linear-gradient(90deg, rgba(232,194,120,0.9), rgba(212,160,84,0.5), rgba(212,160,84,0.15), transparent);
+  height: 2.5px;
+  background: linear-gradient(90deg, rgba(232,194,120,1), rgba(212,160,84,0.7), rgba(212,160,84,0.3), transparent);
   border-radius: 100px;
   opacity: 0;
-  filter: blur(0.3px);
 }
 .shooting-stars [class^="star-"]::before {
   content: '';
   position: absolute;
   left: 0;
-  top: -2px;
-  width: 5px;
-  height: 5px;
+  top: -3px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,255,255,0.95), rgba(232,194,120,0.8));
-  box-shadow: 0 0 8px 2px rgba(212, 160, 84, 0.6), 0 0 20px rgba(212, 160, 84, 0.3);
+  background: radial-gradient(circle, rgba(255,255,255,1), rgba(232,194,120,0.9));
+  box-shadow: 0 0 12px 3px rgba(212, 160, 84, 0.8), 0 0 30px rgba(212, 160, 84, 0.4), 0 0 60px rgba(212, 160, 84, 0.2);
 }
 
 .shooting-stars .star-1 {

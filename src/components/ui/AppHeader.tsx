@@ -37,7 +37,17 @@ export default function AppHeader({ onProfileClick, subtitle }: AppHeaderProps) 
             <span className="text-[#0A0E1A] font-bold text-sm relative z-10">G</span>
           </div>
           <div>
-            <h1 className="text-base font-bold leading-tight animated-gradient-text-gold">
+            <h1
+              className="text-base font-bold leading-tight"
+              style={{
+                background: "linear-gradient(270deg, #E8C278, #D4A054, #F59E0B, #E8C278, #D4A054)",
+                backgroundSize: "300% 100%",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                animation: "gradient-text-flow 4s ease-in-out infinite",
+              }}
+            >
               {name ? `Hello, ${name}` : "GrahAI"}
             </h1>
             {subtitle && (

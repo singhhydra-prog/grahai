@@ -93,7 +93,17 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
         {/* ═══ Daily Horoscope Header with animated text ═══ */}
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-base font-bold animated-gradient-text-gold">Daily Horoscope</h2>
+            <h2
+              className="text-base font-bold"
+              style={{
+                background: "linear-gradient(270deg, #E8C278, #D4A054, #F59E0B, #E8C278, #D4A054)",
+                backgroundSize: "300% 100%",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                animation: "gradient-text-flow 4s ease-in-out infinite",
+              }}
+            >Daily Horoscope</h2>
             {userName && (
               <p className="text-[11px] text-[#5A6478] text-visible">Personalized for {userName}</p>
             )}
@@ -133,7 +143,17 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
               <div className="loader-ring-inner" />
               <div className="loader-center" />
             </div>
-            <p className="text-xs text-[#94A3B8] text-visible animated-gradient-text-gold">Reading your chart...</p>
+            <p
+              className="text-xs font-medium"
+              style={{
+                background: "linear-gradient(270deg, #E8C278, #D4A054, #F59E0B, #E8C278)",
+                backgroundSize: "300% 100%",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                animation: "gradient-text-flow 4s ease-in-out infinite",
+              }}
+            >Reading your chart...</p>
           </div>
         ) : horoscope ? (
           <AnimatePresence mode="wait">
