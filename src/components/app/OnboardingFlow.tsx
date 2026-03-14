@@ -317,14 +317,64 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               variants={slideVariants} initial="enter" animate="center" exit="exit"
               className="text-center max-w-sm"
             >
-              <div className="w-40 h-40 mx-auto mb-8 relative">
-                <div className="absolute inset-0 rounded-full border border-[#D4A054]/15 animate-[rotate-slow_40s_linear_infinite]" />
-                <div className="absolute inset-3 rounded-full border border-[#D4A054]/10 animate-[rotate-slow_60s_linear_infinite_reverse]" />
-                <div className="absolute inset-8 rounded-full bg-gradient-to-br from-[#D4A054]/20 to-[#A16E2A]/10 blur-sm" />
-                <div className="absolute inset-12 rounded-full bg-gradient-to-br from-[#D4A054]/30 to-[#A16E2A]/20" />
-                <div className="absolute inset-14 rounded-full bg-[#D4A054]/10 flex items-center justify-center">
-                  <span className="text-3xl font-bold gold-gradient-text">G</span>
-                </div>
+              {/* Animated Star — G-type yellow dwarf */}
+              <div className="w-56 h-56 mx-auto mb-6 relative flex items-center justify-center">
+                {/* Outermost soft halo */}
+                <div className="absolute inset-0 rounded-full animate-pulse"
+                  style={{
+                    background: "radial-gradient(circle, rgba(212,160,84,0.08) 0%, transparent 70%)",
+                  }}
+                />
+                {/* Corona glow ring — slow spin */}
+                <div className="absolute w-44 h-44 rounded-full"
+                  style={{
+                    background: "conic-gradient(from 0deg, rgba(212,160,84,0.0), rgba(212,160,84,0.15), rgba(255,200,100,0.05), rgba(212,160,84,0.12), rgba(212,160,84,0.0))",
+                    animation: "spin 12s linear infinite",
+                  }}
+                />
+                {/* Middle glow */}
+                <div className="absolute w-36 h-36 rounded-full"
+                  style={{
+                    background: "radial-gradient(circle, rgba(212,160,84,0.25) 0%, rgba(212,160,84,0.08) 50%, transparent 70%)",
+                    animation: "pulse 4s ease-in-out infinite",
+                  }}
+                />
+                {/* Inner star body */}
+                <div className="absolute w-24 h-24 rounded-full"
+                  style={{
+                    background: "radial-gradient(circle at 40% 40%, #FFE4A0, #D4A054 50%, #B8863C 80%, #96702E 100%)",
+                    boxShadow: "0 0 40px rgba(212,160,84,0.5), 0 0 80px rgba(212,160,84,0.25), 0 0 120px rgba(212,160,84,0.1), inset 0 -4px 12px rgba(150,112,46,0.4)",
+                    animation: "starPulse 3s ease-in-out infinite",
+                  }}
+                />
+                {/* Surface texture — subtle bright spots */}
+                <div className="absolute w-24 h-24 rounded-full overflow-hidden opacity-40"
+                  style={{
+                    background: "radial-gradient(circle at 35% 30%, rgba(255,255,255,0.3) 0%, transparent 25%), radial-gradient(circle at 65% 55%, rgba(255,255,255,0.15) 0%, transparent 20%), radial-gradient(circle at 50% 70%, rgba(255,255,255,0.1) 0%, transparent 15%)",
+                    animation: "spin 20s linear infinite reverse",
+                  }}
+                />
+                {/* Bright core highlight */}
+                <div className="absolute w-10 h-10 rounded-full"
+                  style={{
+                    background: "radial-gradient(circle at 45% 40%, rgba(255,240,200,0.6) 0%, transparent 70%)",
+                    top: "50%", left: "50%",
+                    transform: "translate(-50%, -50%)",
+                  }}
+                />
+                {/* Lens flare rays */}
+                <div className="absolute w-56 h-56 opacity-20"
+                  style={{
+                    background: "conic-gradient(from 30deg, transparent 0deg, rgba(212,160,84,0.3) 2deg, transparent 4deg, transparent 86deg, rgba(212,160,84,0.2) 88deg, transparent 90deg, transparent 176deg, rgba(212,160,84,0.25) 178deg, transparent 180deg, transparent 266deg, rgba(212,160,84,0.15) 268deg, transparent 270deg, transparent 360deg)",
+                    animation: "spin 30s linear infinite",
+                  }}
+                />
+                <style>{`
+                  @keyframes starPulse {
+                    0%, 100% { transform: scale(1); filter: brightness(1); }
+                    50% { transform: scale(1.04); filter: brightness(1.1); }
+                  }
+                `}</style>
               </div>
 
               <h1 className="text-3xl font-bold text-[#F1F0F5] mb-3 tracking-tight">
