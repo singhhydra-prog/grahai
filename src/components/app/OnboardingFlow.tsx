@@ -8,6 +8,7 @@ import {
   BookOpen, Shield, Target
 } from "lucide-react"
 import type { BirthData, IntentCategory, CosmicSnapshot } from "@/types/app"
+import LocationSearch, { type CityData } from "@/components/ui/LocationSearch"
 
 interface OnboardingFlowProps {
   onComplete: () => void
@@ -99,6 +100,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     placeOfBirth: "",
   })
   const [timeUnknown, setTimeUnknown] = useState(false)
+  const [selectedCity, setSelectedCity] = useState<CityData | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [snapshot, setSnapshot] = useState<CosmicSnapshot | null>(null)
 
@@ -117,7 +119,15 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     if (step === 3) {
       setIsSubmitting(true)
       try {
-        const birthData = { ...form, timeUnknown }
+        const birthData = {
+          ...form,
+          timeUnknown,
+          ...(selectedCity && {
+            latitude: selectedCity.lat,
+            longitude: selectedCity.lng,
+            timezone: selectedCity.tz,
+          }),
+        }
         localStorage.setItem("grahai-onboarding-birthdata", JSON.stringify(birthData))
         localStorage.setItem("userNameForGreeting", form.name.split(" ")[0])
         if (intent) localStorage.setItem("grahai-user-intent", intent)
@@ -362,11 +372,14 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   <label className="flex items-center gap-2 text-xs font-medium text-[#94A3B8] mb-1.5">
                     <MapPin className="w-3.5 h-3.5" />Place of Birth
                   </label>
-                  <input type="text" value={form.placeOfBirth} onChange={(e) => updateField("placeOfBirth", e.target.value)}
-                    placeholder="e.g. Mumbai, India"
-                    className="w-full bg-[#0D1220] border border-[#1E293B] rounded-xl px-4 py-3
-                      text-[#F1F0F5] text-sm placeholder:text-[#5A6478]/50
-                      focus:border-[#D4A054]/40 focus:outline-none transition-colors" />
+                  <LocationSearch
+                    value={form.placeOfBirth}
+                    onChange={(value, city) => {
+                      updateField("placeOfBirth", value)
+                      if (city) setSelectedCity(city)
+                    }}
+                    placeholder="Search city — e.g. Mumbai, Delhi, London..."
+                  />
                 </div>
               </div>
             </motion.div>
