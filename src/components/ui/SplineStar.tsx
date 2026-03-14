@@ -4,16 +4,17 @@ import { useState } from "react"
 
 /**
  * Spline 3D Star — "a star like our own" (G-type yellow dwarf)
- * Uses iframe embed for maximum compatibility and reliability.
- * Shows a CSS star fallback while the iframe loads.
+ * Uses iframe embed with circular masking and edge-blending
+ * so it melts seamlessly into the dark (#0A0E1A) background.
  */
 const SPLINE_URL = "https://my.spline.design/astarlikeourown-ukvK2EaYKfmPcjkfa9xzQqmD/"
+const BG = "#0A0E1A"
 
 export default function SplineStar({ className = "" }: { className?: string }) {
   const [loaded, setLoaded] = useState(false)
 
   return (
-    <div className={`relative flex items-center justify-center overflow-hidden ${className}`}>
+    <div className={`relative flex items-center justify-center ${className}`}>
       {/* CSS star fallback — visible while iframe loads */}
       <div
         className={`absolute inset-0 flex items-center justify-center transition-opacity duration-1000 ${
@@ -23,19 +24,48 @@ export default function SplineStar({ className = "" }: { className?: string }) {
         <CSSStarFallback />
       </div>
 
-      {/* Spline iframe — seamless with dark background */}
-      <iframe
-        src={SPLINE_URL}
-        frameBorder="0"
-        width="100%"
-        height="100%"
-        className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ${
+      {/* Spline iframe container — oversized so we can crop edges + watermark */}
+      <div
+        className={`absolute inset-[-25%] transition-opacity duration-1000 ${
           loaded ? "opacity-100" : "opacity-0"
         }`}
-        style={{ border: "none", background: "transparent" }}
-        onLoad={() => setLoaded(true)}
-        allow="autoplay"
-        title="3D Star Animation"
+        style={{
+          /* Circular clip so only the star center shows */
+          borderRadius: "50%",
+          overflow: "hidden",
+        }}
+      >
+        <iframe
+          src={SPLINE_URL}
+          frameBorder="0"
+          width="100%"
+          height="100%"
+          style={{
+            border: "none",
+            background: BG,
+            display: "block",
+            pointerEvents: "none",
+          }}
+          onLoad={() => setLoaded(true)}
+          allow="autoplay"
+          title="3D Star Animation"
+        />
+      </div>
+
+      {/* Radial gradient overlay — feathers the edges into the page background */}
+      <div
+        className="absolute inset-[-30%] pointer-events-none"
+        style={{
+          background: `radial-gradient(circle, transparent 20%, ${BG}88 45%, ${BG} 65%)`,
+        }}
+      />
+
+      {/* Extra vignette ring for perfectly smooth blending */}
+      <div
+        className="absolute inset-[-10%] pointer-events-none"
+        style={{
+          background: `radial-gradient(circle, transparent 50%, ${BG} 80%)`,
+        }}
       />
     </div>
   )
