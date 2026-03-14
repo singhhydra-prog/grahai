@@ -76,6 +76,22 @@ export default function CosmicBackground() {
     let w = 0, h = 0
     const dpr = Math.min(devicePixelRatio, 2)
 
+    // ─── Glow blobs (must be declared before resize which calls initBlobs) ───
+    const blobs: GlowBlob[] = [
+      { x: 0, y: 0, vx: 0.1, vy: 0.06, radius: 0, color: [220, 90, 30], alpha: 0.12, phase: 0, phaseSpeed: 0.003 },
+      { x: 0, y: 0, vx: -0.08, vy: 0.04, radius: 0, color: [100, 150, 240], alpha: 0.08, phase: Math.PI, phaseSpeed: 0.004 },
+      { x: 0, y: 0, vx: 0.05, vy: -0.07, radius: 0, color: [160, 80, 200], alpha: 0.04, phase: 1.5, phaseSpeed: 0.005 },
+      { x: 0, y: 0, vx: -0.06, vy: 0.04, radius: 0, color: [200, 50, 30], alpha: 0.06, phase: 2.5, phaseSpeed: 0.003 },
+    ]
+
+    const initBlobs = () => {
+      const s = Math.max(w, h)
+      blobs[0].x = w * 0.18; blobs[0].y = h * 0.68; blobs[0].radius = s * 0.3
+      blobs[1].x = w * 0.82; blobs[1].y = h * 0.22; blobs[1].radius = s * 0.28
+      blobs[2].x = w * 0.5; blobs[2].y = h * 0.45; blobs[2].radius = s * 0.2
+      blobs[3].x = w * 0.35; blobs[3].y = h * 0.45; blobs[3].radius = s * 0.2
+    }
+
     const resize = () => {
       w = window.innerWidth
       h = window.innerHeight
@@ -91,22 +107,6 @@ export default function CosmicBackground() {
     window.addEventListener("mousemove", (e) => {
       mouseRef.current = { x: e.clientX, y: e.clientY }
     })
-
-    // ─── Glow blobs ───
-    const blobs: GlowBlob[] = [
-      { x: 0, y: 0, vx: 0.1, vy: 0.06, radius: 0, color: [220, 90, 30], alpha: 0.12, phase: 0, phaseSpeed: 0.003 },
-      { x: 0, y: 0, vx: -0.08, vy: 0.04, radius: 0, color: [100, 150, 240], alpha: 0.08, phase: Math.PI, phaseSpeed: 0.004 },
-      { x: 0, y: 0, vx: 0.05, vy: -0.07, radius: 0, color: [160, 80, 200], alpha: 0.04, phase: 1.5, phaseSpeed: 0.005 },
-      { x: 0, y: 0, vx: -0.06, vy: 0.04, radius: 0, color: [200, 50, 30], alpha: 0.06, phase: 2.5, phaseSpeed: 0.003 },
-    ]
-
-    function initBlobs() {
-      const s = Math.max(w, h)
-      blobs[0].x = w * 0.18; blobs[0].y = h * 0.68; blobs[0].radius = s * 0.3
-      blobs[1].x = w * 0.82; blobs[1].y = h * 0.22; blobs[1].radius = s * 0.28
-      blobs[2].x = w * 0.5; blobs[2].y = h * 0.45; blobs[2].radius = s * 0.2
-      blobs[3].x = w * 0.35; blobs[3].y = h * 0.45; blobs[3].radius = s * 0.2
-    }
 
     // ─── Stars ───
     const stars: Star[] = []
