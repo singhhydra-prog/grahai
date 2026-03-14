@@ -11,8 +11,7 @@ import {
 import type { BirthData, IntentCategory, CosmicSnapshot } from "@/types/app"
 import LocationSearch, { type CityData } from "@/components/ui/LocationSearch"
 
-const GrahAILogo = dynamic(() => import("@/components/ui/GrahAILogo"), { ssr: false })
-const SplineStar = dynamic(() => import("@/components/ui/SplineStar"), { ssr: false })
+/* GrahAI branding is now part of CosmicBackground canvas */
 
 interface OnboardingFlowProps {
   onComplete: (goToAsk?: boolean, firstQuestion?: string) => void
@@ -321,13 +320,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               variants={slideVariants} initial="enter" animate="center" exit="exit"
               className="text-center max-w-sm"
             >
-              {/* GrahAI brand logo */}
-              <GrahAILogo size="lg" className="mb-2" />
-
-              {/* Spline 3D Star */}
-              <SplineStar className="w-56 h-56 mx-auto mb-4" />
-
-              <h1 className="text-3xl font-bold text-[#F1F0F5] mb-3 tracking-tight">
+              <h1 className="text-3xl font-bold text-[#F1F0F5] mb-3 tracking-tight mt-16">
                 Clear answers for love,{" "}
                 <span className="gold-gradient-text">career, timing,</span>{" "}
                 and life.
