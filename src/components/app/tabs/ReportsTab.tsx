@@ -1,338 +1,300 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import { LifeAreaCard, SectionHeader, EmptyState, InsightCard } from "@/components/ui"
-import type { OverlayType, TabType, AstroSource } from "@/types/app"
+import { motion, AnimatePresence } from "framer-motion"
+import { ArrowLeft, Lock, ChevronRight, Sparkles } from "lucide-react"
+import GlassCard from "@/components/ui/GlassCard"
+import SectionHeader from "@/components/ui/SectionHeader"
+import ReportCard from "@/components/ui/ReportCard"
+import type { LifeArea, Report, TabType } from "@/types/app"
 
-// ═══════════════════════════════════════════════════
-// INTERNAL TYPES
-// ═══════════════════════════════════════════════════
-
-interface ReportItem {
-  id: string
-  title: string
-  hook: string
-  price: number
-  isFree?: boolean
-  sections: string[]
-  source: AstroSource
-}
-
-interface LifeAreaCollection {
-  icon: string
-  area: string
-  headline: string
-  reports: ReportItem[]
-}
-
-// ═══════════════════════════════════════════════════
-// REPORT COLLECTIONS — life-area guided
-// ═══════════════════════════════════════════════════
-
-const COLLECTIONS: LifeAreaCollection[] = [
+/* ═══ Report Data ═══ */
+const LIFE_AREAS: LifeArea[] = [
   {
+    id: "general",
+    label: "General Forecast",
+    icon: "🌟",
+    color: "magenta",
+    reports: [
+      {
+        id: "yearly-forecast",
+        title: "General Forecast Report",
+        subtitle: "Embark on a journey of self-discovery with your personalized yearly forecast",
+        description: "Comprehensive yearly overview based on your natal chart, current transits, and dasha periods.",
+        icon: "🌟",
+        isFree: true,
+        validityDays: 365,
+        sections: [
+          { title: "Overall Theme", content: "" },
+          { title: "Key Months", content: "" },
+          { title: "Opportunities", content: "" },
+          { title: "Challenges", content: "" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "career",
+    label: "Career & Work",
     icon: "💼",
-    area: "Career",
-    headline: "Your 10th house holds the key to professional direction",
+    color: "cyan",
     reports: [
       {
-        id: "career-blueprint",
-        title: "Career Blueprint",
-        hook: "Ideal career path, promotion windows, and business timing",
-        price: 299,
-        sections: ["10th house deep dive", "Dasha career timeline", "Promotion windows", "Business launch timing"],
-        source: { label: "10th house analysis", system: "Vedic · Parashari", reference: "BPHS Ch.24", confidence: "high" },
-      },
-      {
-        id: "career-timing",
-        title: "Job Change Timing",
-        hook: "When to move — transit windows for career transitions",
+        id: "career-forecast",
+        title: "Career Report",
+        subtitle: "Professional growth insights for the next 12 months",
+        description: "Detailed career analysis based on your 10th house, Dashamsha chart, and current Mahadasha.",
+        icon: "💼",
+        isFree: false,
         price: 199,
-        sections: ["Saturn transit impact", "Jupiter opportunities", "Decision windows"],
-        source: { label: "Transit analysis", system: "Vedic · Gochar", reference: "BPHS Ch.65" },
+        validityDays: 365,
+      },
+      {
+        id: "business-muhurta",
+        title: "Business Muhurta",
+        subtitle: "Best times to launch or make key business decisions",
+        description: "Auspicious timing analysis for business ventures.",
+        icon: "📊",
+        isFree: false,
+        price: 149,
+        validityDays: 90,
       },
     ],
   },
   {
-    icon: "💛",
-    area: "Love & Relationships",
-    headline: "Venus and your 7th house reveal relationship patterns",
+    id: "love",
+    label: "Love & Relationships",
+    icon: "💜",
+    color: "violet",
     reports: [
       {
-        id: "love-compatibility",
+        id: "relationship-forecast",
+        title: "Relationship Report",
+        subtitle: "Insights into love, marriage prospects, and compatibility",
+        description: "Analysis of your 7th house, Venus placement, and Navamsha chart.",
+        icon: "💜",
+        isFree: false,
+        price: 199,
+        validityDays: 365,
+      },
+      {
+        id: "compatibility",
         title: "Compatibility Analysis",
-        hook: "36-point Guna matching with Mangal Dosha and Bhakoot check",
+        subtitle: "Kundli matching with detailed Guna Milan",
+        description: "36-point Guna matching and dosha analysis.",
+        icon: "💕",
+        isFree: false,
         price: 249,
-        sections: ["Ashtakoot score", "Mangal Dosha check", "Nakshatra synergy", "Remedies if needed"],
-        source: { label: "Ashtakoot matching", system: "Vedic · Parashari", reference: "Muhurta Chintamani", confidence: "high" },
-      },
-      {
-        id: "marriage-timing",
-        title: "Marriage Timing",
-        hook: "Precise Dasha + transit windows for marriage with Muhurta guidance",
-        price: 349,
-        sections: ["7th house analysis", "Venus Dasha timing", "Transit windows", "Muhurta dates"],
-        source: { label: "7th house analysis", system: "Vedic · Parashari", reference: "BPHS Ch.12", confidence: "high" },
       },
     ],
   },
   {
-    icon: "💰",
-    area: "Wealth & Finance",
-    headline: "Your 2nd and 11th houses govern accumulation and gains",
-    reports: [
-      {
-        id: "wealth-report",
-        title: "Wealth Blueprint",
-        hook: "Money patterns, investment timing, and wealth yogas in your chart",
-        price: 299,
-        sections: ["2nd & 11th house analysis", "Dhana yogas", "Investment windows", "Financial cautions"],
-        source: { label: "Dhana yoga analysis", system: "Vedic · Parashari", reference: "BPHS Ch.41", confidence: "high" },
-      },
-    ],
-  },
-  {
-    icon: "🌿",
-    area: "Health & Wellbeing",
-    headline: "The 6th house and planetary rulers influence vitality",
+    id: "health",
+    label: "Health",
+    icon: "🧘",
+    color: "success",
     reports: [
       {
         id: "health-report",
-        title: "Health Overview",
-        hook: "Vulnerable periods, strength windows, and preventive guidance",
-        price: 199,
-        sections: ["6th house analysis", "Planet-body mapping", "Vulnerable periods", "Remedies & practices"],
-        source: { label: "6th house analysis", system: "Vedic · Parashari", reference: "BPHS Ch.14" },
-      },
-    ],
-  },
-  {
-    icon: "📅",
-    area: "Annual Forecast",
-    headline: "Month-by-month guidance for 2026 based on your exact chart",
-    reports: [
-      {
-        id: "annual-forecast",
-        title: "Annual Forecast 2026",
-        hook: "12-month predictions for career, health, love, and finance",
-        price: 399,
-        sections: ["12-month forecast", "Key decision windows", "Cautions & remedies", "Best months highlighted"],
-        source: { label: "Dasha + Transit overlay", system: "Vedic · Gochar", reference: "Phaladeepika Ch.26", confidence: "high" },
-      },
-    ],
-  },
-  {
-    icon: "🔮",
-    area: "Dasha & Timing",
-    headline: "Understanding your current planetary period changes everything",
-    reports: [
-      {
-        id: "dasha-deep-dive",
-        title: "Dasha Deep Dive",
-        hook: "What your current period activates and how to navigate it",
-        price: 199,
-        sections: ["Mahadasha analysis", "Antardasha breakdown", "Practical guidance", "Next period preview"],
-        source: { label: "Dasha analysis", system: "Vedic · Vimshottari", reference: "BPHS Ch.46" },
-      },
-      {
-        id: "remedies-guide",
-        title: "Personalized Remedies",
-        hook: "Mantras, gemstones, donations, and daily practices for your chart",
+        title: "Health Report",
+        subtitle: "Guidance for your wellbeing over the next year",
+        description: "Health tendencies based on your 6th house, Ascendant, and planetary periods.",
+        icon: "🧘",
+        isFree: false,
         price: 149,
-        isFree: true,
-        sections: ["Dosha remedies", "Planet-specific mantras", "Gemstone recommendations", "Daily practices"],
-        source: { label: "Remedial measures", system: "Vedic · Lal Kitab", reference: "BPHS Ch.83" },
+        validityDays: 365,
+      },
+    ],
+  },
+  {
+    id: "education",
+    label: "Education",
+    icon: "📚",
+    color: "gold",
+    reports: [
+      {
+        id: "education-report",
+        title: "Education Report",
+        subtitle: "Academic guidance for the next 2 years",
+        description: "Education prospects based on your 4th and 5th house analysis.",
+        icon: "📚",
+        isFree: false,
+        price: 149,
+        validityDays: 730,
+      },
+    ],
+  },
+  {
+    id: "wealth",
+    label: "Wealth & Finance",
+    icon: "💰",
+    color: "gold",
+    reports: [
+      {
+        id: "wealth-report",
+        title: "Wealth Report",
+        subtitle: "Financial prospects and investment timing",
+        description: "Analysis of your 2nd and 11th houses with Dhana yoga assessment.",
+        icon: "💰",
+        isFree: false,
+        price: 199,
+        validityDays: 365,
       },
     ],
   },
 ]
 
-// ═══════════════════════════════════════════════════
-// REPORTS TAB
-// ═══════════════════════════════════════════════════
+interface ReportsTabProps {
+  onTabChange: (tab: TabType) => void
+}
 
-export default function ReportsTab({
-  onShowOverlay,
-  onTabChange,
-}: {
-  onShowOverlay: (o: OverlayType) => void
-  onTabChange: (t: TabType) => void
-}) {
-  const [selectedArea, setSelectedArea] = useState<string | null>(null)
-  const [hasChart, setHasChart] = useState(false)
-  const [sourceDrawerData, setSourceDrawerData] = useState<AstroSource[]>([])
+export default function ReportsTab({ onTabChange }: ReportsTabProps) {
+  const [hasBirthData, setHasBirthData] = useState(false)
+  const [selectedArea, setSelectedArea] = useState<LifeArea | null>(null)
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem("grahai-chart-data") || localStorage.getItem("grahai-cosmic-snapshot")
-      setHasChart(!!stored)
-    } catch { /* ignore */ }
+      const stored = localStorage.getItem("grahai-onboarding-birthdata")
+      setHasBirthData(!!stored)
+    } catch {}
   }, [])
 
-  void sourceDrawerData
+  const freeReports = LIFE_AREAS.flatMap((a) => a.reports).filter((r) => r.isFree)
+  const lockedReports = LIFE_AREAS.flatMap((a) => a.reports).filter((r) => !r.isFree)
 
-  const selected = COLLECTIONS.find(c => c.area === selectedArea)
-
-  // ─── No chart data ───
-  if (!hasChart) {
+  if (!hasBirthData) {
     return (
-      <div className="h-full flex items-center justify-center px-5">
-        <EmptyState
-          icon="📊"
-          title="Personalized reports"
-          body="Add your birth details first — every report is calculated from your exact chart, not generic sun-sign content."
-          cta={{ label: "Add birth details", action: () => onShowOverlay("onboarding") }}
-        />
-      </div>
-    )
-  }
-
-  // ─── Report detail view ───
-  if (selected) {
-    return (
-      <div className="overflow-y-auto h-full tab-content">
-        {/* Back + area header */}
-        <section className="px-5 pt-6 pb-2">
-          <button
-            onClick={() => setSelectedArea(null)}
-            className="text-[11px] text-text-dim/50 hover:text-gold transition-colors mb-4 flex items-center gap-1"
-          >
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-            All life areas
-          </button>
-
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-2xl">{selected.icon}</span>
-            <h2 className="text-lg font-semibold text-text">{selected.area}</h2>
-          </div>
-          <p className="text-xs text-text-dim/60 leading-relaxed mb-6">{selected.headline}</p>
-        </section>
-
-        {/* Reports list */}
-        <section className="px-5 space-y-4 pb-8">
-          {selected.reports.map((report) => (
-            <motion.div
-              key={report.id}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="rounded-2xl border border-white/[0.04] bg-bg-card/50 p-5"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <h3 className="text-sm font-semibold text-text">{report.title}</h3>
-                <div className="flex items-center gap-2">
-                  {report.isFree && (
-                    <span className="text-[9px] uppercase tracking-wider text-green/80 bg-green/10 px-2 py-0.5 rounded-full">
-                      Free with Plus
-                    </span>
-                  )}
-                  <span className="text-xs font-semibold text-gold">₹{report.price}</span>
-                </div>
-              </div>
-
-              <p className="text-xs text-text-dim leading-relaxed mb-4">{report.hook}</p>
-
-              {/* What's included */}
-              <div className="mb-4">
-                <p className="text-[9px] uppercase tracking-[0.2em] text-text-dim/40 font-medium mb-2">Includes</p>
-                <div className="grid grid-cols-2 gap-1.5">
-                  {report.sections.map((section) => (
-                    <div key={section} className="flex items-center gap-2">
-                      <div className="w-1 h-1 rounded-full bg-gold/40" />
-                      <span className="text-[11px] text-text-dim/60">{section}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Source + CTA */}
-              <div className="flex items-center justify-between pt-3 border-t border-white/[0.04]">
-                <button
-                  onClick={() => setSourceDrawerData([report.source])}
-                  className="text-[10px] text-text-dim/50 hover:text-gold transition-colors flex items-center gap-1"
-                >
-                  <svg width="10" height="10" viewBox="0 0 16 16" fill="none" className="opacity-50">
-                    <path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
-                  {report.source.system}
-                </button>
-                <button
-                  onClick={() => onShowOverlay("pricing")}
-                  className="text-xs font-medium text-gold hover:text-gold/80 transition-colors"
-                >
-                  Get this report →
-                </button>
-              </div>
-            </motion.div>
-          ))}
-        </section>
-
-        {/* Ask about this area */}
-        <section className="px-5 pb-8">
-          <InsightCard
-            title={`Have a ${selected.area.toLowerCase()} question?`}
-            body="Ask anything specific — our AI astrologer can give you quick guidance based on your chart before you commit to a full report."
-            category="natal"
-            sources={[{ label: "AI guidance", system: "Vedic · Multi-system" }]}
-            onSourceTap={(s) => setSourceDrawerData(s)}
-            cta={{ label: "Ask now", action: () => onTabChange("ask") }}
-            compact
-          />
-        </section>
-      </div>
-    )
-  }
-
-  // ─── Main reports index ───
-  return (
-    <div className="overflow-y-auto h-full tab-content">
-      {/* Header */}
-      <section className="px-5 pt-6 pb-2">
-        <p className="text-[9px] uppercase tracking-[0.2em] text-text-dim/40 font-medium mb-1">Guidance</p>
-        <h2 className="text-lg font-semibold text-text mb-1">Reports</h2>
-        <p className="text-xs text-text-dim/60 leading-relaxed">
-          Each report answers a specific life question — calculated from your exact birth chart, not generic content.
+      <div className="flex flex-col items-center justify-center h-full text-center px-6 pb-24">
+        <div className="text-5xl mb-4">📋</div>
+        <h2 className="text-lg font-semibold text-text mb-2">Your reports await</h2>
+        <p className="text-sm text-text-dim mb-6 max-w-xs">
+          Add your birth details to unlock personalized astrological reports tailored to your chart.
         </p>
-      </section>
+        <button onClick={() => onTabChange("profile")} className="btn-primary px-6 py-2.5 text-sm">
+          Add Birth Details
+        </button>
+      </div>
+    )
+  }
 
-      {/* Featured report */}
-      <section className="px-5 pt-4">
-        <SectionHeader label="Most requested" title="Start Here" />
-        <InsightCard
-          title="Annual Forecast 2026"
-          body="Month-by-month guidance for career, health, love, and finance — personalized to your Dasha period and active transits."
-          category="transit"
-          sources={[{ label: "Dasha + Transit overlay", system: "Vedic · Gochar", reference: "Phaladeepika Ch.26", confidence: "high" }]}
-          onSourceTap={(s) => setSourceDrawerData(s)}
-          cta={{ label: "From ₹399", action: () => { setSelectedArea("Annual Forecast") } }}
-        />
-      </section>
-
-      {/* Life area collections */}
-      <section className="px-5 pt-8 pb-8">
-        <SectionHeader label="Explore by area" title="Life Areas" />
-        <div className="space-y-3">
-          {COLLECTIONS.map((collection, idx) => (
-            <motion.div
-              key={collection.area}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.05, duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] as const }}
+  return (
+    <div className="min-h-full px-4 pt-3 pb-24 max-w-lg mx-auto">
+      <AnimatePresence mode="wait">
+        {selectedArea ? (
+          /* ═══ Area Detail View ═══ */
+          <motion.div
+            key="detail"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2 }}
+          >
+            <button
+              onClick={() => setSelectedArea(null)}
+              className="flex items-center gap-1.5 text-sm text-text-dim mb-4 hover:text-text transition-colors"
             >
-              <LifeAreaCard
-                icon={collection.icon}
-                lifeArea={collection.area}
-                headline={collection.headline}
-                reportCount={collection.reports.length}
-                priceFrom={Math.min(...collection.reports.map(r => r.price))}
-                hasFreeReport={collection.reports.some(r => r.isFree)}
-                onTap={() => setSelectedArea(collection.area)}
-              />
-            </motion.div>
-          ))}
-        </div>
-      </section>
+              <ArrowLeft className="w-4 h-4" />
+              All Reports
+            </button>
+
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 rounded-xl bg-bg-elevated flex items-center justify-center text-2xl">
+                {selectedArea.icon}
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-text">{selectedArea.label}</h2>
+                <p className="text-xs text-text-dim">
+                  {selectedArea.reports.length} report{selectedArea.reports.length > 1 ? "s" : ""} available
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {selectedArea.reports.map((report, i) => (
+                <ReportCard
+                  key={report.id}
+                  title={report.title}
+                  subtitle={report.subtitle}
+                  icon={report.icon}
+                  isFree={report.isFree}
+                  validity={report.validityDays ? `${Math.round(report.validityDays / 365)} Year` : undefined}
+                  delay={i * 0.08}
+                />
+              ))}
+            </div>
+          </motion.div>
+        ) : (
+          /* ═══ Main Reports View ═══ */
+          <motion.div
+            key="main"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.2 }}
+          >
+            <h1 className="text-lg font-bold text-text mb-1">Your Reports</h1>
+            <p className="text-xs text-text-dim mb-5">Personalized insights based on your birth chart</p>
+
+            {/* Free reports */}
+            <SectionHeader
+              title={`Your Reports (${freeReports.length})`}
+              subtitle="Available now"
+            />
+            <div className="space-y-3 mb-6">
+              {freeReports.map((report, i) => (
+                <ReportCard
+                  key={report.id}
+                  title={report.title}
+                  subtitle={report.subtitle}
+                  icon={report.icon}
+                  isFree={report.isFree}
+                  validity={report.validityDays ? `1 Year` : undefined}
+                  delay={i * 0.08}
+                />
+              ))}
+            </div>
+
+            {/* Locked reports by area */}
+            <SectionHeader
+              title={`Locked Reports (${lockedReports.length})`}
+              subtitle="Unlock with Plus or Premium plan"
+            />
+            <div className="space-y-2 mb-6">
+              {LIFE_AREAS.filter((a) => a.reports.some((r) => !r.isFree)).map((area, i) => (
+                <GlassCard
+                  key={area.id}
+                  onClick={() => setSelectedArea(area)}
+                  delay={0.1 + i * 0.06}
+                  className="flex items-center gap-3"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-bg-elevated flex items-center justify-center text-xl">
+                    {area.icon}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-text">{area.label}</h3>
+                    <p className="text-xs text-text-dim">
+                      {area.reports.filter((r) => !r.isFree).length} report{area.reports.filter((r) => !r.isFree).length > 1 ? "s" : ""}
+                    </p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-text-dim" />
+                </GlassCard>
+              ))}
+            </div>
+
+            {/* Upgrade CTA */}
+            <GlassCard glow="magenta" className="text-center">
+              <Sparkles className="w-5 h-5 text-magenta mx-auto mb-2" />
+              <h3 className="text-sm font-semibold text-text mb-1">Unlock all reports</h3>
+              <p className="text-xs text-text-dim mb-3">
+                Get unlimited access to all {lockedReports.length} premium reports with Plus
+              </p>
+              <button className="btn-primary px-5 py-2 text-sm">
+                Upgrade to Plus · ₹199/mo
+              </button>
+            </GlassCard>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

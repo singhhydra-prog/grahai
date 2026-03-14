@@ -1,11 +1,5 @@
 import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
-import LenisProvider from "@/components/LenisProvider"
-import { AppProviders } from "@/components/Providers"
-import CosmicBackground from "@/components/CosmicBackground"
-import PWARegister from "@/components/PWARegister"
-import PWAInstallPrompt from "@/components/PWAInstallPrompt"
-import PWAUpdatePrompt from "@/components/PWAUpdatePrompt"
 import "./globals.css"
 
 const inter = Inter({
@@ -14,9 +8,8 @@ const inter = Inter({
   display: "swap",
 })
 
-/* ═══ PWA VIEWPORT ═══ */
 export const viewport: Viewport = {
-  themeColor: "#0E1538",
+  themeColor: "#08091A",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -26,28 +19,14 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://grahai.vercel.app"),
-  title: "GrahAI — AI-Powered Vedic Astrology",
+  title: "GrahAI · Jyotish Darpan",
   description:
-    "Your Planets, Your Path. Personalized Kundli readings, Numerology insights, Tarot guidance, and Vastu consultations — powered by AI trained on classical Sanskrit texts.",
-  keywords: [
-    "vedic astrology",
-    "kundli",
-    "AI astrology",
-    "horoscope",
-    "numerology",
-    "tarot",
-    "vastu",
-    "jyotish",
-    "grahai",
-  ],
+    "Your Planets, Your Path. Personalized Vedic astrology powered by AI — daily insights, kundli readings, and life guidance.",
   manifest: "/manifest.json",
   icons: {
     icon: [
-      { url: "/icon-48.png", sizes: "48x48", type: "image/png" },
-      { url: "/icon-96.png", sizes: "96x96", type: "image/png" },
       { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
       { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
-      { url: "/favicon.svg", type: "image/svg+xml" },
     ],
     apple: [
       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
@@ -59,28 +38,12 @@ export const metadata: Metadata = {
     title: "GrahAI",
   },
   openGraph: {
-    title: "GrahAI — AI-Powered Vedic Astrology",
-    description:
-      "Ancient Vedic wisdom meets cutting-edge AI. Get personalized readings across Astrology, Numerology, Tarot & Vastu.",
+    title: "GrahAI · Jyotish Darpan",
+    description: "Personalized Vedic astrology powered by AI.",
     type: "website",
     locale: "en_IN",
     url: "https://grahai.vercel.app",
     siteName: "GrahAI",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "GrahAI — AI-Powered Vedic Astrology",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "GrahAI — AI-Powered Vedic Astrology",
-    description:
-      "Your Planets, Your Path. Personalized Vedic readings across Astrology, Numerology, Tarot & Vastu.",
-    images: ["/og-image.png"],
   },
 }
 
@@ -91,23 +54,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.variable}>
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="antialiased">
-        <a href="#main-content" className="skip-nav">Skip to main content</a>
-        <PWARegister />
-        <PWAInstallPrompt />
-        <PWAUpdatePrompt />
-        <CosmicBackground />
-        <LenisProvider>
-          <AppProviders>
-            <div id="main-content">{children}</div>
-          </AppProviders>
-        </LenisProvider>
+      <body className="antialiased bg-bg text-text">
+        <div className="starfield" aria-hidden="true" />
+        <a href="#main-content" className="skip-nav">
+          Skip to main content
+        </a>
+        <main id="main-content" className="relative z-10">
+          {children}
+        </main>
       </body>
     </html>
   )

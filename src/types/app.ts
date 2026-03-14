@@ -1,159 +1,94 @@
-// Shared types for the GrahAI app
+/* ═══════════════════════════════════════
+   GrahAI — Frontend Type Definitions
+   ═══════════════════════════════════════ */
 
-// Bottom nav now includes Profile as a 5th tab
-export type TabType = "home" | "ask" | "mychart" | "reports" | "profile"
+/** Bottom navigation tabs */
+export type TabType = "home" | "ask" | "reports" | "profile"
 
+/** Overlay screens (modals, full-screen views) */
 export type OverlayType =
-  | "kundli"
-  | "daily"
-  | "pricing"
-  | "compatibility"
   | "onboarding"
-  | "dashboard"
-  | "horoscope"
-  | "reports-detail"
+  | "pricing"
   | "settings"
-  | "blog"
-  | "chat"
-  | "astrologer"
-  | "checkout"
-  | "auth-login"
-  | "about"
-  | "contact"
-  | "product"
-  | "privacy"
-  | "terms"
-  | "blog-post"
-  | "refer-earn"
-  | "sample-preview"
-  | "source-drawer"
-  | "upgrade"
-  | null
+  | "report-detail"
+  | "compatibility"
+  | "notifications"
+  | "edit-profile"
+  | "birth-details"
 
-// ─── Chat ──────────────────────────────────────
-export interface ChatMessage {
-  id: string
-  role: "user" | "assistant"
-  content: string
-  created_at: string
-  sources?: AstroSource[]
-  followUps?: string[]
-}
-
-// ─── Astro Sources (visible reasoning) ─────────
-export interface AstroSource {
-  label: string          // e.g. "Saturn in 10th House"
-  system: string         // e.g. "Vedic · Parashari"
-  reference?: string     // e.g. "BPHS Ch.24 Sl.3"
-  confidence?: "high" | "medium" | "low"
-}
-
-// ─── Birth Data ────────────────────────────────
+/** Birth data collected during onboarding */
 export interface BirthData {
-  name?: string
-  dateOfBirth?: string   // ISO date
-  timeOfBirth?: string   // HH:MM
-  placeOfBirth?: string
+  name: string
+  dateOfBirth: string      // ISO date string
+  timeOfBirth: string      // HH:MM format
+  placeOfBirth: string
   latitude?: number
   longitude?: number
   timezone?: string
 }
 
-// ─── Profile ───────────────────────────────────
-export interface UserProfile {
+/** Chat message in Ask tab */
+export interface ChatMessage {
   id: string
+  role: "user" | "assistant"
+  content: string
+  timestamp: number
+  isStreaming?: boolean
+}
+
+/** Astrological report */
+export interface Report {
+  id: string
+  title: string
+  subtitle: string
+  description: string
+  icon: string             // emoji or icon name
+  isFree: boolean
+  isPurchased?: boolean
+  price?: number           // in INR
+  validityDays?: number
+  sections?: ReportSection[]
+}
+
+export interface ReportSection {
+  title: string
+  content: string
+}
+
+/** Life area categories for reports */
+export interface LifeArea {
+  id: string
+  label: string
+  icon: string
+  color: string            // tailwind color class
+  reports: Report[]
+}
+
+/** User profile data */
+export interface UserProfile {
   name: string
   email: string
-  birth_data: BirthData
-  preferences: UserPreferences
   plan: "free" | "plus" | "premium"
-  question_count_today: number
-  streak_days: number
-  last_active_at: string
+  birthData?: BirthData
+  questionsToday: number
+  streakDays: number
+  joinedAt: string
 }
 
-export interface UserPreferences {
-  language: "en" | "hi"
-  tone: "calm" | "direct" | "poetic"
-  notifications?: boolean
-}
-
-// ─── Cosmic Identity ───────────────────────────
-export interface CosmicIdentity {
-  sunSign: string
-  moonSign: string
-  ascendant: string
-  nakshatra: string
-  currentDasha: string
-  dashaEndDate?: string
-}
-
-// ─── Reports ───────────────────────────────────
-export interface ReportCollection {
-  id: string
-  lifeArea: string        // "Career", "Love", "Wealth", etc.
+/** Daily insight card */
+export interface DailyInsight {
   title: string
-  description: string
+  body: string
+  category: string
   icon: string
-  reports: ReportItem[]
 }
 
-export interface ReportItem {
-  id: string
-  title: string
-  description: string
-  price: number
-  currency: string
-  tier: "free" | "plus" | "premium"
-  badges?: string[]
-  includes?: string[]
-}
-
-// ─── Insight Cards ─────────────────────────────
-export interface InsightCard {
-  id: string
-  title: string
-  body: string
-  sources: AstroSource[]
-  category: "transit" | "dasha" | "natal" | "remedy"
-  urgency?: "high" | "medium" | "low"
-  cta?: { label: string; action: string }
-}
-
-// ─── Timeline Events ───────────────────────────
-export interface TimelineEvent {
-  id: string
-  date: string
-  title: string
-  body: string
-  type: "transit" | "dasha-shift" | "eclipse" | "retrograde"
-  sources: AstroSource[]
-}
-
-// ─── Legacy compat ─────────────────────────────
-export interface CosmicStory {
-  id: string
-  emoji: string
-  tag: string
-  tagColor: string
-  title: string
-  titleHi: string
-  body: string
-  source: string
-  sourceRef: string
-  cta: { label: string; action: string }
-  gradient: string
-}
-
-export interface TopUpModule {
-  id: string
-  icon: React.ReactNode
-  title: string
-  titleHi: string
-  price: string
-  priceLabel: string
-  description: string
-  tag?: string
-  action: string
-  gradient: string
+/** Cosmic snapshot (home screen) */
+export interface CosmicSnapshot {
+  greeting: string
+  moonSign: string
+  currentDasha: string
+  luckyNumber: number
+  dominantPlanet: string
+  briefInsight: string
 }
