@@ -11,7 +11,7 @@ import {
 import type { BirthData, IntentCategory, CosmicSnapshot } from "@/types/app"
 import LocationSearch, { type CityData } from "@/components/ui/LocationSearch"
 
-/* GrahAI branding is now part of CosmicBackground canvas */
+/* GrahAI branding — shown only on onboarding welcome step */
 
 interface OnboardingFlowProps {
   onComplete: (goToAsk?: boolean, firstQuestion?: string) => void
@@ -320,7 +320,63 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               variants={slideVariants} initial="enter" animate="center" exit="exit"
               className="text-center max-w-sm"
             >
-              <h1 className="text-3xl font-bold text-[#F1F0F5] mb-3 tracking-tight mt-20">
+              {/* ── Grah AI Brand with orange triangle ── */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.7 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3, duration: 1.2, ease: [0.33, 1, 0.68, 1] }}
+                className="relative inline-flex items-center justify-center mb-8 mt-10"
+              >
+                <span
+                  className="text-[4.5rem] sm:text-[5.5rem] font-extrabold tracking-tight text-white"
+                  style={{
+                    fontFamily: "Inter, system-ui, sans-serif",
+                    textShadow: "0 0 18px rgba(255,255,255,0.15)",
+                    lineHeight: 1,
+                  }}
+                >
+                  Grah{" "}
+                </span>
+                <span className="relative inline-block">
+                  {/* Orange triangle behind AI */}
+                  <svg
+                    className="absolute"
+                    style={{
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      width: "130%",
+                      height: "110%",
+                      filter: "drop-shadow(0 0 30px rgba(255,102,0,0.5))",
+                    }}
+                    viewBox="0 0 100 90"
+                    preserveAspectRatio="none"
+                  >
+                    <defs>
+                      <linearGradient id="triGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+                        <stop offset="0%" stopColor="#FF8800" />
+                        <stop offset="50%" stopColor="#FF5500" />
+                        <stop offset="100%" stopColor="#CC3300" />
+                      </linearGradient>
+                    </defs>
+                    <polygon points="50,2 98,88 2,88" fill="url(#triGrad)" />
+                    {/* Inner highlight */}
+                    <polygon points="50,32 72,74 28,74" fill="rgba(255,180,80,0.15)" />
+                  </svg>
+                  <span
+                    className="relative z-10 text-[4.5rem] sm:text-[5.5rem] font-extrabold tracking-tight text-white"
+                    style={{
+                      fontFamily: "Inter, system-ui, sans-serif",
+                      textShadow: "0 0 10px rgba(255,136,0,0.4)",
+                      lineHeight: 1,
+                    }}
+                  >
+                    AI
+                  </span>
+                </span>
+              </motion.div>
+
+              <h1 className="text-3xl font-bold text-[#F1F0F5] mb-3 tracking-tight">
                 Clear answers for love,{" "}
                 <span className="gold-gradient-text">career, timing,</span>{" "}
                 and life.

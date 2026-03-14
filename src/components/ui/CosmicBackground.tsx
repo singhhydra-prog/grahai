@@ -8,7 +8,6 @@ import { useEffect, useRef, useState } from "react"
  * Layer 1: Looping space video
  * Layer 2: Canvas overlay with:
  *   - Soft glow blobs (warm orange-red, cool blue)
- *   - "Grah AI" text with orange triangle behind "AI"
  *   - Hundreds of tiny soft floating particles (Spline space-dust style)
  *   - Slow natural shooting stars
  */
@@ -127,110 +126,6 @@ export default function CosmicBackground() {
       })
     }
 
-    // ─── Brand entrance animation state ───
-    const animStartTime = performance.now()
-    const ANIM_DURATION = 1800 // ms — smooth entrance over 1.8 seconds
-    const ANIM_DELAY = 300 // ms — slight delay before brand appears
-
-    // Easing function: ease-out cubic for smooth deceleration
-    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
-
-    // ─── Draw "Grah AI" text with orange triangle behind "AI" ───
-    const drawText = () => {
-      if (!ctx) return
-
-      // ── Smooth entrance animation ──
-      const elapsed = performance.now() - animStartTime - ANIM_DELAY
-      if (elapsed < 0) return // still in delay phase
-
-      const rawProgress = Math.min(elapsed / ANIM_DURATION, 1)
-      const progress = easeOutCubic(rawProgress)
-
-      // Animation properties
-      const brandAlpha = progress // fade in from 0 → 1
-      const brandScale = 0.7 + 0.3 * progress // scale from 0.7 → 1.0
-
-      const fontSize = Math.min(w * 0.14, 140) // BIGGER: was 0.1/100, now 0.14/140
-      ctx.save()
-
-      // Apply scale transform centered on text position
-      const textY = h * 0.33
-      ctx.translate(w * 0.5, textY)
-      ctx.scale(brandScale, brandScale)
-      ctx.translate(-w * 0.5, -textY)
-
-      ctx.globalAlpha = brandAlpha
-      ctx.font = `800 ${fontSize}px Inter, system-ui, sans-serif`
-      ctx.textAlign = "center"
-      ctx.textBaseline = "middle"
-
-      const fullText = "Grah AI"
-
-      const fullWidth = ctx.measureText(fullText).width
-      const textStartX = w * 0.5 - fullWidth / 2
-      const grahSpaceW = ctx.measureText("Grah ").width
-      const aiW = ctx.measureText("AI").width
-      const aiStartX = textStartX + grahSpaceW
-      const aiCenterX = aiStartX + aiW * 0.5
-
-      // Orange triangle centered on "AI"
-      const triPadX = aiW * 0.25
-      const triW = aiW + triPadX * 2
-      const triH = fontSize * 0.85
-      const triTopY = textY - triH * 0.5
-      const triBottomY = textY + triH * 0.5
-
-      // Outer glow (intensifies with animation)
-      ctx.shadowColor = "#FF6600"
-      ctx.shadowBlur = 30 + 15 * progress
-
-      // Triangle gradient
-      const triGrad = ctx.createLinearGradient(aiCenterX, triTopY, aiCenterX, triBottomY)
-      triGrad.addColorStop(0, "#FF8800")
-      triGrad.addColorStop(0.5, "#FF5500")
-      triGrad.addColorStop(1, "#CC3300")
-      ctx.fillStyle = triGrad
-
-      ctx.beginPath()
-      ctx.moveTo(aiCenterX, triTopY)
-      ctx.lineTo(aiCenterX + triW * 0.5, triBottomY)
-      ctx.lineTo(aiCenterX - triW * 0.5, triBottomY)
-      ctx.closePath()
-      ctx.fill()
-
-      // Inner highlight
-      ctx.shadowBlur = 0
-      ctx.fillStyle = `rgba(255, 180, 80, ${(0.15 * brandAlpha).toFixed(3)})`
-      const iScale = 0.45
-      const iH = triH * iScale
-      const iW2 = triW * iScale
-      const iTopY = textY - iH * 0.3
-      const iBottomY = textY + iH * 0.7
-      ctx.beginPath()
-      ctx.moveTo(aiCenterX, iTopY)
-      ctx.lineTo(aiCenterX + iW2 * 0.5, iBottomY)
-      ctx.lineTo(aiCenterX - iW2 * 0.5, iBottomY)
-      ctx.closePath()
-      ctx.fill()
-
-      // Full text in white
-      ctx.shadowColor = `rgba(255,255,255,${(0.3 * brandAlpha).toFixed(3)})`
-      ctx.shadowBlur = 18
-      ctx.fillStyle = "#FFFFFF"
-      ctx.textAlign = "center"
-      ctx.fillText(fullText, w * 0.5, textY)
-
-      // Re-draw "AI" brighter over triangle
-      ctx.shadowColor = "#FF8800"
-      ctx.shadowBlur = 10
-      ctx.fillStyle = "#FFFFFF"
-      ctx.textAlign = "left"
-      ctx.fillText("AI", aiStartX, textY)
-
-      ctx.restore()
-      ctx.globalAlpha = 1
-    }
-
     // ─── Animation loop ───
     let shootTimer = 0
 
@@ -339,9 +234,6 @@ export default function CosmicBackground() {
           shootingStars.splice(i, 1)
         }
       }
-
-      // Text
-      drawText()
 
       animRef.current = requestAnimationFrame(draw)
     }
