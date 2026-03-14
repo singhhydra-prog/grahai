@@ -320,7 +320,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               variants={slideVariants} initial="enter" animate="center" exit="exit"
               className="text-center max-w-sm"
             >
-              <h1 className="text-3xl font-bold text-[#F1F0F5] mb-3 tracking-tight mt-12">
+              <h1 className="text-3xl font-bold text-[#F1F0F5] mb-3 tracking-tight mt-20">
                 Clear answers for love,{" "}
                 <span className="gold-gradient-text">career, timing,</span>{" "}
                 and life.

@@ -127,16 +127,43 @@ export default function CosmicBackground() {
       })
     }
 
+    // ─── Brand entrance animation state ───
+    const animStartTime = performance.now()
+    const ANIM_DURATION = 1800 // ms — smooth entrance over 1.8 seconds
+    const ANIM_DELAY = 300 // ms — slight delay before brand appears
+
+    // Easing function: ease-out cubic for smooth deceleration
+    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
+
     // ─── Draw "Grah AI" text with orange triangle behind "AI" ───
     const drawText = () => {
       if (!ctx) return
-      const fontSize = Math.min(w * 0.1, 100)
+
+      // ── Smooth entrance animation ──
+      const elapsed = performance.now() - animStartTime - ANIM_DELAY
+      if (elapsed < 0) return // still in delay phase
+
+      const rawProgress = Math.min(elapsed / ANIM_DURATION, 1)
+      const progress = easeOutCubic(rawProgress)
+
+      // Animation properties
+      const brandAlpha = progress // fade in from 0 → 1
+      const brandScale = 0.7 + 0.3 * progress // scale from 0.7 → 1.0
+
+      const fontSize = Math.min(w * 0.14, 140) // BIGGER: was 0.1/100, now 0.14/140
       ctx.save()
+
+      // Apply scale transform centered on text position
+      const textY = h * 0.33
+      ctx.translate(w * 0.5, textY)
+      ctx.scale(brandScale, brandScale)
+      ctx.translate(-w * 0.5, -textY)
+
+      ctx.globalAlpha = brandAlpha
       ctx.font = `800 ${fontSize}px Inter, system-ui, sans-serif`
       ctx.textAlign = "center"
       ctx.textBaseline = "middle"
 
-      const textY = h * 0.35
       const fullText = "Grah AI"
 
       const fullWidth = ctx.measureText(fullText).width
@@ -153,9 +180,9 @@ export default function CosmicBackground() {
       const triTopY = textY - triH * 0.5
       const triBottomY = textY + triH * 0.5
 
-      // Outer glow
+      // Outer glow (intensifies with animation)
       ctx.shadowColor = "#FF6600"
-      ctx.shadowBlur = 30
+      ctx.shadowBlur = 30 + 15 * progress
 
       // Triangle gradient
       const triGrad = ctx.createLinearGradient(aiCenterX, triTopY, aiCenterX, triBottomY)
@@ -173,34 +200,35 @@ export default function CosmicBackground() {
 
       // Inner highlight
       ctx.shadowBlur = 0
-      ctx.fillStyle = "rgba(255, 180, 80, 0.15)"
+      ctx.fillStyle = `rgba(255, 180, 80, ${(0.15 * brandAlpha).toFixed(3)})`
       const iScale = 0.45
       const iH = triH * iScale
-      const iW = triW * iScale
+      const iW2 = triW * iScale
       const iTopY = textY - iH * 0.3
       const iBottomY = textY + iH * 0.7
       ctx.beginPath()
       ctx.moveTo(aiCenterX, iTopY)
-      ctx.lineTo(aiCenterX + iW * 0.5, iBottomY)
-      ctx.lineTo(aiCenterX - iW * 0.5, iBottomY)
+      ctx.lineTo(aiCenterX + iW2 * 0.5, iBottomY)
+      ctx.lineTo(aiCenterX - iW2 * 0.5, iBottomY)
       ctx.closePath()
       ctx.fill()
 
       // Full text in white
-      ctx.shadowColor = "rgba(255,255,255,0.2)"
-      ctx.shadowBlur = 12
+      ctx.shadowColor = `rgba(255,255,255,${(0.3 * brandAlpha).toFixed(3)})`
+      ctx.shadowBlur = 18
       ctx.fillStyle = "#FFFFFF"
       ctx.textAlign = "center"
       ctx.fillText(fullText, w * 0.5, textY)
 
       // Re-draw "AI" brighter over triangle
       ctx.shadowColor = "#FF8800"
-      ctx.shadowBlur = 8
+      ctx.shadowBlur = 10
       ctx.fillStyle = "#FFFFFF"
       ctx.textAlign = "left"
       ctx.fillText("AI", aiStartX, textY)
 
       ctx.restore()
+      ctx.globalAlpha = 1
     }
 
     // ─── Animation loop ───
