@@ -4,8 +4,16 @@ import { useState } from "react"
 
 /**
  * Spline 3D Star — "a star like our own" (G-type yellow dwarf)
- * Uses iframe embed with circular masking and edge-blending
- * so it melts seamlessly into the dark (#0A0E1A) background.
+ *
+ * Layered approach for seamless background merge:
+ *   Layer 0  — CSS fallback star (shows while loading)
+ *   Layer 1  — Spline iframe (oversized, shifted up to hide watermark)
+ *   Layer 2  — Top edge fade (gradient → BG)
+ *   Layer 3  — Bottom edge fade (gradient → BG, also hides watermark)
+ *   Layer 4  — Left edge fade
+ *   Layer 5  — Right edge fade
+ *   Layer 6  — Corner patches (radial gradients at each corner)
+ *   Layer 7  — Overall radial vignette for organic blending
  */
 const SPLINE_URL = "https://my.spline.design/astarlikeourown-ukvK2EaYKfmPcjkfa9xzQqmD/"
 const BG = "#0A0E1A"
@@ -14,8 +22,11 @@ export default function SplineStar({ className = "" }: { className?: string }) {
   const [loaded, setLoaded] = useState(false)
 
   return (
-    <div className={`relative flex items-center justify-center overflow-hidden ${className}`}>
-      {/* CSS star fallback — visible while iframe loads */}
+    <div
+      className={`relative flex items-center justify-center ${className}`}
+      style={{ overflow: "visible" }}
+    >
+      {/* ── Layer 0: CSS star fallback while iframe loads ── */}
       <div
         className={`absolute inset-0 flex items-center justify-center transition-opacity duration-1000 ${
           loaded ? "opacity-0 pointer-events-none" : "opacity-100"
@@ -24,19 +35,18 @@ export default function SplineStar({ className = "" }: { className?: string }) {
         <CSSStarFallback />
       </div>
 
-      {/*
-        Spline iframe — slightly oversized so the star fills the view.
-        Shifted up a bit so the bottom watermark is pushed out of frame.
-      */}
+      {/* ── Layer 1: Spline iframe ──
+          Oversized (160% × 180%) and shifted up so the star
+          fills the container and the watermark is below the visible area. */}
       <div
         className={`absolute transition-opacity duration-1000 ${
           loaded ? "opacity-100" : "opacity-0"
         }`}
         style={{
-          top: "-15%",
-          left: "-10%",
-          width: "120%",
-          height: "130%",
+          top: "-40%",
+          left: "-30%",
+          width: "160%",
+          height: "180%",
         }}
       >
         <iframe
@@ -46,7 +56,7 @@ export default function SplineStar({ className = "" }: { className?: string }) {
           height="100%"
           style={{
             border: "none",
-            background: "transparent",
+            background: BG,
             display: "block",
             pointerEvents: "none",
           }}
@@ -56,20 +66,102 @@ export default function SplineStar({ className = "" }: { className?: string }) {
         />
       </div>
 
-      {/* Bottom bar — covers the Spline watermark area */}
+      {/* ── Layer 2: Top edge fade ── */}
       <div
-        className="absolute bottom-0 left-0 right-0 pointer-events-none"
+        className="absolute left-0 right-0 pointer-events-none"
         style={{
-          height: "18%",
-          background: `linear-gradient(to bottom, transparent, ${BG} 40%)`,
+          top: "-2px",
+          height: "35%",
+          background: `linear-gradient(to bottom, ${BG} 0%, ${BG}CC 30%, ${BG}66 60%, transparent 100%)`,
+          zIndex: 2,
         }}
       />
 
-      {/* Soft edge vignette — seamless blend into dark background */}
+      {/* ── Layer 3: Bottom edge fade (also hides watermark) ── */}
       <div
-        className="absolute inset-[-5%] pointer-events-none"
+        className="absolute left-0 right-0 pointer-events-none"
         style={{
-          background: `radial-gradient(ellipse 70% 70% at 50% 45%, transparent 50%, ${BG} 100%)`,
+          bottom: "-2px",
+          height: "35%",
+          background: `linear-gradient(to top, ${BG} 0%, ${BG}CC 30%, ${BG}66 60%, transparent 100%)`,
+          zIndex: 2,
+        }}
+      />
+
+      {/* ── Layer 4: Left edge fade ── */}
+      <div
+        className="absolute top-0 bottom-0 pointer-events-none"
+        style={{
+          left: "-2px",
+          width: "35%",
+          background: `linear-gradient(to right, ${BG} 0%, ${BG}CC 30%, ${BG}66 60%, transparent 100%)`,
+          zIndex: 2,
+        }}
+      />
+
+      {/* ── Layer 5: Right edge fade ── */}
+      <div
+        className="absolute top-0 bottom-0 pointer-events-none"
+        style={{
+          right: "-2px",
+          width: "35%",
+          background: `linear-gradient(to left, ${BG} 0%, ${BG}CC 30%, ${BG}66 60%, transparent 100%)`,
+          zIndex: 2,
+        }}
+      />
+
+      {/* ── Layer 6: Corner patches ──
+          Radial gradients at each corner to eliminate any remaining
+          rectangular hint where the edge fades meet. */}
+      {/* Top-left */}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          top: 0, left: 0, width: "50%", height: "50%",
+          background: `radial-gradient(ellipse at 0% 0%, ${BG} 0%, transparent 70%)`,
+          zIndex: 3,
+        }}
+      />
+      {/* Top-right */}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          top: 0, right: 0, width: "50%", height: "50%",
+          background: `radial-gradient(ellipse at 100% 0%, ${BG} 0%, transparent 70%)`,
+          zIndex: 3,
+        }}
+      />
+      {/* Bottom-left */}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          bottom: 0, left: 0, width: "50%", height: "50%",
+          background: `radial-gradient(ellipse at 0% 100%, ${BG} 0%, transparent 70%)`,
+          zIndex: 3,
+        }}
+      />
+      {/* Bottom-right */}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          bottom: 0, right: 0, width: "50%", height: "50%",
+          background: `radial-gradient(ellipse at 100% 100%, ${BG} 0%, transparent 70%)`,
+          zIndex: 3,
+        }}
+      />
+
+      {/* ── Layer 7: Master radial vignette ──
+          Ties everything together — creates a natural circular
+          window that fades organically into the page. */}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          top: "-20%",
+          left: "-20%",
+          width: "140%",
+          height: "140%",
+          background: `radial-gradient(circle at 50% 50%, transparent 20%, ${BG}40 32%, ${BG}99 40%, ${BG}DD 48%, ${BG} 56%)`,
+          zIndex: 4,
         }}
       />
     </div>
