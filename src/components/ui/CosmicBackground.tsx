@@ -160,16 +160,17 @@ export default function CosmicBackground() {
     // ─── Draw "Grah AI" text with orange triangle behind "AI" ───
     const drawText = () => {
       if (!ctx) return
-      const fontSize = Math.min(w * 0.12, 120)
+      const fontSize = Math.min(w * 0.1, 100)
       ctx.save()
       ctx.font = `800 ${fontSize}px Inter, system-ui, sans-serif`
       ctx.textAlign = "center"
       ctx.textBaseline = "middle"
 
-      const textY = h * 0.38
+      // Center text vertically at ~35% (gives breathing room above and below)
+      const textY = h * 0.35
       const fullText = "Grah AI"
 
-      // Measure text segments
+      // Measure text segments precisely
       const fullWidth = ctx.measureText(fullText).width
       const textStartX = w * 0.5 - fullWidth / 2
       const grahSpaceW = ctx.measureText("Grah ").width
@@ -177,17 +178,25 @@ export default function CosmicBackground() {
       const aiStartX = textStartX + grahSpaceW
       const aiCenterX = aiStartX + aiW * 0.5
 
-      // ── Orange triangle behind "AI" ──
-      const triW = aiW * 1.6
-      const triH = fontSize * 1.1
-      const triTopY = textY - triH * 0.45
-      const triBottomY = textY + triH * 0.55
+      // ── Orange triangle centered on "AI" ──
+      // Triangle sized to snugly wrap "AI" — width slightly wider than AI text,
+      // height matches the font cap height, centered on the text baseline
+      const triPadX = aiW * 0.25 // horizontal padding beyond AI text
+      const triW = aiW + triPadX * 2
+      const triH = fontSize * 0.85 // compact height
 
-      // Outer glow for triangle
+      // Center the triangle vertically on textY:
+      // The centroid of a triangle is at 1/3 from base.
+      // To visually center "AI" in the triangle, position so textY
+      // sits at the vertical center of the triangle
+      const triTopY = textY - triH * 0.5
+      const triBottomY = textY + triH * 0.5
+
+      // Outer glow
       ctx.shadowColor = "#FF6600"
-      ctx.shadowBlur = 40
+      ctx.shadowBlur = 30
 
-      // Triangle gradient (warm orange)
+      // Triangle gradient
       const triGrad = ctx.createLinearGradient(aiCenterX, triTopY, aiCenterX, triBottomY)
       triGrad.addColorStop(0, "#FF8800")
       triGrad.addColorStop(0.5, "#FF5500")
@@ -202,31 +211,31 @@ export default function CosmicBackground() {
       ctx.closePath()
       ctx.fill()
 
-      // Inner bright core of triangle
+      // Inner highlight
       ctx.shadowBlur = 0
-      ctx.fillStyle = "rgba(255, 170, 70, 0.2)"
-      const innerScale = 0.5
-      const innerTriH = triH * innerScale
-      const innerTriW = triW * innerScale
-      const innerTopY = textY - innerTriH * 0.3
-      const innerBottomY = textY + innerTriH * 0.7
+      ctx.fillStyle = "rgba(255, 180, 80, 0.15)"
+      const iScale = 0.45
+      const iH = triH * iScale
+      const iW = triW * iScale
+      const iTopY = textY - iH * 0.3
+      const iBottomY = textY + iH * 0.7
       ctx.beginPath()
-      ctx.moveTo(aiCenterX, innerTopY)
-      ctx.lineTo(aiCenterX + innerTriW * 0.5, innerBottomY)
-      ctx.lineTo(aiCenterX - innerTriW * 0.5, innerBottomY)
+      ctx.moveTo(aiCenterX, iTopY)
+      ctx.lineTo(aiCenterX + iW * 0.5, iBottomY)
+      ctx.lineTo(aiCenterX - iW * 0.5, iBottomY)
       ctx.closePath()
       ctx.fill()
 
-      // ── Draw "Grah " in white ──
+      // ── Draw full text in white ──
       ctx.shadowColor = "rgba(255,255,255,0.2)"
-      ctx.shadowBlur = 15
+      ctx.shadowBlur = 12
       ctx.fillStyle = "#FFFFFF"
       ctx.textAlign = "center"
       ctx.fillText(fullText, w * 0.5, textY)
 
-      // Re-draw "AI" brighter over triangle
+      // Re-draw "AI" slightly brighter over triangle for contrast
       ctx.shadowColor = "#FF8800"
-      ctx.shadowBlur = 10
+      ctx.shadowBlur = 8
       ctx.fillStyle = "#FFFFFF"
       ctx.textAlign = "left"
       ctx.fillText("AI", aiStartX, textY)
@@ -260,29 +269,63 @@ export default function CosmicBackground() {
         ctx.fillRect(b.x - b.radius, b.y - b.radius, b.radius * 2, b.radius * 2)
       }
 
-      // Stars (brighter, with soft glow halo)
+      // Stars (realistic sparkle with cross-rays and glow)
       for (const s of stars) {
         s.phase += s.speed
         s.x += s.vx; s.y += s.vy
         if (s.x < -5) s.x = w + 5; if (s.x > w + 5) s.x = -5
         if (s.y < -5) s.y = h + 5; if (s.y > h + 5) s.y = -5
 
-        const twinkle = 0.6 + 0.4 * Math.sin(s.phase)
+        const twinkle = 0.5 + 0.5 * Math.sin(s.phase)
         const currentAlpha = s.alpha * twinkle
 
-        // Soft glow halo
+        // Soft circular glow halo
         const glowGrad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.glowRadius)
-        glowGrad.addColorStop(0, `rgba(200,210,255,${(currentAlpha * 0.4).toFixed(3)})`)
-        glowGrad.addColorStop(0.4, `rgba(180,195,255,${(currentAlpha * 0.15).toFixed(3)})`)
-        glowGrad.addColorStop(1, `rgba(180,195,255,0)`)
+        glowGrad.addColorStop(0, `rgba(220,225,255,${(currentAlpha * 0.5).toFixed(3)})`)
+        glowGrad.addColorStop(0.3, `rgba(200,210,255,${(currentAlpha * 0.2).toFixed(3)})`)
+        glowGrad.addColorStop(1, "rgba(200,210,255,0)")
         ctx.fillStyle = glowGrad
         ctx.fillRect(s.x - s.glowRadius, s.y - s.glowRadius, s.glowRadius * 2, s.glowRadius * 2)
 
-        // Bright core
+        // Cross-shaped sparkle rays (only on brighter stars)
+        if (s.size > 0.8) {
+          const rayLen = s.glowRadius * (0.8 + 0.4 * twinkle)
+          ctx.globalAlpha = currentAlpha * 0.5
+          ctx.strokeStyle = "#D0D8FF"
+          ctx.lineWidth = 0.5
+
+          // Vertical ray
+          ctx.beginPath()
+          ctx.moveTo(s.x, s.y - rayLen)
+          ctx.lineTo(s.x, s.y + rayLen)
+          ctx.stroke()
+
+          // Horizontal ray
+          ctx.beginPath()
+          ctx.moveTo(s.x - rayLen, s.y)
+          ctx.lineTo(s.x + rayLen, s.y)
+          ctx.stroke()
+
+          // Diagonal rays (shorter, for 4-point star look)
+          if (s.size > 1.2) {
+            const dRay = rayLen * 0.5
+            ctx.globalAlpha = currentAlpha * 0.25
+            ctx.beginPath()
+            ctx.moveTo(s.x - dRay, s.y - dRay)
+            ctx.lineTo(s.x + dRay, s.y + dRay)
+            ctx.stroke()
+            ctx.beginPath()
+            ctx.moveTo(s.x + dRay, s.y - dRay)
+            ctx.lineTo(s.x - dRay, s.y + dRay)
+            ctx.stroke()
+          }
+        }
+
+        // Bright white core
         ctx.globalAlpha = currentAlpha
-        ctx.fillStyle = "#E8E4FF"
+        ctx.fillStyle = "#FFFFFF"
         ctx.beginPath()
-        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2)
+        ctx.arc(s.x, s.y, s.size * 0.6, 0, Math.PI * 2)
         ctx.fill()
       }
       ctx.globalAlpha = 1
