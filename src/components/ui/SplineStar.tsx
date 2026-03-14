@@ -24,14 +24,13 @@ export default function SplineStar({ className = "" }: { className?: string }) {
 
         const app = new Application(canvasRef.current)
 
-        // Fetch the signed URL from our proxy API
-        const res = await fetch("/api/spline-scene")
-        if (!res.ok) throw new Error("Failed to fetch scene URL")
-        const { url } = await res.json()
+        // Load directly from the published Spline scene URL (permanent, no proxy needed)
+        const SCENE_URL =
+          "https://my.spline.design/astarlikeourown-ukvK2EaYKfmPcjkfa9xzQqmD/scene.splinecode"
 
         if (cancelled) return
 
-        await app.load(url)
+        await app.load(SCENE_URL)
 
         if (!cancelled) setLoaded(true)
       } catch (err) {
