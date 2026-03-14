@@ -200,8 +200,21 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
       {/* Chat body */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 pb-4">
         {isEmpty ? (
-          <div className="pt-10 text-center">
-            <div className="cosmic-orb-sm mx-auto mb-5" />
+          <div className="pt-6 text-center">
+            {/* Spline 3D Orbital Planet — CC0 licensed from Spline Community */}
+            <div className="relative w-[220px] h-[220px] mx-auto mb-4 overflow-hidden rounded-full">
+              <iframe
+                src="https://app.spline.design/file/2fe1e180-00f4-49e6-89c8-6a8bfd4839f9?view=preview"
+                frameBorder="0"
+                width="100%"
+                height="100%"
+                style={{ border: "none", background: "transparent", pointerEvents: "none" }}
+                loading="lazy"
+                title="GrahAI cosmic planet"
+              />
+              {/* Overlay to prevent scroll-jacking from Spline */}
+              <div className="absolute inset-0" />
+            </div>
             <h2
               className="text-lg font-bold mb-1"
               style={{
