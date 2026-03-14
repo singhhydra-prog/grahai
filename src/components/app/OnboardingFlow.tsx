@@ -12,6 +12,7 @@ import type { BirthData, IntentCategory, CosmicSnapshot } from "@/types/app"
 import LocationSearch, { type CityData } from "@/components/ui/LocationSearch"
 
 const SplineStar = dynamic(() => import("@/components/ui/SplineStar"), { ssr: false })
+const GrahAILogo = dynamic(() => import("@/components/ui/GrahAILogo"), { ssr: false })
 
 interface OnboardingFlowProps {
   onComplete: (goToAsk?: boolean, firstQuestion?: string) => void
@@ -320,6 +321,9 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               variants={slideVariants} initial="enter" animate="center" exit="exit"
               className="text-center max-w-sm"
             >
+              {/* GrahAI brand logo */}
+              <GrahAILogo size="lg" className="mb-2" />
+
               {/* Spline 3D Star — seamless with dark background */}
               <SplineStar className="w-72 h-72 mx-auto mb-4" />
 
