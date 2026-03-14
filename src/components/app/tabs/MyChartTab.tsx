@@ -105,7 +105,7 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
 
   return (
     <div className="min-h-full pb-24">
-      <AppHeader onProfileClick={onProfileClick} subtitle="Your cosmic blueprint" />
+      <AppHeader onProfileClick={onProfileClick} subtitle={t.chart.yourBlueprint} />
 
       <div className="px-5 pt-4">
         {/* ═══ 1. Identity Summary — Simple View ═══ */}
@@ -128,9 +128,9 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
               className="flex items-center gap-1.5 text-xs text-[#5A6478]"
             >
               {isAdvanced ? (
-                <><ToggleRight className="w-4 h-4 text-[#D4A054]" /><span className="text-[#D4A054]">{t.chart.hideAdvanced || "Advanced"}</span></>
+                <><ToggleRight className="w-4 h-4 text-[#D4A054]" /><span className="text-[#D4A054]">{t.chart.advanced}</span></>
               ) : (
-                <><ToggleLeft className="w-4 h-4" />{t.chart.showAdvanced || "Simple"}</>
+                <><ToggleLeft className="w-4 h-4" />{t.chart.simple}</>
               )}
             </button>
           </div>
@@ -138,9 +138,9 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
           {/* Core triad: Moon, Nakshatra, Rising */}
           <div className="grid grid-cols-3 gap-2 mb-4">
             {[
-              { icon: Moon, label: t.chart.moonSign || "Moon Sign", value: profile.moonSign, color: "text-blue-300" },
-              { icon: Star, label: t.chart.nakshatra || "Nakshatra", value: `${profile.nakshatra}`, color: "text-purple-300" },
-              { icon: Sunrise, label: t.chart.risingSign || "Rising", value: risingSignData?.name || profile.risingSign, color: "text-amber-300" },
+              { icon: Moon, label: t.chart.moonSign, value: profile.moonSign, color: "text-blue-300" },
+              { icon: Star, label: t.chart.nakshatra, value: `${profile.nakshatra}`, color: "text-purple-300" },
+              { icon: Sunrise, label: t.chart.risingSign, value: risingSignData?.name || profile.risingSign, color: "text-amber-300" },
             ].map((item, i) => (
               <motion.div
                 key={item.label}
@@ -160,12 +160,12 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
           <div className="flex items-center gap-3 bg-[#0A0E1A]/40 rounded-xl p-3">
             <div className="flex items-center gap-2 flex-1">
               <Sun className="w-3.5 h-3.5 text-orange-300" />
-              <span className="text-xs text-[#94A3B8]">{t.chart.sunSign || "Sun:"} <span className="text-[#F1F0F5] font-medium">{vedicSign?.name || profile.sunSignVedic}</span></span>
+              <span className="text-xs text-[#94A3B8]">{t.chart.sun} <span className="text-[#F1F0F5] font-medium">{vedicSign?.name || profile.sunSignVedic}</span></span>
             </div>
             <div className="w-px h-4 bg-[#1E293B]" />
             <div className="flex items-center gap-2 flex-1">
               <Eye className="w-3.5 h-3.5 text-emerald-300" />
-              <span className="text-xs text-[#94A3B8]">{t.chart.element || "Element:"} <span className="text-[#F1F0F5] font-medium">{element}</span></span>
+              <span className="text-xs text-[#94A3B8]">{t.chart.elementLabel} <span className="text-[#F1F0F5] font-medium">{element}</span></span>
             </div>
           </div>
 
@@ -180,14 +180,14 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
               >
                 <div className="space-y-2">
                   {[
-                    { label: "Nakshatra Pada", value: `${nakshatraData?.pada || profile.nakshatraPada}` },
-                    { label: "Nakshatra Lord", value: nakshatraData?.lord || "—" },
-                    { label: "Nakshatra Deity", value: nakshatraData?.deity || "—" },
-                    { label: "Sign Quality", value: vedicSign?.quality || "—" },
-                    { label: "Ruling Planet", value: `${snap?.rulingPlanet?.name || vedicSign?.lord || "—"} (${snap?.rulingPlanet?.sanskrit || vedicSign?.lordSanskrit || ""})` },
-                    { label: "Sign Degree", value: vedicSign?.degree ? `${vedicSign.degree}° in ${vedicSign.name}` : "—" },
-                    ...(snap?.lifePath ? [{ label: "Life Path", value: `${snap.lifePath.number} — ${snap.lifePath.meaning.split("—")[0].trim()}` }] : []),
-                    { label: "Current Dasha", value: profile.currentDasha || "Calculating..." },
+                    { label: t.chart.nakshatraPada, value: `${nakshatraData?.pada || profile.nakshatraPada}` },
+                    { label: t.chart.nakshatraLord, value: nakshatraData?.lord || "—" },
+                    { label: t.chart.nakshatraDeity, value: nakshatraData?.deity || "—" },
+                    { label: t.chart.signQuality, value: vedicSign?.quality || "—" },
+                    { label: t.chart.rulingPlanet, value: `${snap?.rulingPlanet?.name || vedicSign?.lord || "—"} (${snap?.rulingPlanet?.sanskrit || vedicSign?.lordSanskrit || ""})` },
+                    { label: t.chart.signDegree, value: vedicSign?.degree ? `${vedicSign.degree}° in ${vedicSign.name}` : "—" },
+                    ...(snap?.lifePath ? [{ label: t.chart.lifePath, value: `${snap.lifePath.number} — ${snap.lifePath.meaning.split("—")[0].trim()}` }] : []),
+                    { label: t.chart.currentDasha, value: profile.currentDasha || t.chart.calculating },
                   ].map((item) => (
                     <div key={item.label} className="flex items-center justify-between">
                       <span className="text-[11px] text-[#5A6478]">{item.label}</span>
@@ -198,7 +198,7 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
                 {birthData && (
                   <div className="mt-3 pt-3 border-t border-[#1E293B]/30">
                     <p className="text-[10px] text-[#5A6478]">
-                      {birthData.dateOfBirth} &middot; {birthData.timeOfBirth || "Time unknown"} &middot; {birthData.placeOfBirth}
+                      {birthData.dateOfBirth} &middot; {birthData.timeOfBirth || t.chart.timeUnknownLabel} &middot; {birthData.placeOfBirth}
                     </p>
                   </div>
                 )}
@@ -216,7 +216,7 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
         >
           <div className="flex items-center gap-2 mb-3">
             <Zap className="w-4 h-4 text-amber-400" />
-            <h3 className="text-sm font-semibold text-[#F1F0F5]">Current Active Energies</h3>
+            <h3 className="text-sm font-semibold text-[#F1F0F5]">{t.chart.currentEnergies}</h3>
           </div>
           <p className="text-xs text-[#94A3B8] leading-relaxed mb-3">
             {snap?.todayTransit?.detail || "A transit of focus and discipline is active. This is a building phase — effort invested now compounds."}
@@ -225,7 +225,7 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
             <div className="flex items-center gap-2 bg-[#0A0E1A]/50 rounded-lg p-2.5">
               <Activity className="w-3.5 h-3.5 text-teal-400" />
               <div>
-                <p className="text-[10px] text-[#5A6478]">Active Dasha Period</p>
+                <p className="text-[10px] text-[#5A6478]">{t.chart.activeDasha}</p>
                 <p className="text-xs font-medium text-[#F1F0F5]">{profile.currentDasha}</p>
               </div>
             </div>
@@ -234,7 +234,7 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
             onClick={() => onAskQuestion("What planetary transits are most active for me right now?")}
             className="flex items-center gap-1 mt-3 text-[11px] text-[#D4A054] font-medium hover:text-[#E8C278] transition-colors"
           >
-            Ask about my active transits <ChevronRight className="w-3 h-3" />
+            {t.chart.askTransits} <ChevronRight className="w-3 h-3" />
           </button>
         </motion.div>
 
@@ -248,7 +248,7 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
           <button onClick={() => toggleSection("strengths")} className="w-full flex items-center justify-between p-4">
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4 text-emerald-400" />
-              <span className="text-sm font-semibold text-[#F1F0F5]">{`${t.chart.strengths} & ${t.chart.sensitivities}`}</span>
+              <span className="text-sm font-semibold text-[#F1F0F5]">${t.chart.strengths} & ${t.chart.sensitivities}</span>
             </div>
             {expandedSection === "strengths" ? <ChevronUp className="w-4 h-4 text-[#5A6478]" /> : <ChevronDown className="w-4 h-4 text-[#5A6478]" />}
           </button>
@@ -262,7 +262,7 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
               >
                 <div className="space-y-4">
                   <div>
-                    <p className="text-[10px] font-medium text-emerald-400 uppercase tracking-wider mb-2">{t.chart.strengths || "Strengths"}</p>
+                    <p className="text-[10px] font-medium text-emerald-400 uppercase tracking-wider mb-2">{t.chart.strengths}</p>
                     <div className="space-y-2">
                       {strengths.map((s) => (
                         <div key={s} className="flex items-start gap-2">
@@ -273,7 +273,7 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
                     </div>
                   </div>
                   <div>
-                    <p className="text-[10px] font-medium text-amber-400 uppercase tracking-wider mb-2">{t.chart.sensitivities || "Sensitivities"}</p>
+                    <p className="text-[10px] font-medium text-amber-400 uppercase tracking-wider mb-2">{t.chart.sensitivities}</p>
                     <div className="space-y-2">
                       {sensitivities.map((s) => (
                         <div key={s} className="flex items-start gap-2">
@@ -292,24 +292,24 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
         {/* ═══ 4. Recurring Themes (Patterns) ═══ */}
         <h3 className="text-sm font-semibold text-[#F1F0F5] mb-3 flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-[#D4A054]" />
-          Recurring Themes
+          {t.chart.recurringThemes}
         </h3>
         <div className="space-y-3 mb-5">
           {[
             {
-              title: "Emotional pattern",
+              title: t.chart.emotionalPattern,
               desc: snap?.element ? `As a ${snap.element.name} sign, ${snap.element.insight?.substring(0, 100)}...` : "You process deeply before reacting. This gives you wisdom but sometimes delays action.",
               ask: "Tell me more about my emotional patterns based on my chart",
               color: "text-blue-400", bg: "bg-blue-500/10",
             },
             {
-              title: "Work style",
+              title: t.chart.workStyle,
               desc: vedicSign ? `With ${vedicSign.name} energy, you thrive in environments that match your ${vedicSign.element} nature.` : "You thrive in structured environments but need creative autonomy.",
               ask: "What does my chart say about my ideal work environment?",
               color: "text-amber-400", bg: "bg-amber-500/10",
             },
             {
-              title: "Relationship style",
+              title: t.chart.relationshipStyle,
               desc: nakshatraData ? `${nakshatraData.name} (${nakshatraData.deity} energy) shapes how you love. Your ${nakshatraData.gana} nature influences attraction.` : "You seek depth and loyalty. Surface connections drain you.",
               ask: "What's my relationship pattern according to my chart?",
               color: "text-rose-400", bg: "bg-rose-500/10",
@@ -348,7 +348,7 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
             <button onClick={() => toggleSection("nakshatra")} className="w-full flex items-center justify-between p-4">
               <div className="flex items-center gap-2">
                 <Star className="w-4 h-4 text-purple-400" />
-                <span className="text-sm font-semibold text-[#F1F0F5]">{`${t.chart.nakshatra} Deep Dive`}</span>
+                <span className="text-sm font-semibold text-[#F1F0F5]">{t.chart.nakshatra} {t.chart.deepDive}</span>
               </div>
               {expandedSection === "nakshatra" ? <ChevronUp className="w-4 h-4 text-[#5A6478]" /> : <ChevronDown className="w-4 h-4 text-[#5A6478]" />}
             </button>
@@ -367,12 +367,12 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       {[
-                        { label: "Deity", value: nakshatraData.deity },
-                        { label: "Lord", value: nakshatraData.lord },
-                        { label: "Symbol", value: nakshatraData.symbol },
-                        { label: "Shakti", value: nakshatraData.shakti },
-                        { label: "Animal", value: nakshatraData.animal },
-                        { label: "Gana", value: nakshatraData.gana },
+                        { label: t.chart.deity, value: nakshatraData.deity },
+                        { label: t.chart.lord, value: nakshatraData.lord },
+                        { label: t.chart.symbol, value: nakshatraData.symbol },
+                        { label: t.chart.shakti, value: nakshatraData.shakti },
+                        { label: t.chart.animal, value: nakshatraData.animal },
+                        { label: t.chart.gana, value: nakshatraData.gana },
                       ].map(item => (
                         <div key={item.label} className="bg-[#111827] rounded-lg p-2">
                           <p className="text-[10px] text-[#5A6478]">{item.label}</p>
@@ -397,7 +397,7 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
           >
             <div className="flex items-center gap-2 mb-2">
               <Eye className="w-4 h-4 text-emerald-400" />
-              <span className="text-sm font-semibold text-[#F1F0F5]">{snap.element.name} {t.chart.element || "Element"}</span>
+              <span className="text-sm font-semibold text-[#F1F0F5]">{snap.element.name} {t.chart.elementLabel}</span>
             </div>
             <p className="text-xs text-[#94A3B8] leading-relaxed">{snap.element.insight}</p>
           </motion.div>

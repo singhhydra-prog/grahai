@@ -15,90 +15,90 @@ interface PricingOverlayProps {
   trigger?: string  // What triggered the paywall (for analytics)
 }
 
-const PLANS = [
-  {
-    id: "free" as const,
-    name: "Free",
-    price: 0,
-    period: "",
-    description: "Explore your cosmic blueprint",
-    color: "text-[#94A3B8]",
-    bgColor: "bg-[#111827]",
-    borderColor: "border-[#1E293B]",
-    features: [
-      "Daily personal insight",
-      "1 AI question per day",
-      "Birth chart overview",
-      "Moon sign & nakshatra reveal",
-    ],
-    limitations: [
-      "No detailed reports",
-      "No saved history",
-      "Limited explanations",
-    ],
-    cta: "Current Plan",
-    disabled: true,
-  },
-  {
-    id: "graha" as const,
-    tier: "plus" as const,
-    name: "Graha",
-    price: 199,
-    period: "/month",
-    description: "Deeper insights for daily clarity",
-    color: "text-[#D4A054]",
-    bgColor: "bg-[#D4A054]/5",
-    borderColor: "border-[#D4A054]/20",
-    badge: "Popular",
-    features: [
-      "30 AI questions per month",
-      "Fuller structured explanations",
-      "Career Blueprint report",
-      "Wealth & Growth report",
-      "Weekly guidance digest",
-      "Saved question history",
-      "Source-backed reasoning",
-    ],
-    limitations: [],
-    cta: "Start Graha — ₹199/mo",
-    disabled: false,
-  },
-  {
-    id: "rishi" as const,
-    tier: "premium" as const,
-    name: "Rishi",
-    price: 499,
-    period: "/month",
-    description: "Complete Jyotish companion",
-    color: "text-purple-400",
-    bgColor: "bg-purple-500/5",
-    borderColor: "border-purple-500/20",
-    badge: "Best Value",
-    features: [
-      "Unlimited AI questions",
-      "All Graha features",
-      "Love & Compatibility report",
-      "Marriage Timing report",
-      "Annual Forecast 2026",
-      "Dasha Deep Dive report",
-      "Deeper timing analysis",
-      "Priority insights",
-    ],
-    limitations: [],
-    cta: "Start Rishi — ₹499/mo",
-    disabled: false,
-  },
-]
-
-const ONE_TIME_PACKS = [
-  { id: "kundli-match", label: "Kundli Matching", price: 499, icon: Heart, description: "36 Guna compatibility" },
-  { id: "annual-forecast", label: "Annual Forecast", price: 599, icon: Calendar, description: "Month-by-month guidance" },
-  { id: "career-blueprint", label: "Career Blueprint", price: 299, icon: TrendingUp, description: "Professional direction" },
-  { id: "dasha-deep-dive", label: "Dasha Deep Dive", price: 499, icon: BookOpen, description: "Current period analysis" },
-]
-
 export default function PricingOverlay({ isOpen, onClose, highlightTier }: PricingOverlayProps) {
   const { t } = useLanguage()
+
+  const PLANS = [
+    {
+      id: "free" as const,
+      name: t.pricing.free || "Free",
+      price: 0,
+      period: "",
+      description: t.pricing.explorePlan || "Explore your cosmic blueprint",
+      color: "text-[#94A3B8]",
+      bgColor: "bg-[#111827]",
+      borderColor: "border-[#1E293B]",
+      features: [
+        "Daily personal insight",
+        "1 AI question per day",
+        "Birth chart overview",
+        "Moon sign & nakshatra reveal",
+      ],
+      limitations: [
+        "No detailed reports",
+        "No saved history",
+        "Limited explanations",
+      ],
+      cta: t.pricing.currentPlan || "Current Plan",
+      disabled: true,
+    },
+    {
+      id: "graha" as const,
+      tier: "plus" as const,
+      name: t.pricing.graha || "Graha",
+      price: 199,
+      period: t.pricing.perMonth || "/month",
+      description: t.pricing.deeperInsights || "Deeper insights for daily clarity",
+      color: "text-[#D4A054]",
+      bgColor: "bg-[#D4A054]/5",
+      borderColor: "border-[#D4A054]/20",
+      badge: t.pricing.popular || "Popular",
+      features: [
+        "30 AI questions per month",
+        "Fuller structured explanations",
+        "Career Blueprint report",
+        "Wealth & Growth report",
+        "Weekly guidance digest",
+        "Saved question history",
+        "Source-backed reasoning",
+      ],
+      limitations: [],
+      cta: t.pricing.startGraha || "Start Graha — ₹199/mo",
+      disabled: false,
+    },
+    {
+      id: "rishi" as const,
+      tier: "premium" as const,
+      name: t.pricing.rishi || "Rishi",
+      price: 499,
+      period: t.pricing.perMonth || "/month",
+      description: t.pricing.completeCompanion || "Complete Jyotish companion",
+      color: "text-purple-400",
+      bgColor: "bg-purple-500/5",
+      borderColor: "border-purple-500/20",
+      badge: t.pricing.bestValue || "Best Value",
+      features: [
+        "Unlimited AI questions",
+        "All Graha features",
+        "Love & Compatibility report",
+        "Marriage Timing report",
+        "Annual Forecast 2026",
+        "Dasha Deep Dive report",
+        "Deeper timing analysis",
+        "Priority insights",
+      ],
+      limitations: [],
+      cta: t.pricing.startRishi || "Start Rishi — ₹499/mo",
+      disabled: false,
+    },
+  ]
+
+  const ONE_TIME_PACKS = [
+    { id: "kundli-match", label: "Kundli Matching", price: 499, icon: Heart, description: "36 Guna compatibility" },
+    { id: "annual-forecast", label: "Annual Forecast", price: 599, icon: Calendar, description: "Month-by-month guidance" },
+    { id: "career-blueprint", label: "Career Blueprint", price: 299, icon: TrendingUp, description: "Professional direction" },
+    { id: "dasha-deep-dive", label: "Dasha Deep Dive", price: 499, icon: BookOpen, description: "Current period analysis" },
+  ]
   const [selectedPlan, setSelectedPlan] = useState<string>(highlightTier === "premium" ? "rishi" : "graha")
   const [loading, setLoading] = useState(false)
   const [tab, setTab] = useState<"plans" | "packs">("plans")
@@ -193,7 +193,7 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
           {/* Tagline */}
           <div className="text-center px-5 pt-2 pb-4">
             <Crown className="w-8 h-8 text-[#D4A054] mx-auto mb-2" />
-            <p className="text-sm text-[#94A3B8]">Source-backed guidance, deeper clarity</p>
+            <p className="text-sm text-[#94A3B8]">{t.pricing.tagline || "Source-backed guidance, deeper clarity"}</p>
           </div>
 
           {/* Plans / Packs toggle */}
@@ -201,11 +201,11 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
             <button onClick={() => setTab("plans")}
               className={`flex-1 py-2.5 rounded-xl text-xs font-medium transition-all ${
                 tab === "plans" ? "bg-[#D4A054]/15 text-[#D4A054] border border-[#D4A054]/30" : "bg-[#111827] text-[#5A6478] border border-[#1E293B]"
-              }`}>{t.pricing.monthly || "Monthly Plans"}</button>
+              }`}>{t.pricing.monthlyPlans || "Monthly Plans"}</button>
             <button onClick={() => setTab("packs")}
               className={`flex-1 py-2.5 rounded-xl text-xs font-medium transition-all ${
                 tab === "packs" ? "bg-[#D4A054]/15 text-[#D4A054] border border-[#D4A054]/30" : "bg-[#111827] text-[#5A6478] border border-[#1E293B]"
-              }`}>{t.pricing.oneTime || "One-Time Reports"}</button>
+              }`}>{t.pricing.oneTimeReports || "One-Time Reports"}</button>
           </div>
 
           <div className="px-5 pb-32">
@@ -232,7 +232,7 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
 
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <h3 className={`text-lg font-bold ${plan.color}`}>{plan.name === "Free" ? (t.pricing.free || "Free") : plan.name === "Graha" ? (t.pricing.graha || "Graha") : plan.name === "Rishi" ? (t.pricing.rishi || "Rishi") : plan.name}</h3>
+                        <h3 className={`text-lg font-bold ${plan.color}`}>{plan.name}</h3>
                         <p className="text-xs text-[#5A6478]">{plan.description}</p>
                       </div>
                       <div className="text-right">
@@ -241,7 +241,7 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
                         ) : (
                           <>
                             <p className="text-lg font-bold text-[#F1F0F5]">₹{plan.price}</p>
-                            <p className="text-[10px] text-[#5A6478]">{plan.period === "/month" ? (t.pricing.perMonth || "/month") : plan.period}</p>
+                            <p className="text-[10px] text-[#5A6478]">{plan.period}</p>
                           </>
                         )}
                       </div>
@@ -268,22 +268,22 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
                 <div className="flex items-center justify-center gap-4 pt-4">
                   <div className="flex items-center gap-1.5">
                     <Shield className="w-3 h-3 text-emerald-400" />
-                    <span className="text-[10px] text-[#5A6478]">Secure via Razorpay</span>
+                    <span className="text-[10px] text-[#5A6478]">{t.pricing.secureRazorpay || "Secure via Razorpay"}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Star className="w-3 h-3 text-[#D4A054]" />
-                    <span className="text-[10px] text-[#5A6478]">Cancel Anytime</span>
+                    <span className="text-[10px] text-[#5A6478]">{t.pricing.cancelAnytime || "Cancel Anytime"}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Sparkles className="w-3 h-3 text-purple-400" />
-                    <span className="text-[10px] text-[#5A6478]">BPHS-sourced</span>
+                    <span className="text-[10px] text-[#5A6478]">{t.pricing.bphsSourced || "BPHS-sourced"}</span>
                   </div>
                 </div>
               </div>
             ) : (
               <div className="space-y-3">
                 <p className="text-xs text-[#5A6478] mb-2">
-                  "Buy individual reports. No subscription needed."
+                  {t.pricing.oneTimeDesc || "Buy individual reports. No subscription needed."}
                 </p>
                 {ONE_TIME_PACKS.map((pack, i) => (
                   <motion.button

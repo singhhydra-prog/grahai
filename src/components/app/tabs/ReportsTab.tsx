@@ -194,7 +194,7 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
     try {
       const bd = localStorage.getItem("grahai-onboarding-birthdata")
       if (!bd) {
-        setGenError("Please complete onboarding first.")
+        setGenError(t.reports.completeFirst)
         setGenerating(false)
         return
       }
@@ -220,10 +220,10 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
       if (data.downloadUrl) {
         setDownloadUrl(data.downloadUrl)
       } else {
-        setGenError(data.error || "Failed to generate report. Please try again.")
+        setGenError(data.error || t.reports.tryAgain)
       }
     } catch {
-      setGenError("Something went wrong. Please try again.")
+      setGenError(t.reports.tryAgain)
     } finally {
       setGenerating(false)
     }
@@ -231,12 +231,12 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
 
   return (
     <div className="min-h-full pb-24">
-      <AppHeader onProfileClick={onProfileClick} subtitle="Life-outcome reports" />
+      <AppHeader onProfileClick={onProfileClick} subtitle={t.reports.subtitle} />
 
       <div className="px-5 pt-4">
         {/* Intro text */}
         <p className="text-xs text-[#5A6478] mb-5 leading-relaxed">
-          Each report maps to a real life outcome — not a generic product. Pick what matters most to you right now.
+          {t.reports.intro}
         </p>
 
         {/* Report sections */}
@@ -270,7 +270,7 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
                       <div className="flex items-center gap-2 mb-0.5">
                         <h3 className="text-sm font-semibold text-[#F1F0F5]">{report.title}</h3>
                         {report.pricing === "free" ? (
-                          <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-medium">{t.pricing.free || "FREE"}</span>
+                          <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-medium">{t.reports.free}</span>
                         ) : report.pricing === "one-time" ? (
                           <span className="text-[9px] bg-[#D4A054]/10 text-[#D4A054] px-1.5 py-0.5 rounded font-medium">₹{report.price}</span>
                         ) : (
@@ -308,7 +308,7 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
               </button>
               {selectedReport.pricing !== "free" && (
                 <span className="text-sm font-semibold text-[#D4A054]">
-                  {selectedReport.pricing === "one-time" ? `₹${selectedReport.price}` : selectedReport.pricing === "plus" ? "Plus" : "Premium"}
+                  {selectedReport.pricing === "one-time" ? `₹${selectedReport.price}` : selectedReport.pricing === "plus" ? t.reports.plus : t.reports.premium}
                 </span>
               )}
             </div>
@@ -323,7 +323,7 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
 
               {/* What's inside */}
               <div className="glass-card p-4 mb-4">
-                <h3 className="text-sm font-semibold text-[#F1F0F5] mb-3">What's inside</h3>
+                <h3 className="text-sm font-semibold text-[#F1F0F5] mb-3">{t.reports.whatsInside}</h3>
                 <div className="space-y-2">
                   {selectedReport.whatsInside.map((item, i) => (
                     <div key={i} className="flex items-center gap-2">
@@ -350,17 +350,17 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
                 className="w-full flex items-center gap-3 glass-card-hero px-4 py-3.5 mb-4 hover:border-[#D4A054]/30 transition-colors"
               >
                 <Sparkles className="w-4 h-4 text-[#D4A054]" />
-                <span className="text-sm text-[#94A3B8] flex-1">Ask GrahAI about this topic</span>
+                <span className="text-sm text-[#94A3B8] flex-1">{t.reports.askAboutTopic}</span>
                 <ArrowRight className="w-4 h-4 text-[#5A6478]" />
               </button>
 
               {downloadUrl && (
                 <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                   className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 mb-4 text-center">
-                  <p className="text-sm text-emerald-400 font-medium mb-2">Report ready!</p>
+                  <p className="text-sm text-emerald-400 font-medium mb-2">{t.reports.ready}</p>
                   <a href={downloadUrl} target="_blank" rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/20 rounded-lg text-sm text-emerald-400 font-medium">
-                    <Download className="w-4 h-4" />Download PDF
+                    <Download className="w-4 h-4" />{t.reports.downloadPdf}
                   </a>
                 </motion.div>
               )}
@@ -382,15 +382,15 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
                   flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {generating ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" />Generating report...</>
+                  <><Loader2 className="w-4 h-4 animate-spin" />{t.reports.generating}</>
                 ) : downloadUrl ? (
-                  <><Download className="w-4 h-4" />Download Report</>
+                  <><Download className="w-4 h-4" />{t.reports.downloadReport}</>
                 ) : selectedReport.pricing === "free" ? (
-                  <>Generate Report<ArrowRight className="w-4 h-4" /></>
+                  <>{t.reports.generateReport}<ArrowRight className="w-4 h-4" /></>
                 ) : selectedReport.pricing === "one-time" ? (
-                  <>Unlock for ₹{selectedReport.price}<ArrowRight className="w-4 h-4" /></>
+                  <>{t.reports.unlockFor} ₹{selectedReport.price}<ArrowRight className="w-4 h-4" /></>
                 ) : (
-                  <><Lock className="w-4 h-4" />{t.pricing.upgrade} {selectedReport.pricing === "plus" ? "Graha" : "Rishi"}<ArrowRight className="w-4 h-4" /></>
+                  <><Lock className="w-4 h-4" />{t.reports.upgradeTo} {selectedReport.pricing === "plus" ? t.reports.plus : t.reports.premium}<ArrowRight className="w-4 h-4" /></>
                 )}
               </button>
             </div>

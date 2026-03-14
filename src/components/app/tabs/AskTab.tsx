@@ -114,7 +114,7 @@ function StructuredAnswer({ sections, onViewSource, t }: { sections: AnswerSecti
               onClick={() => onViewSource(section.content)}
               className="flex items-center gap-1 mt-2 pl-9 text-[11px] text-[#D4A054] hover:text-[#E8C278] transition-colors"
             >
-              {t.home.sourcesTitle} <ChevronRight className="w-3 h-3" />
+              {t.ask.viewFullSource} <ChevronRight className="w-3 h-3" />
             </button>
           )}
         </motion.div>
@@ -152,18 +152,18 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
     { label: t.ask.topicMoney, query: "What does my chart say about financial growth?" },
   ], [t])
 
-  const SUGGESTIONS = [
-    "What should I focus on this week based on my chart?",
-    "Why have I been feeling restless or stuck lately?",
-    "When is my next big opportunity coming?",
-  ]
+  const SUGGESTIONS = useMemo(() => [
+    t.ask.suggestion1,
+    t.ask.suggestion2,
+    t.ask.suggestion3,
+  ], [t])
 
-  const FOLLOW_UPS = [
-    "Tell me more",
-    "When does this change?",
-    "Why does this keep repeating?",
-    "What should I do next?",
-  ]
+  const FOLLOW_UPS = useMemo(() => [
+    t.ask.followUp1,
+    t.ask.followUp2,
+    t.ask.followUp3,
+    t.ask.followUp4,
+  ], [t])
 
   useEffect(() => {
     try {
@@ -275,7 +275,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
 
       setMessages((prev) =>
         prev.map((m) =>
-          m.id === assistantId ? { ...m, content: fullText || "I couldn't generate a response.", isStreaming: false } : m
+          m.id === assistantId ? { ...m, content: fullText || t.ask.errorGenerate, isStreaming: false } : m
         )
       )
 
@@ -299,7 +299,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
     } catch {
       setMessages((prev) =>
         prev.map((m) =>
-          m.id === assistantId ? { ...m, content: "Something went wrong. Please try again.", isStreaming: false } : m
+          m.id === assistantId ? { ...m, content: t.ask.errorRetry, isStreaming: false } : m
         )
       )
     } finally {
@@ -333,7 +333,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
         </div>
         <div className="flex-1">
           <h1 className="text-sm font-semibold text-[#F1F0F5] text-3d">{t.ask.title}</h1>
-          <p className="text-[10px] text-[#5A6478]">{questionsLeft} {t.ask.questionsLeft}</p>
+          <p className="text-[10px] text-[#5A6478]">{questionsLeft} {t.ask.questionsRemaining}</p>
         </div>
         <button onClick={() => setShowHistory(true)}
           className="flex items-center gap-1.5 bg-[#111827] border border-[#1E293B] rounded-full px-3 py-1.5">
@@ -358,7 +358,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
                 animation: "gradient-text-flow 6s ease-in-out infinite",
               }}
             >
-              What&apos;s on your mind{userName ? `, ${userName}` : ""}?
+              {t.ask.whatsOnMind}{userName ? `, ${userName}` : ""}?
             </h2>
             <p className="text-sm text-[#5A6478] mb-6 max-w-xs mx-auto text-visible">
               {t.ask.placeholder}
@@ -413,7 +413,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
                             <span className="text-[9px] font-bold text-[#0A0E1A]">G</span>
                           </div>
                           <span className="text-[11px] text-[#5A6478] font-medium">GrahAI</span>
-                          {msg.isStreaming && <span className="text-[11px] text-[#D4A054]/60 animate-pulse">{t.common.loading}</span>}
+                          {msg.isStreaming && <span className="text-[11px] text-[#D4A054]/60 animate-pulse">{t.ask.thinking}</span>}
                         </div>
 
                         {/* Structured answer (post-stream) or raw text (during stream) */}
@@ -504,15 +504,15 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
                       className="w-full text-left bg-[#111827] border border-[#1E293B] rounded-xl px-4 py-3.5
                         hover:border-[#D4A054]/20 transition-colors">
                       <p className="text-sm text-[#F1F0F5]">{msg.content}</p>
-                      <p className="text-[10px] text-[#5A6478] mt-1">This session</p>
+                      <p className="text-[10px] text-[#5A6478] mt-1">{t.ask.thisSession}</p>
                     </button>
                   ))}
                 </div>
               ) : (
                 <div className="text-center pt-8">
                   <Clock className="w-12 h-12 text-[#5A6478]/30 mx-auto mb-3" />
-                  <p className="text-sm text-[#5A6478]">No questions asked yet this session.</p>
-                  <p className="text-xs text-[#5A6478]/60 mt-1">Your questions will appear here.</p>
+                  <p className="text-sm text-[#5A6478]">{t.ask.noQuestionsYet}</p>
+                  <p className="text-xs text-[#5A6478]/60 mt-1">{t.ask.questionsAppearHere}</p>
                 </div>
               )}
             </div>
@@ -525,7 +525,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
         isOpen={sourceDrawerOpen}
         onClose={() => setSourceDrawerOpen(false)}
         source={sourceData}
-        context="Based on your question and chart analysis"
+        context={t.ask.basedOnChart}
       />
     </div>
   )

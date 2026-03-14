@@ -28,31 +28,31 @@ interface PaywallBannerProps {
   tier?: "plus" | "premium"
 }
 
-const TRIGGER_MESSAGES: Record<string, { title: string; subtitle: string }> = {
-  limit_reached: {
-    title: "You've used today's free question",
-    subtitle: "Upgrade to keep asking — your chart has more to tell you.",
-  },
-  high_intent: {
-    title: "Want the deeper analysis?",
-    subtitle: "Graha members get fuller explanations with timing and remedies.",
-  },
-  source_engaged: {
-    title: "You're digging deep — we love that",
-    subtitle: "Unlock fuller source-backed reasoning and unlimited asks.",
-  },
-  report_locked: {
-    title: "This report maps to a real life outcome",
-    subtitle: "Unlock detailed, chart-specific guidance for what matters most.",
-  },
-  general: {
-    title: "Unlock the full GrahAI experience",
-    subtitle: "Deeper clarity, more questions, premium reports.",
-  },
-}
-
 export default function PaywallBanner({ isVisible, onClose, onUpgrade, trigger, tier }: PaywallBannerProps) {
   const { t } = useLanguage()
+
+  const TRIGGER_MESSAGES: Record<string, { title: string; subtitle: string }> = {
+    limit_reached: {
+      title: t.paywall.triggerLimitTitle || "You've used today's free question",
+      subtitle: t.paywall.triggerLimitDesc || "Upgrade to keep asking — your chart has more to tell you.",
+    },
+    high_intent: {
+      title: t.paywall.triggerIntentTitle || "Want the deeper analysis?",
+      subtitle: t.paywall.triggerIntentDesc || "Graha members get fuller explanations with timing and remedies.",
+    },
+    source_engaged: {
+      title: t.paywall.triggerSourceTitle || "You're digging deep — we love that",
+      subtitle: t.paywall.triggerSourceDesc || "Unlock fuller source-backed reasoning and unlimited asks.",
+    },
+    report_locked: {
+      title: t.paywall.triggerReportTitle || "This report maps to a real life outcome",
+      subtitle: t.paywall.triggerReportDesc || "Unlock detailed, chart-specific guidance for what matters most.",
+    },
+    general: {
+      title: t.paywall.triggerGeneralTitle || "Unlock the full GrahAI experience",
+      subtitle: t.paywall.triggerGeneralDesc || "Deeper clarity, more questions, premium reports.",
+    },
+  }
   const message = TRIGGER_MESSAGES[trigger] || TRIGGER_MESSAGES.general
   const tierLabel = tier === "premium" ? (t.pricing.rishi || "Rishi") : (t.pricing.graha || "Graha")
   const tierPrice = tier === "premium" ? "₹499" : "₹199"
@@ -105,7 +105,7 @@ export default function PaywallBanner({ isVisible, onClose, onUpgrade, trigger, 
                     text-xs font-semibold text-[#D4A054]
                     hover:bg-[#D4A054]/20 transition-colors"
                 >
-                  {t.pricing.upgrade || `Try ${tierLabel} — ${tierPrice}/mo`}
+                  {t.paywall.tryPlan || `Try ${tierLabel} — ${tierPrice}/mo`}
                   <ArrowRight className="w-3 h-3" />
                 </button>
               </div>

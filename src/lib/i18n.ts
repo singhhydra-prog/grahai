@@ -130,6 +130,13 @@ export interface Translations {
     askQuestion: string
     viewReports: string
     sourcesTitle: string
+    doThis: string           // "Do this"
+    beCareful: string        // "Be careful"
+    whyActive: string        // "Why this is active"
+    unlockDeeper: string     // "Unlock deeper insights"
+    unlockDesc: string       // "Career blueprints, timing reports, compatibility"
+    completeOnboarding: string // "Complete onboarding to see your daily guidance"
+    askMore: string          // "Ask more"
   }
 
   // ─── Ask Tab ───
@@ -152,6 +159,25 @@ export interface Translations {
     followUp: string
     questionsLeft: string
     upgradeForMore: string
+    suggestion1: string      // "What should I focus on this week based on my chart?"
+    suggestion2: string      // "Why have I been feeling restless or stuck lately?"
+    suggestion3: string      // "When is my next big opportunity coming?"
+    followUp1: string        // "Tell me more"
+    followUp2: string        // "When does this change?"
+    followUp3: string        // "Why does this keep repeating?"
+    followUp4: string        // "What should I do next?"
+    whatsOnMind: string      // "What's on your mind"
+    history: string          // "History"
+    clearConversation: string // "Clear conversation"
+    thisSession: string      // "This session"
+    noQuestionsYet: string   // "No questions asked yet this session."
+    questionsAppearHere: string // "Your questions will appear here."
+    errorGenerate: string    // "I couldn't generate a response."
+    errorRetry: string       // "Something went wrong. Please try again."
+    thinking: string         // "thinking..."
+    questionsRemaining: string // "questions remaining"
+    basedOnChart: string     // "Based on your question and chart analysis"
+    viewFullSource: string   // "View full source"
   }
 
   // ─── My Chart Tab ───
@@ -167,6 +193,36 @@ export interface Translations {
     sensitivities: string
     showAdvanced: string
     hideAdvanced: string
+    simple: string           // "Simple"
+    advanced: string         // "Advanced" (replaces showAdvanced for toggle)
+    yourBlueprint: string    // "Your cosmic blueprint"
+    sun: string              // "Sun"
+    elementLabel: string     // "Element"
+    nakshatraPada: string    // "Nakshatra Pada"
+    nakshatraLord: string    // "Nakshatra Lord"
+    nakshatraDeity: string   // "Nakshatra Deity"
+    signQuality: string      // "Sign Quality"
+    rulingPlanet: string     // "Ruling Planet"
+    signDegree: string       // "Sign Degree"
+    lifePath: string         // "Life Path"
+    currentDasha: string     // "Current Dasha"
+    calculating: string      // "Calculating..."
+    timeUnknownLabel: string // "Time unknown"
+    currentEnergies: string  // "Current Active Energies"
+    activeDasha: string      // "Active Dasha Period"
+    askTransits: string      // "Ask about my active transits"
+    recurringThemes: string  // "Recurring Themes"
+    deepDive: string         // "Deep Dive"
+    deity: string            // "Deity"
+    lord: string             // "Lord"
+    symbol: string           // "Symbol"
+    shakti: string           // "Shakti"
+    animal: string           // "Animal"
+    gana: string             // "Gana"
+    pada: string             // "Pada"
+    emotionalPattern: string // "Emotional pattern"
+    workStyle: string        // "Work style"
+    relationshipStyle: string // "Relationship style"
   }
 
   // ─── Reports Tab ───
@@ -183,6 +239,22 @@ export interface Translations {
     buyReport: string
     preview: string
     oneTimePacks: string
+    subtitle: string         // "Life-outcome reports"
+    intro: string            // "Each report maps to a real life outcome — not a generic product. Pick what matters most to you right now."
+    whatsInside: string      // "What's inside"
+    ready: string            // "Report ready!"
+    downloadPdf: string      // "Download PDF"
+    generating: string       // "Generating report..."
+    downloadReport: string   // "Download Report"
+    generateReport: string   // "Generate Report"
+    unlockFor: string        // "Unlock for"
+    upgradeTo: string        // "Upgrade to"
+    askAboutTopic: string    // "Ask GrahAI about this topic"
+    completeFirst: string    // "Please complete onboarding first."
+    tryAgain: string         // "Something went wrong. Please try again."
+    plus: string             // "Plus"
+    premium: string          // "Premium"
+    free: string             // "FREE"
   }
 
   // ─── Profile Tab ───
@@ -245,6 +317,19 @@ export interface Translations {
     currentPlan: string
     upgrade: string
     popular: string
+    tagline: string          // "Source-backed guidance, deeper clarity"
+    monthlyPlans: string     // "Monthly Plans"
+    oneTimeReports: string   // "One-Time Reports"
+    oneTimeDesc: string      // "Buy individual reports. No subscription needed."
+    bestValue: string        // "Best Value"
+    secureRazorpay: string   // "Secure via Razorpay"
+    cancelAnytime: string    // "Cancel Anytime"
+    bphsSourced: string      // "BPHS-sourced"
+    startGraha: string       // "Start Graha — ₹199/mo"
+    startRishi: string       // "Start Rishi — ₹499/mo"
+    explorePlan: string      // "Explore your cosmic blueprint"
+    deeperInsights: string   // "Deeper insights for daily clarity"
+    completeCompanion: string // "Complete Jyotish companion"
   }
 
   // ─── Paywall Banner ───
@@ -252,6 +337,17 @@ export interface Translations {
     limitReached: string
     upgradeNow: string
     dismiss: string
+    triggerLimitTitle: string    // "You've used today's free question"
+    triggerLimitDesc: string     // "Upgrade to keep asking — your chart has more to tell you."
+    triggerIntentTitle: string   // "Want the deeper analysis?"
+    triggerIntentDesc: string    // "Graha members get fuller explanations with timing and remedies."
+    triggerSourceTitle: string   // "You're digging deep — we love that"
+    triggerSourceDesc: string    // "Unlock fuller source-backed reasoning and unlimited asks."
+    triggerReportTitle: string   // "This report maps to a real life outcome"
+    triggerReportDesc: string    // "Unlock detailed, chart-specific guidance for what matters most."
+    triggerGeneralTitle: string  // "Unlock the full GrahAI experience"
+    triggerGeneralDesc: string   // "Deeper clarity, more questions, premium reports."
+    tryPlan: string              // "Try"
   }
 
   // ─── Referral Page ───
@@ -263,6 +359,32 @@ export interface Translations {
     shareWithFriends: string
     rewardsTitle: string
     friendsReferred: string
+    shareText: string         // "Join GrahAI for personalized Vedic astrology insights! Use my code:"
+    rewardMilestones: string  // "Reward Milestones"
+    howItWorks: string        // "How it works"
+    step1: string             // "Share your unique referral code with friends"
+    step2: string             // "They sign up and complete onboarding with your code"
+    step3: string             // "You both get 3 bonus questions instantly"
+    step4: string             // "Unlock bigger rewards as more friends join"
+    invite: string            // "Invite"
+    friend: string            // "friend"
+    friends: string           // "friends"
+    freeQuestions: string     // "5 free questions"
+    freeReport: string        // "1 free report"
+    monthGraha: string        // "1 month Graha plan"
+    monthRishi: string        // "1 month Rishi plan"
+    friendsJoined: string     // "Friends joined"
+    rewardsEarned: string     // "Rewards earned"
+  }
+
+  // ─── Source ───
+  source: {
+    whyGrahaiSays: string     // "Why GrahAI says this"
+    sourceBackedReasoning: string // "Source-backed reasoning"
+    activePrinciple: string   // "Active Principle"
+    explanation: string       // "Explanation"
+    shownBecause: string      // "This was shown because:"
+    groundsInsight: string    // "GrahAI grounds every insight in classical Jyotish tradition"
   }
 
   // ─── Common / Shared ───
@@ -364,6 +486,13 @@ const en: Translations = {
     askQuestion: "Ask a question",
     viewReports: "View Reports",
     sourcesTitle: "Sources",
+    doThis: "Do this",
+    beCareful: "Be careful",
+    whyActive: "Why this is active",
+    unlockDeeper: "Unlock deeper insights",
+    unlockDesc: "Career blueprints, timing reports, compatibility",
+    completeOnboarding: "Complete onboarding to see your daily guidance",
+    askMore: "Ask more",
   },
   ask: {
     title: "Ask GrahAI",
@@ -384,6 +513,25 @@ const en: Translations = {
     followUp: "Follow-up Questions",
     questionsLeft: "{count} questions left today",
     upgradeForMore: "Upgrade for more",
+    suggestion1: "What should I focus on this week based on my chart?",
+    suggestion2: "Why have I been feeling restless or stuck lately?",
+    suggestion3: "When is my next big opportunity coming?",
+    followUp1: "Tell me more",
+    followUp2: "When does this change?",
+    followUp3: "Why does this keep repeating?",
+    followUp4: "What should I do next?",
+    whatsOnMind: "What\u2019s on your mind",
+    history: "History",
+    clearConversation: "Clear conversation",
+    thisSession: "This session",
+    noQuestionsYet: "No questions asked yet this session.",
+    questionsAppearHere: "Your questions will appear here.",
+    errorGenerate: "I couldn\u2019t generate a response.",
+    errorRetry: "Something went wrong. Please try again.",
+    thinking: "thinking...",
+    questionsRemaining: "questions remaining",
+    basedOnChart: "Based on your question and chart analysis",
+    viewFullSource: "View full source",
   },
   chart: {
     title: "My Chart",
@@ -397,6 +545,36 @@ const en: Translations = {
     sensitivities: "Sensitivities",
     showAdvanced: "Show Advanced",
     hideAdvanced: "Hide Advanced",
+    simple: "Simple",
+    advanced: "Advanced",
+    yourBlueprint: "Your cosmic blueprint",
+    sun: "Sun",
+    elementLabel: "Element",
+    nakshatraPada: "Nakshatra Pada",
+    nakshatraLord: "Nakshatra Lord",
+    nakshatraDeity: "Nakshatra Deity",
+    signQuality: "Sign Quality",
+    rulingPlanet: "Ruling Planet",
+    signDegree: "Sign Degree",
+    lifePath: "Life Path",
+    currentDasha: "Current Dasha",
+    calculating: "Calculating...",
+    timeUnknownLabel: "Time unknown",
+    currentEnergies: "Current Active Energies",
+    activeDasha: "Active Dasha Period",
+    askTransits: "Ask about my active transits",
+    recurringThemes: "Recurring Themes",
+    deepDive: "Deep Dive",
+    deity: "Deity",
+    lord: "Lord",
+    symbol: "Symbol",
+    shakti: "Shakti",
+    animal: "Animal",
+    gana: "Gana",
+    pada: "Pada",
+    emotionalPattern: "Emotional pattern",
+    workStyle: "Work style",
+    relationshipStyle: "Relationship style",
   },
   reports: {
     title: "Reports",
@@ -411,6 +589,22 @@ const en: Translations = {
     buyReport: "Buy Report",
     preview: "Preview",
     oneTimePacks: "One-Time Packs",
+    subtitle: "Life-outcome reports",
+    intro: "Each report maps to a real life outcome \u2014 not a generic product. Pick what matters most to you right now.",
+    whatsInside: "What\u2019s inside",
+    ready: "Report ready!",
+    downloadPdf: "Download PDF",
+    generating: "Generating report...",
+    downloadReport: "Download Report",
+    generateReport: "Generate Report",
+    unlockFor: "Unlock for",
+    upgradeTo: "Upgrade to",
+    askAboutTopic: "Ask GrahAI about this topic",
+    completeFirst: "Please complete onboarding first.",
+    tryAgain: "Something went wrong. Please try again.",
+    plus: "Plus",
+    premium: "Premium",
+    free: "FREE",
   },
   profile: {
     title: "Profile",
@@ -467,11 +661,35 @@ const en: Translations = {
     currentPlan: "Current Plan",
     upgrade: "Upgrade",
     popular: "Popular",
+    tagline: "Source-backed guidance, deeper clarity",
+    monthlyPlans: "Monthly Plans",
+    oneTimeReports: "One-Time Reports",
+    oneTimeDesc: "Buy individual reports. No subscription needed.",
+    bestValue: "Best Value",
+    secureRazorpay: "Secure via Razorpay",
+    cancelAnytime: "Cancel Anytime",
+    bphsSourced: "BPHS-sourced",
+    startGraha: "Start Graha \u2014 \u20b9199/mo",
+    startRishi: "Start Rishi \u2014 \u20b9499/mo",
+    explorePlan: "Explore your cosmic blueprint",
+    deeperInsights: "Deeper insights for daily clarity",
+    completeCompanion: "Complete Jyotish companion",
   },
   paywall: {
     limitReached: "You\u2019ve used your free questions for today",
     upgradeNow: "Upgrade Now",
     dismiss: "Maybe later",
+    triggerLimitTitle: "You\u2019ve used today\u2019s free question",
+    triggerLimitDesc: "Upgrade to keep asking \u2014 your chart has more to tell you.",
+    triggerIntentTitle: "Want the deeper analysis?",
+    triggerIntentDesc: "Graha members get fuller explanations with timing and remedies.",
+    triggerSourceTitle: "You\u2019re digging deep \u2014 we love that",
+    triggerSourceDesc: "Unlock fuller source-backed reasoning and unlimited asks.",
+    triggerReportTitle: "This report maps to a real life outcome",
+    triggerReportDesc: "Unlock detailed, chart-specific guidance for what matters most.",
+    triggerGeneralTitle: "Unlock the full GrahAI experience",
+    triggerGeneralDesc: "Deeper clarity, more questions, premium reports.",
+    tryPlan: "Try",
   },
   referral: {
     title: "Refer & Earn",
@@ -481,6 +699,30 @@ const en: Translations = {
     shareWithFriends: "Share with Friends",
     rewardsTitle: "Your Rewards",
     friendsReferred: "Friends Referred",
+    shareText: "Join GrahAI for personalized Vedic astrology insights! Use my code:",
+    rewardMilestones: "Reward Milestones",
+    howItWorks: "How it works",
+    step1: "Share your unique referral code with friends",
+    step2: "They sign up and complete onboarding with your code",
+    step3: "You both get 3 bonus questions instantly",
+    step4: "Unlock bigger rewards as more friends join",
+    invite: "Invite",
+    friend: "friend",
+    friends: "friends",
+    freeQuestions: "5 free questions",
+    freeReport: "1 free report",
+    monthGraha: "1 month Graha plan",
+    monthRishi: "1 month Rishi plan",
+    friendsJoined: "Friends joined",
+    rewardsEarned: "Rewards earned",
+  },
+  source: {
+    whyGrahaiSays: "Why GrahAI says this",
+    sourceBackedReasoning: "Source-backed reasoning",
+    activePrinciple: "Active Principle",
+    explanation: "Explanation",
+    shownBecause: "This was shown because:",
+    groundsInsight: "GrahAI grounds every insight in classical Jyotish tradition",
   },
   common: {
     loading: "Loading...",
@@ -580,6 +822,13 @@ const hi: Translations = {
     askQuestion: "सवाल पूछें",
     viewReports: "रिपोर्ट देखें",
     sourcesTitle: "स्रोत",
+    doThis: "यह करें",
+    beCareful: "सावधान रहें",
+    whyActive: "यह सक्रिय क्यों है",
+    unlockDeeper: "गहरी जानकारी अनलॉक करें",
+    unlockDesc: "करियर ब्लूप्रिंट, समय रिपोर्ट, अनुकूलता",
+    completeOnboarding: "अपनी दैनिक मार्गदर्शन देखने के लिए ऑनबोर्डिंग पूरी करें",
+    askMore: "और पूछें",
   },
   ask: {
     title: "GrahAI से पूछें",
@@ -600,6 +849,25 @@ const hi: Translations = {
     followUp: "और सवाल",
     questionsLeft: "आज {count} सवाल बचे हैं",
     upgradeForMore: "और सवालों के लिए अपग्रेड करें",
+    suggestion1: "इस सप्ताह मुझे अपनी कुंडली के आधार पर किस पर ध्यान देना चाहिए?",
+    suggestion2: "मैं हाल ही में बेचैन या फंसा हुआ क्यों महसूस कर रहा हूँ?",
+    suggestion3: "मेरा अगला बड़ा अवसर कब आने वाला है?",
+    followUp1: "मुझे और बताएं",
+    followUp2: "यह कब बदलता है?",
+    followUp3: "यह बार-बार क्यों होता है?",
+    followUp4: "मुझे आगे क्या करना चाहिए?",
+    whatsOnMind: "आपके मन में क्या है",
+    history: "इतिहास",
+    clearConversation: "बातचीत साफ करें",
+    thisSession: "यह सत्र",
+    noQuestionsYet: "इस सत्र में अभी तक कोई सवाल नहीं पूछा गया है।",
+    questionsAppearHere: "आपके सवाल यहाँ दिखाई देंगे।",
+    errorGenerate: "मैं जवाब नहीं दे सका।",
+    errorRetry: "कुछ गड़बड़ हो गई। फिर से कोशिश करें।",
+    thinking: "सोच रहे हैं...",
+    questionsRemaining: "सवाल बचे हैं",
+    basedOnChart: "आपके सवाल और कुंडली विश्लेषण के आधार पर",
+    viewFullSource: "पूरा स्रोत देखें",
   },
   chart: {
     title: "मेरी कुंडली",
@@ -613,6 +881,36 @@ const hi: Translations = {
     sensitivities: "संवेदनशीलता",
     showAdvanced: "विस्तार दिखाएं",
     hideAdvanced: "विस्तार छुपाएं",
+    simple: "सरल",
+    advanced: "उन्नत",
+    yourBlueprint: "आपका ब्रह्मांडीय नक्शा",
+    sun: "सूर्य",
+    elementLabel: "तत्व",
+    nakshatraPada: "नक्षत्र पद",
+    nakshatraLord: "नक्षत्र प्रभु",
+    nakshatraDeity: "नक्षत्र देवता",
+    signQuality: "राशि गुण",
+    rulingPlanet: "शासक ग्रह",
+    signDegree: "राशि डिग्री",
+    lifePath: "जीवन पथ",
+    currentDasha: "वर्तमान दशा",
+    calculating: "गणना हो रही है...",
+    timeUnknownLabel: "समय अज्ञात",
+    currentEnergies: "वर्तमान सक्रिय ऊर्जाएं",
+    activeDasha: "सक्रिय दशा अवधि",
+    askTransits: "मेरी सक्रिय गोचर के बारे में पूछें",
+    recurringThemes: "दोहराए जाने वाले विषय",
+    deepDive: "गहन विश्लेषण",
+    deity: "देवता",
+    lord: "प्रभु",
+    symbol: "प्रतीक",
+    shakti: "शक्ति",
+    animal: "जानवर",
+    gana: "गण",
+    pada: "पद",
+    emotionalPattern: "भावनात्मक पैटर्न",
+    workStyle: "काम की शैली",
+    relationshipStyle: "रिश्ते की शैली",
   },
   reports: {
     title: "रिपोर्ट",
@@ -627,6 +925,22 @@ const hi: Translations = {
     buyReport: "रिपोर्ट खरीदें",
     preview: "झलक",
     oneTimePacks: "एक बार के पैक",
+    subtitle: "जीवन परिणाम रिपोर्ट",
+    intro: "प्रत्येक रिपोर्ट वास्तविक जीवन परिणाम से जुड़ी होती है — सामान्य उत्पाद नहीं। अभी आपके लिए सबसे महत्वपूर्ण बात चुनें।",
+    whatsInside: "इसके अंदर क्या है",
+    ready: "रिपोर्ट तैयार!",
+    downloadPdf: "PDF डाउनलोड करें",
+    generating: "रिपोर्ट बन रही है...",
+    downloadReport: "रिपोर्ट डाउनलोड करें",
+    generateReport: "रिपोर्ट बनाएं",
+    unlockFor: "के लिए अनलॉक करें",
+    upgradeTo: "में अपग्रेड करें",
+    askAboutTopic: "इस विषय के बारे में GrahAI से पूछें",
+    completeFirst: "पहले ऑनबोर्डिंग पूरी करें।",
+    tryAgain: "कुछ गड़बड़ हो गई। फिर से कोशिश करें।",
+    plus: "प्लस",
+    premium: "प्रीमियम",
+    free: "मुफ़्त",
   },
   profile: {
     title: "प्रोफ़ाइल",
@@ -683,11 +997,35 @@ const hi: Translations = {
     currentPlan: "वर्तमान प्लान",
     upgrade: "अपग्रेड",
     popular: "लोकप्रिय",
+    tagline: "स्रोत-समर्थित मार्गदर्शन, गहरी स्पष्टता",
+    monthlyPlans: "मासिक योजनाएं",
+    oneTimeReports: "एकबारी रिपोर्ट",
+    oneTimeDesc: "व्यक्तिगत रिपोर्ट खरीदें। कोई सदस्यता आवश्यक नहीं।",
+    bestValue: "सर्वश्रेष्ठ मूल्य",
+    secureRazorpay: "Razorpay के माध्यम से सुरक्षित",
+    cancelAnytime: "कभी भी रद्द करें",
+    bphsSourced: "BPHS-आधारित",
+    startGraha: "ग्रह शुरू करें — ₹199/माह",
+    startRishi: "ऋषि शुरू करें — ₹499/माह",
+    explorePlan: "अपने ब्रह्मांडीय नक्शे की खोज करें",
+    deeperInsights: "दैनिक स्पष्टता के लिए गहरी जानकारी",
+    completeCompanion: "संपूर्ण ज्योतिष साथी",
   },
   paywall: {
     limitReached: "आज के मुफ़्त सवाल खत्म हो गए",
     upgradeNow: "अभी अपग्रेड करें",
     dismiss: "बाद में",
+    triggerLimitTitle: "आपने आज का मुफ़्त सवाल इस्तेमाल कर लिया",
+    triggerLimitDesc: "पूछते रहने के लिए अपग्रेड करें — आपकी कुंडली को कहने के लिए बहुत कुछ है।",
+    triggerIntentTitle: "गहन विश्लेषण चाहते हैं?",
+    triggerIntentDesc: "Graha सदस्य समय और उपायों के साथ पूर्ण व्याख्या प्राप्त करते हैं।",
+    triggerSourceTitle: "आप गहराई से खोदा रहे हैं — हमें यह पसंद है",
+    triggerSourceDesc: "पूर्ण स्रोत-समर्थित तर्क और असीमित सवाल अनलॉक करें।",
+    triggerReportTitle: "यह रिपोर्ट वास्तविक जीवन परिणाम से जुड़ी है",
+    triggerReportDesc: "आपके लिए सबसे महत्वपूर्ण चीज़ों के लिए विस्तृत, कुंडली-विशिष्ट मार्गदर्शन अनलॉक करें।",
+    triggerGeneralTitle: "संपूर्ण GrahAI अनुभव अनलॉक करें",
+    triggerGeneralDesc: "गहरी स्पष्टता, अधिक सवाल, प्रीमियम रिपोर्ट।",
+    tryPlan: "आजमाएं",
   },
   referral: {
     title: "रेफर करें और कमाएं",
@@ -697,6 +1035,30 @@ const hi: Translations = {
     shareWithFriends: "दोस्तों के साथ शेयर करें",
     rewardsTitle: "आपके इनाम",
     friendsReferred: "रेफर किए गए दोस्त",
+    shareText: "व्यक्तिगतकृत वैदिक ज्योतिष अंतर्दृष्टि के लिए GrahAI में शामिल हों! मेरा कोड इस्तेमाल करें:",
+    rewardMilestones: "पुरस्कार मील के पत्थर",
+    howItWorks: "यह कैसे काम करता है",
+    step1: "अपना अनन्य रेफरल कोड दोस्तों के साथ साझा करें",
+    step2: "वे आपके कोड के साथ साइन अप करते हैं और ऑनबोर्डिंग पूरी करते हैं",
+    step3: "आप दोनों को तुरंत 3 बोनस सवाल मिलते हैं",
+    step4: "जैसे-जैसे अधिक दोस्त शामिल होते हैं, बड़े पुरस्कार अनलॉक करें",
+    invite: "आमंत्रण",
+    friend: "दोस्त",
+    friends: "दोस्त",
+    freeQuestions: "5 मुफ़्त सवाल",
+    freeReport: "1 मुफ़्त रिपोर्ट",
+    monthGraha: "1 महीने की Graha योजना",
+    monthRishi: "1 महीने की Rishi योजना",
+    friendsJoined: "दोस्त शामिल हुए",
+    rewardsEarned: "पुरस्कार अर्जित",
+  },
+  source: {
+    whyGrahaiSays: "GrahAI ऐसा क्यों कहता है",
+    sourceBackedReasoning: "स्रोत-समर्थित तर्क",
+    activePrinciple: "सक्रिय सिद्धांत",
+    explanation: "व्याख्या",
+    shownBecause: "यह इसलिए दिखाया गया क्योंकि:",
+    groundsInsight: "GrahAI प्रत्येक अंतर्दृष्टि को शास्त्रीय ज्योतिष परंपरा में आधारित करता है",
   },
   common: {
     loading: "लोड हो रहा है...",
@@ -784,6 +1146,9 @@ const ta: Translations = {
     loveCard: "காதல்", careerCard: "தொழில்", energyCard: "ஆற்றல்",
     panchangTitle: "பஞ்சாங்கம்", luckyColors: "அதிர்ஷ்ட நிறங்கள்", luckyNumbers: "அதிர்ஷ்ட எண்கள்",
     askQuestion: "கேள்வி கேளுங்கள்", viewReports: "அறிக்கைகள் பாருங்கள்", sourcesTitle: "ஆதாரங்கள்",
+    doThis: "இதைச் செய்யுங்கள்", beCareful: "조심하세요", whyActive: "இது ஏன் செயல்பட்டுக்கொண்டிருக்கிறது",
+    unlockDeeper: "ஆழமான உணர்வை அনுமதி", unlockDesc: "தொழில் வரைபடங்கள், நேர அறிக்கைகள், பொருத்தம்",
+    completeOnboarding: "உங்கள் தினசரி வழிகாட்டுதலை காணவும் onboarding பூர்ணம் செய்யுங்கள்", askMore: "மேலும் கேளுங்கள்",
   },
   ask: {
     title: "GrahAI-யிடம் கேளுங்கள்", placeholder: "காதல், தொழில், நேரம் பற்றி கேளுங்கள்...",
@@ -791,17 +1156,41 @@ const ta: Translations = {
     directAnswer: "நேரடி பதில்", whyShowingUp: "ஏன் இது வருகிறது", whatToDo: "என்ன செய்யவேண்டும்",
     whatToAvoid: "என்ன தவிர்க்கவேண்டும்", timeWindow: "நேர கட்டம்", remedy: "பரிகாரம்", source: "ஆதாரம்",
     followUp: "தொடர் கேள்விகள்", questionsLeft: "இன்று {count} கேள்விகள் உள்ளன", upgradeForMore: "மேலும் பெற அப்கிரேட் செய்யுங்கள்",
+    suggestion1: "என் ஜாதகத்தின் அடிப்படையில் இந்த வாரம் எதில் கவனம் செலுத்த வேண்டும்?",
+    suggestion2: "நான் சமீபத்தில் ஏன் அமைதியற்ற அல்லது சிக்கி இருக்கிறேன்?",
+    suggestion3: "எனது அடுத்த பெரிய வாய்ப்பு எப்போது வரப்போகிறது?",
+    followUp1: "என்னை மேலும் சொல்லுங்கள்", followUp2: "இது எப்போது மாறுகிறது?", followUp3: "இது ஏன் மீண்டும் மீண்டும் நிகழ்கிறது?", followUp4: "நான் அடுத்து என்ன செய்ய வேண்டும்?",
+    whatsOnMind: "உங்கள் மனதில் என்ன இருக்கிறது", history: "வரலாறு", clearConversation: "உரையாடலை அழி",
+    thisSession: "இந்த அமர்வு", noQuestionsYet: "இந்த அமர்வில் இன்னும் கேள்விகள் கேட்கப்படவில்லை.",
+    questionsAppearHere: "உங்கள் கேள்விகள் இங்கே தோன்றும்.", errorGenerate: "நான் பதிலைப் பெற முடியவில்லை.",
+    errorRetry: "ஏதோ தவறு ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.", thinking: "சிந்தனை...",
+    questionsRemaining: "கேள்விகள் மீதமுள்ளன", basedOnChart: "உங்கள் கேள்வி மற்றும் ஜாதக பகுப்பாய்வின் அடிப்படையில்",
+    viewFullSource: "முழு ஆதாரத்தைக் காணுங்கள்",
   },
   chart: {
     title: "எனது ஜாதகம்", birthChart: "பிறப்பு ஜாதகம்", sunSign: "சூரிய ராசி", moonSign: "சந்திர ராசி",
     risingSign: "லக்ன ராசி", nakshatra: "நட்சத்திரம்", element: "தத்துவம்", strengths: "பலங்கள்",
     sensitivities: "உணர்திறன்", showAdvanced: "மேலும் காட்டு", hideAdvanced: "குறைவாக காட்டு",
+    simple: "எளிமையான", advanced: "மேம்பட்ட", yourBlueprint: "உங்கள் விண்மீன் வரைபடம்", sun: "சூரியன்",
+    elementLabel: "தத்துவம்", nakshatraPada: "நட்சத்திர பாதம்", nakshatraLord: "நட்சத்திர கர்த்தா", nakshatraDeity: "நட்சத்திர தெய்வம்",
+    signQuality: "ராசி குணம்", rulingPlanet: "ஆளும் கிரகம்", signDegree: "ராசி பாகை", lifePath: "வாழ்க்கை பாதை",
+    currentDasha: "தற்போதைய தசை", calculating: "கணக்கிடப்படுகிறது...", timeUnknownLabel: "நேரம் தெரியாது",
+    currentEnergies: "தற்போதைய সक்রிய ஆற்றல்கள்", activeDasha: "சक்தி தசை காலம்", askTransits: "எனது சक்தி நகர்வுகளைப் பற்றி கேளுங்கள்",
+    recurringThemes: "மீண்டும் மீண்டும் வரும் கருப்பொருள்கள்", deepDive: "ஆழமாக நுழைய", deity: "தெய்வம்", lord: "கர்த்தா",
+    symbol: "சின்னம்", shakti: "சக்தி", animal: "விலங்கு", gana: "கணം", pada: "பாதம்",
+    emotionalPattern: "உணர்ச்சி முறை", workStyle: "வேலை செய்முறை", relationshipStyle: "உறவு செய்முறை",
   },
   reports: {
     title: "அறிக்கைகள்", loveCompat: "காதல் & பொருத்தம்", careerBlueprint: "தொழில் வரைபடம்",
     marriageTiming: "திருமண நேரம்", annualForecast: "வருடாந்திர கணிப்பு", wealthGrowth: "செல்வ வளர்ச்சி",
     dashaDeepDive: "தசா ஆழ்வு", unlocked: "திறந்தது", locked: "பூட்டியது",
     buyReport: "அறிக்கை வாங்கவும்", preview: "முன்னோட்டம்", oneTimePacks: "ஒரு முறை பேக்குகள்",
+    subtitle: "வாழ்க்கை பலன் அறிக்கைகள்", intro: "ஒவ்வொரு அறிக்கையும் ஒரு உண்மையான வாழ்க்கை பலனுடன் வரைபடமாக உள்ளது — ஒரு பொதுவான பொருள் அல்ல।",
+    whatsInside: "உள்ளே என்ன இருக்கிறது", ready: "அறிக்கை தயாரம்!", downloadPdf: "PDF பதிவிறக்க",
+    generating: "அறிக்கை உருவாக்க ...", downloadReport: "அறிக்கை பதிவிறக்க", generateReport: "அறிக்கை உருவாக்க",
+    unlockFor: "க்கு அনுமतி", upgradeTo: "க்கு முன்னேற்றம்", askAboutTopic: "இந்த தலைப்பை பற்றி GrahAI க்கு கேளுங்கள்",
+    completeFirst: "முதலில் onboarding முடிக்க.", tryAgain: "ஏதோ தவறு ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.",
+    plus: "கூட", premium: "பிரீமியம்", free: "இலவசம்",
   },
   profile: {
     title: "புரொஃபைல்", editBirthDetails: "பிறப்பு விவரங்களை மாற்றவும்", changeLanguage: "மொழி மாற்றவும்",
@@ -828,12 +1217,34 @@ const ta: Translations = {
     title: "உங்கள் திட்டத்தைத் தேர்ந்தெடுக்கவும்", subtitle: "உங்களுக்கு ஏற்ற திட்டத்தில் ஆழமான வழிகாட்டுதல் பெறுங்கள்",
     monthly: "மாதாந்திர", oneTime: "ஒரு முறை", free: "இலவசம்", graha: "கிரகம்", rishi: "ரிஷி",
     perMonth: "/மாதம்", currentPlan: "தற்போதைய திட்டம்", upgrade: "அப்கிரேட்", popular: "பிரபலம்",
+    tagline: "மூல ஆதரவு வழிகாட்டுதல், ஆழமான தெளிவு", monthlyPlans: "மாதாந்திர திட்டங்கள்",
+    oneTimeReports: "ஒரு முறை அறிக்கைகள்", oneTimeDesc: "தனிப்பட்ட அறிக்கைகள் வாங்கவும்.",
+    bestValue: "சிறந்த மதிப்பு", secureRazorpay: "Razorpay மூலம் பாதுகாப்பு", cancelAnytime: "எப்போது வேண்டுமோ ரத்துசெய்யுங்கள்",
+    bphsSourced: "BPHS-ஆல் ஆபத்துற்றது", startGraha: "க்கிரகம் தொடங்க", startRishi: "ரிஷி தொடங்க",
+    explorePlan: "உங்கள் விண்மீன் வரைபடம் ஆராயுங்கள்", deeperInsights: "தினசரி தெளிவுக்கு ஆழமான உணர்வுகள்",
+    completeCompanion: "முழு ஜ்யோதிஷ உபயோகி",
   },
-  paywall: { limitReached: "இன்றைய இலவச கேள்விகள் முடிந்தன", upgradeNow: "இப்போது அப்கிரேட் செய்யுங்கள்", dismiss: "பின்னர்" },
+  paywall: { limitReached: "இன்றைய இலவச கேள்விகள் முடிந்தன", upgradeNow: "இப்போது அப்கிரேட் செய்யுங்கள்", dismiss: "பின்னர்",
+    triggerLimitTitle: "நீங்கள் இன்றைய இலவச கேள்வியைப் பயன்படுத்தியுள்ளீர்கள்", triggerLimitDesc: "கேட்பது தொடர அப்கிரேட் செய்யுங்கள்.",
+    triggerIntentTitle: "ஆழமான பகுப்பாய்வு வேண்டும்?", triggerIntentDesc: "Graha உறுப்பினர்கள் முழுமையான விளக்கங்களைப் பெறுகிறார்கள்.",
+    triggerSourceTitle: "நீங்கள் ஆழமாக வெட்டுவதாக இருக்கிறீர்கள்", triggerSourceDesc: "முழுமையான ஆதாரம் மற்றும் வரம்பற்ற கேள்விகளை அনலாக் செய்யுங்கள்.",
+    triggerReportTitle: "இந்த அறிக்கை ஒரு உண்மையான வாழ்க்கை பலனுடன் வரைபடமாக உள்ளது", triggerReportDesc: "விস்தாரமான அறிக்கையை அனலாக் செய்யுங்கள்.",
+    triggerGeneralTitle: "முழுமையான GrahAI அனுபவத்தை அனலாக் செய்யுங்கள்", triggerGeneralDesc: "ஆழமான தெளிவு, அதிக கேள்விகள், பிரீமியம் அறிக்கைகள்.",
+    tryPlan: "முயற்சிக்க",
+  },
   referral: {
     title: "பரிந்துரை & சம்பாதிப்பு", subtitle: "நண்பர்களுடன் GrahAI பகிர்ந்து வெகுமதிகள் பெறுங்கள்",
     yourCode: "உங்கள் பரிந்துரை குறியீடு", copyCode: "குறியீடு நகலெடு", shareWithFriends: "நண்பர்களுடன் பகிரவும்",
     rewardsTitle: "உங்கள் வெகுமதிகள்", friendsReferred: "பரிந்துரைக்கப்பட்ட நண்பர்கள்",
+    shareText: "ব্যক்তিগত ভেদিক জ্যোতিষ অন্তর্দৃষ্টির জন্য GrahAI ত্রুকুল করুন!", rewardMilestones: "পুরস্কার মাইলফলক",
+    howItWorks: "এটি কীভাবে কাজ করে", step1: "নির্বাচন করা বন্ধুদের সাথে আপনার অনন্য রেফারেল কোড শেয়ার করুন", step2: "তারা আপনার কোড দিয়ে সাইন আপ করে এবং onboarding সম্পূর্ণ করে",
+    step3: "আপনি উভয়ে তাত্ক্ষণিক 3 বোনাস প্রশ্ন পান", step4: "আরও বন্ধুরা যোগদান করার সাথে সাথে বড় পুরস্কার আনলক করুন",
+    invite: "আমন্ত্রণ", friend: "বন্ধু", friends: "বন্ধু", freeQuestions: "5 নিখরচা প্রশ্ন", freeReport: "1 নিখরচা প্রতিবেদন",
+    monthGraha: "1 মাসের Graha পরিকল্পনা", monthRishi: "1 মাসের Rishi পরিকল্পনা", friendsJoined: "বন্ধু যোগদান", rewardsEarned: "পুরস্কার অর্জিত",
+  },
+  source: {
+    whyGrahaiSays: "GrahAI কেন এটি বলে", sourceBackedReasoning: "উৎস-সমর্থিত যুক্তি", activePrinciple: "সক্রিয় নীতি",
+    explanation: "ব্যাখ্যা", shownBecause: "এটি প্রদর্শিত হয়েছে কারণ:", groundsInsight: "GrahAI প্রতিটি অন্তর্দৃষ্টিকে শাস্ত্রীয় ভেদিক ঐতিহ্যে প্রতিষ্ঠিত করে",
   },
   common: { loading: "ஏற்றுகிறது...", error: "ஏதோ தவறு ஏற்பட்டது", retry: "மீண்டும் முயற்சிக்கவும்", close: "மூடு", back: "பின்", next: "அடுத்து", save: "சேமி", done: "முடிந்தது", today: "இன்று", tomorrow: "நாளை" },
 }
@@ -872,10 +1283,10 @@ const te: Translations = {
     readingChart: "మీ జాతకాన్ని చదువుతోంది...", askYourFirst: "మీ మొదటి ప్రశ్న అడగండి",
   },
   nav: { home: "హోమ్", ask: "అడగండి", chart: "జాతకం", reports: "నివేదికలు", profile: "ప్రొఫైల్" },
-  home: { greeting: "శుభ {timeOfDay}, {name}", todayGuidance: "ఈరోజు మార్గదర్శకత్వం", tomorrowGuidance: "రేపటి మార్గదర్శకత్వం", loveCard: "ప్రేమ", careerCard: "కెరీర్", energyCard: "శక్తి", panchangTitle: "పంచాంగం", luckyColors: "అదృష్ట రంగులు", luckyNumbers: "అదృష్ట సంఖ్యలు", askQuestion: "ప్రశ్న అడగండి", viewReports: "నివేదికలు చూడండి", sourcesTitle: "మూలాలు" },
-  ask: { title: "GrahAI ని అడగండి", placeholder: "ప్రేమ, కెరీర్, సమయం గురించి అడగండి...", topicLove: "ప్రేమ", topicCareer: "కెరీర్", topicTiming: "సమయం", topicFamily: "కుటుంబం", topicHealth: "ఆరోగ్యం", topicMoney: "డబ్బు", directAnswer: "నేరుగా సమాధానం", whyShowingUp: "ఇది ఎందుకు కనిపిస్తోంది", whatToDo: "ఏమి చేయాలి", whatToAvoid: "ఏమి తప్పించాలి", timeWindow: "సమయ వ్యవధి", remedy: "పరిహారం", source: "మూలం", followUp: "తదుపరి ప్రశ్నలు", questionsLeft: "ఈరోజు {count} ప్రశ్నలు మిగిలి ఉన్నాయి", upgradeForMore: "మరిన్ని కోసం అప్‌గ్రేడ్ చేయండి" },
-  chart: { title: "నా జాతకం", birthChart: "జన్మ జాతకం", sunSign: "సూర్య రాశి", moonSign: "చంద్ర రాశి", risingSign: "లగ్న రాశి", nakshatra: "నక్షత్రం", element: "తత్వం", strengths: "బలాలు", sensitivities: "సున్నితత్వాలు", showAdvanced: "మరింత చూపు", hideAdvanced: "తక్కువ చూపు" },
-  reports: { title: "నివేదికలు", loveCompat: "ప్రేమ & అనుకూలత", careerBlueprint: "కెరీర్ బ్లూప్రింట్", marriageTiming: "వివాహ సమయం", annualForecast: "వార్షిక అంచనా", wealthGrowth: "సంపద వృద్ధి", dashaDeepDive: "దశా విశ్లేషణ", unlocked: "అన్‌లాక్", locked: "లాక్", buyReport: "నివేదిక కొనండి", preview: "ప్రివ్యూ", oneTimePacks: "ఒకసారి ప్యాక్‌లు" },
+  home: { ...en.home, greeting: "శుభ {timeOfDay}, {name}", todayGuidance: "ఈరోజు మార్గదర్శకత్వం", tomorrowGuidance: "రేపటి మార్గదర్శకత్వం", loveCard: "ప్రేమ", careerCard: "కెరీర్", energyCard: "శక్తి", panchangTitle: "పంచాంగం", luckyColors: "అదృష్ట రంగులు", luckyNumbers: "అదృష్ట సంఖ్యలు", askQuestion: "ప్రశ్న అడగండి", viewReports: "నివేదికలు చూడండి", sourcesTitle: "మూలాలు" },
+  ask: { ...en.ask, title: "GrahAI ని అడగండి", placeholder: "ప్రేమ, కెరీర్, సమయం గురించి అడగండి...", topicLove: "ప్రేమ", topicCareer: "కెరీర్", topicTiming: "సమయం", topicFamily: "కుటుంబం", topicHealth: "ఆరోగ్యం", topicMoney: "డబ్బు", directAnswer: "నేరుగా సమాధానం", whyShowingUp: "ఇది ఎందుకు కనిపిస్తోంది", whatToDo: "ఏమి చేయాలి", whatToAvoid: "ఏమి తప్పించాలి", timeWindow: "సమయ వ్యవధి", remedy: "పరిహారం", source: "మూలం", followUp: "తదుపరి ప్రశ్నలు", questionsLeft: "ఈరోజు {count} ప్రశ్నలు మిగిలి ఉన్నాయి", upgradeForMore: "మరిన్ని కోసం అప్‌గ్రేడ్ చేయండి" },
+  chart: { ...en.chart, title: "నా జాతకం", birthChart: "జన్మ జాతకం", sunSign: "సూర్య రాశి", moonSign: "చంద్ర రాశి", risingSign: "లగ్న రాశి", nakshatra: "నక్షత్రం", element: "తత్వం", strengths: "బలాలు", sensitivities: "సున్నితత్వాలు", showAdvanced: "మరింత చూపు", hideAdvanced: "తక్కువ చూపు" },
+  reports: { ...en.reports, title: "నివేదికలు", loveCompat: "ప్రేమ & అనుకూలత", careerBlueprint: "కెరీర్ బ్లూప్రింట్", marriageTiming: "వివాహ సమయం", annualForecast: "వార్షిక అంచనా", wealthGrowth: "సంపద వృద్ధి", dashaDeepDive: "దశా విశ్లేషణ", unlocked: "అన్‌లాక్", locked: "లాక్", buyReport: "నివేదిక కొనండి", preview: "ప్రివ్యూ", oneTimePacks: "ఒకసారి ప్యాక్‌లు" },
   profile: {
     title: "ప్రొఫైల్", editBirthDetails: "జన్మ వివరాలు మార్చండి", changeLanguage: "భాష మార్చండి",
     vedic: "వేద", western: "పాశ్చాత్య", questions: "ప్రశ్నలు", reportsLabel: "నివేదికలు", compatibility: "అనుకూలత",
@@ -895,9 +1306,10 @@ const te: Translations = {
     faq5Q: "రీఫండ్ పొందగలనా?", faq5A: "అవును, 7 రోజుల రీఫండ్ పాలసీ ఉంది.",
     askForHelp: "GrahAI ని సహాయం అడగండి",
   },
-  pricing: { title: "మీ ప్లాన్ ఎంచుకోండి", subtitle: "మీకు సరిపోయే ప్లాన్‌తో లోతైన మార్గదర్శకత్వం పొందండి", monthly: "నెలవారీ", oneTime: "ఒకసారి", free: "ఉచితం", graha: "గ్రహ", rishi: "ఋషి", perMonth: "/నెల", currentPlan: "ప్రస్తుత ప్లాన్", upgrade: "అప్‌గ్రేడ్", popular: "ప్రజాదరణ" },
-  paywall: { limitReached: "ఈరోజు ఉచిత ప్రశ్నలు అయిపోయాయి", upgradeNow: "ఇప్పుడు అప్‌గ్రేడ్ చేయండి", dismiss: "తర్వాత" },
-  referral: { title: "రిఫర్ చేసి సంపాదించండి", subtitle: "స్నేహితులతో GrahAI షేర్ చేసి రివార్డ్‌లు పొందండి", yourCode: "మీ రిఫరల్ కోడ్", copyCode: "కోడ్ కాపీ చేయండి", shareWithFriends: "స్నేహితులతో షేర్ చేయండి", rewardsTitle: "మీ రివార్డ్‌లు", friendsReferred: "రిఫర్ చేసిన స్నేహితులు" },
+  pricing: { ...en.pricing, title: "మీ ప్లాన్ ఎంచుకోండి", subtitle: "మీకు సరిపోయే ప్లాన్‌తో లోతైన మార్గదర్శకత్వం పొందండి", monthly: "నెలవారీ", oneTime: "ఒకసారి", free: "ఉచితం", graha: "గ్రహ", rishi: "ఋషి", perMonth: "/నెల", currentPlan: "ప్రస్తుత ప్లాన్", upgrade: "అప్‌గ్రేడ్", popular: "ప్రజాదరణ" },
+  paywall: { ...en.paywall, limitReached: "ఈరోజు ఉచిత ప్రశ్నలు అయిపోయాయి", upgradeNow: "ఇప్పుడు అప్‌గ్రేడ్ చేయండి", dismiss: "తర్వాత" },
+  referral: { ...en.referral, title: "రిఫర్ చేసి సంపాదించండి", subtitle: "స్నేహితులతో GrahAI షేర్ చేసి రివార్డ్‌లు పొందండి", yourCode: "మీ రిఫరల్ కోడ్", copyCode: "కోడ్ కాపీ చేయండి", shareWithFriends: "స్నేహితులతో షేర్ చేయండి", rewardsTitle: "మీ రివార్డ్‌లు", friendsReferred: "రిఫర్ చేసిన స్నేహితులు" },
+  source: en.source,
   common: { loading: "లోడ్ అవుతోంది...", error: "ఏదో తప్పు జరిగింది", retry: "మళ్ళీ ప్రయత్నించండి", close: "మూయండి", back: "వెనుకకు", next: "తదుపరి", save: "సేవ్", done: "అయింది", today: "ఈరోజు", tomorrow: "రేపు" },
 }
 
@@ -934,10 +1346,10 @@ const kn: Translations = {
     readingChart: "ನಿಮ್ಮ ಜಾತಕ ಓದುತ್ತಿದೆ...", askYourFirst: "ನಿಮ್ಮ ಮೊದಲ ಪ್ರಶ್ನೆ ಕೇಳಿ",
   },
   nav: { home: "ಹೋಮ್", ask: "ಕೇಳಿ", chart: "ಜಾತಕ", reports: "ವರದಿಗಳು", profile: "ಪ್ರೊಫೈಲ್" },
-  home: { greeting: "ಶುಭ {timeOfDay}, {name}", todayGuidance: "ಇಂದಿನ ಮಾರ್ಗದರ್ಶನ", tomorrowGuidance: "ನಾಳೆಯ ಮಾರ್ಗದರ್ಶನ", loveCard: "ಪ್ರೀತಿ", careerCard: "ವೃತ್ತಿ", energyCard: "ಶಕ್ತಿ", panchangTitle: "ಪಂಚಾಂಗ", luckyColors: "ಅದೃಷ್ಟ ಬಣ್ಣಗಳು", luckyNumbers: "ಅದೃಷ್ಟ ಸಂಖ್ಯೆಗಳು", askQuestion: "ಪ್ರಶ್ನೆ ಕೇಳಿ", viewReports: "ವರದಿಗಳು ನೋಡಿ", sourcesTitle: "ಮೂಲಗಳು" },
-  ask: { title: "GrahAI ಅನ್ನು ಕೇಳಿ", placeholder: "ಪ್ರೀತಿ, ವೃತ್ತಿ, ಸಮಯ ಬಗ್ಗೆ ಕೇಳಿ...", topicLove: "ಪ್ರೀತಿ", topicCareer: "ವೃತ್ತಿ", topicTiming: "ಸಮಯ", topicFamily: "ಕುಟುಂಬ", topicHealth: "ಆರೋಗ್ಯ", topicMoney: "ಹಣ", directAnswer: "ನೇರ ಉತ್ತರ", whyShowingUp: "ಇದು ಏಕೆ ಕಾಣಿಸುತ್ತಿದೆ", whatToDo: "ಏನು ಮಾಡಬೇಕು", whatToAvoid: "ಏನು ತಪ್ಪಿಸಬೇಕು", timeWindow: "ಸಮಯ ಅವಧಿ", remedy: "ಪರಿಹಾರ", source: "ಮೂಲ", followUp: "ಮುಂದಿನ ಪ್ರಶ್ನೆಗಳು", questionsLeft: "ಇಂದು {count} ಪ್ರಶ್ನೆಗಳು ಉಳಿದಿವೆ", upgradeForMore: "ಹೆಚ್ಚಿನದಕ್ಕಾಗಿ ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡಿ" },
-  chart: { title: "ನನ್ನ ಜಾತಕ", birthChart: "ಜನ್ಮ ಜಾತಕ", sunSign: "ಸೂರ್ಯ ರಾಶಿ", moonSign: "ಚಂದ್ರ ರಾಶಿ", risingSign: "ಲಗ್ನ ರಾಶಿ", nakshatra: "ನಕ್ಷತ್ರ", element: "ತತ್ವ", strengths: "ಶಕ್ತಿಗಳು", sensitivities: "ಸಂವೇದನೆಗಳು", showAdvanced: "ಹೆಚ್ಚು ತೋರಿಸಿ", hideAdvanced: "ಕಡಿಮೆ ತೋರಿಸಿ" },
-  reports: { title: "ವರದಿಗಳು", loveCompat: "ಪ್ರೀತಿ & ಹೊಂದಾಣಿಕೆ", careerBlueprint: "ವೃತ್ತಿ ಬ್ಲೂಪ್ರಿಂಟ್", marriageTiming: "ಮದುವೆ ಸಮಯ", annualForecast: "ವಾರ್ಷಿಕ ಮುನ್ಸೂಚನೆ", wealthGrowth: "ಸಂಪತ್ತು ಬೆಳವಣಿಗೆ", dashaDeepDive: "ದಶಾ ವಿಶ್ಲೇಷಣೆ", unlocked: "ಅನ್‌ಲಾಕ್", locked: "ಲಾಕ್", buyReport: "ವರದಿ ಖರೀದಿಸಿ", preview: "ಪೂರ್ವವೀಕ್ಷಣೆ", oneTimePacks: "ಒಂದು ಬಾರಿ ಪ್ಯಾಕ್‌ಗಳು" },
+  home: { ...en.home, greeting: "ಶುಭ {timeOfDay}, {name}", todayGuidance: "ಇಂದಿನ ಮಾರ್ಗದರ್ಶನ", tomorrowGuidance: "ನಾಳೆಯ ಮಾರ್ಗದರ್ಶನ", loveCard: "ಪ್ರೀತಿ", careerCard: "ವೃತ್ತಿ", energyCard: "ಶಕ್ತಿ", panchangTitle: "ಪಂಚಾಂಗ", luckyColors: "ಅದೃಷ್ಟ ಬಣ್ಣಗಳು", luckyNumbers: "ಅದೃಷ್ಟ ಸಂಖ್ಯೆಗಳು", askQuestion: "ಪ್ರಶ್ನೆ ಕೇಳಿ", viewReports: "ವರದಿಗಳು ನೋಡಿ", sourcesTitle: "ಮೂಲಗಳು" },
+  ask: { ...en.ask, title: "GrahAI ಅನ್ನು ಕೇಳಿ", placeholder: "ಪ್ರೀತಿ, ವೃತ್ತಿ, ಸಮಯ ಬಗ್ಗೆ ಕೇಳಿ...", topicLove: "ಪ್ರೀತಿ", topicCareer: "ವೃತ್ತಿ", topicTiming: "ಸಮಯ", topicFamily: "ಕುಟುಂಬ", topicHealth: "ಆರೋಗ್ಯ", topicMoney: "ಹಣ", directAnswer: "ನೇರ ಉತ್ತರ", whyShowingUp: "ಇದು ಏಕೆ ಕಾಣಿಸುತ್ತಿದೆ", whatToDo: "ಏನು ಮಾಡಬೇಕು", whatToAvoid: "ಏನು ತಪ್ಪಿಸಬೇಕು", timeWindow: "ಸಮಯ ಅವಧಿ", remedy: "ಪರಿಹಾರ", source: "ಮೂಲ", followUp: "ಮುಂದಿನ ಪ್ರಶ್ನೆಗಳು", questionsLeft: "ಇಂದು {count} ಪ್ರಶ್ನೆಗಳು ಉಳಿದಿವೆ", upgradeForMore: "ಹೆಚ್ಚಿನದಕ್ಕಾಗಿ ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡಿ" },
+  chart: { ...en.chart, title: "ನನ್ನ ಜಾತಕ", birthChart: "ಜನ್ಮ ಜಾತಕ", sunSign: "ಸೂರ್ಯ ರಾಶಿ", moonSign: "ಚಂದ್ರ ರಾಶಿ", risingSign: "ಲಗ್ನ ರಾಶಿ", nakshatra: "ನಕ್ಷತ್ರ", element: "ತತ್ವ", strengths: "ಶಕ್ತಿಗಳು", sensitivities: "ಸಂವೇದನೆಗಳು", showAdvanced: "ಹೆಚ್ಚು ತೋರಿಸಿ", hideAdvanced: "ಕಡಿಮೆ ತೋರಿಸಿ" },
+  reports: { ...en.reports, title: "ವರದಿಗಳು", loveCompat: "ಪ್ರೀತಿ & ಹೊಂದಾಣಿಕೆ", careerBlueprint: "ವೃತ್ತಿ ಬ್ಲೂಪ್ರಿಂಟ್", marriageTiming: "ಮದುವೆ ಸಮಯ", annualForecast: "ವಾರ್ಷಿಕ ಮುನ್ಸೂಚನೆ", wealthGrowth: "ಸಂಪತ್ತು ಬೆಳವಣಿಗೆ", dashaDeepDive: "ದಶಾ ವಿಶ್ಲೇಷಣೆ", unlocked: "ಅನ್‌ಲಾಕ್", locked: "ಲಾಕ್", buyReport: "ವರದಿ ಖರೀದಿಸಿ", preview: "ಪೂರ್ವವೀಕ್ಷಣೆ", oneTimePacks: "ಒಂದು ಬಾರಿ ಪ್ಯಾಕ್‌ಗಳು" },
   profile: {
     title: "ಪ್ರೊಫೈಲ್", editBirthDetails: "ಜನ್ಮ ವಿವರಗಳನ್ನು ಬದಲಾಯಿಸಿ", changeLanguage: "ಭಾಷೆ ಬದಲಾಯಿಸಿ",
     vedic: "ವೈದಿಕ", western: "ಪಾಶ್ಚಾತ್ಯ", questions: "ಪ್ರಶ್ನೆಗಳು", reportsLabel: "ವರದಿಗಳು", compatibility: "ಹೊಂದಾಣಿಕೆ",
@@ -957,9 +1369,10 @@ const kn: Translations = {
     faq5Q: "ರೀಫಂಡ್ ಸಿಗುತ್ತದೆಯೇ?", faq5A: "ಹೌದು, 7 ದಿನಗಳ ರೀಫಂಡ್ ನೀತಿ ಇದೆ.",
     askForHelp: "GrahAI ಸಹಾಯ ಕೇಳಿ",
   },
-  pricing: { title: "ನಿಮ್ಮ ಪ್ಲಾನ್ ಆಯ್ಕೆಮಾಡಿ", subtitle: "ನಿಮಗೆ ಸೂಕ್ತವಾದ ಪ್ಲಾನ್‌ನಲ್ಲಿ ಆಳವಾದ ಮಾರ್ಗದರ್ಶನ ಪಡೆಯಿರಿ", monthly: "ಮಾಸಿಕ", oneTime: "ಒಂದು ಬಾರಿ", free: "ಉಚಿತ", graha: "ಗ್ರಹ", rishi: "ಋಷಿ", perMonth: "/ತಿಂಗಳು", currentPlan: "ಪ್ರಸ್ತುತ ಪ್ಲಾನ್", upgrade: "ಅಪ್‌ಗ್ರೇಡ್", popular: "ಜನಪ್ರಿಯ" },
-  paywall: { limitReached: "ಇಂದಿನ ಉಚಿತ ಪ್ರಶ್ನೆಗಳು ಮುಗಿದಿವೆ", upgradeNow: "ಈಗ ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡಿ", dismiss: "ನಂತರ" },
-  referral: { title: "ರೆಫರ್ ಮಾಡಿ & ಗಳಿಸಿ", subtitle: "ಸ್ನೇಹಿತರೊಂದಿಗೆ GrahAI ಹಂಚಿ ರಿವಾರ್ಡ್‌ಗಳನ್ನು ಗಳಿಸಿ", yourCode: "ನಿಮ್ಮ ರೆಫರಲ್ ಕೋಡ್", copyCode: "ಕೋಡ್ ನಕಲಿಸಿ", shareWithFriends: "ಸ್ನೇಹಿತರೊಂದಿಗೆ ಹಂಚಿ", rewardsTitle: "ನಿಮ್ಮ ರಿವಾರ್ಡ್‌ಗಳು", friendsReferred: "ರೆಫರ್ ಮಾಡಿದ ಸ್ನೇಹಿತರು" },
+  pricing: { ...en.pricing, title: "ನಿಮ್ಮ ಪ್ಲಾನ್ ಆಯ್ಕೆಮಾಡಿ", subtitle: "ನಿಮಗೆ ಸೂಕ್ತವಾದ ಪ್ಲಾನ್‌ನಲ್ಲಿ ಆಳವಾದ ಮಾರ್ಗದರ್ಶನ ಪಡೆಯಿರಿ", monthly: "ಮಾಸಿಕ", oneTime: "ಒಂದು ಬಾರಿ", free: "ಉಚಿತ", graha: "ಗ್ರಹ", rishi: "ಋಷಿ", perMonth: "/ತಿಂಗಳು", currentPlan: "ಪ್ರಸ್ತುತ ಪ್ಲಾನ್", upgrade: "ಅಪ್‌ಗ್ರೇಡ್", popular: "ಜನಪ್ರಿಯ" },
+  paywall: { ...en.paywall, limitReached: "ಇಂದಿನ ಉಚಿತ ಪ್ರಶ್ನೆಗಳು ಮುಗಿದಿವೆ", upgradeNow: "ಈಗ ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡಿ", dismiss: "ನಂತರ" },
+  referral: { ...en.referral, title: "ರೆಫರ್ ಮಾಡಿ & ಗಳಿಸಿ", subtitle: "ಸ್ನೇಹಿತರೊಂದಿಗೆ GrahAI ಹಂಚಿ ರಿವಾರ್ಡ್‌ಗಳನ್ನು ಗಳಿಸಿ", yourCode: "ನಿಮ್ಮ ರೆಫರಲ್ ಕೋಡ್", copyCode: "ಕೋಡ್ ನಕಲಿಸಿ", shareWithFriends: "ಸ್ನೇಹಿತರೊಂದಿಗೆ ಹಂಚಿ", rewardsTitle: "ನಿಮ್ಮ ರಿವಾರ್ಡ್‌ಗಳು", friendsReferred: "ರೆಫರ್ ಮಾಡಿದ ಸ್ನೇಹಿತರು" },
+  source: en.source,
   common: { loading: "ಲೋಡ್ ಆಗುತ್ತಿದೆ...", error: "ಏನೋ ತಪ್ಪಾಯಿತು", retry: "ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ", close: "ಮುಚ್ಚಿ", back: "ಹಿಂದೆ", next: "ಮುಂದೆ", save: "ಉಳಿಸಿ", done: "ಮುಗಿಯಿತು", today: "ಇಂದು", tomorrow: "ನಾಳೆ" },
 }
 
@@ -1039,6 +1452,7 @@ const ml: Translations = {
     profile: "പ്രൊഫൈൽ",
   },
   home: {
+    ...en.home,
     greeting: "നല്ല {timeOfDay}, {name}",
     todayGuidance: "ഇന്നത്തെ പരാമർശം",
     tomorrowGuidance: "നാളത്തെ പരാമർശം",
@@ -1053,6 +1467,7 @@ const ml: Translations = {
     sourcesTitle: "സ്രോതസ്സുകൾ",
   },
   ask: {
+    ...en.ask,
     title: "GrahAI ൽ നിന്ന് ചോദിക്കുക",
     placeholder: "പ്രേമം, കരിയറ്, സമയം എന്നിവയെക്കുറിച്ച് ചോദിക്കുക...",
     topicLove: "പ്രേമം",
@@ -1073,6 +1488,7 @@ const ml: Translations = {
     upgradeForMore: "കൂടുതലുള്ളതിനായി അപ്‌ഗ്രേഡ് ചെയ്യുക",
   },
   chart: {
+    ...en.chart,
     title: "എൻ്റെ ചാർട്ട്",
     birthChart: "ജന്മ ചാർട്ട്",
     sunSign: "സൂര്യ രാശി",
@@ -1086,6 +1502,7 @@ const ml: Translations = {
     hideAdvanced: "മുൻനിര ഒളിപ്പിക്കുക",
   },
   reports: {
+    ...en.reports,
     title: "റിപ്പോർട്ടുകൾ",
     loveCompat: "പ്രേമവും അനുരൂപതയും",
     careerBlueprint: "കരിയറ് ബ്ലൂപ്രിന്റ്",
@@ -1143,6 +1560,7 @@ const ml: Translations = {
     askForHelp: "GrahAI ൽ നിന്ന് സഹായം ചോദിക്കുക",
   },
   pricing: {
+    ...en.pricing,
     title: "നിങ്ങളുടെ പ്ലാൻ തിരഞ്ഞെടുക്കുക",
     subtitle: "നിങ്ങൾക്കെ പതിയാത് പ്ലാനിന്റെ കൂടെ ഗഭീര പരാമർശം പെടുക",
     monthly: "നിമിഷിക",
@@ -1156,11 +1574,13 @@ const ml: Translations = {
     popular: "ജനപ്രിയ",
   },
   paywall: {
+    ...en.paywall,
     limitReached: "ഇന്നത്തെ സ്വതന്ത്ര ചോദ്യങ്ങൾ ഉപയോഗിച്ചു കഴിഞ്ഞു",
     upgradeNow: "ഇപ്പോൾ അപ്‌ഗ്രേഡ് ചെയ്യുക",
     dismiss: "കൂടുതൽ പിന്നീട്",
   },
   referral: {
+    ...en.referral,
     title: "നൽകുക ഒപ്പം സമ്പാദിക്കുക",
     subtitle: "സ്നേഹങ്ങളുടെ കൂടെ GrahAI പങ്കിടുക ഒപ്പം ചരക്കിനുള്ള പ്രതിബന്ധം സമ്പാദിക്കുക",
     yourCode: "നിങ്ങളുടെ നൽകൽ കോഡ്",
@@ -1169,6 +1589,7 @@ const ml: Translations = {
     rewardsTitle: "നിങ്ങളുടെ ചരക്കിനുള്ള പ്രതിബന്ധം",
     friendsReferred: "നൽകപ്പെട്ട സ്നേഹങ്ങൾ",
   },
+  source: en.source,
   common: {
     loading: "ലോഡ് ചെയ്യുന്നു...",
     error: "എന്തോ തെറ്റ് സംഭവിച്ചു",
@@ -1253,6 +1674,7 @@ const bn: Translations = {
     profile: "প্রোফাইল",
   },
   home: {
+    ...en.home,
     greeting: "শুভ {timeOfDay}, {name}",
     todayGuidance: "আজকের নির্দেশনা",
     tomorrowGuidance: "আগামীকালের নির্দেশনা",
@@ -1267,6 +1689,7 @@ const bn: Translations = {
     sourcesTitle: "উৎস",
   },
   ask: {
+    ...en.ask,
     title: "GrahAI থেকে জিজ্ঞাসা করুন",
     placeholder: "ভালোবাসা, ক্যারিয়ার, সময় সম্পর্কে জিজ্ঞাসা করুন...",
     topicLove: "ভালোবাসা",
@@ -1287,6 +1710,7 @@ const bn: Translations = {
     upgradeForMore: "আরও জন্য আপগ্রেড করুন",
   },
   chart: {
+    ...en.chart,
     title: "আমার চার্ট",
     birthChart: "জন্ম চার্ট",
     sunSign: "সূর্য রাশি",
@@ -1300,6 +1724,7 @@ const bn: Translations = {
     hideAdvanced: "উন্নত লুকান",
   },
   reports: {
+    ...en.reports,
     title: "রিপোর্ট",
     loveCompat: "ভালোবাসা এবং সামঞ্জস্য",
     careerBlueprint: "ক্যারিয়ার ব্লুপ্রিন্ট",
@@ -1357,6 +1782,7 @@ const bn: Translations = {
     askForHelp: "GrahAI থেকে সাহায্য চান",
   },
   pricing: {
+    ...en.pricing,
     title: "আপনার পরিকল্পনা বেছে নিন",
     subtitle: "আপনার জন্য উপযুক্ত একটি পরিকল্পনা দিয়ে গভীর নির্দেশনা পান",
     monthly: "মাসিক",
@@ -1370,11 +1796,13 @@ const bn: Translations = {
     popular: "জনপ্রিয়",
   },
   paywall: {
+    ...en.paywall,
     limitReached: "আপনি আজকের বিনামূল্যে প্রশ্ন ব্যবহার করেছেন",
     upgradeNow: "এখনই আপগ্রেড করুন",
     dismiss: "হতে পারে পরে",
   },
   referral: {
+    ...en.referral,
     title: "রেফার করুন এবং উপার্জন করুন",
     subtitle: "বন্ধুদের সাথে GrahAI শেয়ার করুন এবং পুরস্কার অর্জন করুন",
     yourCode: "আপনার রেফারেল কোড",
@@ -1383,6 +1811,7 @@ const bn: Translations = {
     rewardsTitle: "আপনার পুরস্কার",
     friendsReferred: "রেফার করা বন্ধু",
   },
+  source: en.source,
   common: {
     loading: "লোড হচ্ছে...",
     error: "কিছু ভুল হয়েছে",
@@ -1467,6 +1896,7 @@ const mr: Translations = {
     profile: "प्रोफाइल",
   },
   home: {
+    ...en.home,
     greeting: "शुभ {timeOfDay}, {name}",
     todayGuidance: "आजचे मार्गदर्शन",
     tomorrowGuidance: "उद्याचे मार्गदर्शन",
@@ -1481,6 +1911,7 @@ const mr: Translations = {
     sourcesTitle: "स्रोत",
   },
   ask: {
+    ...en.ask,
     title: "GrahAI कडून विचारा",
     placeholder: "प्रेम, करिअर, वेळ बद्दल विचारा...",
     topicLove: "प्रेम",
@@ -1501,6 +1932,7 @@ const mr: Translations = {
     upgradeForMore: "अधिकसाठी अपग्रेड करा",
   },
   chart: {
+    ...en.chart,
     title: "माझी चार्ट",
     birthChart: "जन्म चार्ट",
     sunSign: "सूर्य राशी",
@@ -1514,6 +1946,7 @@ const mr: Translations = {
     hideAdvanced: "उन्नत लपवा",
   },
   reports: {
+    ...en.reports,
     title: "अहवाल",
     loveCompat: "प्रेम आणि सुसंगतता",
     careerBlueprint: "करिअर ब्लूप्रिंट",
@@ -1571,6 +2004,7 @@ const mr: Translations = {
     askForHelp: "GrahAI कडून मदत मागा",
   },
   pricing: {
+    ...en.pricing,
     title: "तुमची योजना निवडा",
     subtitle: "तुमच्यासाठी योग्य योजनेतून गहरे मार्गदर्शन मिळवा",
     monthly: "मासिक",
@@ -1584,11 +2018,13 @@ const mr: Translations = {
     popular: "लोकप्रिय",
   },
   paywall: {
+    ...en.paywall,
     limitReached: "तुम्ही आजचे मुक्त प्रश्न वापरून घेतले",
     upgradeNow: "आता अपग्रेड करा",
     dismiss: "कदाचित नंतर",
   },
   referral: {
+    ...en.referral,
     title: "संदर्भ करा आणि अर्जन करा",
     subtitle: "मित्रांसह GrahAI शेअर करा आणि पुरस्कार अर्जन करा",
     yourCode: "तुमचा संदर्भ कोड",
@@ -1597,6 +2033,7 @@ const mr: Translations = {
     rewardsTitle: "तुमचे पुरस्कार",
     friendsReferred: "संदर्भित मित्र",
   },
+  source: en.source,
   common: {
     loading: "लोड होत आहे...",
     error: "काहीतरी चुकलं",
@@ -1681,6 +2118,7 @@ const gu: Translations = {
     profile: "પ્રોફાઈલ",
   },
   home: {
+    ...en.home,
     greeting: "શુભ {timeOfDay}, {name}",
     todayGuidance: "આજનું માર્ગદર્શન",
     tomorrowGuidance: "આવતીકાલનું માર્ગદર્શન",
@@ -1695,6 +2133,7 @@ const gu: Translations = {
     sourcesTitle: "સ્ત્રોતો",
   },
   ask: {
+    ...en.ask,
     title: "GrahAI પાસે પૂછો",
     placeholder: "પ્રેમ, કેરિયર, સમય વિશે પૂછો...",
     topicLove: "પ્રેમ",
@@ -1715,6 +2154,7 @@ const gu: Translations = {
     upgradeForMore: "વધુ માટે અપગ્રેડ કરો",
   },
   chart: {
+    ...en.chart,
     title: "મારી ચાર્ટ",
     birthChart: "જન્મ ચાર્ટ",
     sunSign: "સૂર્ય રાશિ",
@@ -1728,6 +2168,7 @@ const gu: Translations = {
     hideAdvanced: "અગ્રણી છુપાવો",
   },
   reports: {
+    ...en.reports,
     title: "રિપોર્ટ",
     loveCompat: "પ્રેમ અને સુમેળ",
     careerBlueprint: "કેરિયર બ્લુપ્રિન્ટ",
@@ -1785,6 +2226,7 @@ const gu: Translations = {
     askForHelp: "GrahAI પાસે મદદ માંગો",
   },
   pricing: {
+    ...en.pricing,
     title: "તમારી પરિયોજના પસંદ કરો",
     subtitle: "તમારા માટે યોગ્ય પરિયોજનાથી ગહન માર્ગદર્શન મેળવો",
     monthly: "માસિક",
@@ -1798,11 +2240,13 @@ const gu: Translations = {
     popular: "લોકપ્રિય",
   },
   paywall: {
+    ...en.paywall,
     limitReached: "તમે આજના મુક્ત પ્રશ્નો ઉપયોગ કર્યા છે",
     upgradeNow: "હમણાં જ અપગ્રેડ કરો",
     dismiss: "કદાચ પછીથી",
   },
   referral: {
+    ...en.referral,
     title: "સંદર્ભ કરો અને કમાવો",
     subtitle: "મિત્રો સાથે GrahAI શેર કરો અને પુરસ્કાર કમાવો",
     yourCode: "તમારો સંદર્ભ કોડ",
@@ -1811,6 +2255,7 @@ const gu: Translations = {
     rewardsTitle: "તમારા પુરસ્કાર",
     friendsReferred: "સંદર્ભિત મિત્રો",
   },
+  source: en.source,
   common: {
     loading: "લોડ થઈ રહ્યું છે...",
     error: "કંઈક ખોટું થયું",

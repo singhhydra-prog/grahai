@@ -20,6 +20,20 @@ export default function ReferralPage({ isOpen, onClose }: ReferralPageProps) {
   const [userName, setUserName] = useState("")
   const [referralCount] = useState(0)
 
+  const REWARDS = [
+    { milestone: 1, reward: t.referral.freeQuestions || "5 free questions", icon: MessageCircle },
+    { milestone: 3, reward: t.referral.freeReport || "1 free report", icon: Star },
+    { milestone: 5, reward: t.referral.monthGraha || "1 month Graha plan", icon: Crown },
+    { milestone: 10, reward: t.referral.monthRishi || "1 month Rishi plan", icon: Gift },
+  ]
+
+  const HOW_IT_WORKS = [
+    { step: "1", text: t.referral.step1 || "Share your unique referral code with friends" },
+    { step: "2", text: t.referral.step2 || "They sign up and complete onboarding with your code" },
+    { step: "3", text: t.referral.step3 || "You both get 3 bonus questions instantly" },
+    { step: "4", text: t.referral.step4 || "Unlock bigger rewards as more friends join" },
+  ]
+
   useEffect(() => {
     try {
       const bd = localStorage.getItem("grahai-onboarding-birthdata")
@@ -42,7 +56,7 @@ export default function ReferralPage({ isOpen, onClose }: ReferralPageProps) {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(`Join GrahAI for personalized Vedic astrology insights! Use my code: ${referralCode}\n\nhttps://grahai-app.vercel.app?ref=${referralCode}`)
+      await navigator.clipboard.writeText(t.referral.shareText || `Join GrahAI for personalized Vedic astrology insights! Use my code: ${referralCode}\n\nhttps://grahai-app.vercel.app?ref=${referralCode}`)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {
@@ -57,7 +71,7 @@ export default function ReferralPage({ isOpen, onClose }: ReferralPageProps) {
       try {
         await navigator.share({
           title: "GrahAI — Vedic Astrology",
-          text: `Join GrahAI for personalized Vedic astrology insights! Use my code: ${referralCode}`,
+          text: t.referral.shareText || `Join GrahAI for personalized Vedic astrology insights! Use my code: ${referralCode}`,
           url: `https://grahai-app.vercel.app?ref=${referralCode}`,
         })
       } catch {}
@@ -65,13 +79,6 @@ export default function ReferralPage({ isOpen, onClose }: ReferralPageProps) {
       handleCopy()
     }
   }
-
-  const REWARDS = [
-    { milestone: 1, reward: "5 free questions", icon: MessageCircle },
-    { milestone: 3, reward: "1 free report", icon: Star },
-    { milestone: 5, reward: "1 month Graha plan", icon: Crown },
-    { milestone: 10, reward: "1 month Rishi plan", icon: Gift },
-  ]
 
   if (!isOpen) return null
 
@@ -100,7 +107,7 @@ export default function ReferralPage({ isOpen, onClose }: ReferralPageProps) {
             <Gift className="w-8 h-8 text-[#D4A054]" />
           </div>
           <h2 className="text-xl font-bold text-[#F1F0F5] mb-1">
-            {t.referral.shareWithFriends || "Share GrahAI"}{userName ? `, ${userName}` : ""}
+            {t.referral.invite || "Share GrahAI"}{userName ? `, ${userName}` : ""}
           </h2>
           <p className="text-sm text-[#94A3B8]">
             {t.referral.subtitle || "Earn free questions, reports, and premium access for every friend who joins"}
@@ -120,7 +127,7 @@ export default function ReferralPage({ isOpen, onClose }: ReferralPageProps) {
           <button onClick={handleShare}
             className="w-full py-3 rounded-xl btn-primary text-sm font-semibold flex items-center justify-center gap-2">
             <Share2 className="w-4 h-4" />
-            {t.referral.shareWithFriends || "Share with friends"}
+            {t.referral.invite || "Share with friends"}
           </button>
         </div>
 
@@ -129,18 +136,18 @@ export default function ReferralPage({ isOpen, onClose }: ReferralPageProps) {
           <div className="bg-[#111827] border border-[#1E293B] rounded-xl p-4 text-center">
             <Users className="w-5 h-5 text-[#5A6478] mx-auto mb-1" />
             <p className="text-xl font-bold text-[#F1F0F5]">{referralCount}</p>
-            <p className="text-[10px] text-[#5A6478]">{t.referral.friendsReferred || "Friends joined"}</p>
+            <p className="text-[10px] text-[#5A6478]">{t.referral.friendsJoined || "Friends joined"}</p>
           </div>
           <div className="bg-[#111827] border border-[#1E293B] rounded-xl p-4 text-center">
             <Gift className="w-5 h-5 text-[#D4A054] mx-auto mb-1" />
             <p className="text-xl font-bold text-[#F1F0F5]">0</p>
-            <p className="text-[10px] text-[#5A6478]">{t.referral.rewardsTitle || "Rewards earned"}</p>
+            <p className="text-[10px] text-[#5A6478]">{t.referral.rewardsEarned || "Rewards earned"}</p>
           </div>
         </div>
 
         {/* Rewards ladder */}
         <div className="bg-[#111827] border border-[#1E293B] rounded-2xl p-4 mb-5">
-          <h3 className="text-sm font-semibold text-[#F1F0F5] mb-3">{t.referral.rewardsTitle || "Reward Milestones"}</h3>
+          <h3 className="text-sm font-semibold text-[#F1F0F5] mb-3">{t.referral.rewardMilestones || "Reward Milestones"}</h3>
           <div className="space-y-3">
             {REWARDS.map((r, i) => (
               <div key={r.milestone}
@@ -152,7 +159,7 @@ export default function ReferralPage({ isOpen, onClose }: ReferralPageProps) {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm text-[#F1F0F5] font-medium">{r.reward}</p>
-                  <p className="text-[10px] text-[#5A6478]">Invite {r.milestone} friend{r.milestone > 1 ? "s" : ""}</p>
+                  <p className="text-[10px] text-[#5A6478]">{t.referral.invite || "Invite"} {r.milestone} {r.milestone > 1 ? (t.referral.friends || "friends") : (t.referral.friend || "friend")}</p>
                 </div>
                 {referralCount >= r.milestone ? (
                   <Check className="w-4 h-4 text-emerald-400" />
@@ -166,14 +173,9 @@ export default function ReferralPage({ isOpen, onClose }: ReferralPageProps) {
 
         {/* How it works */}
         <div className="bg-[#111827] border border-[#1E293B] rounded-2xl p-4">
-          <h3 className="text-sm font-semibold text-[#F1F0F5] mb-3">How it works</h3>
+          <h3 className="text-sm font-semibold text-[#F1F0F5] mb-3">{t.referral.howItWorks || "How it works"}</h3>
           <div className="space-y-3">
-            {[
-              { step: "1", text: "Share your unique referral code with friends" },
-              { step: "2", text: "They sign up and complete onboarding with your code" },
-              { step: "3", text: "You both get 3 bonus questions instantly" },
-              { step: "4", text: "Unlock bigger rewards as more friends join" },
-            ].map((s) => (
+            {HOW_IT_WORKS.map((s) => (
               <div key={s.step} className="flex items-start gap-3">
                 <div className="w-6 h-6 rounded-full bg-[#D4A054]/10 flex items-center justify-center shrink-0">
                   <span className="text-xs font-bold text-[#D4A054]">{s.step}</span>

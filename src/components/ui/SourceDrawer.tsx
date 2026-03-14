@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion"
 import { X, BookOpen, Quote } from "lucide-react"
+import { useLanguage } from "@/lib/LanguageContext"
 
 interface SourceData {
   principle: string
@@ -17,6 +18,7 @@ interface SourceDrawerProps {
 }
 
 export default function SourceDrawer({ isOpen, onClose, source, context }: SourceDrawerProps) {
+  const { t } = useLanguage()
   return (
     <AnimatePresence>
       {isOpen && source && (
@@ -51,8 +53,8 @@ export default function SourceDrawer({ isOpen, onClose, source, context }: Sourc
                   <BookOpen className="w-4 h-4 text-[#D4A054]" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-[#F1F0F5]">Why GrahAI says this</h3>
-                  <p className="text-[10px] text-[#5A6478]">Source-backed reasoning</p>
+                  <h3 className="text-sm font-semibold text-[#F1F0F5]">{t.source.whyGrahaiSays || "Why GrahAI says this"}</h3>
+                  <p className="text-[10px] text-[#5A6478]">{t.source.sourceBackedReasoning || "Source-backed reasoning"}</p>
                 </div>
               </div>
               <button
@@ -68,7 +70,7 @@ export default function SourceDrawer({ isOpen, onClose, source, context }: Sourc
               {/* Active principle */}
               <div className="bg-[#111827] border border-[#D4A054]/15 rounded-xl p-4">
                 <p className="text-[10px] font-medium text-[#D4A054] uppercase tracking-wider mb-2">
-                  Active Principle
+                  {t.source.activePrinciple || "Active Principle"}
                 </p>
                 <p className="text-sm font-medium text-[#F1F0F5] leading-relaxed">
                   {source.principle}
@@ -78,7 +80,7 @@ export default function SourceDrawer({ isOpen, onClose, source, context }: Sourc
               {/* Explanation */}
               <div className="bg-[#111827] border border-[#1E293B] rounded-xl p-4">
                 <p className="text-[10px] font-medium text-[#94A3B8] uppercase tracking-wider mb-2">
-                  Explanation
+                  {t.source.explanation || "Explanation"}
                 </p>
                 <p className="text-sm text-[#94A3B8] leading-relaxed">
                   {source.text}
@@ -98,7 +100,7 @@ export default function SourceDrawer({ isOpen, onClose, source, context }: Sourc
               {/* Context (what the user saw) */}
               {context && (
                 <div className="pt-2 border-t border-[#1E293B]">
-                  <p className="text-[10px] text-[#5A6478] mb-1">This was shown because:</p>
+                  <p className="text-[10px] text-[#5A6478] mb-1">{t.source.shownBecause || "This was shown because:"}</p>
                   <p className="text-xs text-[#94A3B8]">{context}</p>
                 </div>
               )}
@@ -106,7 +108,7 @@ export default function SourceDrawer({ isOpen, onClose, source, context }: Sourc
               {/* Trust footer */}
               <div className="text-center pt-2">
                 <p className="text-[10px] text-[#5A6478]">
-                  GrahAI grounds every insight in classical Jyotish tradition
+                  {t.source.groundsInsight || "GrahAI grounds every insight in classical Jyotish tradition"}
                 </p>
               </div>
             </div>
