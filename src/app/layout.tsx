@@ -1,8 +1,12 @@
 import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import Script from "next/script"
-import CosmicBackground from "@/components/ui/CosmicBackground"
+import dynamic from "next/dynamic"
 import "./globals.css"
+
+const CosmicBackground = dynamic(() => import("@/components/ui/CosmicBackground"), {
+  ssr: false,
+})
 
 const inter = Inter({
   subsets: ["latin"],
