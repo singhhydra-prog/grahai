@@ -42,7 +42,7 @@ export default function SplineStar({ className = "" }: { className?: string }) {
         }`}
         style={{
           border: "none",
-          background: BG,
+          background: "transparent",
           display: "block",
           pointerEvents: "none",
           /* 120% wide, 140% tall, centered horizontally, shifted up */
