@@ -6,9 +6,12 @@ import {
   User, Calendar, MapPin, Clock, LogOut, ChevronRight, Crown,
   Bell, Shield, HelpCircle, Star, CreditCard, MessageCircle,
   FileText, Heart, History, Users, Share2, Moon, Sun, ArrowRight,
-  X, ArrowLeft
+  X, ArrowLeft, Globe, Edit3
 } from "lucide-react"
 import type { BirthData, AstroProfile } from "@/types/app"
+import { useLanguage } from "@/lib/LanguageContext"
+import { LANGUAGES, type Language } from "@/lib/i18n"
+import LocationSearch, { type CityData } from "@/components/ui/LocationSearch"
 
 interface ProfileTabProps {
   onPricingClick: () => void
@@ -21,9 +24,10 @@ const DEFAULT_ASTRO: AstroProfile = {
   sunSignWestern: "Libra", nakshatra: "Pushya",
 }
 
-type SubPage = null | "questions-history" | "reports-history" | "compatibility-history" | "family" | "help"
+type SubPage = null | "questions-history" | "reports-history" | "compatibility-history" | "family" | "help" | "edit-birth" | "change-language"
 
 export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuestion }: ProfileTabProps) {
+  const { lang, t, setLanguage } = useLanguage()
   const [name, setName] = useState("")
   const [initials, setInitials] = useState("")
   const [birthData, setBirthData] = useState<BirthData | null>(null)
@@ -34,6 +38,15 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
   const [reportsLeft, setReportsLeft] = useState(0)
   const [subPage, setSubPage] = useState<SubPage>(null)
   const [showSignOut, setShowSignOut] = useState(false)
+
+  // Edit birth details state
+  const [editBirthName, setEditBirthName] = useState("")
+  const [editBirthDate, setEditBirthDate] = useState("")
+  const [editBirthTime, setEditBirthTime] = useState("")
+  const [editBirthTimeUnknown, setEditBirthTimeUnknown] = useState(false)
+  const [editBirthPlaceText, setEditBirthPlaceText] = useState("")
+  const [editBirthCity, setEditBirthCity] = useState<CityData | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
     try {
@@ -64,6 +77,26 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
     } catch {}
   }, [])
 
+  // Populate edit birth form when opening that subpage
+  useEffect(() => {
+    if (subPage === "edit-birth" && birthData) {
+      setEditBirthName(birthData.name || "")
+      setEditBirthDate(birthData.dateOfBirth || "")
+      setEditBirthTime(birthData.timeOfBirth || "")
+      setEditBirthTimeUnknown(birthData.timeOfBirth === "Unknown" || !birthData.timeOfBirth)
+      setEditBirthPlaceText(birthData.placeOfBirth || "")
+      if (birthData.placeOfBirth) {
+        setEditBirthCity({
+          name: birthData.placeOfBirth.split(",")[0],
+          country: "",
+          lat: birthData.latitude || 0,
+          lng: birthData.longitude || 0,
+          tz: birthData.timezone || "Asia/Kolkata",
+        })
+      }
+    }
+  }, [subPage, birthData])
+
   const handleSignOut = () => {
     localStorage.removeItem("grahai-onboarding-birthdata")
     localStorage.removeItem("grahai-cosmic-snapshot")
@@ -73,6 +106,36 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
     localStorage.removeItem("grahai-reports-left")
     localStorage.removeItem("grahai-subscription-tier")
     window.location.reload()
+  }
+
+  const handleSaveBirthDetails = async () => {
+    setIsSaving(true)
+    try {
+      const updatedBirthData: BirthData = {
+        name: editBirthName,
+        dateOfBirth: editBirthDate,
+        timeOfBirth: editBirthTimeUnknown ? "Unknown" : editBirthTime,
+        placeOfBirth: editBirthPlaceText || editBirthCity?.name || "",
+        latitude: editBirthCity?.lat || 0,
+        longitude: editBirthCity?.lng || 0,
+      }
+      localStorage.setItem("grahai-onboarding-birthdata", JSON.stringify(updatedBirthData))
+      setBirthData(updatedBirthData)
+      setName(updatedBirthData.name || "Guest")
+      const parts = (updatedBirthData.name || "G").split(" ")
+      setInitials(parts.length >= 2 ? `${parts[0][0]}${parts[1][0]}`.toUpperCase() : (updatedBirthData.name || "G").substring(0, 2).toUpperCase())
+      // Close the subpage after brief delay
+      setTimeout(() => setSubPage(null), 300)
+    } catch (err) {
+      console.error("Error saving birth details:", err)
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleChangeLanguage = (newLang: Language) => {
+    setLanguage(newLang)
+    setTimeout(() => setSubPage(null), 300)
   }
 
   const tierLabel = tier === "free" ? "Free" : tier === "plus" ? "Graha" : "Rishi"
@@ -90,33 +153,35 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
       ]
 
   const balanceCards = [
-    { icon: MessageCircle, label: "Questions", count: questionsLeft, cta: "Buy Questions", color: "text-[#D4A054]" },
-    { icon: FileText, label: "Reports", count: reportsLeft, cta: "Buy Reports", color: "text-[#D4A054]" },
-    { icon: Heart, label: "Compatibility", count: 0, cta: "Buy Compatibility", color: "text-[#D4A054]" },
+    { icon: MessageCircle, label: t.profile.questions, count: questionsLeft, cta: t.profile.buyQuestions, color: "text-[#D4A054]" },
+    { icon: FileText, label: t.profile.reportsLabel, count: reportsLeft, cta: t.profile.buyReports, color: "text-[#D4A054]" },
+    { icon: Heart, label: t.profile.compatibility, count: 0, cta: t.profile.buyCompatibility, color: "text-[#D4A054]" },
   ]
 
   const activityItems: { icon: typeof Share2; label: string; action: () => void }[] = [
-    { icon: Share2, label: "Refer & Earn", action: onReferralClick },
-    { icon: History, label: "Questions History", action: () => setSubPage("questions-history") },
-    { icon: FileText, label: "Reports History", action: () => setSubPage("reports-history") },
-    { icon: Heart, label: "Compatibility History", action: () => setSubPage("compatibility-history") },
-    { icon: Users, label: "Family Members", action: () => setSubPage("family") },
+    { icon: Share2, label: t.profile.referEarn, action: onReferralClick },
+    { icon: History, label: t.profile.questionsHistory, action: () => setSubPage("questions-history") },
+    { icon: FileText, label: t.profile.reportsHistory, action: () => setSubPage("reports-history") },
+    { icon: Heart, label: t.profile.compatHistory, action: () => setSubPage("compatibility-history") },
+    { icon: Users, label: t.profile.familyMembers, action: () => setSubPage("family") },
   ]
 
   // Sub-page content renderer
   const subPageContent: Record<Exclude<SubPage, null>, { title: string; emptyMsg: string; emptyAction?: string }> = {
-    "questions-history": { title: "Questions History", emptyMsg: "Your past questions and answers will appear here.", emptyAction: "Ask your first question" },
-    "reports-history": { title: "Reports History", emptyMsg: "Reports you generate or purchase will appear here." },
-    "compatibility-history": { title: "Compatibility History", emptyMsg: "Your compatibility checks will appear here." },
-    "family": { title: "Family Members", emptyMsg: "Add family members to view their charts and get guidance for them." },
-    "help": { title: "Help & Support", emptyMsg: "" },
+    "questions-history": { title: t.profile.questionsHistory, emptyMsg: "Your past questions and answers will appear here.", emptyAction: "Ask your first question" },
+    "reports-history": { title: t.profile.reportsHistory, emptyMsg: "Reports you generate or purchase will appear here." },
+    "compatibility-history": { title: t.profile.compatHistory, emptyMsg: "Your compatibility checks will appear here." },
+    "family": { title: t.profile.familyMembers, emptyMsg: "Add family members to view their charts and get guidance for them." },
+    "help": { title: t.profile.helpSupport, emptyMsg: "" },
+    "edit-birth": { title: t.profile.editBirthTitle, emptyMsg: "" },
+    "change-language": { title: t.profile.changeLanguage, emptyMsg: "" },
   }
 
   return (
     <div className="min-h-full pb-24">
       {/* Header */}
       <div className="flex items-center justify-between px-5 pt-4 pb-2">
-        <h1 className="text-base font-semibold text-[#F1F0F5] text-3d">Profile</h1>
+        <h1 className="text-base font-semibold text-[#F1F0F5] text-3d">{t.profile.title}</h1>
         <div className="flex items-center gap-2">
           <span className="text-[10px] text-[#5A6478] bg-[#111827] border border-[#1E293B] rounded-full px-2.5 py-1">
             {tierLabel}
@@ -144,16 +209,34 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
           </div>
         </div>
 
+        {/* Edit Birth Details and Change Language buttons */}
+        <div className="px-0 space-y-2 mb-4">
+          <button onClick={() => setSubPage("edit-birth")}
+            className="w-full flex items-center gap-3 glass-card px-4 py-3">
+            <Edit3 className="w-4 h-4 text-[#D4A054]" />
+            <span className="text-sm text-[#F1F0F5] flex-1">{t.profile.editBirthDetails}</span>
+            <ChevronRight className="w-4 h-4 text-[#5A6478]" />
+          </button>
+          <button onClick={() => setSubPage("change-language")}
+            className="w-full flex items-center gap-3 glass-card px-4 py-3">
+            <Globe className="w-4 h-4 text-[#D4A054]" />
+            <div className="flex-1 text-left">
+              <span className="text-sm text-[#F1F0F5]">{t.profile.changeLanguage}</span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-[#5A6478]" />
+          </button>
+        </div>
+
         {/* Vedic / Western toggle */}
         <div className="flex gap-2 mb-3 glass-inner rounded-2xl p-1">
           <button onClick={() => setAstroMode("vedic")}
             className={`flex-1 py-2 text-xs font-medium tab-pill ${
               astroMode === "vedic" ? "tab-pill-active" : "text-[#5A6478]"
-            }`}>Vedic</button>
+            }`}>{t.profile.vedic}</button>
           <button onClick={() => setAstroMode("western")}
             className={`flex-1 py-2 text-xs font-medium tab-pill ${
               astroMode === "western" ? "tab-pill-active" : "text-[#5A6478]"
-            }`}>Western</button>
+            }`}>{t.profile.western}</button>
         </div>
 
         {/* Sign chips */}
@@ -177,7 +260,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
               <card.icon className="w-4 h-4 text-[#5A6478]" />
               <div>
                 <p className="text-sm font-semibold text-[#F1F0F5]">{card.count} {card.label}</p>
-                <p className="text-[10px] text-[#5A6478]">available</p>
+                <p className="text-[10px] text-[#5A6478]">{t.profile.available}</p>
               </div>
             </div>
             <button onClick={onPricingClick}
@@ -194,7 +277,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
           className="w-full glass-card p-4 flex items-center justify-between">
           <div className="flex items-center gap-3 relative z-10">
             <HelpCircle className="w-4 h-4 text-[#5A6478]" />
-            <p className="text-sm font-semibold text-[#F1F0F5] text-visible">Help & Support</p>
+            <p className="text-sm font-semibold text-[#F1F0F5] text-visible">{t.profile.helpSupport}</p>
           </div>
           <ChevronRight className="w-4 h-4 text-[#5A6478]" />
         </button>
@@ -202,7 +285,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
 
       {/* Activity section */}
       <div className="mx-5 mb-5">
-        <p className="text-xs font-semibold text-[#5A6478] mb-2 uppercase tracking-wide px-1">Activity</p>
+        <p className="text-xs font-semibold text-[#5A6478] mb-2 uppercase tracking-wide px-1">{t.profile.activity}</p>
         <div className="glass-card overflow-hidden">
           {activityItems.map((item, i) => (
             <button key={item.label} onClick={item.action}
@@ -224,8 +307,8 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
             className="w-full flex items-center gap-3 glass-card-hero gold-shimmer p-4">
             <Crown className="w-5 h-5 text-[#D4A054]" />
             <div className="text-left flex-1">
-              <p className="text-sm font-semibold text-[#D4A054]">Upgrade to Premium</p>
-              <p className="text-xs text-[#5A6478]">Unlimited questions, deeper insights, full reports</p>
+              <p className="text-sm font-semibold text-[#D4A054]">{t.profile.upgradePremium}</p>
+              <p className="text-xs text-[#5A6478]">{t.profile.upgradeDesc}</p>
             </div>
             <ArrowRight className="w-4 h-4 text-[#D4A054]" />
           </button>
@@ -236,11 +319,11 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
       <div className="mx-5 mb-4">
         <button onClick={() => setShowSignOut(true)}
           className="w-full flex items-center justify-center gap-2 py-3 text-sm text-rose-400/70 hover:text-rose-400 transition-colors">
-          <LogOut className="w-4 h-4" />Sign out
+          <LogOut className="w-4 h-4" />{t.profile.signOut}
         </button>
       </div>
       <div className="text-center pb-8">
-        <p className="text-[10px] text-[#5A6478]/40">GrahAI v3.0 &middot; Made with care in India</p>
+        <p className="text-[10px] text-[#5A6478]/40">{t.profile.version}</p>
       </div>
 
       {/* ═══ Sign Out Confirmation ═══ */}
@@ -260,18 +343,18 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
               onClick={(e) => e.stopPropagation()}
               className="bg-[#111827] border border-[#1E293B] rounded-2xl p-6 w-full max-w-sm"
             >
-              <h3 className="text-base font-semibold text-[#F1F0F5] text-center mb-2">Sign out?</h3>
+              <h3 className="text-base font-semibold text-[#F1F0F5] text-center mb-2">{t.profile.signOut}?</h3>
               <p className="text-sm text-[#5A6478] text-center mb-5">
-                This will clear your birth data and chart from this device. You can always re-enter it later.
+                {t.profile.signOutDesc}
               </p>
               <div className="flex gap-3">
                 <button onClick={() => setShowSignOut(false)}
                   className="flex-1 py-3 rounded-xl text-sm font-medium text-[#94A3B8] bg-[#1E2638] border border-[#1E293B]">
-                  Cancel
+                  {t.profile.cancel}
                 </button>
                 <button onClick={handleSignOut}
                   className="flex-1 py-3 rounded-xl text-sm font-medium text-white bg-rose-500/80">
-                  Sign out
+                  {t.profile.signOut}
                 </button>
               </div>
             </motion.div>
@@ -298,14 +381,102 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
             </div>
 
             <div className="px-5 pt-8">
-              {subPage === "help" ? (
+              {subPage === "edit-birth" ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-[#F1F0F5] mb-2">
+                      {t.onboarding.fullName}
+                    </label>
+                    <input
+                      type="text"
+                      value={editBirthName}
+                      onChange={(e) => setEditBirthName(e.target.value)}
+                      placeholder={t.onboarding.fullNamePlaceholder}
+                      className="w-full bg-[#111827] border border-[#1E293B] rounded-xl px-4 py-3 text-[#F1F0F5] placeholder-[#5A6478] focus:outline-none focus:border-[#D4A054]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-[#F1F0F5] mb-2">
+                      {t.onboarding.dateOfBirth}
+                    </label>
+                    <input
+                      type="date"
+                      value={editBirthDate}
+                      onChange={(e) => setEditBirthDate(e.target.value)}
+                      className="w-full bg-[#111827] border border-[#1E293B] rounded-xl px-4 py-3 text-[#F1F0F5] focus:outline-none focus:border-[#D4A054]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-[#F1F0F5] mb-2">
+                      {t.onboarding.timeOfBirth}
+                    </label>
+                    <input
+                      type="time"
+                      value={editBirthTime}
+                      onChange={(e) => setEditBirthTime(e.target.value)}
+                      disabled={editBirthTimeUnknown}
+                      className="w-full bg-[#111827] border border-[#1E293B] rounded-xl px-4 py-3 text-[#F1F0F5] focus:outline-none focus:border-[#D4A054] disabled:opacity-50"
+                    />
+                    <label className="flex items-center gap-2 mt-2 text-sm text-[#5A6478] cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={editBirthTimeUnknown}
+                        onChange={(e) => setEditBirthTimeUnknown(e.target.checked)}
+                        className="rounded"
+                      />
+                      {t.onboarding.dontKnowTime}
+                    </label>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-[#F1F0F5] mb-2">
+                      {t.onboarding.placeOfBirth}
+                    </label>
+                    <LocationSearch
+                      value={editBirthPlaceText}
+                      onChange={(value, city) => {
+                        setEditBirthPlaceText(value)
+                        if (city) setEditBirthCity(city)
+                      }}
+                      placeholder={t.onboarding.placePlaceholder}
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleSaveBirthDetails}
+                    disabled={isSaving}
+                    className="w-full mt-6 py-3 rounded-xl text-sm font-medium text-[#0A0E1A] bg-[#D4A054] hover:bg-[#C99240] disabled:opacity-50 transition-colors"
+                  >
+                    {isSaving ? t.profile.saving : t.profile.saveChanges}
+                  </button>
+                </div>
+              ) : subPage === "change-language" ? (
+                <div className="grid grid-cols-3 gap-3 pb-8">
+                  {LANGUAGES.map((language) => (
+                    <button
+                      key={language.code}
+                      onClick={() => handleChangeLanguage(language.code)}
+                      className={`p-4 rounded-xl border-2 transition-all ${
+                        lang === language.code
+                          ? "border-[#D4A054] bg-[#D4A054]/10"
+                          : "border-[#1E293B] bg-[#111827] hover:border-[#D4A054]/50"
+                      }`}
+                    >
+                      <p className="text-sm font-semibold text-[#F1F0F5]">{language.label}</p>
+                      <p className="text-xs text-[#5A6478] mt-1">{language.labelEn}</p>
+                    </button>
+                  ))}
+                </div>
+              ) : subPage === "help" ? (
                 <div className="space-y-3">
                   {[
-                    { label: "How does GrahAI work?", answer: "GrahAI uses your birth date, time, and place to compute your Vedic chart. Our AI then interprets classical Jyotish principles (from texts like BPHS) to provide personalized guidance." },
-                    { label: "How accurate is it?", answer: "Accuracy depends on birth time precision. GrahAI uses the same sidereal calculations as traditional astrologers, enhanced by AI for more nuanced interpretation." },
-                    { label: "Is my data safe?", answer: "Your birth data is stored locally on your device. We don't share your personal information with third parties." },
-                    { label: "How do I get more questions?", answer: "You can upgrade to a Graha or Rishi plan for more daily questions, or buy question packs from the pricing page." },
-                    { label: "Can I get a refund?", answer: "Yes, we offer a 7-day refund policy on all purchases. Contact support for assistance." },
+                    { label: t.profile.faq1Q, answer: t.profile.faq1A },
+                    { label: t.profile.faq2Q, answer: t.profile.faq2A },
+                    { label: t.profile.faq3Q, answer: t.profile.faq3A },
+                    { label: t.profile.faq4Q, answer: t.profile.faq4A },
+                    { label: t.profile.faq5Q, answer: t.profile.faq5A },
                   ].map((faq, i) => (
                     <div key={i} className="bg-[#111827] border border-[#1E293B] rounded-xl p-4">
                       <p className="text-sm font-medium text-[#F1F0F5] mb-2">{faq.label}</p>
@@ -317,7 +488,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
                     className="w-full flex items-center gap-3 bg-[#111827] border border-[#D4A054]/15
                       rounded-xl px-4 py-3.5 mt-4">
                     <MessageCircle className="w-4 h-4 text-[#D4A054]" />
-                    <span className="text-sm text-[#94A3B8] flex-1">Ask GrahAI for help</span>
+                    <span className="text-sm text-[#94A3B8] flex-1">{t.profile.askForHelp}</span>
                     <ArrowRight className="w-4 h-4 text-[#5A6478]" />
                   </button>
                 </div>

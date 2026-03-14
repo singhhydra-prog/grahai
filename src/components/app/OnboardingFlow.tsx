@@ -6,8 +6,10 @@ import dynamic from "next/dynamic"
 import {
   ArrowRight, ArrowLeft, Sparkles, MapPin, Clock, Calendar,
   Briefcase, Heart, Gem, TrendingUp, Moon, Compass, Eye,
-  BookOpen, Shield, Target, Send, Bookmark, ChevronRight,
+  BookOpen, Shield, Target, Send, Bookmark, ChevronRight, Globe,
 } from "lucide-react"
+import { useLanguage } from "@/lib/LanguageContext"
+import { LANGUAGES, type Language } from "@/lib/i18n"
 import type { BirthData, IntentCategory, CosmicSnapshot } from "@/types/app"
 import LocationSearch, { type CityData } from "@/components/ui/LocationSearch"
 
@@ -18,6 +20,7 @@ interface OnboardingFlowProps {
 }
 
 const STEPS = [
+  { id: "language" },
   { id: "welcome" },
   { id: "intent" },
   { id: "trust" },
@@ -25,22 +28,6 @@ const STEPS = [
   { id: "reveal" },
   { id: "first-question" },
   { id: "save-chart" },
-]
-
-const INTENTS: { id: IntentCategory; label: string; Icon: typeof Briefcase; color: string }[] = [
-  { id: "career", label: "Career & Work", Icon: Briefcase, color: "from-amber-500/20 to-amber-600/10" },
-  { id: "love", label: "Love & Relationship", Icon: Heart, color: "from-rose-500/20 to-rose-600/10" },
-  { id: "marriage", label: "Marriage & Timing", Icon: Gem, color: "from-purple-500/20 to-purple-600/10" },
-  { id: "money", label: "Money & Growth", Icon: TrendingUp, color: "from-emerald-500/20 to-emerald-600/10" },
-  { id: "emotional", label: "Emotional Energy", Icon: Moon, color: "from-blue-500/20 to-blue-600/10" },
-  { id: "daily", label: "Daily Guidance", Icon: Compass, color: "from-teal-500/20 to-teal-600/10" },
-  { id: "exploring", label: "Just Exploring", Icon: Eye, color: "from-gray-500/20 to-gray-600/10" },
-]
-
-const TRUST_CARDS = [
-  { Icon: Target, title: "Personalized from your birth details", desc: "Every insight is rooted in your unique chart — not generic sun-sign content." },
-  { Icon: BookOpen, title: "Source-backed where relevant", desc: "Classical Jyotish references ground the guidance in real tradition." },
-  { Icon: Shield, title: "Useful for real-life decisions", desc: "Career, love, timing, money — guidance you can actually act on." },
 ]
 
 // Intent-based suggested questions for the first-question step
@@ -135,6 +122,7 @@ function makeFallbackSnapshot(): CosmicSnapshot {
 }
 
 export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
+  const { t, lang, setLanguage } = useLanguage()
   const [step, setStep] = useState(0)
   const [intent, setIntent] = useState<IntentCategory | null>(null)
   const [form, setForm] = useState<BirthData>({
@@ -151,29 +139,59 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [email, setEmail] = useState("")
   const questionInputRef = useRef<HTMLInputElement>(null)
 
-  // Auto-focus question input when reaching step 5
+  // Auto-focus question input when reaching step 6
   useEffect(() => {
-    if (step === 5 && questionInputRef.current) {
+    if (step === 6 && questionInputRef.current) {
       setTimeout(() => questionInputRef.current?.focus(), 600)
     }
   }, [step])
 
+  // Auto-advance after language selection
+  useEffect(() => {
+    if (step === 0 && lang) {
+      setTimeout(() => setStep(1), 300)
+    }
+  }, [lang, step])
+
+  const INTENTS: { id: IntentCategory; label: string; Icon: typeof Briefcase; color: string }[] = [
+    { id: "career", label: t.onboarding.intentCareer, Icon: Briefcase, color: "from-amber-500/20 to-amber-600/10" },
+    { id: "love", label: t.onboarding.intentLove, Icon: Heart, color: "from-rose-500/20 to-rose-600/10" },
+    { id: "marriage", label: t.onboarding.intentMarriage, Icon: Gem, color: "from-purple-500/20 to-purple-600/10" },
+    { id: "money", label: t.onboarding.intentMoney, Icon: TrendingUp, color: "from-emerald-500/20 to-emerald-600/10" },
+    { id: "emotional", label: t.onboarding.intentEmotional, Icon: Moon, color: "from-blue-500/20 to-blue-600/10" },
+    { id: "daily", label: t.onboarding.intentDaily, Icon: Compass, color: "from-teal-500/20 to-teal-600/10" },
+    { id: "exploring", label: t.onboarding.intentExploring, Icon: Eye, color: "from-gray-500/20 to-gray-600/10" },
+  ]
+
+  const TRUST_CARDS = [
+    { Icon: Target, title: t.onboarding.trustCard1Title, desc: t.onboarding.trustCard1Desc },
+    { Icon: BookOpen, title: t.onboarding.trustCard2Title, desc: t.onboarding.trustCard2Desc },
+    { Icon: Shield, title: t.onboarding.trustCard3Title, desc: t.onboarding.trustCard3Desc },
+  ]
+
   const canProceed = useCallback(() => {
-    if (step === 0) return true
-    if (step === 1) return intent !== null
-    if (step === 2) return true
-    if (step === 3) {
+    if (step === 0) return true // language picker
+    if (step === 1) return true // welcome
+    if (step === 2) return intent !== null
+    if (step === 3) return true
+    if (step === 4) {
       return form.name.trim().length >= 2 && form.dateOfBirth && form.placeOfBirth.trim() && (timeUnknown || form.timeOfBirth)
     }
-    if (step === 4) return true // reveal
-    if (step === 5) return true // first question (optional)
-    if (step === 6) return true // save chart (optional)
+    if (step === 5) return true // reveal
+    if (step === 6) return true // first question (optional)
+    if (step === 7) return true // save chart (optional)
     return false
   }, [step, intent, form, timeUnknown])
 
   const handleNext = async () => {
-    // Step 3 → 4: Generate chart then move to reveal
-    if (step === 3) {
+    // Step 0: Language picker — auto-advances via useEffect
+    if (step === 0) {
+      setStep(1)
+      return
+    }
+
+    // Step 4 → 5: Generate chart then move to reveal
+    if (step === 4) {
       setIsSubmitting(true)
       try {
         const birthData = {
@@ -212,12 +230,12 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         setSnapshot(makeFallbackSnapshot())
       }
       setIsSubmitting(false)
-      setStep(4)
+      setStep(5)
       return
     }
 
-    // Step 5: First question — go to Ask tab with the question
-    if (step === 5) {
+    // Step 6: First question — go to Ask tab with the question
+    if (step === 6) {
       if (firstQuestion.trim()) {
         // User typed a question — enter app and go to Ask with this question
         localStorage.setItem("grahai-onboarding-complete", "true")
@@ -225,12 +243,12 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         return
       }
       // No question typed — move to save chart step
-      setStep(6)
+      setStep(7)
       return
     }
 
-    // Step 6: Save chart — enter the app
-    if (step === 6) {
+    // Step 7: Save chart — enter the app
+    if (step === 7) {
       if (email.trim()) {
         localStorage.setItem("grahai-user-email", email.trim())
       }
@@ -239,9 +257,9 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       return
     }
 
-    // Step 4: Reveal — move to first question
-    if (step === 4) {
-      setStep(5)
+    // Step 5: Reveal — move to first question
+    if (step === 5) {
+      setStep(6)
       return
     }
 
@@ -249,7 +267,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   }
 
   const handleBack = () => {
-    if (step > 0 && step <= 3) setStep(step - 1)
+    if (step > 0 && step <= 4) setStep(step - 1)
   }
 
   const handleSelectSuggestion = (q: string) => {
@@ -282,15 +300,15 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex flex-col"
     >
-      {/* Progress dots — show for steps 0-3 */}
-      {step <= 3 && (
+      {/* Progress dots — show for steps 1-4 */}
+      {step >= 1 && step <= 4 && (
         <div className="px-6 pt-4 pb-2">
           <div className="flex gap-2">
-            {STEPS.slice(0, 4).map((s, i) => (
+            {STEPS.slice(1, 5).map((s, i) => (
               <div
                 key={s.id}
                 className={`h-1 flex-1 rounded-full transition-all duration-500 ${
-                  i <= step ? "bg-gradient-to-r from-[#D4A054] to-[#A16E2A]" : "bg-[#1E293B]"
+                  i <= (step - 1) ? "bg-gradient-to-r from-[#D4A054] to-[#A16E2A]" : "bg-[#1E293B]"
                 }`}
               />
             ))}
@@ -299,7 +317,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       )}
 
       {/* Back button */}
-      {step > 0 && step <= 3 && (
+      {step > 0 && step <= 4 && (
         <button
           onClick={handleBack}
           className="absolute top-12 left-4 z-10 w-10 h-10 rounded-full bg-[#1E2638]
@@ -313,8 +331,63 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       <div className="flex-1 flex flex-col items-center justify-center px-6 overflow-y-auto">
         <AnimatePresence mode="wait">
 
-          {/* ═══ Step 0: Welcome ═══ */}
+          {/* ═══ Step 0: Language Picker ═══ */}
           {step === 0 && (
+            <motion.div
+              key="language"
+              variants={slideVariants} initial="enter" animate="center" exit="exit"
+              className="w-full max-w-sm"
+            >
+              <div className="text-center mb-8">
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.2, type: "spring" }}
+                  className="w-14 h-14 rounded-full bg-[#D4A054]/10 flex items-center justify-center mx-auto mb-4"
+                >
+                  <Globe className="w-7 h-7 text-[#D4A054]" />
+                </motion.div>
+                <h2 className="text-2xl font-bold text-[#F1F0F5] mb-2">
+                  {t.langPicker.title}
+                </h2>
+                <p className="text-sm text-[#5A6478]">
+                  {t.langPicker.subtitle}
+                </p>
+              </div>
+
+              {/* 3-column grid of language cards */}
+              <div className="grid grid-cols-3 gap-3 mb-6">
+                {LANGUAGES.map((langMeta, i) => (
+                  <motion.button
+                    key={langMeta.code}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1 + i * 0.05 }}
+                    onClick={() => setLanguage(langMeta.code as Language)}
+                    className={`p-4 rounded-xl border-2 transition-all duration-200 text-center ${
+                      lang === langMeta.code
+                        ? "border-[#D4A054] bg-[#D4A054]/5"
+                        : "border-[#1E293B] bg-[#111827] hover:border-[#1E293B]/80"
+                    }`}
+                  >
+                    <p className={`text-sm font-semibold mb-1 ${
+                      lang === langMeta.code ? "text-[#D4A054]" : "text-[#F1F0F5]"
+                    }`}>
+                      {langMeta.label}
+                    </p>
+                    <p className={`text-xs ${
+                      lang === langMeta.code ? "text-[#D4A054]/80" : "text-[#5A6478]"
+                    }`}>
+                      {langMeta.labelEn}
+                    </p>
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* ═══ Step 1: Welcome ═══ */}
+          {step === 1 && (
             <motion.div
               key="welcome"
               variants={slideVariants} initial="enter" animate="center" exit="exit"
@@ -377,19 +450,16 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               </motion.div>
 
               <h1 className="text-3xl font-bold text-[#F1F0F5] mb-3 tracking-tight">
-                Clear answers for love,{" "}
-                <span className="gold-gradient-text">career, timing,</span>{" "}
-                and life.
+                {t.onboarding.welcomeSubtitle}
               </h1>
               <p className="text-sm text-[#94A3B8] leading-relaxed">
-                GrahAI reads your chart to give calm, practical guidance
-                for the decisions that matter.
+                {t.onboarding.welcomeDesc}
               </p>
             </motion.div>
           )}
 
-          {/* ═══ Step 1: Intent Selection ═══ */}
-          {step === 1 && (
+          {/* ═══ Step 2: Intent Selection ═══ */}
+          {step === 2 && (
             <motion.div
               key="intent"
               variants={slideVariants} initial="enter" animate="center" exit="exit"
@@ -397,10 +467,10 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             >
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-[#F1F0F5] mb-2">
-                  What do you need clarity on?
+                  {t.onboarding.intentTitle}
                 </h2>
                 <p className="text-sm text-[#5A6478]">
-                  This helps us personalize your first experience
+                  {t.onboarding.intentSubtitle}
                 </p>
               </div>
 
@@ -434,8 +504,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             </motion.div>
           )}
 
-          {/* ═══ Step 2: Trust ═══ */}
-          {step === 2 && (
+          {/* ═══ Step 3: Trust ═══ */}
+          {step === 3 && (
             <motion.div
               key="trust"
               variants={slideVariants} initial="enter" animate="center" exit="exit"
@@ -443,9 +513,9 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             >
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-[#F1F0F5] mb-2">
-                  Not generic. Not random.
+                  {t.onboarding.trustTitle}
                 </h2>
-                <p className="text-sm text-[#5A6478]">Built around your chart.</p>
+                <p className="text-sm text-[#5A6478]">{t.onboarding.trustSubtitle}</p>
               </div>
               <div className="space-y-4">
                 {TRUST_CARDS.map(({ Icon, title, desc }, i) => (
@@ -469,30 +539,30 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             </motion.div>
           )}
 
-          {/* ═══ Step 3: Birth Details ═══ */}
-          {step === 3 && (
+          {/* ═══ Step 4: Birth Details ═══ */}
+          {step === 4 && (
             <motion.div
               key="birth"
               variants={slideVariants} initial="enter" animate="center" exit="exit"
               className="w-full max-w-sm"
             >
               <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-[#F1F0F5] mb-2">Your birth details</h2>
-                <p className="text-sm text-[#5A6478]">Accurate details lead to precise guidance</p>
+                <h2 className="text-2xl font-bold text-[#F1F0F5] mb-2">{t.onboarding.birthTitle}</h2>
+                <p className="text-sm text-[#5A6478]">{t.onboarding.birthSubtitle}</p>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-xs font-medium text-[#94A3B8] mb-1.5 block">Full Name</label>
+                  <label className="text-xs font-medium text-[#94A3B8] mb-1.5 block">{t.onboarding.fullName}</label>
                   <input type="text" value={form.name} onChange={(e) => updateField("name", e.target.value)}
-                    placeholder="Enter your full name" autoFocus
+                    placeholder={t.onboarding.fullNamePlaceholder} autoFocus
                     className="w-full bg-[#0D1220] border border-[#1E293B] rounded-xl px-4 py-3.5
                       text-[#F1F0F5] text-sm placeholder:text-[#5A6478]/50
                       focus:border-[#D4A054]/40 focus:outline-none transition-colors" />
                 </div>
                 <div>
                   <label className="flex items-center gap-2 text-xs font-medium text-[#94A3B8] mb-1.5">
-                    <Calendar className="w-3.5 h-3.5" />Date of Birth
+                    <Calendar className="w-3.5 h-3.5" />{t.onboarding.dateOfBirth}
                   </label>
                   <input type="date" value={form.dateOfBirth} onChange={(e) => updateField("dateOfBirth", e.target.value)}
                     className="w-full bg-[#0D1220] border border-[#1E293B] rounded-xl px-4 py-3
@@ -500,7 +570,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 </div>
                 <div>
                   <label className="flex items-center gap-2 text-xs font-medium text-[#94A3B8] mb-1.5">
-                    <Clock className="w-3.5 h-3.5" />Time of Birth
+                    <Clock className="w-3.5 h-3.5" />{t.onboarding.timeOfBirth}
                   </label>
                   <input type="time" value={form.timeOfBirth} onChange={(e) => updateField("timeOfBirth", e.target.value)}
                     disabled={timeUnknown}
@@ -510,12 +580,12 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   <label className="flex items-center gap-2 mt-2 cursor-pointer">
                     <input type="checkbox" checked={timeUnknown} onChange={(e) => setTimeUnknown(e.target.checked)}
                       className="w-4 h-4 rounded border-[#1E293B] bg-[#0D1220] accent-[#D4A054]" />
-                    <span className="text-xs text-[#5A6478]">I don&apos;t know my birth time</span>
+                    <span className="text-xs text-[#5A6478]">{t.onboarding.dontKnowTime}</span>
                   </label>
                 </div>
                 <div>
                   <label className="flex items-center gap-2 text-xs font-medium text-[#94A3B8] mb-1.5">
-                    <MapPin className="w-3.5 h-3.5" />Place of Birth
+                    <MapPin className="w-3.5 h-3.5" />{t.onboarding.placeOfBirth}
                   </label>
                   <LocationSearch
                     value={form.placeOfBirth}
@@ -523,15 +593,15 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                       updateField("placeOfBirth", value)
                       if (city) setSelectedCity(city)
                     }}
-                    placeholder="Search city — e.g. Mumbai, Delhi, London..."
+                    placeholder={t.onboarding.placePlaceholder}
                   />
                 </div>
               </div>
             </motion.div>
           )}
 
-          {/* ═══ Step 4: Instant Reveal ═══ */}
-          {step === 4 && snapshot && (
+          {/* ═══ Step 5: Instant Reveal ═══ */}
+          {step === 5 && snapshot && (
             <motion.div
               key="reveal"
               variants={slideVariants} initial="enter" animate="center" exit="exit"
@@ -547,16 +617,16 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 >
                   <Sparkles className="w-7 h-7 text-[#D4A054]" />
                 </motion.div>
-                <h2 className="text-2xl font-bold text-[#F1F0F5] mb-1">Your chart, at first glance</h2>
-                <p className="text-xs text-[#5A6478]">{form.name.split(" ")[0]}&apos;s cosmic blueprint</p>
+                <h2 className="text-2xl font-bold text-[#F1F0F5] mb-1">{t.onboarding.revealTitle}</h2>
+                <p className="text-xs text-[#5A6478]">{form.name.split(" ")[0]}&apos;s {t.onboarding.revealSubtitle}</p>
               </div>
 
               {/* Key triad: Moon Sign, Nakshatra, Rising Sign */}
               <div className="grid grid-cols-3 gap-2 mb-5">
                 {[
-                  { label: "Moon Sign", value: snapshot.profile.moonSign },
-                  { label: "Nakshatra", value: snapshot.profile.nakshatra },
-                  { label: "Rising Sign", value: snapshot.profile.risingSign || "N/A" },
+                  { label: t.onboarding.moonSign, value: snapshot.profile.moonSign },
+                  { label: t.onboarding.nakshatra, value: snapshot.profile.nakshatra },
+                  { label: t.onboarding.risingSign, value: snapshot.profile.risingSign || "N/A" },
                 ].map((item, i) => (
                   <motion.div key={item.label}
                     initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
@@ -571,27 +641,27 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               {/* Dominant life theme */}
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
                 className="bg-[#111827] border border-[#D4A054]/15 rounded-xl p-4 mb-4">
-                <p className="text-xs text-[#D4A054] font-medium mb-2">{snapshot.profile.dominantTheme || "Active Theme"}</p>
+                <p className="text-xs text-[#D4A054] font-medium mb-2">{snapshot.profile.dominantTheme || t.common.today}</p>
                 <p className="text-sm text-[#94A3B8] leading-relaxed">{snapshot.dominantLifeTheme}</p>
               </motion.div>
 
               {/* Today insight */}
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}
                 className="bg-[#0D1220] border border-[#1E293B] rounded-xl p-4 mb-4">
-                <p className="text-xs text-[#5A6478] font-medium mb-2">Today</p>
+                <p className="text-xs text-[#5A6478] font-medium mb-2">{t.onboarding.todayLabel}</p>
                 <p className="text-sm text-[#94A3B8] leading-relaxed">{snapshot.todayInsight}</p>
               </motion.div>
 
               {/* Teaser for next step */}
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
                 className="text-center">
-                <p className="text-[10px] text-[#5A6478]">Ready to ask your first question?</p>
+                <p className="text-[10px] text-[#5A6478]">{t.onboarding.readyToAsk}</p>
               </motion.div>
             </motion.div>
           )}
 
-          {/* ═══ Step 5: First Question — The Aha Moment ═══ */}
-          {step === 5 && (
+          {/* ═══ Step 6: First Question — The Aha Moment ═══ */}
+          {step === 6 && (
             <motion.div
               key="first-question"
               variants={slideVariants} initial="enter" animate="center" exit="exit"
@@ -599,10 +669,10 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             >
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-[#F1F0F5] mb-2">
-                  Ask your first question
+                  {t.onboarding.askFirstTitle}
                 </h2>
                 <p className="text-sm text-[#5A6478] leading-relaxed">
-                  Your chart is ready. Ask anything about love, career, timing, or life.
+                  {t.onboarding.askFirstSubtitle}
                 </p>
               </div>
 
@@ -614,7 +684,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   value={firstQuestion}
                   onChange={(e) => setFirstQuestion(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter" && firstQuestion.trim()) handleAskNow() }}
-                  placeholder="Type your question..."
+                  placeholder={t.onboarding.typePlaceholder}
                   className="w-full bg-[#0D1220] border border-[#1E293B] rounded-xl px-4 py-3.5 pr-12
                     text-[#F1F0F5] text-sm placeholder:text-[#5A6478]/50
                     focus:border-[#D4A054]/40 focus:outline-none transition-colors"
@@ -632,7 +702,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
               {/* Suggested questions based on intent */}
               <div className="space-y-2.5">
-                <p className="text-[10px] font-medium text-[#5A6478] uppercase tracking-wider">Suggestions for you</p>
+                <p className="text-[10px] font-medium text-[#5A6478] uppercase tracking-wider">{t.onboarding.suggestionsLabel}</p>
                 {suggestedQuestions.map((q, i) => (
                   <motion.button
                     key={q}
@@ -662,8 +732,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             </motion.div>
           )}
 
-          {/* ═══ Step 6: Save Your Chart (Deferred Account) ═══ */}
-          {step === 6 && (
+          {/* ═══ Step 7: Save Your Chart (Deferred Account) ═══ */}
+          {step === 7 && (
             <motion.div
               key="save-chart"
               variants={slideVariants} initial="enter" animate="center" exit="exit"
@@ -680,10 +750,10 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   <Bookmark className="w-6 h-6 text-[#D4A054]" />
                 </motion.div>
                 <h2 className="text-2xl font-bold text-[#F1F0F5] mb-2">
-                  Save your chart
+                  {t.onboarding.saveChartTitle}
                 </h2>
                 <p className="text-sm text-[#5A6478] leading-relaxed">
-                  Enter your email to keep your birth chart, history, and daily guidance across devices.
+                  {t.onboarding.saveChartSubtitle}
                 </p>
               </div>
 
@@ -692,7 +762,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your@email.com"
+                  placeholder={t.onboarding.emailPlaceholder}
                   className="w-full bg-[#0D1220] border border-[#1E293B] rounded-xl px-4 py-3.5
                     text-[#F1F0F5] text-sm placeholder:text-[#5A6478]/50
                     focus:border-[#D4A054]/40 focus:outline-none transition-colors"
@@ -701,9 +771,9 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
               <div className="space-y-3 mb-6">
                 {[
-                  "Your birth chart saved securely",
-                  "Daily personalized guidance",
-                  "Question history across sessions",
+                  t.onboarding.saveBenefit1,
+                  t.onboarding.saveBenefit2,
+                  t.onboarding.saveBenefit3,
                 ].map((benefit, i) => (
                   <motion.div
                     key={benefit}
@@ -726,8 +796,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
       {/* Bottom CTA */}
       <div className="px-6 pb-8 pt-4">
-        {/* Step 6 has two buttons: Save + Skip */}
-        {step === 6 ? (
+        {/* Step 7 has two buttons: Save + Skip */}
+        {step === 7 ? (
           <div className="space-y-3">
             <motion.button
               whileTap={{ scale: 0.97 }}
@@ -740,7 +810,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   : "bg-[#1E2638] text-[#5A6478] cursor-not-allowed"
               }`}
             >
-              <Bookmark className="w-4 h-4" />Save and enter GrahAI
+              <Bookmark className="w-4 h-4" />{t.onboarding.saveAndEnter}
             </motion.button>
             <button
               onClick={() => {
@@ -749,7 +819,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               }}
               className="w-full py-3 text-sm text-[#5A6478] hover:text-[#94A3B8] transition-colors"
             >
-              Skip for now
+              {t.onboarding.skipForNow}
             </button>
           </div>
         ) : (
@@ -767,22 +837,22 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             {isSubmitting ? (
               <>
                 <div className="w-5 h-5 border-2 border-[#0A0E1A]/30 border-t-[#0A0E1A] rounded-full animate-spin" />
-                <span>Reading your chart...</span>
+                <span>{t.onboarding.readingChart}</span>
               </>
             ) : step === 0 ? (
-              <>Get my first insight<ArrowRight className="w-4 h-4" /></>
-            ) : step === 4 ? (
-              <>Ask your first question<ArrowRight className="w-4 h-4" /></>
+              <>{t.onboarding.getFirstInsight}<ArrowRight className="w-4 h-4" /></>
             ) : step === 5 ? (
+              <>{t.onboarding.askYourFirst}<ArrowRight className="w-4 h-4" /></>
+            ) : step === 6 ? (
               firstQuestion.trim() ? (
-                <><Send className="w-4 h-4" />Ask GrahAI</>
+                <><Send className="w-4 h-4" />{t.onboarding.askNow}</>
               ) : (
-                <>Skip and explore<ArrowRight className="w-4 h-4" /></>
+                <>{t.onboarding.skipExplore}<ArrowRight className="w-4 h-4" /></>
               )
-            ) : step === 3 ? (
-              <><Sparkles className="w-4 h-4" />Generate my chart</>
+            ) : step === 4 ? (
+              <><Sparkles className="w-4 h-4" />{t.onboarding.generateChart}</>
             ) : (
-              <>Continue<ArrowRight className="w-4 h-4" /></>
+              <>{t.onboarding.continueBtn}<ArrowRight className="w-4 h-4" /></>
             )}
           </motion.button>
         )}

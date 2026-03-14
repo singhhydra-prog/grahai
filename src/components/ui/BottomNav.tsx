@@ -2,14 +2,7 @@
 
 import { Home, MessageCircle, Compass, FileText, User } from "lucide-react"
 import type { TabType } from "@/types/app"
-
-const TABS: { id: TabType; label: string; Icon: typeof Home }[] = [
-  { id: "home", label: "Home", Icon: Home },
-  { id: "ask", label: "Ask", Icon: MessageCircle },
-  { id: "chart", label: "My Chart", Icon: Compass },
-  { id: "reports", label: "Reports", Icon: FileText },
-  { id: "profile", label: "Profile", Icon: User },
-]
+import { useLanguage } from "@/lib/LanguageContext"
 
 interface BottomNavProps {
   activeTab: TabType
@@ -17,6 +10,16 @@ interface BottomNavProps {
 }
 
 export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
+  const { t } = useLanguage()
+
+  const TABS: { id: TabType; label: string; Icon: typeof Home }[] = [
+    { id: "home", label: t.nav.home, Icon: Home },
+    { id: "ask", label: t.nav.ask, Icon: MessageCircle },
+    { id: "chart", label: t.nav.chart, Icon: Compass },
+    { id: "reports", label: t.nav.reports, Icon: FileText },
+    { id: "profile", label: t.nav.profile, Icon: User },
+  ]
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bottom-nav-glass pb-safe">
       <div className="flex items-center justify-around max-w-lg mx-auto h-16">

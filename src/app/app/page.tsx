@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { AnimatePresence } from "framer-motion"
 import dynamic from "next/dynamic"
 import BottomNav from "@/components/ui/BottomNav"
+import { LanguageProvider } from "@/lib/LanguageContext"
 import type { TabType } from "@/types/app"
 
 /* Lazy-load all tab components */
@@ -63,85 +64,87 @@ export default function AppPage() {
   }
 
   return (
-    <div className="min-h-dvh relative">
+    <LanguageProvider>
+      <div className="min-h-dvh relative">
 
-      {/* Onboarding */}
-      <AnimatePresence>
-        {showOnboarding && (
-          <OnboardingFlow onComplete={(goToAsk, firstQuestion) => {
-            setShowOnboarding(false)
-            if (goToAsk && firstQuestion) {
-              setAskQuestion(firstQuestion)
-              setActiveTab("ask")
-            }
-          }} />
+        {/* Onboarding */}
+        <AnimatePresence>
+          {showOnboarding && (
+            <OnboardingFlow onComplete={(goToAsk, firstQuestion) => {
+              setShowOnboarding(false)
+              if (goToAsk && firstQuestion) {
+                setAskQuestion(firstQuestion)
+                setActiveTab("ask")
+              }
+            }} />
+          )}
+        </AnimatePresence>
+
+        {/* Main app */}
+        {!showOnboarding && (
+          <>
+            {/* Tab content — relative z-index above starfield */}
+            <div className="relative z-10 min-h-dvh">
+              {activeTab === "home" && (
+                <HomeTab
+                  onAskQuestion={goToAsk}
+                  onProfileClick={goToProfile}
+                  onViewReports={goToReports}
+                />
+              )}
+
+              {activeTab === "ask" && (
+                <AskTab initialQuestion={askQuestion} />
+              )}
+
+              {activeTab === "chart" && (
+                <MyChartTab
+                  onProfileClick={goToProfile}
+                  onAskQuestion={(q) => goToAsk(q)}
+                />
+              )}
+
+              {activeTab === "reports" && (
+                <ReportsTab
+                  onProfileClick={goToProfile}
+                  onPricingClick={() => setShowPricing(true)}
+                  onAskQuestion={(q) => goToAsk(q)}
+                />
+              )}
+
+              {activeTab === "profile" && (
+                <ProfileTab
+                  onPricingClick={() => setShowPricing(true)}
+                  onReferralClick={() => setShowReferral(true)}
+                  onAskQuestion={(q) => goToAsk(q)}
+                />
+              )}
+            </div>
+
+            {/* Bottom Nav */}
+            <BottomNav activeTab={activeTab} onTabChange={(tab) => {
+              if (tab === "ask") {
+                setAskQuestion(undefined) // reset when tapping ask tab directly
+              }
+              setActiveTab(tab)
+            }} />
+
+            {/* Overlays */}
+            <PricingOverlay
+              isOpen={showPricing}
+              onClose={() => setShowPricing(false)}
+            />
+            <AnimatePresence>
+              {showReferral && (
+                <ReferralPage
+                  isOpen={showReferral}
+                  onClose={() => setShowReferral(false)}
+                />
+              )}
+            </AnimatePresence>
+          </>
         )}
-      </AnimatePresence>
-
-      {/* Main app */}
-      {!showOnboarding && (
-        <>
-          {/* Tab content — relative z-index above starfield */}
-          <div className="relative z-10 min-h-dvh">
-            {activeTab === "home" && (
-              <HomeTab
-                onAskQuestion={goToAsk}
-                onProfileClick={goToProfile}
-                onViewReports={goToReports}
-              />
-            )}
-
-            {activeTab === "ask" && (
-              <AskTab initialQuestion={askQuestion} />
-            )}
-
-            {activeTab === "chart" && (
-              <MyChartTab
-                onProfileClick={goToProfile}
-                onAskQuestion={(q) => goToAsk(q)}
-              />
-            )}
-
-            {activeTab === "reports" && (
-              <ReportsTab
-                onProfileClick={goToProfile}
-                onPricingClick={() => setShowPricing(true)}
-                onAskQuestion={(q) => goToAsk(q)}
-              />
-            )}
-
-            {activeTab === "profile" && (
-              <ProfileTab
-                onPricingClick={() => setShowPricing(true)}
-                onReferralClick={() => setShowReferral(true)}
-                onAskQuestion={(q) => goToAsk(q)}
-              />
-            )}
-          </div>
-
-          {/* Bottom Nav */}
-          <BottomNav activeTab={activeTab} onTabChange={(tab) => {
-            if (tab === "ask") {
-              setAskQuestion(undefined) // reset when tapping ask tab directly
-            }
-            setActiveTab(tab)
-          }} />
-
-          {/* Overlays */}
-          <PricingOverlay
-            isOpen={showPricing}
-            onClose={() => setShowPricing(false)}
-          />
-          <AnimatePresence>
-            {showReferral && (
-              <ReferralPage
-                isOpen={showReferral}
-                onClose={() => setShowReferral(false)}
-              />
-            )}
-          </AnimatePresence>
-        </>
-      )}
-    </div>
+      </div>
+    </LanguageProvider>
   )
 }
