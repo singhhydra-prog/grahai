@@ -5,22 +5,25 @@ import { useEffect, useRef, useState } from "react"
 /**
  * CosmicBackground — Layered full-screen space background.
  *
- * Layer 1: Looping space video (beyond_horizons_remix)
+ * Layer 1: Looping space video
  * Layer 2: Canvas overlay with:
  *   - Soft glow blobs (warm orange-red, cool blue)
  *   - "Grah AI" text with orange triangle behind "AI"
- *   - Slow, natural shooting stars
- *   - Bright glowing star particles with subtle constellations
+ *   - Hundreds of tiny soft floating particles (Spline space-dust style)
+ *   - Slow natural shooting stars
  */
 
 const BG = "#0A0E1A"
-const STAR_COUNT = 120
+const PARTICLE_COUNT = 250
 
 // ─── Types ───
-interface Star {
-  x: number; y: number; vx: number; vy: number
-  size: number; alpha: number; phase: number; speed: number
-  glowRadius: number
+interface Particle {
+  x: number; y: number
+  vx: number; vy: number
+  size: number
+  baseAlpha: number
+  phase: number
+  phaseSpeed: number
 }
 
 interface ShootingStar {
@@ -31,11 +34,6 @@ interface ShootingStar {
 interface GlowBlob {
   x: number; y: number; vx: number; vy: number
   radius: number; color: [number, number, number]
-  alpha: number; phase: number; phaseSpeed: number
-}
-
-interface Constellation {
-  starIndices: number[]
   alpha: number; phase: number; phaseSpeed: number
 }
 
@@ -58,10 +56,10 @@ export default function CosmicBackground() {
 
     // ─── Glow blobs (must be declared before resize) ───
     const blobs: GlowBlob[] = [
-      { x: 0, y: 0, vx: 0.1, vy: 0.06, radius: 0, color: [220, 90, 30], alpha: 0.12, phase: 0, phaseSpeed: 0.003 },
-      { x: 0, y: 0, vx: -0.08, vy: 0.04, radius: 0, color: [100, 150, 240], alpha: 0.08, phase: Math.PI, phaseSpeed: 0.004 },
-      { x: 0, y: 0, vx: 0.05, vy: -0.07, radius: 0, color: [160, 80, 200], alpha: 0.04, phase: 1.5, phaseSpeed: 0.005 },
-      { x: 0, y: 0, vx: -0.06, vy: 0.04, radius: 0, color: [200, 50, 30], alpha: 0.06, phase: 2.5, phaseSpeed: 0.003 },
+      { x: 0, y: 0, vx: 0.08, vy: 0.05, radius: 0, color: [220, 90, 30], alpha: 0.1, phase: 0, phaseSpeed: 0.002 },
+      { x: 0, y: 0, vx: -0.06, vy: 0.03, radius: 0, color: [100, 150, 240], alpha: 0.07, phase: Math.PI, phaseSpeed: 0.003 },
+      { x: 0, y: 0, vx: 0.04, vy: -0.05, radius: 0, color: [160, 80, 200], alpha: 0.035, phase: 1.5, phaseSpeed: 0.004 },
+      { x: 0, y: 0, vx: -0.05, vy: 0.03, radius: 0, color: [200, 50, 30], alpha: 0.05, phase: 2.5, phaseSpeed: 0.002 },
     ]
 
     const initBlobs = () => {
@@ -85,75 +83,47 @@ export default function CosmicBackground() {
     resize()
     window.addEventListener("resize", resize)
 
-    // ─── Stars (brighter, with glow) ───
-    const stars: Star[] = []
-    for (let i = 0; i < STAR_COUNT; i++) {
-      const d = i < 40 ? 0 : i < 80 ? 1 : 2
-      stars.push({
-        x: Math.random() * 3000, y: Math.random() * 2000,
-        vx: (Math.random() - 0.5) * (d === 0 ? 0.02 : d === 1 ? 0.05 : 0.08),
-        vy: (Math.random() - 0.5) * (d === 0 ? 0.02 : d === 1 ? 0.05 : 0.08),
-        size: d === 0 ? 0.6 : d === 1 ? 1.2 : 1.5 + Math.random() * 0.8,
-        alpha: d === 0 ? 0.3 : d === 1 ? 0.55 : 0.7 + Math.random() * 0.3,
+    // ─── Space particles (Spline-style soft floating dust) ───
+    const particles: Particle[] = []
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      // 3 depth layers: far (tiny, slow), mid, near (slightly larger, slightly faster)
+      const layer = Math.random()
+      const isFar = layer < 0.5
+      const isMid = layer >= 0.5 && layer < 0.85
+      // isNear = layer >= 0.85
+
+      const speed = isFar ? 0.03 : isMid ? 0.06 : 0.12
+      const size = isFar ? (0.3 + Math.random() * 0.4) : isMid ? (0.5 + Math.random() * 0.6) : (0.8 + Math.random() * 1.0)
+      const alpha = isFar ? (0.08 + Math.random() * 0.12) : isMid ? (0.15 + Math.random() * 0.2) : (0.3 + Math.random() * 0.35)
+
+      particles.push({
+        x: Math.random() * 4000,
+        y: Math.random() * 3000,
+        vx: (Math.random() - 0.5) * speed,
+        vy: (Math.random() - 0.5) * speed,
+        size,
+        baseAlpha: alpha,
         phase: Math.random() * Math.PI * 2,
-        speed: 0.005 + Math.random() * 0.01,
-        glowRadius: d === 0 ? 2 : d === 1 ? 4 : 5 + Math.random() * 3,
+        phaseSpeed: 0.003 + Math.random() * 0.008,
       })
     }
 
-    // ─── Constellations (subtle lines between nearby stars) ───
-    const constellations: Constellation[] = []
-    const buildConstellations = () => {
-      constellations.length = 0
-      // Pick groups of 3-5 nearby stars to connect
-      const used = new Set<number>()
-      for (let attempt = 0; attempt < 12; attempt++) {
-        const seed = Math.floor(Math.random() * stars.length)
-        if (used.has(seed)) continue
-
-        const group: number[] = [seed]
-        used.add(seed)
-
-        // Find nearby stars within distance
-        for (let j = 0; j < stars.length && group.length < 4; j++) {
-          if (used.has(j)) continue
-          const dx = stars[j].x - stars[seed].x
-          const dy = stars[j].y - stars[seed].y
-          const dist = Math.sqrt(dx * dx + dy * dy)
-          if (dist < 200 && dist > 30) {
-            group.push(j)
-            used.add(j)
-          }
-        }
-
-        if (group.length >= 2) {
-          constellations.push({
-            starIndices: group,
-            alpha: 0,
-            phase: Math.random() * Math.PI * 2,
-            phaseSpeed: 0.002 + Math.random() * 0.003,
-          })
-        }
-      }
-    }
-    buildConstellations()
-
-    // ─── Shooting stars (slower, more natural) ───
+    // ─── Shooting stars (slow, natural) ───
     const shootingStars: ShootingStar[] = []
     const spawnShootingStar = () => {
       const fromTop = Math.random() > 0.3
       const x = fromTop ? Math.random() * w * 1.2 : w + 20
       const y = fromTop ? -20 : Math.random() * h * 0.4
       const angle = Math.PI * (0.6 + Math.random() * 0.3)
-      const speed = 2 + Math.random() * 3 // much slower than before (was 6+8)
+      const speed = 2 + Math.random() * 3
       shootingStars.push({
         x, y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
         length: 80 + Math.random() * 100,
         life: 0,
-        maxLife: 80 + Math.random() * 60, // longer life since slower
-        alpha: 0.3 + Math.random() * 0.5,
+        maxLife: 80 + Math.random() * 60,
+        alpha: 0.25 + Math.random() * 0.4,
       })
     }
 
@@ -166,11 +136,9 @@ export default function CosmicBackground() {
       ctx.textAlign = "center"
       ctx.textBaseline = "middle"
 
-      // Center text vertically at ~35% (gives breathing room above and below)
       const textY = h * 0.35
       const fullText = "Grah AI"
 
-      // Measure text segments precisely
       const fullWidth = ctx.measureText(fullText).width
       const textStartX = w * 0.5 - fullWidth / 2
       const grahSpaceW = ctx.measureText("Grah ").width
@@ -178,17 +146,10 @@ export default function CosmicBackground() {
       const aiStartX = textStartX + grahSpaceW
       const aiCenterX = aiStartX + aiW * 0.5
 
-      // ── Orange triangle centered on "AI" ──
-      // Triangle sized to snugly wrap "AI" — width slightly wider than AI text,
-      // height matches the font cap height, centered on the text baseline
-      const triPadX = aiW * 0.25 // horizontal padding beyond AI text
+      // Orange triangle centered on "AI"
+      const triPadX = aiW * 0.25
       const triW = aiW + triPadX * 2
-      const triH = fontSize * 0.85 // compact height
-
-      // Center the triangle vertically on textY:
-      // The centroid of a triangle is at 1/3 from base.
-      // To visually center "AI" in the triangle, position so textY
-      // sits at the vertical center of the triangle
+      const triH = fontSize * 0.85
       const triTopY = textY - triH * 0.5
       const triBottomY = textY + triH * 0.5
 
@@ -203,7 +164,6 @@ export default function CosmicBackground() {
       triGrad.addColorStop(1, "#CC3300")
       ctx.fillStyle = triGrad
 
-      // Draw triangle: apex at top-center, base at bottom
       ctx.beginPath()
       ctx.moveTo(aiCenterX, triTopY)
       ctx.lineTo(aiCenterX + triW * 0.5, triBottomY)
@@ -226,14 +186,14 @@ export default function CosmicBackground() {
       ctx.closePath()
       ctx.fill()
 
-      // ── Draw full text in white ──
+      // Full text in white
       ctx.shadowColor = "rgba(255,255,255,0.2)"
       ctx.shadowBlur = 12
       ctx.fillStyle = "#FFFFFF"
       ctx.textAlign = "center"
       ctx.fillText(fullText, w * 0.5, textY)
 
-      // Re-draw "AI" slightly brighter over triangle for contrast
+      // Re-draw "AI" brighter over triangle
       ctx.shadowColor = "#FF8800"
       ctx.shadowBlur = 8
       ctx.fillStyle = "#FFFFFF"
@@ -244,12 +204,10 @@ export default function CosmicBackground() {
     }
 
     // ─── Animation loop ───
-    let frame = 0
     let shootTimer = 0
 
     const draw = () => {
       if (!ctx) return
-      frame++
       ctx.clearRect(0, 0, w, h)
 
       // Glow blobs
@@ -269,90 +227,45 @@ export default function CosmicBackground() {
         ctx.fillRect(b.x - b.radius, b.y - b.radius, b.radius * 2, b.radius * 2)
       }
 
-      // Stars (realistic sparkle with cross-rays and glow)
-      for (const s of stars) {
-        s.phase += s.speed
-        s.x += s.vx; s.y += s.vy
-        if (s.x < -5) s.x = w + 5; if (s.x > w + 5) s.x = -5
-        if (s.y < -5) s.y = h + 5; if (s.y > h + 5) s.y = -5
+      // Space particles (soft floating dots — Spline style)
+      for (const p of particles) {
+        p.phase += p.phaseSpeed
+        p.x += p.vx
+        p.y += p.vy
 
-        const twinkle = 0.5 + 0.5 * Math.sin(s.phase)
-        const currentAlpha = s.alpha * twinkle
+        // Wrap around edges seamlessly
+        if (p.x < -10) p.x = w + 10
+        if (p.x > w + 10) p.x = -10
+        if (p.y < -10) p.y = h + 10
+        if (p.y > h + 10) p.y = -10
 
-        // Soft circular glow halo
-        const glowGrad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.glowRadius)
-        glowGrad.addColorStop(0, `rgba(220,225,255,${(currentAlpha * 0.5).toFixed(3)})`)
-        glowGrad.addColorStop(0.3, `rgba(200,210,255,${(currentAlpha * 0.2).toFixed(3)})`)
-        glowGrad.addColorStop(1, "rgba(200,210,255,0)")
-        ctx.fillStyle = glowGrad
-        ctx.fillRect(s.x - s.glowRadius, s.y - s.glowRadius, s.glowRadius * 2, s.glowRadius * 2)
+        // Gentle twinkle (slow pulse)
+        const twinkle = 0.6 + 0.4 * Math.sin(p.phase)
+        const currentAlpha = p.baseAlpha * twinkle
 
-        // Cross-shaped sparkle rays (only on brighter stars)
-        if (s.size > 0.8) {
-          const rayLen = s.glowRadius * (0.8 + 0.4 * twinkle)
-          ctx.globalAlpha = currentAlpha * 0.5
-          ctx.strokeStyle = "#D0D8FF"
-          ctx.lineWidth = 0.5
-
-          // Vertical ray
-          ctx.beginPath()
-          ctx.moveTo(s.x, s.y - rayLen)
-          ctx.lineTo(s.x, s.y + rayLen)
-          ctx.stroke()
-
-          // Horizontal ray
-          ctx.beginPath()
-          ctx.moveTo(s.x - rayLen, s.y)
-          ctx.lineTo(s.x + rayLen, s.y)
-          ctx.stroke()
-
-          // Diagonal rays (shorter, for 4-point star look)
-          if (s.size > 1.2) {
-            const dRay = rayLen * 0.5
-            ctx.globalAlpha = currentAlpha * 0.25
-            ctx.beginPath()
-            ctx.moveTo(s.x - dRay, s.y - dRay)
-            ctx.lineTo(s.x + dRay, s.y + dRay)
-            ctx.stroke()
-            ctx.beginPath()
-            ctx.moveTo(s.x + dRay, s.y - dRay)
-            ctx.lineTo(s.x - dRay, s.y + dRay)
-            ctx.stroke()
-          }
-        }
-
-        // Bright white core
+        // Just a soft, simple dot — no rays, no sharp edges
         ctx.globalAlpha = currentAlpha
-        ctx.fillStyle = "#FFFFFF"
+        ctx.fillStyle = "#C8D0F0"
         ctx.beginPath()
-        ctx.arc(s.x, s.y, s.size * 0.6, 0, Math.PI * 2)
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
         ctx.fill()
+
+        // Subtle glow on slightly larger particles
+        if (p.size > 0.7) {
+          const glowR = p.size * 3
+          const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, glowR)
+          glow.addColorStop(0, `rgba(200,210,240,${(currentAlpha * 0.25).toFixed(3)})`)
+          glow.addColorStop(1, "rgba(200,210,240,0)")
+          ctx.globalAlpha = 1
+          ctx.fillStyle = glow
+          ctx.fillRect(p.x - glowR, p.y - glowR, glowR * 2, glowR * 2)
+        }
       }
       ctx.globalAlpha = 1
 
-      // Constellations (subtle connecting lines)
-      for (const c of constellations) {
-        c.phase += c.phaseSpeed
-        // Slow fade in/out cycle
-        c.alpha = 0.04 + 0.06 * Math.sin(c.phase)
-
-        ctx.strokeStyle = `rgba(150,170,220,${c.alpha.toFixed(3)})`
-        ctx.lineWidth = 0.5
-        ctx.lineCap = "round"
-
-        for (let j = 0; j < c.starIndices.length - 1; j++) {
-          const s1 = stars[c.starIndices[j]]
-          const s2 = stars[c.starIndices[j + 1]]
-          ctx.beginPath()
-          ctx.moveTo(s1.x, s1.y)
-          ctx.lineTo(s2.x, s2.y)
-          ctx.stroke()
-        }
-      }
-
-      // ── Shooting stars (slow & natural) ──
+      // Shooting stars
       shootTimer++
-      if (shootTimer > 150 + Math.random() * 250) { // less frequent (was 60+120)
+      if (shootTimer > 180 + Math.random() * 300) {
         spawnShootingStar()
         shootTimer = 0
       }
@@ -375,22 +288,22 @@ export default function CosmicBackground() {
 
         const trailGrad = ctx.createLinearGradient(tailX, tailY, ss.x, ss.y)
         trailGrad.addColorStop(0, "rgba(255,255,255,0)")
-        trailGrad.addColorStop(0.5, `rgba(200,210,255,${(fadeAlpha * ss.alpha * 0.2).toFixed(3)})`)
-        trailGrad.addColorStop(1, `rgba(255,255,255,${(fadeAlpha * ss.alpha * 0.8).toFixed(3)})`)
+        trailGrad.addColorStop(0.5, `rgba(200,210,255,${(fadeAlpha * ss.alpha * 0.15).toFixed(3)})`)
+        trailGrad.addColorStop(1, `rgba(255,255,255,${(fadeAlpha * ss.alpha * 0.7).toFixed(3)})`)
 
         ctx.strokeStyle = trailGrad
-        ctx.lineWidth = 1.2
+        ctx.lineWidth = 1
         ctx.lineCap = "round"
         ctx.beginPath()
         ctx.moveTo(tailX, tailY)
         ctx.lineTo(ss.x, ss.y)
         ctx.stroke()
 
-        // Soft head glow
-        ctx.globalAlpha = fadeAlpha * ss.alpha * 0.6
+        // Soft head
+        ctx.globalAlpha = fadeAlpha * ss.alpha * 0.5
         ctx.fillStyle = "#FFFFFF"
         ctx.beginPath()
-        ctx.arc(ss.x, ss.y, 1.2, 0, Math.PI * 2)
+        ctx.arc(ss.x, ss.y, 1, 0, Math.PI * 2)
         ctx.fill()
         ctx.globalAlpha = 1
 
@@ -405,8 +318,7 @@ export default function CosmicBackground() {
       animRef.current = requestAnimationFrame(draw)
     }
 
-    // Spawn initial shooting star with delay for natural feel
-    setTimeout(() => spawnShootingStar(), 2000)
+    setTimeout(() => spawnShootingStar(), 3000)
 
     animRef.current = requestAnimationFrame(draw)
 
@@ -429,10 +341,10 @@ export default function CosmicBackground() {
         <source src="/space-bg.webm" type="video/webm" />
       </video>
 
-      {/* Slight dark overlay for blending video with canvas */}
+      {/* Dark overlay for blending */}
       <div className="absolute inset-0" style={{ background: "rgba(10,14,26,0.5)" }} />
 
-      {/* Layer 2: Canvas (text, stars, constellations, shooting stars, blobs) */}
+      {/* Layer 2: Canvas */}
       <canvas
         ref={canvasRef}
         className="absolute inset-0"
