@@ -32,15 +32,15 @@ export default function AppHeader({ onProfileClick, subtitle }: AppHeaderProps) 
         {/* Logo + greeting */}
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#D4A054] to-[#A16E2A]
-            flex items-center justify-center shadow-lg shadow-[#D4A054]/10">
+            flex items-center justify-center shadow-lg shadow-[#D4A054]/20 gold-shimmer">
             <span className="text-[#0A0E1A] font-bold text-sm">G</span>
           </div>
           <div>
-            <h1 className="text-base font-semibold text-[#F1F0F5] leading-tight">
+            <h1 className="text-base font-semibold text-[#F1F0F5] leading-tight text-3d">
               {name ? `Hello, ${name}` : "GrahAI"}
             </h1>
             {subtitle && (
-              <p className="text-[11px] text-[#5A6478] mt-0.5">{subtitle}</p>
+              <p className="text-[11px] text-[#5A6478] mt-0.5 text-visible">{subtitle}</p>
             )}
           </div>
         </div>

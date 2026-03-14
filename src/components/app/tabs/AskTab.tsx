@@ -2,23 +2,22 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Send, Sparkles, Clock, ChevronDown, ChevronUp, BookOpen } from "lucide-react"
+import { Send, Sparkles, Clock, ChevronDown, ChevronUp, BookOpen, ArrowRight, ArrowLeft, X, Trash2 } from "lucide-react"
 import type { ChatMessage, BirthData } from "@/types/app"
 
 const TOPIC_CHIPS = ["Love", "Career", "Timing", "Family", "Health", "Money"]
-
-const SUGGESTION_QUESTIONS = [
+const SUGGESTIONS = [
   "What career direction does my chart support right now?",
   "What is my emotional pattern this month?",
   "When is a good time for important financial decisions?",
 ]
+const FOLLOW_UPS = ["Tell me more", "Why now?", "When does this change?", "What should I do next?"]
 
 interface AskTabProps {
   initialQuestion?: string
-  onBack?: () => void
 }
 
-export default function AskTab({ initialQuestion, onBack }: AskTabProps) {
+export default function AskTab({ initialQuestion }: AskTabProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
   const [isStreaming, setIsStreaming] = useState(false)
@@ -26,6 +25,7 @@ export default function AskTab({ initialQuestion, onBack }: AskTabProps) {
   const [birthData, setBirthData] = useState<BirthData | null>(null)
   const [questionsLeft, setQuestionsLeft] = useState(3)
   const [expandedSource, setExpandedSource] = useState<string | null>(null)
+  const [showHistory, setShowHistory] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const hasProcessedInitial = useRef(false)
 
@@ -39,8 +39,6 @@ export default function AskTab({ initialQuestion, onBack }: AskTabProps) {
       }
       const q = localStorage.getItem("grahai-questions-left")
       if (q) setQuestionsLeft(parseInt(q))
-
-      // Check for pending question from home screen
       const pending = localStorage.getItem("grahai-pending-question")
       if (pending) {
         localStorage.removeItem("grahai-pending-question")
@@ -49,7 +47,6 @@ export default function AskTab({ initialQuestion, onBack }: AskTabProps) {
     } catch {}
   }, [])
 
-  // Handle initial question from parent
   useEffect(() => {
     if (initialQuestion && !hasProcessedInitial.current) {
       hasProcessedInitial.current = true
@@ -95,25 +92,80 @@ export default function AskTab({ initialQuestion, onBack }: AskTabProps) {
       })
 
       if (!res.ok) throw new Error("Failed")
+
+      // Handle SSE streaming
       const reader = res.body?.getReader()
       const decoder = new TextDecoder()
       let fullText = ""
+      let buffer = ""
 
       if (reader) {
         while (true) {
           const { done, value } = await reader.read()
           if (done) break
-          fullText += decoder.decode(value, { stream: true })
-          setMessages((prev) =>
-            prev.map((m) => (m.id === assistantId ? { ...m, content: fullText, isStreaming: true } : m))
-          )
+          buffer += decoder.decode(value, { stream: true })
+
+          // Parse SSE events
+          const lines = buffer.split("\n")
+          buffer = lines.pop() || ""
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              try {
+                const data = JSON.parse(line.slice(6))
+                if (data.type === "text_delta" && data.text) {
+                  fullText += data.text
+                  setMessages((prev) =>
+                    prev.map((m) => (m.id === assistantId ? { ...m, content: fullText, isStreaming: true } : m))
+                  )
+                }
+              } catch {
+                // Non-JSON SSE data — treat as raw text
+                const raw = line.slice(6)
+                if (raw && raw !== "[DONE]") {
+                  fullText += raw
+                  setMessages((prev) =>
+                    prev.map((m) => (m.id === assistantId ? { ...m, content: fullText, isStreaming: true } : m))
+                  )
+                }
+              }
+            }
+          }
         }
       }
+
+      // If no text was streamed (maybe non-SSE response), try reading as plain text
+      if (!fullText && res.headers.get("content-type")?.includes("text/plain")) {
+        fullText = await res.text()
+      }
+
       setMessages((prev) =>
         prev.map((m) =>
           m.id === assistantId ? { ...m, content: fullText || "I couldn't generate a response.", isStreaming: false } : m
         )
       )
+
+      // Save to history
+      try {
+        await fetch("/api/user/history", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: text, answer: fullText }),
+        })
+      } catch {}
+
+      // Award XP
+      try {
+        await fetch("/api/gamification/award-xp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vertical: "astrology", messageCount: messages.length + 1 }),
+        })
+      } catch {}
+
+      // Update questions remaining
+      setQuestionsLeft((prev) => Math.max(0, prev - 1))
+
     } catch {
       setMessages((prev) =>
         prev.map((m) =>
@@ -130,16 +182,16 @@ export default function AskTab({ initialQuestion, onBack }: AskTabProps) {
   return (
     <div className="min-h-dvh flex flex-col bg-[#0A0E1A]">
       {/* Header */}
-      <div className="flex items-center gap-3 px-5 py-3 shrink-0 border-b border-[#1E293B]">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#D4A054] to-[#A16E2A]
-          flex items-center justify-center">
+      <div className="flex items-center gap-3 px-5 py-3 shrink-0 border-b border-white/[0.04] bg-[#0A0E1A]/80 backdrop-blur-md">
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#D4A054] to-[#A16E2A] flex items-center justify-center gold-shimmer">
           <Sparkles className="w-4 h-4 text-[#0A0E1A]" />
         </div>
         <div className="flex-1">
-          <h1 className="text-sm font-semibold text-[#F1F0F5]">Ask GrahAI</h1>
+          <h1 className="text-sm font-semibold text-[#F1F0F5] text-3d">Ask GrahAI</h1>
           <p className="text-[10px] text-[#5A6478]">{questionsLeft} questions remaining</p>
         </div>
-        <button className="flex items-center gap-1.5 bg-[#111827] border border-[#1E293B] rounded-full px-3 py-1.5">
+        <button onClick={() => setShowHistory(true)}
+          className="flex items-center gap-1.5 bg-[#111827] border border-[#1E293B] rounded-full px-3 py-1.5">
           <Clock className="w-3 h-3 text-[#5A6478]" />
           <span className="text-[10px] text-[#5A6478]">History</span>
         </button>
@@ -148,7 +200,6 @@ export default function AskTab({ initialQuestion, onBack }: AskTabProps) {
       {/* Chat body */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 pb-4">
         {isEmpty ? (
-          /* ═══ Empty state ═══ */
           <div className="pt-12 text-center">
             <div className="w-16 h-16 rounded-full bg-[#D4A054]/10 flex items-center justify-center mx-auto mb-4">
               <Sparkles className="w-7 h-7 text-[#D4A054]" />
@@ -159,65 +210,47 @@ export default function AskTab({ initialQuestion, onBack }: AskTabProps) {
             <p className="text-sm text-[#5A6478] mb-6 max-w-xs mx-auto">
               Ask about love, work, timing, emotions, or anything you need clarity on.
             </p>
-
-            {/* Topic chips */}
             <div className="flex flex-wrap justify-center gap-2 mb-8">
               {TOPIC_CHIPS.map((topic) => (
                 <button
                   key={topic}
                   onClick={() => setInput(`Tell me about my ${topic.toLowerCase()} right now`)}
                   className="px-3.5 py-1.5 rounded-full bg-[#111827] border border-[#1E293B]
-                    text-xs text-[#94A3B8] font-medium hover:border-[#D4A054]/30 hover:text-[#D4A054]
-                    transition-colors"
+                    text-xs text-[#94A3B8] font-medium hover:border-[#D4A054]/30 hover:text-[#D4A054] transition-colors"
                 >
                   {topic}
                 </button>
               ))}
             </div>
-
-            {/* Suggestion cards */}
             <div className="space-y-2.5 max-w-sm mx-auto">
-              {SUGGESTION_QUESTIONS.map((q) => (
-                <button
-                  key={q}
-                  onClick={() => handleSend(q)}
-                  className="w-full text-left bg-[#111827] border border-[#1E293B] rounded-xl px-4 py-3.5
-                    text-sm text-[#94A3B8] hover:border-[#D4A054]/20 hover:text-[#D4A054]/80 transition-colors"
-                >
+              {SUGGESTIONS.map((q) => (
+                <button key={q} onClick={() => handleSend(q)}
+                  className="w-full text-left glass-card card-lift px-4 py-3.5
+                    text-sm text-[#94A3B8] hover:border-[#D4A054]/20 transition-colors">
                   {q}
                 </button>
               ))}
             </div>
           </div>
         ) : (
-          /* ═══ Messages ═══ */
           <div className="pt-4 space-y-5">
             <AnimatePresence>
               {messages.map((msg) => (
-                <motion.div
-                  key={msg.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
+                <motion.div key={msg.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
                   {msg.role === "user" ? (
-                    /* User message */
                     <div className="flex justify-end">
                       <div className="max-w-[85%] bg-[#1E2638] rounded-2xl rounded-tr-md px-4 py-3">
                         <p className="text-sm text-[#F1F0F5]">{msg.content}</p>
                       </div>
                     </div>
                   ) : (
-                    /* Assistant message */
                     <div>
                       <div className="flex items-center gap-2 mb-2">
-                        <div className="w-6 h-6 rounded-md bg-gradient-to-br from-[#D4A054] to-[#A16E2A]
-                          flex items-center justify-center">
+                        <div className="w-6 h-6 rounded-md bg-gradient-to-br from-[#D4A054] to-[#A16E2A] flex items-center justify-center">
                           <span className="text-[9px] font-bold text-[#0A0E1A]">G</span>
                         </div>
                         <span className="text-[11px] text-[#5A6478] font-medium">GrahAI</span>
-                        {msg.isStreaming && (
-                          <span className="text-[11px] text-[#D4A054]/60 animate-pulse">thinking...</span>
-                        )}
+                        {msg.isStreaming && <span className="text-[11px] text-[#D4A054]/60 animate-pulse">thinking...</span>}
                       </div>
                       <div className="max-w-[95%] text-sm text-[#94A3B8] leading-relaxed whitespace-pre-wrap">
                         {msg.content}
@@ -229,46 +262,27 @@ export default function AskTab({ initialQuestion, onBack }: AskTabProps) {
                           </span>
                         )}
                       </div>
-
-                      {/* Source drawer toggle (show for completed messages) */}
                       {!msg.isStreaming && msg.content && (
                         <div className="mt-3">
-                          <button
-                            onClick={() => setExpandedSource(expandedSource === msg.id ? null : msg.id)}
-                            className="flex items-center gap-1.5 text-[11px] text-[#5A6478]
-                              hover:text-[#D4A054] transition-colors"
-                          >
-                            <BookOpen className="w-3 h-3" />
-                            Why GrahAI says this
-                            {expandedSource === msg.id
-                              ? <ChevronUp className="w-3 h-3" />
-                              : <ChevronDown className="w-3 h-3" />}
+                          <button onClick={() => setExpandedSource(expandedSource === msg.id ? null : msg.id)}
+                            className="flex items-center gap-1.5 text-[11px] text-[#5A6478] hover:text-[#D4A054] transition-colors">
+                            <BookOpen className="w-3 h-3" />Why GrahAI says this
+                            {expandedSource === msg.id ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                           </button>
                           {expandedSource === msg.id && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: "auto" }}
-                              exit={{ opacity: 0, height: 0 }}
-                              className="mt-2 bg-[#0D1220] border border-[#1E293B] rounded-lg p-3"
-                            >
+                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
+                              className="mt-2 bg-[#0D1220] border border-[#1E293B] rounded-lg p-3">
                               <p className="text-xs text-[#5A6478] leading-relaxed">
-                                This guidance is based on your birth chart analysis including current
-                                planetary transits and dasha period. Classical Jyotish principles from
-                                Brihat Parashara Hora Shastra inform the interpretation.
+                                This guidance is based on your birth chart analysis including current planetary transits
+                                and dasha period. Classical Jyotish principles from Brihat Parashara Hora Shastra inform the interpretation.
                               </p>
                             </motion.div>
                           )}
-
-                          {/* Follow-up chips */}
                           <div className="flex flex-wrap gap-1.5 mt-3">
-                            {["Tell me more", "Why now?", "When does this change?", "What should I do next?"].map((chip) => (
-                              <button
-                                key={chip}
-                                onClick={() => handleSend(chip)}
+                            {FOLLOW_UPS.map((chip) => (
+                              <button key={chip} onClick={() => handleSend(chip)}
                                 className="px-3 py-1 rounded-full bg-[#111827] border border-[#1E293B]
-                                  text-[11px] text-[#94A3B8] hover:border-[#D4A054]/20 hover:text-[#D4A054]
-                                  transition-colors"
-                              >
+                                  text-[11px] text-[#94A3B8] hover:border-[#D4A054]/20 hover:text-[#D4A054] transition-colors">
                                 {chip}
                               </button>
                             ))}
@@ -284,31 +298,71 @@ export default function AskTab({ initialQuestion, onBack }: AskTabProps) {
         )}
       </div>
 
-      {/* Input bar */}
+      {/* Input */}
       <div className="px-5 pb-24 pt-2 shrink-0">
-        <div className="flex items-center gap-2 bg-[#111827] border border-[#1E293B] rounded-xl px-4 py-2.5
+        {messages.length > 0 && !isStreaming && (
+          <button onClick={() => { setMessages([]); hasProcessedInitial.current = false }}
+            className="flex items-center gap-1.5 text-[10px] text-[#5A6478] hover:text-rose-400/70
+              transition-colors mb-2 mx-auto">
+            <Trash2 className="w-3 h-3" /> Clear conversation
+          </button>
+        )}
+        <div className="flex items-center gap-2 glass-card px-4 py-2.5
           focus-within:border-[#D4A054]/30 transition-colors">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
+          <input type="text" value={input} onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
             placeholder="Ask about love, work, timing..."
-            className="flex-1 bg-transparent text-sm text-[#F1F0F5] placeholder:text-[#5A6478]/50 outline-none"
-          />
-          <button
-            onClick={() => handleSend()}
-            disabled={!input.trim() || isStreaming}
+            className="flex-1 bg-transparent text-sm text-[#F1F0F5] placeholder:text-[#5A6478]/50 outline-none" />
+          <button onClick={() => handleSend()} disabled={!input.trim() || isStreaming}
             className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
-              input.trim() && !isStreaming
-                ? "bg-gradient-to-br from-[#D4A054] to-[#A16E2A]"
-                : "bg-[#1E2638]"
-            }`}
-          >
+              input.trim() && !isStreaming ? "bg-gradient-to-br from-[#D4A054] to-[#A16E2A]" : "bg-[#1E2638]"
+            }`}>
             <Send className={`w-4 h-4 ${input.trim() && !isStreaming ? "text-[#0A0E1A]" : "text-[#5A6478]"}`} />
           </button>
         </div>
       </div>
+
+      {/* ═══ History Overlay ═══ */}
+      <AnimatePresence>
+        {showHistory && (
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed inset-0 z-50 bg-[#0A0E1A] overflow-y-auto"
+          >
+            <div className="flex items-center gap-3 px-5 pt-4 pb-3 border-b border-[#1E293B]">
+              <button onClick={() => setShowHistory(false)}
+                className="w-10 h-10 rounded-full bg-[#1E2638] border border-[#1E293B] flex items-center justify-center">
+                <ArrowLeft className="w-4 h-4 text-[#5A6478]" />
+              </button>
+              <h1 className="text-base font-semibold text-[#F1F0F5]">Questions History</h1>
+            </div>
+            <div className="px-5 pt-8">
+              {messages.filter(m => m.role === "user").length > 0 ? (
+                <div className="space-y-3">
+                  {messages.filter(m => m.role === "user").map((msg, i) => (
+                    <button key={msg.id}
+                      onClick={() => { setShowHistory(false); handleSend(msg.content) }}
+                      className="w-full text-left bg-[#111827] border border-[#1E293B] rounded-xl px-4 py-3.5
+                        hover:border-[#D4A054]/20 transition-colors">
+                      <p className="text-sm text-[#F1F0F5]">{msg.content}</p>
+                      <p className="text-[10px] text-[#5A6478] mt-1">This session</p>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center pt-8">
+                  <Clock className="w-12 h-12 text-[#5A6478]/30 mx-auto mb-3" />
+                  <p className="text-sm text-[#5A6478]">No questions asked yet this session.</p>
+                  <p className="text-xs text-[#5A6478]/60 mt-1">Your questions will appear here.</p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

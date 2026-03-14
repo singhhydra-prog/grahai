@@ -1,0 +1,266 @@
+/* ════════════════════════════════════════════════════════
+   GrahAI — Daily Horoscope API
+
+   Returns personalized daily guidance with:
+   - Category insights (Wealth, Relationship, Career, Self)
+   - Lucky elements (colour, number)
+   - Panchang timing (Auspicious Time, Rahu Kaal)
+   - Today/Tomorrow toggle support
+
+   Uses: Panchang engine + cosmic-snapshot birth data
+   ════════════════════════════════════════════════════════ */
+
+import { NextRequest, NextResponse } from "next/server"
+import {
+  SIGNS,
+  NAKSHATRAS,
+  NAKSHATRA_SPAN,
+  DAY_LORDS,
+  PLANET_SANSKRIT,
+} from "@/lib/ephemeris/constants"
+
+// ─── Approximate sidereal positions ────────────────────
+function getSiderealSunLongitude(date: Date): number {
+  const j2000 = new Date("2000-01-01T12:00:00Z")
+  const days = (date.getTime() - j2000.getTime()) / 86400000
+  const L = (280.46646 + 0.9856474 * days) % 360
+  const M = ((357.52911 + 0.9856003 * days) % 360) * (Math.PI / 180)
+  const C = 1.9146 * Math.sin(M) + 0.02 * Math.sin(2 * M)
+  const tropicalLong = ((L + C) % 360 + 360) % 360
+  const year = date.getFullYear() + (date.getMonth() + 1) / 12
+  const ayanamsa = 23.85 + (year - 2000) * 0.01397
+  return ((tropicalLong - ayanamsa) % 360 + 360) % 360
+}
+
+function getApproxMoonLongitude(date: Date): number {
+  const j2000 = new Date("2000-01-01T12:00:00Z")
+  const days = (date.getTime() - j2000.getTime()) / 86400000
+  const L = (218.316 + 13.176396 * days) % 360
+  const year = date.getFullYear() + (date.getMonth() + 1) / 12
+  const ayanamsa = 23.85 + (year - 2000) * 0.01397
+  return ((L - ayanamsa) % 360 + 360) % 360
+}
+
+// ─── Rahu Kaal ─────────────────────────────────────────
+const RAHU_KAAL_SLOTS: Record<number, number> = {
+  0: 8, 1: 2, 2: 7, 3: 5, 4: 6, 5: 4, 6: 3,
+}
+
+function calculateRahuKaal(date: Date, sunrise = 6, sunset = 18) {
+  const slot = RAHU_KAAL_SLOTS[date.getDay()]
+  const duration = (sunset - sunrise) / 8
+  const start = sunrise + (slot - 1) * duration
+  const end = start + duration
+  const fmt = (h: number) => {
+    const hrs = Math.floor(h)
+    const mins = Math.round((h - hrs) * 60)
+    const period = hrs >= 12 ? "PM" : "AM"
+    const dh = hrs > 12 ? hrs - 12 : hrs === 0 ? 12 : hrs
+    return `${String(dh).padStart(2, "0")}:${String(mins).padStart(2, "0")} ${period}`
+  }
+  return { start: fmt(start), end: fmt(end) }
+}
+
+// ─── Auspicious Time (best 1.5-hour window) ────────────
+function calculateAuspiciousTime(date: Date, sunrise = 6, sunset = 18) {
+  const rahuSlot = RAHU_KAAL_SLOTS[date.getDay()]
+  const duration = (sunset - sunrise) / 8
+  // Pick a slot that avoids Rahu Kaal — prefer slot 1 or the one right after Rahu
+  let bestSlot = rahuSlot < 8 ? rahuSlot + 1 : 1
+  if (bestSlot === rahuSlot) bestSlot = (bestSlot % 8) + 1
+  const start = sunrise + (bestSlot - 1) * duration
+  const end = start + duration
+  const fmt = (h: number) => {
+    const hrs = Math.floor(h)
+    const mins = Math.round((h - hrs) * 60)
+    const period = hrs >= 12 ? "PM" : "AM"
+    const dh = hrs > 12 ? hrs - 12 : hrs === 0 ? 12 : hrs
+    return `${String(dh).padStart(2, "0")}:${String(mins).padStart(2, "0")} ${period}`
+  }
+  return { start: fmt(start), end: fmt(end) }
+}
+
+// ─── Lucky elements based on birth sign + day ──────────
+const LUCKY_COLOURS: Record<string, string[]> = {
+  Aries: ["Red", "Scarlet", "Orange"],
+  Taurus: ["Green", "White", "Pink"],
+  Gemini: ["Yellow", "Green", "Light Blue"],
+  Cancer: ["White", "Silver", "Cream"],
+  Leo: ["Gold", "Orange", "Red"],
+  Virgo: ["Green", "Dark Brown", "Grey"],
+  Libra: ["White", "Light Blue", "Pink"],
+  Scorpio: ["Maroon", "Dark Red", "Black"],
+  Sagittarius: ["Yellow", "Orange", "Purple"],
+  Capricorn: ["Black", "Dark Brown", "Navy"],
+  Aquarius: ["Blue", "Electric Blue", "Grey"],
+  Pisces: ["Sea Green", "Lavender", "Yellow"],
+}
+
+const LUCKY_NUMBERS: Record<string, number[]> = {
+  Aries: [1, 9, 8], Taurus: [2, 6, 7], Gemini: [3, 5, 6],
+  Cancer: [2, 4, 7], Leo: [1, 4, 9], Virgo: [5, 3, 6],
+  Libra: [6, 5, 2], Scorpio: [8, 1, 9], Sagittarius: [3, 7, 9],
+  Capricorn: [8, 4, 6], Aquarius: [4, 7, 8], Pisces: [3, 7, 9],
+}
+
+// ─── Category insight generation ───────────────────────
+function generateCategoryInsights(
+  moonSign: string,
+  sunSign: string,
+  dayLord: string,
+  moonLong: number,
+  date: Date,
+) {
+  // Seed based on date for consistency within the day
+  const seed = date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate()
+  const hash = (s: number, offset: number) => ((s * 31 + offset) % 100) / 100
+
+  const moonHouse = Math.floor(moonLong / 30)
+  const moonInSign = SIGNS[moonHouse]?.name || moonSign
+
+  // Wealth insights
+  const wealthPool = [
+    `Financial clarity is strong today with Moon in ${moonInSign}. Trust your instincts on investment decisions but verify the numbers before committing.`,
+    `Your 2nd house energies are activated. Focus on saving rather than spending today — small disciplined actions compound into significant wealth.`,
+    `${dayLord}'s influence supports calculated financial risks. A new income opportunity may present itself through an unexpected conversation.`,
+    `Material abundance flows more freely when you release scarcity thinking. Today's chart supports generous giving as a path to receiving.`,
+    `Your financial planets are in a holding pattern. Avoid major purchases or investments today — wait for clearer signals next week.`,
+  ]
+
+  // Relationship insights
+  const relationshipPool = [
+    `Emotional depth is available today. Listen more than you speak in close relationships — your partner needs understanding, not solutions.`,
+    `Venus energies are active. Express appreciation to someone you've been taking for granted. Small gestures create lasting bonds today.`,
+    `Communication in relationships may feel strained. Avoid assumptions — ask direct questions and give others the benefit of the doubt.`,
+    `Your chart shows a pull toward deeper connection. Vulnerability is your strength today — share what you've been holding back.`,
+    `Social interactions are best kept light today. Don't force heavy conversations — the right moment for depth will come naturally.`,
+  ]
+
+  // Career insights
+  const careerPool = [
+    `Professional momentum builds today. Focus on one key deliverable rather than spreading energy thin. Quality over quantity wins.`,
+    `Leadership opportunities arise naturally. Step up where others hesitate — your chart supports confident decision-making in work matters.`,
+    `Behind-the-scenes work yields the strongest results today. Don't seek recognition — let your output speak for itself.`,
+    `Collaboration over competition today. A colleague holds a missing piece of information that could significantly advance your project.`,
+    `Clarity returns after a foggy period. Use this mental sharpness to tackle the complex problem you've been avoiding.`,
+  ]
+
+  // Self insights
+  const selfPool = [
+    `Your emotional energy is high but needs direction. Channel intensity into creative expression or physical activity — not overthinking.`,
+    `Self-care isn't optional today. Your chart shows accumulated mental fatigue — take breaks, hydrate, and step away from screens.`,
+    `Your intuition is unusually sharp. Pay attention to gut feelings about people and situations — your subconscious is processing faster than your logic.`,
+    `Today rewards discipline over inspiration. Stick to your routine even when motivation dips — consistency is the real power move.`,
+    `Creative energy peaks today. Start that project you've been thinking about — the first step is all that matters.`,
+  ]
+
+  return {
+    wealth: wealthPool[Math.floor(hash(seed, 1) * wealthPool.length)],
+    relationship: relationshipPool[Math.floor(hash(seed, 2) * relationshipPool.length)],
+    career: careerPool[Math.floor(hash(seed, 3) * careerPool.length)],
+    self: selfPool[Math.floor(hash(seed, 4) * selfPool.length)],
+  }
+}
+
+// ─── API Handler ───────────────────────────────────────
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json()
+    const { birthDate, placeOfBirth, offset } = body
+
+    // offset: 0 = today, 1 = tomorrow
+    const dayOffset = offset === 1 ? 1 : 0
+    const targetDate = new Date()
+    targetDate.setDate(targetDate.getDate() + dayOffset)
+
+    if (!birthDate) {
+      return NextResponse.json({ error: "Birth date required" }, { status: 400 })
+    }
+
+    const dob = new Date(birthDate)
+    if (isNaN(dob.getTime())) {
+      return NextResponse.json({ error: "Invalid birth date" }, { status: 400 })
+    }
+
+    // Calculate birth chart basics
+    const birthSunLong = getSiderealSunLongitude(dob)
+    const sunSign = SIGNS[Math.floor(birthSunLong / 30)]
+
+    // Today's transit positions
+    const todaySunLong = getSiderealSunLongitude(targetDate)
+    const todayMoonLong = getApproxMoonLongitude(targetDate)
+    const moonSign = SIGNS[Math.floor(todayMoonLong / 30)]
+    const dayLord = DAY_LORDS[targetDate.getDay()]
+
+    // Nakshatra from Moon
+    const nakshatraIndex = Math.floor(todayMoonLong / NAKSHATRA_SPAN)
+    const nakshatra = NAKSHATRAS[nakshatraIndex]
+
+    // Tithi (simplified)
+    const tithiDiff = ((todayMoonLong - todaySunLong) % 360 + 360) % 360
+    const tithiNumber = Math.floor(tithiDiff / 12)
+    const paksha = tithiNumber < 15 ? "Shukla Paksha" : "Krishna Paksha"
+    const TITHI_NAMES = [
+      "Pratipada", "Dwitiya", "Tritiya", "Chaturthi", "Panchami",
+      "Shashthi", "Saptami", "Ashtami", "Navami", "Dashami",
+      "Ekadashi", "Dwadashi", "Trayodashi", "Chaturdashi", "Purnima",
+      "Pratipada", "Dwitiya", "Tritiya", "Chaturthi", "Panchami",
+      "Shashthi", "Saptami", "Ashtami", "Navami", "Dashami",
+      "Ekadashi", "Dwadashi", "Trayodashi", "Chaturdashi", "Amavasya",
+    ]
+
+    // Timing
+    const rahuKaal = calculateRahuKaal(targetDate)
+    const auspiciousTime = calculateAuspiciousTime(targetDate)
+
+    // Lucky elements based on birth sun sign
+    const signName = sunSign?.name || "Aries"
+    const colours = LUCKY_COLOURS[signName] || ["White"]
+    const numbers = LUCKY_NUMBERS[signName] || [7]
+    const seed = targetDate.getFullYear() * 10000 + (targetDate.getMonth() + 1) * 100 + targetDate.getDate()
+    const luckyColour = colours[seed % colours.length]
+    const luckyNumber = numbers[seed % numbers.length]
+
+    // Category insights
+    const categories = generateCategoryInsights(
+      moonSign?.name || "Cancer",
+      signName,
+      dayLord?.lord || "Sun",
+      todayMoonLong,
+      targetDate,
+    )
+
+    // Date formatting
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    const dateLabel = `${months[targetDate.getMonth()]} ${targetDate.getDate()}`
+
+    return NextResponse.json({
+      success: true,
+      date: dateLabel,
+      dayOffset,
+      panchang: {
+        tithi: TITHI_NAMES[tithiNumber] || "Unknown",
+        paksha,
+        nakshatra: nakshatra?.name || "Unknown",
+        vara: dayLord?.name || "Unknown",
+        varaLord: dayLord?.lord || "Sun",
+      },
+      timing: {
+        auspiciousTime,
+        rahuKaal,
+      },
+      lucky: {
+        colour: luckyColour,
+        number: luckyNumber,
+      },
+      categories,
+      moonSign: moonSign?.name || "Unknown",
+      sunSign: signName,
+      place: placeOfBirth || "India",
+    })
+  } catch (err) {
+    console.error("Daily horoscope error:", err)
+    return NextResponse.json({ error: "Failed to generate horoscope" }, { status: 500 })
+  }
+}

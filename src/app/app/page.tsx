@@ -13,11 +13,15 @@ const MyChartTab = dynamic(() => import("@/components/app/tabs/MyChartTab"), { s
 const ReportsTab = dynamic(() => import("@/components/app/tabs/ReportsTab"), { ssr: false })
 const ProfileTab = dynamic(() => import("@/components/app/tabs/ProfileTab"), { ssr: false })
 const OnboardingFlow = dynamic(() => import("@/components/app/OnboardingFlow"), { ssr: false })
+const PricingOverlay = dynamic(() => import("@/components/app/PricingOverlay"), { ssr: false })
+const ReferralPage = dynamic(() => import("@/components/app/ReferralPage"), { ssr: false })
 
 export default function AppPage() {
   const [activeTab, setActiveTab] = useState<TabType>("home")
   const [askQuestion, setAskQuestion] = useState<string | undefined>(undefined)
   const [showOnboarding, setShowOnboarding] = useState(false)
+  const [showPricing, setShowPricing] = useState(false)
+  const [showReferral, setShowReferral] = useState(false)
   const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
@@ -95,11 +99,19 @@ export default function AppPage() {
             )}
 
             {activeTab === "reports" && (
-              <ReportsTab onProfileClick={goToProfile} />
+              <ReportsTab
+                onProfileClick={goToProfile}
+                onPricingClick={() => setShowPricing(true)}
+                onAskQuestion={(q) => goToAsk(q)}
+              />
             )}
 
             {activeTab === "profile" && (
-              <ProfileTab onPricingClick={() => {}} />
+              <ProfileTab
+                onPricingClick={() => setShowPricing(true)}
+                onReferralClick={() => setShowReferral(true)}
+                onAskQuestion={(q) => goToAsk(q)}
+              />
             )}
           </div>
 
@@ -110,6 +122,20 @@ export default function AppPage() {
             }
             setActiveTab(tab)
           }} />
+
+          {/* Overlays */}
+          <PricingOverlay
+            isOpen={showPricing}
+            onClose={() => setShowPricing(false)}
+          />
+          <AnimatePresence>
+            {showReferral && (
+              <ReferralPage
+                isOpen={showReferral}
+                onClose={() => setShowReferral(false)}
+              />
+            )}
+          </AnimatePresence>
         </>
       )}
     </div>

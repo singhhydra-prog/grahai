@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Heart, Briefcase, Gem, TrendingUp, Calendar, BookOpen, Lock, ArrowRight, X, ChevronRight } from "lucide-react"
+import { Heart, Briefcase, Gem, TrendingUp, Calendar, BookOpen, Lock, ArrowRight, X, ChevronRight, Download, Loader2, Sparkles } from "lucide-react"
 import AppHeader from "@/components/ui/AppHeader"
 import type { ReportCategoryId } from "@/types/app"
 
@@ -161,10 +161,74 @@ const REPORT_SECTIONS: ReportSection[] = [
 
 interface ReportsTabProps {
   onProfileClick: () => void
+  onPricingClick: () => void
+  onAskQuestion: (q: string) => void
 }
 
-export default function ReportsTab({ onProfileClick }: ReportsTabProps) {
+export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuestion }: ReportsTabProps) {
   const [selectedReport, setSelectedReport] = useState<ReportItem | null>(null)
+  const [generating, setGenerating] = useState(false)
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null)
+  const [genError, setGenError] = useState<string | null>(null)
+
+  const handleUnlock = async (report: ReportItem) => {
+    // Free reports → generate directly
+    if (report.pricing === "free") {
+      await handleGenerate()
+      return
+    }
+
+    // Paid (plus/premium/one-time) → open pricing overlay
+    onPricingClick()
+  }
+
+  const handleGenerate = async () => {
+    setGenerating(true)
+    setGenError(null)
+    setDownloadUrl(null)
+
+    try {
+      const bd = localStorage.getItem("grahai-onboarding-birthdata")
+      if (!bd) {
+        setGenError("Please complete onboarding first.")
+        setGenerating(false)
+        return
+      }
+
+      const birthData = JSON.parse(bd)
+      const res = await fetch("/api/reports/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          birthDetails: {
+            date: birthData.dateOfBirth,
+            time: birthData.timeOfBirth || "12:00",
+            place: birthData.placeOfBirth || "Unknown",
+            latitude: 28.6139,
+            longitude: 77.209,
+            timezone: 5.5,
+          },
+          name: birthData.name || "Native",
+        }),
+      })
+
+      const data = await res.json()
+      if (data.downloadUrl) {
+        setDownloadUrl(data.downloadUrl)
+      } else {
+        setGenError(data.error || "Failed to generate report. Please try again.")
+      }
+    } catch {
+      setGenError("Something went wrong. Please try again.")
+    } finally {
+      setGenerating(false)
+    }
+  }
+
+  const handleAskAboutTopic = (report: ReportItem) => {
+    const question = `Tell me about my ${report.title.toLowerCase()} based on my birth chart`
+    onAskQuestion(question)
+  }
 
   return (
     <div className="min-h-full pb-24">
@@ -183,7 +247,7 @@ export default function ReportsTab({ onProfileClick }: ReportsTabProps) {
             {/* Section header */}
             <div className="flex items-center gap-2 mb-3">
               <section.Icon className={`w-4 h-4 ${section.color}`} />
-              <h2 className="text-sm font-semibold text-[#F1F0F5]">{section.title}</h2>
+              <h2 className="text-sm font-semibold text-[#F1F0F5] text-visible">{section.title}</h2>
             </div>
 
             {/* Report cards */}
@@ -191,8 +255,8 @@ export default function ReportsTab({ onProfileClick }: ReportsTabProps) {
               {section.reports.map((report) => (
                 <button
                   key={report.id}
-                  onClick={() => setSelectedReport(report)}
-                  className="w-full text-left bg-[#111827] border border-[#1E293B] rounded-xl p-4
+                  onClick={() => { setSelectedReport(report); setDownloadUrl(null); setGenError(null) }}
+                  className="w-full text-left glass-card card-lift p-4
                     hover:border-[#D4A054]/15 transition-colors"
                 >
                   <div className="flex items-start gap-3">
@@ -244,7 +308,7 @@ export default function ReportsTab({ onProfileClick }: ReportsTabProps) {
               </button>
               {selectedReport.pricing !== "free" && (
                 <span className="text-sm font-semibold text-[#D4A054]">
-                  {selectedReport.pricing === "one-time" ? `₹${selectedReport.price}` : "Premium"}
+                  {selectedReport.pricing === "one-time" ? `₹${selectedReport.price}` : selectedReport.pricing === "plus" ? "Plus" : "Premium"}
                 </span>
               )}
             </div>
@@ -258,8 +322,8 @@ export default function ReportsTab({ onProfileClick }: ReportsTabProps) {
               </div>
 
               {/* What's inside */}
-              <div className="bg-[#111827] border border-[#1E293B] rounded-xl p-4 mb-4">
-                <h3 className="text-sm font-semibold text-[#F1F0F5] mb-3">What&apos;s inside</h3>
+              <div className="glass-card p-4 mb-4">
+                <h3 className="text-sm font-semibold text-[#F1F0F5] text-visible mb-3 relative z-10">What&apos;s inside</h3>
                 <div className="space-y-2">
                   {selectedReport.whatsInside.map((item, i) => (
                     <div key={i} className="flex items-center gap-2">
@@ -272,7 +336,7 @@ export default function ReportsTab({ onProfileClick }: ReportsTabProps) {
 
               {/* Preview snippet */}
               {selectedReport.previewSnippet && (
-                <div className="bg-[#0D1220] border border-[#D4A054]/10 rounded-xl p-4 mb-4">
+                <div className="glass-inner border border-[#D4A054]/10 rounded-xl p-4 mb-4">
                   <p className="text-xs text-[#D4A054] font-medium mb-2">Preview</p>
                   <p className="text-sm text-[#94A3B8] leading-relaxed italic">
                     &ldquo;{selectedReport.previewSnippet}&rdquo;
@@ -280,9 +344,40 @@ export default function ReportsTab({ onProfileClick }: ReportsTabProps) {
                 </div>
               )}
 
+              {/* Ask AI about this topic shortcut */}
+              <button
+                onClick={() => { handleAskAboutTopic(selectedReport); setSelectedReport(null) }}
+                className="w-full flex items-center gap-3 glass-card-hero px-4 py-3.5 mb-4
+                  hover:border-[#D4A054]/30 transition-colors"
+              >
+                <Sparkles className="w-4 h-4 text-[#D4A054]" />
+                <span className="text-sm text-[#94A3B8] flex-1">Ask GrahAI about this topic</span>
+                <ArrowRight className="w-4 h-4 text-[#5A6478]" />
+              </button>
+
+              {/* Download link (if generated) */}
+              {downloadUrl && (
+                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                  className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 mb-4 text-center">
+                  <p className="text-sm text-emerald-400 font-medium mb-2">Report ready!</p>
+                  <a href={downloadUrl} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/20 rounded-lg text-sm text-emerald-400 font-medium">
+                    <Download className="w-4 h-4" />
+                    Download PDF
+                  </a>
+                </motion.div>
+              )}
+
+              {/* Generation error */}
+              {genError && (
+                <div className="bg-rose-500/10 border border-rose-500/20 rounded-xl p-4 mb-4 text-center">
+                  <p className="text-sm text-rose-400">{genError}</p>
+                </div>
+              )}
+
               {/* FAQ */}
-              <div className="bg-[#111827] border border-[#1E293B] rounded-xl p-4">
-                <h3 className="text-sm font-semibold text-[#F1F0F5] mb-3">Common questions</h3>
+              <div className="glass-card p-4">
+                <h3 className="text-sm font-semibold text-[#F1F0F5] text-visible mb-3 relative z-10">Common questions</h3>
                 <div className="space-y-3">
                   <div>
                     <p className="text-xs font-medium text-[#94A3B8] mb-1">How accurate is this report?</p>
@@ -299,19 +394,33 @@ export default function ReportsTab({ onProfileClick }: ReportsTabProps) {
             {/* Sticky unlock button */}
             <div className="fixed bottom-0 left-0 right-0 px-5 pb-8 pt-4
               bg-gradient-to-t from-[#0A0E1A] via-[#0A0E1A]/95 to-transparent">
-              <button className="w-full py-4 rounded-2xl font-semibold text-sm btn-primary
-                flex items-center justify-center gap-2">
-                {selectedReport.pricing === "free" ? (
-                  "View Report"
+              <button
+                onClick={() => handleUnlock(selectedReport)}
+                disabled={generating}
+                className="w-full py-4 rounded-2xl font-semibold text-sm btn-primary
+                  flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {generating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Generating report...
+                  </>
+                ) : downloadUrl ? (
+                  <>
+                    <Download className="w-4 h-4" />
+                    Download Report
+                  </>
+                ) : selectedReport.pricing === "free" ? (
+                  <>Generate Report<ArrowRight className="w-4 h-4" /></>
                 ) : selectedReport.pricing === "one-time" ? (
-                  <>Unlock for ₹{selectedReport.price}</>
+                  <>Unlock for ₹{selectedReport.price}<ArrowRight className="w-4 h-4" /></>
                 ) : (
                   <>
                     <Lock className="w-4 h-4" />
-                    Upgrade to {selectedReport.pricing === "plus" ? "Plus" : "Premium"}
+                    Upgrade to {selectedReport.pricing === "plus" ? "Graha" : "Rishi"}
+                    <ArrowRight className="w-4 h-4" />
                   </>
                 )}
-                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           </motion.div>

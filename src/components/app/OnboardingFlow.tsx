@@ -10,7 +10,7 @@ import {
 import type { BirthData, IntentCategory, CosmicSnapshot } from "@/types/app"
 
 interface OnboardingFlowProps {
-  onComplete: (data: BirthData) => void
+  onComplete: () => void
 }
 
 const STEPS = [
@@ -37,6 +37,58 @@ const TRUST_CARDS = [
   { Icon: Shield, title: "Useful for real-life decisions", desc: "Career, love, timing, money — guidance you can actually act on." },
 ]
 
+function getWesternSunSign(dateStr: string): string {
+  try {
+    const d = new Date(dateStr)
+    const month = d.getMonth() + 1
+    const day = d.getDate()
+    const signs: [number, number, string][] = [
+      [1, 20, "Capricorn"], [2, 19, "Aquarius"], [3, 20, "Pisces"], [4, 20, "Aries"],
+      [5, 21, "Taurus"], [6, 21, "Gemini"], [7, 22, "Cancer"], [8, 23, "Leo"],
+      [9, 23, "Virgo"], [10, 23, "Libra"], [11, 22, "Scorpio"], [12, 22, "Sagittarius"],
+    ]
+    for (let i = signs.length - 1; i >= 0; i--) {
+      if (month > signs[i][0] || (month === signs[i][0] && day >= signs[i][1])) {
+        return signs[i][2]
+      }
+    }
+    return "Capricorn"
+  } catch { return "Unknown" }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function transformApiResponse(apiData: any, dateOfBirth: string): CosmicSnapshot {
+  const snap = apiData?.snapshot
+  if (!snap) return makeFallbackSnapshot()
+
+  return {
+    profile: {
+      moonSign: snap.vedicSign?.name || "Calculating...",
+      risingSign: snap.vedicSign?.name || "Calculating...",
+      sunSignVedic: snap.vedicSign?.name || "Calculating...",
+      sunSignWestern: getWesternSunSign(dateOfBirth),
+      nakshatra: snap.nakshatra?.name || "Calculating...",
+      nakshatraPada: snap.nakshatra?.pada,
+      dominantTheme: snap.element?.name ? `${snap.element.name} Element — ${snap.rulingPlanet?.name || ""}` : "Active Growth Phase",
+    },
+    todayInsight: snap.todayTransit?.detail || "Your chart shows a period of thoughtful progress. Trust the process.",
+    dominantLifeTheme: snap.element?.insight || "You have a unique cosmic blueprint that shapes your journey in profound ways.",
+    suggestedFirstQuestion: `What should I focus on this month based on my ${snap.vedicSign?.name || "chart"} energy?`,
+  }
+}
+
+function makeFallbackSnapshot(): CosmicSnapshot {
+  return {
+    profile: {
+      moonSign: "Cancer", risingSign: "Leo", sunSignVedic: "Virgo",
+      sunSignWestern: "Libra", nakshatra: "Pushya", dominantTheme: "Patience Before Progress"
+    },
+    todayInsight: "Your chart shows a period of thoughtful decision-making. Focus on clarity over speed.",
+    dominantLifeTheme: "You tend to think deeply before acting, but right now your chart shows momentum building.",
+    suggestedFirstQuestion: "What should I focus on this month for career growth?"
+  }
+}
+
 export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [step, setStep] = useState(0)
   const [intent, setIntent] = useState<IntentCategory | null>(null)
@@ -51,70 +103,53 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [snapshot, setSnapshot] = useState<CosmicSnapshot | null>(null)
 
   const canProceed = useCallback(() => {
-    if (step === 0) return true // welcome
-    if (step === 1) return intent !== null // intent
-    if (step === 2) return true // trust
+    if (step === 0) return true
+    if (step === 1) return intent !== null
+    if (step === 2) return true
     if (step === 3) {
       return form.name.trim().length >= 2 && form.dateOfBirth && form.placeOfBirth.trim() && (timeUnknown || form.timeOfBirth)
     }
-    if (step === 4) return true // reveal
+    if (step === 4) return true
     return false
   }, [step, intent, form, timeUnknown])
 
   const handleNext = async () => {
     if (step === 3) {
-      // Submit birth details, generate chart, then show reveal
       setIsSubmitting(true)
       try {
         const birthData = { ...form, timeUnknown }
         localStorage.setItem("grahai-onboarding-birthdata", JSON.stringify(birthData))
         localStorage.setItem("userNameForGreeting", form.name.split(" ")[0])
         if (intent) localStorage.setItem("grahai-user-intent", intent)
+        localStorage.setItem("grahai-questions-left", "3")
 
         const res = await fetch("/api/cosmic-snapshot", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(birthData),
+          body: JSON.stringify({ birthDate: form.dateOfBirth }),
         })
         if (res.ok) {
-          const data = await res.json()
-          localStorage.setItem("grahai-cosmic-snapshot", JSON.stringify(data))
-          setSnapshot(data)
+          const apiData = await res.json()
+          const transformed = transformApiResponse(apiData, form.dateOfBirth)
+          // Store raw API data for MyChartTab, AND transformed for quick reads
+          localStorage.setItem("grahai-cosmic-snapshot", JSON.stringify(apiData))
+          setSnapshot(transformed)
         } else {
-          // Fallback snapshot
-          setSnapshot({
-            profile: {
-              moonSign: "Cancer", risingSign: "Leo", sunSignVedic: "Virgo",
-              sunSignWestern: "Libra", nakshatra: "Pushya", dominantTheme: "Patience Before Progress"
-            },
-            todayInsight: "Your chart shows a period of thoughtful decision-making. Focus on clarity over speed.",
-            dominantLifeTheme: "You tend to think deeply before acting, but right now your chart shows momentum building.",
-            suggestedFirstQuestion: "What should I focus on this month for career growth?"
-          })
+          const fallback = makeFallbackSnapshot()
+          setSnapshot(fallback)
         }
       } catch {
-        setSnapshot({
-          profile: {
-            moonSign: "Cancer", risingSign: "Leo", sunSignVedic: "Virgo",
-            sunSignWestern: "Libra", nakshatra: "Pushya", dominantTheme: "Patience Before Progress"
-          },
-          todayInsight: "Your chart shows a period of thoughtful decision-making. Focus on clarity over speed.",
-          dominantLifeTheme: "You tend to think deeply before acting, but right now your chart shows momentum building.",
-          suggestedFirstQuestion: "What should I focus on this month for career growth?"
-        })
+        setSnapshot(makeFallbackSnapshot())
       }
       setIsSubmitting(false)
       setStep(4)
       return
     }
     if (step === 4) {
-      // Done — enter the app
-      onComplete(form)
+      onComplete()
       return
     }
-    if (step < STEPS.length - 1) {
-      setStep(step + 1)
-    }
+    if (step < STEPS.length - 1) setStep(step + 1)
   }
 
   const handleBack = () => {
@@ -176,7 +211,6 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               variants={slideVariants} initial="enter" animate="center" exit="exit"
               className="text-center max-w-sm"
             >
-              {/* Sacred geometry placeholder */}
               <div className="w-40 h-40 mx-auto mb-8 relative">
                 <div className="absolute inset-0 rounded-full border border-[#D4A054]/15 animate-[rotate-slow_40s_linear_infinite]" />
                 <div className="absolute inset-3 rounded-full border border-[#D4A054]/10 animate-[rotate-slow_60s_linear_infinite_reverse]" />
@@ -245,7 +279,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             </motion.div>
           )}
 
-          {/* ═══ Step 2: Trust / Philosophy ═══ */}
+          {/* ═══ Step 2: Trust ═══ */}
           {step === 2 && (
             <motion.div
               key="trust"
@@ -256,11 +290,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 <h2 className="text-2xl font-bold text-[#F1F0F5] mb-2">
                   Not generic. Not random.
                 </h2>
-                <p className="text-sm text-[#5A6478]">
-                  Built around your chart.
-                </p>
+                <p className="text-sm text-[#5A6478]">Built around your chart.</p>
               </div>
-
               <div className="space-y-4">
                 {TRUST_CARDS.map(({ Icon, title, desc }, i) => (
                   <motion.div
@@ -292,83 +323,50 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             >
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-[#F1F0F5] mb-2">Your birth details</h2>
-                <p className="text-sm text-[#5A6478]">
-                  Accurate details lead to precise guidance
-                </p>
+                <p className="text-sm text-[#5A6478]">Accurate details lead to precise guidance</p>
               </div>
 
               <div className="space-y-4">
-                {/* Name */}
                 <div>
                   <label className="text-xs font-medium text-[#94A3B8] mb-1.5 block">Full Name</label>
-                  <input
-                    type="text"
-                    value={form.name}
-                    onChange={(e) => updateField("name", e.target.value)}
-                    placeholder="Enter your full name"
-                    autoFocus
+                  <input type="text" value={form.name} onChange={(e) => updateField("name", e.target.value)}
+                    placeholder="Enter your full name" autoFocus
                     className="w-full bg-[#0D1220] border border-[#1E293B] rounded-xl px-4 py-3.5
                       text-[#F1F0F5] text-sm placeholder:text-[#5A6478]/50
-                      focus:border-[#D4A054]/40 focus:outline-none transition-colors"
-                  />
+                      focus:border-[#D4A054]/40 focus:outline-none transition-colors" />
                 </div>
-
-                {/* Date of Birth */}
                 <div>
                   <label className="flex items-center gap-2 text-xs font-medium text-[#94A3B8] mb-1.5">
-                    <Calendar className="w-3.5 h-3.5" />
-                    Date of Birth
+                    <Calendar className="w-3.5 h-3.5" />Date of Birth
                   </label>
-                  <input
-                    type="date"
-                    value={form.dateOfBirth}
-                    onChange={(e) => updateField("dateOfBirth", e.target.value)}
+                  <input type="date" value={form.dateOfBirth} onChange={(e) => updateField("dateOfBirth", e.target.value)}
                     className="w-full bg-[#0D1220] border border-[#1E293B] rounded-xl px-4 py-3
-                      text-[#F1F0F5] text-sm focus:border-[#D4A054]/40 focus:outline-none transition-colors"
-                  />
+                      text-[#F1F0F5] text-sm focus:border-[#D4A054]/40 focus:outline-none transition-colors [color-scheme:dark]" />
                 </div>
-
-                {/* Time of Birth */}
                 <div>
                   <label className="flex items-center gap-2 text-xs font-medium text-[#94A3B8] mb-1.5">
-                    <Clock className="w-3.5 h-3.5" />
-                    Time of Birth
+                    <Clock className="w-3.5 h-3.5" />Time of Birth
                   </label>
-                  <input
-                    type="time"
-                    value={form.timeOfBirth}
-                    onChange={(e) => updateField("timeOfBirth", e.target.value)}
+                  <input type="time" value={form.timeOfBirth} onChange={(e) => updateField("timeOfBirth", e.target.value)}
                     disabled={timeUnknown}
                     className={`w-full bg-[#0D1220] border border-[#1E293B] rounded-xl px-4 py-3
                       text-[#F1F0F5] text-sm focus:border-[#D4A054]/40 focus:outline-none transition-colors
-                      ${timeUnknown ? "opacity-40" : ""}`}
-                  />
+                      [color-scheme:dark] ${timeUnknown ? "opacity-40" : ""}`} />
                   <label className="flex items-center gap-2 mt-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={timeUnknown}
-                      onChange={(e) => setTimeUnknown(e.target.checked)}
-                      className="w-4 h-4 rounded border-[#1E293B] bg-[#0D1220] accent-[#D4A054]"
-                    />
+                    <input type="checkbox" checked={timeUnknown} onChange={(e) => setTimeUnknown(e.target.checked)}
+                      className="w-4 h-4 rounded border-[#1E293B] bg-[#0D1220] accent-[#D4A054]" />
                     <span className="text-xs text-[#5A6478]">I don&apos;t know my birth time</span>
                   </label>
                 </div>
-
-                {/* Place of Birth */}
                 <div>
                   <label className="flex items-center gap-2 text-xs font-medium text-[#94A3B8] mb-1.5">
-                    <MapPin className="w-3.5 h-3.5" />
-                    Place of Birth
+                    <MapPin className="w-3.5 h-3.5" />Place of Birth
                   </label>
-                  <input
-                    type="text"
-                    value={form.placeOfBirth}
-                    onChange={(e) => updateField("placeOfBirth", e.target.value)}
+                  <input type="text" value={form.placeOfBirth} onChange={(e) => updateField("placeOfBirth", e.target.value)}
                     placeholder="e.g. Mumbai, India"
                     className="w-full bg-[#0D1220] border border-[#1E293B] rounded-xl px-4 py-3
                       text-[#F1F0F5] text-sm placeholder:text-[#5A6478]/50
-                      focus:border-[#D4A054]/40 focus:outline-none transition-colors"
-                  />
+                      focus:border-[#D4A054]/40 focus:outline-none transition-colors" />
                 </div>
               </div>
             </motion.div>
@@ -391,71 +389,42 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 >
                   <Sparkles className="w-7 h-7 text-[#D4A054]" />
                 </motion.div>
-                <h2 className="text-2xl font-bold text-[#F1F0F5] mb-1">
-                  Your chart, at first glance
-                </h2>
+                <h2 className="text-2xl font-bold text-[#F1F0F5] mb-1">Your chart, at first glance</h2>
                 <p className="text-xs text-[#5A6478]">{form.name.split(" ")[0]}&apos;s cosmic blueprint</p>
               </div>
 
-              {/* Quick chart stats */}
               <div className="grid grid-cols-3 gap-2 mb-5">
                 {[
-                  { label: "Moon Sign", value: snapshot.profile.moonSign },
+                  { label: "Vedic Sign", value: snapshot.profile.sunSignVedic },
                   { label: "Nakshatra", value: snapshot.profile.nakshatra },
-                  { label: "Rising", value: snapshot.profile.risingSign },
+                  { label: "Western", value: snapshot.profile.sunSignWestern },
                 ].map((item, i) => (
-                  <motion.div
-                    key={item.label}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
+                  <motion.div key={item.label}
+                    initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 + i * 0.1 }}
-                    className="bg-[#111827] border border-[#1E293B] rounded-xl p-3 text-center"
-                  >
+                    className="bg-[#111827] border border-[#1E293B] rounded-xl p-3 text-center">
                     <p className="text-[10px] text-[#5A6478] mb-1">{item.label}</p>
                     <p className="text-sm font-semibold text-[#D4A054]">{item.value}</p>
                   </motion.div>
                 ))}
               </div>
 
-              {/* Dominant theme card */}
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-                className="bg-[#111827] border border-[#D4A054]/15 rounded-xl p-4 mb-4"
-              >
-                <p className="text-xs text-[#D4A054] font-medium mb-2">
-                  {snapshot.profile.dominantTheme || "Active Theme"}
-                </p>
-                <p className="text-sm text-[#94A3B8] leading-relaxed">
-                  {snapshot.dominantLifeTheme}
-                </p>
+              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
+                className="bg-[#111827] border border-[#D4A054]/15 rounded-xl p-4 mb-4">
+                <p className="text-xs text-[#D4A054] font-medium mb-2">{snapshot.profile.dominantTheme || "Active Theme"}</p>
+                <p className="text-sm text-[#94A3B8] leading-relaxed">{snapshot.dominantLifeTheme}</p>
               </motion.div>
 
-              {/* Today insight */}
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
-                className="bg-[#0D1220] border border-[#1E293B] rounded-xl p-4 mb-4"
-              >
+              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}
+                className="bg-[#0D1220] border border-[#1E293B] rounded-xl p-4 mb-4">
                 <p className="text-xs text-[#5A6478] font-medium mb-2">Today</p>
-                <p className="text-sm text-[#94A3B8] leading-relaxed">
-                  {snapshot.todayInsight}
-                </p>
+                <p className="text-sm text-[#94A3B8] leading-relaxed">{snapshot.todayInsight}</p>
               </motion.div>
 
-              {/* Suggested question chip */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1 }}
-                className="text-center"
-              >
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
+                className="text-center">
                 <p className="text-[10px] text-[#5A6478] mb-2">Try asking</p>
-                <p className="text-xs text-[#D4A054]/70 italic">
-                  &ldquo;{snapshot.suggestedFirstQuestion}&rdquo;
-                </p>
+                <p className="text-xs text-[#D4A054]/70 italic">&ldquo;{snapshot.suggestedFirstQuestion}&rdquo;</p>
               </motion.div>
             </motion.div>
           )}
@@ -481,33 +450,15 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               <span>Reading your chart...</span>
             </>
           ) : step === 0 ? (
-            <>
-              Get my first insight
-              <ArrowRight className="w-4 h-4" />
-            </>
+            <>Get my first insight<ArrowRight className="w-4 h-4" /></>
           ) : step === 4 ? (
-            <>
-              <Sparkles className="w-4 h-4" />
-              Enter GrahAI
-            </>
+            <><Sparkles className="w-4 h-4" />Enter GrahAI</>
           ) : step === 3 ? (
-            <>
-              <Sparkles className="w-4 h-4" />
-              Generate my chart
-            </>
+            <><Sparkles className="w-4 h-4" />Generate my chart</>
           ) : (
-            <>
-              Continue
-              <ArrowRight className="w-4 h-4" />
-            </>
+            <>Continue<ArrowRight className="w-4 h-4" /></>
           )}
         </motion.button>
-
-        {step === 0 && (
-          <button className="w-full text-center mt-3 text-xs text-[#5A6478] hover:text-[#94A3B8] transition-colors">
-            See how GrahAI works
-          </button>
-        )}
       </div>
     </motion.div>
   )

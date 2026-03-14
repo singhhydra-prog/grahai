@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════
-   GrahAI Design System v3
-   Premium dark · Navy/Gold · Calm & Intelligent
+   GrahAI Design System v3.5
+   Premium dark · Navy/Gold · Glass 3D
+   Shooting Stars · Constellations · Elevated
    ═══════════════════════════════════════════ */
 
 @theme {
@@ -82,7 +83,11 @@ body {
   color: white;
 }
 
-/* ═══ Animations ═══ */
+
+/* ══════════════════════════════════════════════
+   ANIMATIONS
+   ══════════════════════════════════════════════ */
+
 @keyframes fade-in-up {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
@@ -118,7 +123,70 @@ body {
   50% { box-shadow: 0 0 40px rgba(212, 160, 84, 0.2); }
 }
 
-/* ═══ Utility Classes ═══ */
+/* ─── Shooting star animation ─── */
+@keyframes shooting-star {
+  0% {
+    transform: translateX(0) translateY(0) rotate(-45deg);
+    opacity: 0;
+  }
+  5% { opacity: 1; }
+  15% { opacity: 1; }
+  30% {
+    transform: translateX(300px) translateY(300px) rotate(-45deg);
+    opacity: 0;
+  }
+  100% { opacity: 0; }
+}
+
+@keyframes shooting-star-2 {
+  0% {
+    transform: translateX(0) translateY(0) rotate(-35deg);
+    opacity: 0;
+  }
+  8% { opacity: 0.8; }
+  20% { opacity: 0.8; }
+  40% {
+    transform: translateX(250px) translateY(180px) rotate(-35deg);
+    opacity: 0;
+  }
+  100% { opacity: 0; }
+}
+
+@keyframes shooting-star-3 {
+  0% {
+    transform: translateX(0) translateY(0) rotate(-50deg);
+    opacity: 0;
+  }
+  3% { opacity: 0.6; }
+  12% { opacity: 0.6; }
+  25% {
+    transform: translateX(200px) translateY(250px) rotate(-50deg);
+    opacity: 0;
+  }
+  100% { opacity: 0; }
+}
+
+/* ─── Constellation pulse ─── */
+@keyframes constellation-glow {
+  0%, 100% { opacity: 0.03; }
+  50% { opacity: 0.08; }
+}
+
+@keyframes constellation-glow-2 {
+  0%, 100% { opacity: 0.02; }
+  50% { opacity: 0.06; }
+}
+
+/* ─── Glass 3D depth-pulse ─── */
+@keyframes glass-depth {
+  0%, 100% { box-shadow: 0 2px 12px rgba(0,0,0,0.2), 0 0 0 1px rgba(212,160,84,0.04), inset 0 1px 0 rgba(255,255,255,0.03); }
+  50% { box-shadow: 0 4px 20px rgba(0,0,0,0.3), 0 0 0 1px rgba(212,160,84,0.08), inset 0 1px 0 rgba(255,255,255,0.05); }
+}
+
+
+/* ══════════════════════════════════════════════
+   UTILITY CLASSES
+   ══════════════════════════════════════════════ */
 
 /* Gold gradient background */
 .gold-gradient {
@@ -140,11 +208,69 @@ body {
               linear-gradient(135deg, var(--color-gold-soft), transparent, var(--color-gold-soft)) border-box;
 }
 
-/* Glass card */
+/* ═══ Glass 3D Card System ═══ */
 .glass-card {
-  background: rgba(17, 24, 39, 0.8);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--color-border);
+  background: rgba(17, 24, 39, 0.65);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.25),
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.2) inset;
+  border-radius: 16px;
+  position: relative;
+}
+.glass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    transparent 40%,
+    transparent 60%,
+    rgba(212, 160, 84, 0.02) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* More prominent glass for hero/featured cards */
+.glass-card-hero {
+  background: rgba(17, 24, 39, 0.55);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border: 1px solid rgba(212, 160, 84, 0.12);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 2px 0 rgba(255, 255, 255, 0.05) inset,
+    0 0 40px rgba(212, 160, 84, 0.04);
+  border-radius: 20px;
+  position: relative;
+}
+.glass-card-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 35%,
+    transparent 65%,
+    rgba(212, 160, 84, 0.04) 100%
+  );
+  pointer-events: none;
+}
+
+/* Glass inner nested card (for inner sections within a glass card) */
+.glass-inner {
+  background: rgba(10, 14, 26, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 /* Elevated card with subtle gold top border */
@@ -159,6 +285,33 @@ body {
   box-shadow: 0 0 20px var(--color-gold-glow), 0 0 60px rgba(212, 160, 84, 0.05);
 }
 
+/* ═══ 3D Text Effects ═══ */
+.text-3d {
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(212, 160, 84, 0.1);
+}
+
+.text-3d-gold {
+  background: linear-gradient(180deg, #E8C278 0%, #D4A054 50%, #A16E2A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 2px 4px rgba(212, 160, 84, 0.3));
+}
+
+.text-glow {
+  text-shadow:
+    0 0 10px rgba(212, 160, 84, 0.15),
+    0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* Visible text enhancement — slightly brighter with soft shadow */
+.text-visible {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.01em;
+}
+
 /* Primary button */
 .btn-primary {
   background: linear-gradient(135deg, var(--color-gold), var(--color-grad-end));
@@ -166,11 +319,12 @@ body {
   font-weight: 600;
   border-radius: 12px;
   transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(212, 160, 84, 0.2), inset 0 1px 0 rgba(255,255,255,0.15);
 }
 .btn-primary:hover {
   opacity: 0.92;
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(212, 160, 84, 0.25);
+  box-shadow: 0 8px 24px rgba(212, 160, 84, 0.3), inset 0 1px 0 rgba(255,255,255,0.15);
 }
 .btn-primary:active {
   transform: translateY(0);
@@ -178,16 +332,19 @@ body {
 
 /* Secondary button */
 .btn-secondary {
-  background: var(--color-bg-elevated);
+  background: rgba(30, 38, 56, 0.7);
   color: var(--color-text);
   font-weight: 500;
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
   transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 .btn-secondary:hover {
   border-color: var(--color-gold-soft);
-  background: var(--color-bg-card-hover);
+  background: rgba(26, 34, 54, 0.85);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
 }
 
 /* Animate in */
@@ -195,7 +352,11 @@ body {
   animation: fade-in-up 0.4s ease-out both;
 }
 
-/* ═══ Subtle star field ═══ */
+
+/* ══════════════════════════════════════════════
+   STARFIELD + SHOOTING STARS + CONSTELLATIONS
+   ══════════════════════════════════════════════ */
+
 .starfield {
   position: fixed;
   inset: 0;
@@ -204,6 +365,7 @@ body {
   z-index: 0;
 }
 
+/* ─── Static star layers ─── */
 .starfield::before,
 .starfield::after {
   content: '';
@@ -213,28 +375,188 @@ body {
   border-radius: 50%;
   background: white;
   box-shadow:
-    100px 50px 0 0.5px rgba(255,255,255,0.15),
-    250px 120px 0 0.5px rgba(255,255,255,0.1),
-    400px 80px 0 0.5px rgba(255,255,255,0.08),
-    600px 200px 0 0.5px rgba(255,255,255,0.12),
-    150px 300px 0 0.5px rgba(255,255,255,0.1),
-    350px 400px 0 0.5px rgba(255,255,255,0.06),
-    500px 150px 0 0.5px rgba(255,255,255,0.15),
-    700px 350px 0 0.5px rgba(255,255,255,0.08),
-    50px 450px 0 0.5px rgba(255,255,255,0.1),
-    800px 100px 0 0.5px rgba(255,255,255,0.12);
+    100px 50px 0 0.5px rgba(255,255,255,0.18),
+    250px 120px 0 0.5px rgba(255,255,255,0.12),
+    400px 80px 0 1px rgba(255,255,255,0.1),
+    600px 200px 0 0.5px rgba(255,255,255,0.15),
+    150px 300px 0 0.5px rgba(255,255,255,0.12),
+    350px 400px 0 1px rgba(255,255,255,0.08),
+    500px 150px 0 0.5px rgba(255,255,255,0.18),
+    700px 350px 0 0.5px rgba(255,255,255,0.1),
+    50px 450px 0 0.5px rgba(255,255,255,0.12),
+    800px 100px 0 1px rgba(255,255,255,0.15),
+    180px 520px 0 0.5px rgba(255,255,255,0.08),
+    420px 620px 0 0.5px rgba(255,255,255,0.1),
+    660px 480px 0 1px rgba(255,255,255,0.12),
+    880px 280px 0 0.5px rgba(255,255,255,0.06),
+    320px 700px 0 0.5px rgba(255,255,255,0.1);
   animation: pulse-soft 8s ease-in-out infinite;
 }
 
 .starfield::after {
   animation-delay: -4s;
   box-shadow:
-    80px 150px 0 0.5px rgba(212,160,84,0.08),
-    320px 280px 0 0.5px rgba(45,212,191,0.06),
-    560px 420px 0 0.5px rgba(212,160,84,0.06),
-    180px 60px 0 0.5px rgba(45,212,191,0.08),
-    720px 180px 0 0.5px rgba(212,160,84,0.06);
+    80px 150px 0 0.5px rgba(212,160,84,0.1),
+    320px 280px 0 0.5px rgba(45,212,191,0.08),
+    560px 420px 0 0.5px rgba(212,160,84,0.08),
+    180px 60px 0 0.5px rgba(45,212,191,0.1),
+    720px 180px 0 0.5px rgba(212,160,84,0.08),
+    440px 550px 0 0.5px rgba(45,212,191,0.06),
+    620px 100px 0 0.5px rgba(212,160,84,0.06),
+    260px 480px 0 0.5px rgba(45,212,191,0.08);
 }
+
+/* ─── Shooting Stars ─── */
+.shooting-stars {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.shooting-stars .star-1,
+.shooting-stars .star-2,
+.shooting-stars .star-3 {
+  position: absolute;
+  width: 80px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(212,160,84,0.6), rgba(212,160,84,0.2), transparent);
+  border-radius: 100px;
+  opacity: 0;
+}
+.shooting-stars .star-1::after,
+.shooting-stars .star-2::after,
+.shooting-stars .star-3::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -1px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(232, 194, 120, 0.9);
+  box-shadow: 0 0 6px rgba(212, 160, 84, 0.6);
+}
+
+.shooting-stars .star-1 {
+  top: 8%;
+  left: 15%;
+  animation: shooting-star 8s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
+.shooting-stars .star-2 {
+  top: 22%;
+  left: 55%;
+  width: 60px;
+  animation: shooting-star-2 12s ease-in-out infinite;
+  animation-delay: 5s;
+}
+
+.shooting-stars .star-3 {
+  top: 40%;
+  left: 35%;
+  width: 50px;
+  animation: shooting-star-3 15s ease-in-out infinite;
+  animation-delay: 9s;
+}
+
+/* ─── Constellation Patterns (CSS-only) ─── */
+.constellations {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Constellation 1: Triangle-like pattern (top-right) */
+.constellations .const-1 {
+  position: absolute;
+  top: 5%;
+  right: 10%;
+  width: 120px;
+  height: 100px;
+  animation: constellation-glow 12s ease-in-out infinite;
+}
+.constellations .const-1::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(255,255,255,0.35) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 90% 20%, rgba(255,255,255,0.3) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 50% 90%, rgba(255,255,255,0.25) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 30% 50%, rgba(255,255,255,0.2) 1px, transparent 1px);
+}
+.constellations .const-1::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, transparent 9%, rgba(255,255,255,0.04) 10%, rgba(255,255,255,0.04) 89%, transparent 90%),
+    linear-gradient(165deg, transparent 9%, rgba(255,255,255,0.03) 10%, rgba(255,255,255,0.03) 49%, transparent 50%),
+    linear-gradient(200deg, transparent 49%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.03) 89%, transparent 90%);
+  background-size: 100% 1px, 100% 100%, 100% 100%;
+  background-position: top 15% left 0, top left, top left;
+  background-repeat: no-repeat;
+}
+
+/* Constellation 2: Arc pattern (bottom-left) */
+.constellations .const-2 {
+  position: absolute;
+  bottom: 25%;
+  left: 5%;
+  width: 100px;
+  height: 80px;
+  animation: constellation-glow-2 16s ease-in-out infinite;
+  animation-delay: -6s;
+}
+.constellations .const-2::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 5% 40%, rgba(212,160,84,0.25) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 35% 15%, rgba(212,160,84,0.2) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 65% 10%, rgba(212,160,84,0.25) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 95% 30%, rgba(212,160,84,0.2) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 50% 80%, rgba(212,160,84,0.15) 1px, transparent 1px);
+}
+.constellations .const-2::after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 5%;
+  width: 90%;
+  height: 50%;
+  border-top: 1px solid rgba(212,160,84,0.04);
+  border-radius: 60% 60% 0 0;
+}
+
+/* Constellation 3: Scattered cluster (mid-right) */
+.constellations .const-3 {
+  position: absolute;
+  top: 55%;
+  right: 8%;
+  width: 80px;
+  height: 90px;
+  animation: constellation-glow 20s ease-in-out infinite;
+  animation-delay: -10s;
+}
+.constellations .const-3::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(45,212,191,0.2) 1px, transparent 1px),
+    radial-gradient(circle at 70% 25%, rgba(45,212,191,0.25) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 40% 60%, rgba(45,212,191,0.2) 1px, transparent 1px),
+    radial-gradient(circle at 80% 75%, rgba(45,212,191,0.15) 1px, transparent 1px),
+    radial-gradient(circle at 15% 85%, rgba(45,212,191,0.2) 1.5px, transparent 1.5px);
+}
+
 
 /* ═══ Sacred geometry motif (CSS only) ═══ */
 .sacred-motif {
@@ -253,6 +575,24 @@ body {
   animation: rotate-slow 60s linear infinite;
   pointer-events: none;
 }
+
+
+/* ══════════════════════════════════════════════
+   BOTTOM NAV GLASS
+   ══════════════════════════════════════════════ */
+
+.bottom-nav-glass {
+  background: rgba(10, 14, 26, 0.75);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
+}
+
+
+/* ══════════════════════════════════════════════
+   MISC UTILITIES
+   ══════════════════════════════════════════════ */
 
 /* ═══ Safe area for mobile ═══ */
 .pb-safe {
@@ -276,7 +616,42 @@ body {
 
 /* ═══ Source drawer ═══ */
 .source-drawer {
-  background: var(--color-bg-surface);
-  border-top: 1px solid var(--color-border);
+  background: rgba(21, 28, 44, 0.9);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 16px 16px 0 0;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* ═══ Premium shimmer on gold elements ═══ */
+.gold-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.gold-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255,255,255,0.08) 45%,
+    rgba(255,255,255,0.12) 50%,
+    rgba(255,255,255,0.08) 55%,
+    transparent 60%
+  );
+  animation: shimmer 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ═══ Category card hover lift ═══ */
+.card-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+.card-lift:active {
+  transform: translateY(0);
 }

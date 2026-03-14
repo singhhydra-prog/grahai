@@ -1,10 +1,25 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import { Sparkles, ArrowRight, Heart, Briefcase, Zap, ChevronRight } from "lucide-react"
+import { useState, useEffect, useCallback } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import {
+  Sparkles, ArrowRight, Heart, Briefcase, User,
+  DollarSign
+} from "lucide-react"
 import AppHeader from "@/components/ui/AppHeader"
-import type { CosmicSnapshot } from "@/types/app"
+import type { BirthData } from "@/types/app"
+
+interface DailyHoroscope {
+  date: string
+  dayOffset: number
+  panchang: { tithi: string; paksha: string; nakshatra: string; vara: string; varaLord: string }
+  timing: { auspiciousTime: { start: string; end: string }; rahuKaal: { start: string; end: string } }
+  lucky: { colour: string; number: number }
+  categories: { wealth: string; relationship: string; career: string; self: string }
+  moonSign: string
+  sunSign: string
+  place: string
+}
 
 interface HomeTabProps {
   onAskQuestion: (question?: string) => void
@@ -12,160 +27,241 @@ interface HomeTabProps {
   onViewReports: () => void
 }
 
+const CATEGORY_CARDS: { key: keyof DailyHoroscope["categories"]; label: string; Icon: typeof Heart; color: string }[] = [
+  { key: "wealth", label: "Wealth", Icon: DollarSign, color: "text-emerald-400" },
+  { key: "relationship", label: "Relationship", Icon: Heart, color: "text-rose-400" },
+  { key: "career", label: "Job", Icon: Briefcase, color: "text-amber-400" },
+  { key: "self", label: "Self", Icon: User, color: "text-purple-400" },
+]
+
 export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }: HomeTabProps) {
-  const [snapshot, setSnapshot] = useState<CosmicSnapshot | null>(null)
+  const [horoscope, setHoroscope] = useState<DailyHoroscope | null>(null)
+  const [dayOffset, setDayOffset] = useState(0)
+  const [loading, setLoading] = useState(true)
   const [userName, setUserName] = useState("")
+  const [birthData, setBirthData] = useState<BirthData | null>(null)
 
   useEffect(() => {
     try {
       const name = localStorage.getItem("userNameForGreeting")
       if (name) setUserName(name)
-      const snap = localStorage.getItem("grahai-cosmic-snapshot")
-      if (snap) setSnapshot(JSON.parse(snap))
+      const bd = localStorage.getItem("grahai-onboarding-birthdata")
+      if (bd) setBirthData(JSON.parse(bd))
     } catch {}
   }, [])
 
-  // Defaults if no snapshot
-  const theme = snapshot?.profile?.dominantTheme || "Patience Before Progress"
-  const todayBody = snapshot?.todayInsight ||
-    "Your chart points to a slower but more intelligent pace today. Focus on decisions that require judgment, not reaction."
+  const fetchHoroscope = useCallback(async (offset: number) => {
+    if (!birthData?.dateOfBirth) {
+      setLoading(false)
+      return
+    }
+    setLoading(true)
+    try {
+      const res = await fetch("/api/daily-horoscope", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          birthDate: birthData.dateOfBirth,
+          placeOfBirth: birthData.placeOfBirth,
+          offset,
+        }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setHoroscope(data)
+      }
+    } catch {}
+    setLoading(false)
+  }, [birthData])
+
+  useEffect(() => {
+    if (birthData) fetchHoroscope(dayOffset)
+  }, [birthData, dayOffset, fetchHoroscope])
+
+  const today = new Date()
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+  const todayLabel = `Today (${months[today.getMonth()]} ${today.getDate()})`
+  const tomorrowLabel = `Tomorrow (${months[tomorrow.getMonth()]} ${tomorrow.getDate()})`
 
   return (
     <div className="min-h-full pb-24">
       <AppHeader onProfileClick={onProfileClick} subtitle="Your daily guidance" />
 
-      <div className="px-5 pt-4">
-        {/* ═══ Hero: Today for You ═══ */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1A1F30] to-[#111827]
-            border border-[#D4A054]/10 p-5 mb-5"
-        >
-          {/* Subtle gold accent line at top */}
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#D4A054]/30 to-transparent" />
-
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="w-4 h-4 text-[#D4A054]" />
-            <span className="text-xs font-semibold text-[#D4A054] tracking-wide uppercase">
-              Today for you
-            </span>
+      <div className="px-5 pt-2">
+        {/* ═══ Daily Horoscope Header ═══ */}
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-base font-semibold text-[#F1F0F5]">Daily Horoscope</h2>
+            {userName && (
+              <p className="text-[11px] text-[#5A6478]">Personalized for {userName}</p>
+            )}
           </div>
-
-          <h2 className="text-lg font-bold text-[#F1F0F5] mb-2">{theme}</h2>
-          <p className="text-sm text-[#94A3B8] leading-relaxed mb-4">{todayBody}</p>
-
-          {/* Do / Avoid */}
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="bg-[#0A0E1A]/50 rounded-xl p-3">
-              <p className="text-[10px] text-emerald-400 font-semibold mb-1.5 uppercase tracking-wide">Do</p>
-              <ul className="space-y-1">
-                <li className="text-xs text-[#94A3B8]">Close pending loops</li>
-                <li className="text-xs text-[#94A3B8]">Communicate clearly</li>
-                <li className="text-xs text-[#94A3B8]">Plan before acting</li>
-              </ul>
+          {horoscope?.panchang && (
+            <div className="text-right">
+              <p className="text-[10px] text-[#5A6478]">{horoscope.panchang.tithi} &middot; {horoscope.panchang.paksha}</p>
+              <p className="text-[10px] text-[#5A6478]">{horoscope.panchang.vara}</p>
             </div>
-            <div className="bg-[#0A0E1A]/50 rounded-xl p-3">
-              <p className="text-[10px] text-rose-400 font-semibold mb-1.5 uppercase tracking-wide">Avoid</p>
-              <ul className="space-y-1">
-                <li className="text-xs text-[#94A3B8]">Emotional overcommitment</li>
-                <li className="text-xs text-[#94A3B8]">Rushed conclusions</li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="flex gap-2">
-            <button
-              onClick={() => onAskQuestion("Why is this showing up in my chart today?")}
-              className="text-xs text-[#D4A054] font-medium flex items-center gap-1 hover:opacity-80"
-            >
-              Ask why <ChevronRight className="w-3 h-3" />
-            </button>
-          </div>
-        </motion.div>
-
-        {/* ═══ Quick Insight Cards ═══ */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          {[
-            { label: "Love", Icon: Heart, color: "text-rose-400", bgColor: "from-rose-500/10 to-rose-600/5",
-              insight: "Calm connection today" },
-            { label: "Career", Icon: Briefcase, color: "text-amber-400", bgColor: "from-amber-500/10 to-amber-600/5",
-              insight: "Strategy over action" },
-            { label: "Energy", Icon: Zap, color: "text-teal-400", bgColor: "from-teal-500/10 to-teal-600/5",
-              insight: "Moderate, steady pace" },
-          ].map((card, i) => (
-            <motion.button
-              key={card.label}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 + i * 0.08 }}
-              onClick={() => onAskQuestion(`Tell me about my ${card.label.toLowerCase()} energy today`)}
-              className={`bg-gradient-to-br ${card.bgColor} rounded-xl p-3.5 text-left
-                border border-[#1E293B] hover:border-[#D4A054]/15 transition-colors`}
-            >
-              <card.Icon className={`w-5 h-5 ${card.color} mb-2`} />
-              <p className="text-[11px] font-semibold text-[#F1F0F5] mb-0.5">{card.label}</p>
-              <p className="text-[10px] text-[#5A6478] leading-snug">{card.insight}</p>
-            </motion.button>
-          ))}
+          )}
         </div>
 
-        {/* ═══ Ask Shortcut ═══ */}
-        <motion.button
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          onClick={() => onAskQuestion()}
-          className="w-full flex items-center gap-3 bg-[#111827] border border-[#1E293B]
-            rounded-xl px-4 py-3.5 mb-6 hover:border-[#D4A054]/20 transition-colors"
-        >
-          <div className="w-9 h-9 rounded-lg bg-[#D4A054]/10 flex items-center justify-center shrink-0">
-            <Sparkles className="w-4 h-4 text-[#D4A054]" />
-          </div>
-          <div className="text-left flex-1">
-            <p className="text-sm font-medium text-[#F1F0F5]">Ask about anything</p>
-            <p className="text-[11px] text-[#5A6478]">Love, work, timing, emotions...</p>
-          </div>
-          <ArrowRight className="w-4 h-4 text-[#5A6478]" />
-        </motion.button>
+        {/* ═══ Today / Tomorrow Toggle ═══ */}
+        <div className="flex items-center gap-2 mb-5">
+          <button
+            onClick={() => setDayOffset(0)}
+            className={`flex-1 py-2.5 rounded-xl text-xs font-medium transition-all ${
+              dayOffset === 0
+                ? "bg-[#1E2638] text-[#F1F0F5] border border-[#D4A054]/20"
+                : "bg-transparent text-[#5A6478] border border-[#1E293B]"
+            }`}
+          >
+            {todayLabel}
+          </button>
+          <button
+            onClick={() => setDayOffset(1)}
+            className={`flex-1 py-2.5 rounded-xl text-xs font-medium transition-all ${
+              dayOffset === 1
+                ? "bg-[#1E2638] text-[#F1F0F5] border border-[#D4A054]/20"
+                : "bg-transparent text-[#5A6478] border border-[#1E293B]"
+            }`}
+          >
+            {tomorrowLabel}
+          </button>
+        </div>
 
-        {/* ═══ Recent Guidance / Continuity ═══ */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="mb-6"
-        >
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-[#F1F0F5]">Recent guidance</h3>
-            <button className="text-xs text-[#D4A054] font-medium">View all</button>
+        {loading ? (
+          <div className="flex flex-col items-center py-16">
+            <div className="w-8 h-8 border-2 border-[#D4A054]/30 border-t-[#D4A054] rounded-full animate-spin mb-3" />
+            <p className="text-xs text-[#5A6478]">Reading your chart...</p>
           </div>
-          <div className="bg-[#111827] border border-[#1E293B] rounded-xl p-4">
-            <p className="text-xs text-[#5A6478] mb-1">Yesterday</p>
-            <p className="text-sm text-[#94A3B8] leading-relaxed">
-              Your chart showed peak clarity energy — ideal for important conversations and career decisions.
-            </p>
-          </div>
-        </motion.div>
+        ) : horoscope ? (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={dayOffset}
+              initial={{ opacity: 0, x: dayOffset === 1 ? 20 : -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: dayOffset === 1 ? -20 : 20 }}
+              transition={{ duration: 0.2 }}
+            >
+              {/* ═══ Lucky Elements ═══ */}
+              <div className="glass-card p-4 mb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs text-[#94A3B8] text-visible">
+                    Lucky elements based on {userName}&apos;s birth details
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="glass-inner rounded-xl p-3 text-center">
+                    <p className="text-[10px] text-[#5A6478] mb-1">Lucky Colour</p>
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-3 h-3 rounded-full shadow-lg" style={{
+                        backgroundColor: horoscope.lucky.colour.toLowerCase() === "white" ? "#f0f0f0" :
+                          horoscope.lucky.colour.toLowerCase() === "red" ? "#ef4444" :
+                          horoscope.lucky.colour.toLowerCase() === "green" ? "#22c55e" :
+                          horoscope.lucky.colour.toLowerCase() === "gold" ? "#D4A054" :
+                          horoscope.lucky.colour.toLowerCase() === "yellow" ? "#eab308" :
+                          horoscope.lucky.colour.toLowerCase() === "blue" ? "#3b82f6" :
+                          horoscope.lucky.colour.toLowerCase() === "black" ? "#1a1a1a" :
+                          horoscope.lucky.colour.toLowerCase()
+                      }} />
+                      <p className="text-sm font-semibold text-[#F1F0F5] text-visible">{horoscope.lucky.colour}</p>
+                    </div>
+                  </div>
+                  <div className="glass-inner rounded-xl p-3 text-center">
+                    <p className="text-[10px] text-[#5A6478] mb-1">Lucky Number</p>
+                    <p className="text-sm font-semibold text-[#F1F0F5] text-visible">{horoscope.lucky.number}</p>
+                  </div>
+                </div>
+              </div>
 
-        {/* ═══ Premium Depth Tease ═══ */}
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          onClick={onViewReports}
-          className="w-full bg-gradient-to-r from-[#D4A054]/5 to-transparent
-            border border-[#D4A054]/10 rounded-xl p-4 text-left
-            hover:border-[#D4A054]/20 transition-colors"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold text-[#D4A054] mb-0.5">Unlock deeper insights</p>
-              <p className="text-xs text-[#5A6478]">Career blueprints, timing reports, compatibility readings</p>
-            </div>
-            <ArrowRight className="w-4 h-4 text-[#D4A054]" />
+              {/* ═══ Timing Section ═══ */}
+              <div className="glass-card p-4 mb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs text-[#94A3B8] text-visible">
+                    Time period at {horoscope.place}
+                  </p>
+                </div>
+                <div className="space-y-2.5">
+                  <div className="glass-inner rounded-xl p-3 text-center">
+                    <p className="text-[10px] text-[#5A6478] mb-1">Auspicious Time</p>
+                    <p className="text-sm font-semibold text-[#F1F0F5] text-visible">
+                      {horoscope.timing.auspiciousTime.start} to {horoscope.timing.auspiciousTime.end}
+                    </p>
+                  </div>
+                  <div className="glass-inner rounded-xl p-3 text-center">
+                    <p className="text-[10px] text-[#5A6478] mb-1">Rahu Kaal</p>
+                    <p className="text-sm font-semibold text-rose-400/80 text-visible">
+                      {horoscope.timing.rahuKaal.start} to {horoscope.timing.rahuKaal.end}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* ═══ Category Cards ═══ */}
+              {CATEGORY_CARDS.map((cat, i) => (
+                <motion.div
+                  key={cat.key}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.05 * i }}
+                  className="glass-card card-lift p-4 mb-3"
+                >
+                  <div className="flex items-center gap-2 mb-2 relative z-10">
+                    <div className={`w-7 h-7 rounded-full bg-[#1E2638]/80 flex items-center justify-center`}>
+                      <cat.Icon className={`w-3.5 h-3.5 ${cat.color}`} />
+                    </div>
+                    <span className="text-sm font-semibold text-[#F1F0F5] text-visible">{cat.label}</span>
+                  </div>
+                  <p className="text-sm text-[#94A3B8] leading-relaxed relative z-10 text-visible">
+                    {horoscope.categories[cat.key]}
+                  </p>
+                </motion.div>
+              ))}
+
+              {/* ═══ Ask Shortcut ═══ */}
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                onClick={() => onAskQuestion()}
+                className="w-full flex items-center gap-3 glass-card-hero gold-shimmer
+                  px-4 py-3.5 mb-5 hover:border-[#D4A054]/30 transition-colors"
+              >
+                <div className="w-9 h-9 rounded-lg bg-[#D4A054]/10 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-4 h-4 text-[#D4A054]" />
+                </div>
+                <div className="text-left flex-1">
+                  <p className="text-sm font-medium text-[#F1F0F5]">Ask about anything</p>
+                  <p className="text-[11px] text-[#5A6478]">Love, work, timing, emotions...</p>
+                </div>
+                <ArrowRight className="w-4 h-4 text-[#D4A054]" />
+              </motion.button>
+
+              {/* ═══ Premium Depth ═══ */}
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                onClick={onViewReports}
+                className="w-full glass-card p-4 text-left
+                  hover:border-[#D4A054]/20 transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-[#D4A054] mb-0.5">Unlock deeper insights</p>
+                    <p className="text-xs text-[#5A6478]">Career blueprints, timing reports, compatibility</p>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-[#D4A054]" />
+                </div>
+              </motion.button>
+            </motion.div>
+          </AnimatePresence>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-sm text-[#5A6478]">Complete onboarding to see your daily horoscope</p>
           </div>
-        </motion.button>
+        )}
       </div>
     </div>
   )
