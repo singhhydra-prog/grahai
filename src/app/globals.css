@@ -115,40 +115,42 @@ body {
   50% { box-shadow: 0 0 40px rgba(212, 160, 84, 0.25); }
 }
 
-/* ─── Shooting star animations (5 variants) — BOLD & VISIBLE ─── */
+/* ─── Shooting star animations — Thin, fast, realistic meteor physics ─── */
+/* Each meteor: quick flash-in, smooth diagonal streak, gradual fade-out */
+/* Shallow angles (15-30°), no overlap, staggered timing */
 @keyframes shoot-1 {
-  0%   { transform: translateX(0) translateY(0) rotate(-45deg); opacity: 0; width: 0; }
-  3%   { opacity: 1; width: 140px; }
-  20%  { opacity: 1; }
-  40%  { transform: translateX(500px) translateY(500px) rotate(-45deg); opacity: 0; width: 80px; }
+  0%   { transform: translateX(0) translateY(0) rotate(-18deg); opacity: 0; width: 0; }
+  1%   { opacity: 1; width: 80px; }
+  8%   { opacity: 0.9; width: 100px; }
+  18%  { transform: translateX(600px) translateY(200px) rotate(-18deg); opacity: 0; width: 40px; }
   100% { opacity: 0; }
 }
 @keyframes shoot-2 {
-  0%   { transform: translateX(0) translateY(0) rotate(-35deg); opacity: 0; width: 0; }
-  4%   { opacity: 1; width: 120px; }
-  25%  { opacity: 0.9; }
-  50%  { transform: translateX(400px) translateY(280px) rotate(-35deg); opacity: 0; width: 60px; }
+  0%   { transform: translateX(0) translateY(0) rotate(-25deg); opacity: 0; width: 0; }
+  2%   { opacity: 0.9; width: 60px; }
+  10%  { opacity: 0.7; width: 80px; }
+  22%  { transform: translateX(500px) translateY(230px) rotate(-25deg); opacity: 0; width: 30px; }
   100% { opacity: 0; }
 }
 @keyframes shoot-3 {
-  0%   { transform: translateX(0) translateY(0) rotate(-52deg); opacity: 0; width: 0; }
-  5%   { opacity: 1; width: 100px; }
-  22%  { opacity: 0.8; }
-  45%  { transform: translateX(350px) translateY(400px) rotate(-52deg); opacity: 0; width: 50px; }
+  0%   { transform: translateX(0) translateY(0) rotate(-15deg); opacity: 0; width: 0; }
+  1%   { opacity: 0.8; width: 70px; }
+  6%   { opacity: 0.7; width: 90px; }
+  14%  { transform: translateX(700px) translateY(180px) rotate(-15deg); opacity: 0; width: 35px; }
   100% { opacity: 0; }
 }
 @keyframes shoot-4 {
-  0%   { transform: translateX(0) translateY(0) rotate(-40deg); opacity: 0; width: 0; }
-  3%   { opacity: 1; width: 160px; }
-  28%  { opacity: 1; }
-  55%  { transform: translateX(550px) translateY(420px) rotate(-40deg); opacity: 0; width: 70px; }
+  0%   { transform: translateX(0) translateY(0) rotate(-22deg); opacity: 0; width: 0; }
+  2%   { opacity: 1; width: 90px; }
+  12%  { opacity: 0.8; width: 110px; }
+  25%  { transform: translateX(550px) translateY(220px) rotate(-22deg); opacity: 0; width: 40px; }
   100% { opacity: 0; }
 }
 @keyframes shoot-5 {
-  0%   { transform: translateX(0) translateY(0) rotate(-48deg); opacity: 0; width: 0; }
-  4%   { opacity: 1; width: 110px; }
-  18%  { opacity: 0.9; }
-  35%  { transform: translateX(300px) translateY(350px) rotate(-48deg); opacity: 0; width: 45px; }
+  0%   { transform: translateX(0) translateY(0) rotate(-20deg); opacity: 0; width: 0; }
+  1%   { opacity: 0.7; width: 50px; }
+  5%   { opacity: 0.6; width: 70px; }
+  12%  { transform: translateX(450px) translateY(160px) rotate(-20deg); opacity: 0; width: 25px; }
   100% { opacity: 0; }
 }
 
@@ -479,53 +481,73 @@ body {
   z-index: 0;
 }
 
-/* ─── Dense star layers with twinkling ─── */
+/* ─── Night sky starfield — bright varied stars ─── */
 .starfield::before,
 .starfield::after {
   content: '';
   position: absolute;
-  width: 2px;
-  height: 2px;
+  width: 1px;
+  height: 1px;
   border-radius: 50%;
   background: white;
   box-shadow:
-    100px 50px 0 0.5px rgba(255,255,255,0.2),
-    250px 120px 0 1px rgba(255,255,255,0.15),
-    400px 80px 0 0.5px rgba(255,255,255,0.12),
-    600px 200px 0 1px rgba(255,255,255,0.18),
-    150px 300px 0 0.5px rgba(255,255,255,0.14),
-    350px 400px 0 1px rgba(255,255,255,0.1),
-    500px 150px 0 0.5px rgba(255,255,255,0.2),
-    700px 350px 0 0.5px rgba(255,255,255,0.12),
-    50px 450px 0 1px rgba(255,255,255,0.14),
-    800px 100px 0 0.5px rgba(255,255,255,0.18),
-    180px 520px 0 0.5px rgba(255,255,255,0.1),
-    420px 620px 0 1px rgba(255,255,255,0.12),
-    660px 480px 0 0.5px rgba(255,255,255,0.15),
-    880px 280px 0 0.5px rgba(255,255,255,0.08),
-    320px 700px 0 1px rgba(255,255,255,0.12),
-    40px 200px 0 0.5px rgba(255,255,255,0.16),
-    570px 340px 0 0.5px rgba(255,255,255,0.1),
-    730px 520px 0 1px rgba(255,255,255,0.08),
-    200px 680px 0 0.5px rgba(255,255,255,0.14),
-    900px 400px 0 0.5px rgba(255,255,255,0.1);
-  animation: pulse-soft 6s ease-in-out infinite;
+    /* Bright stars (few, large) */
+    120px 80px 0 1.5px rgba(255,255,255,0.9),
+    680px 150px 0 1.5px rgba(255,255,255,0.85),
+    350px 520px 0 2px rgba(255,255,255,0.8),
+    920px 320px 0 1.5px rgba(255,255,255,0.75),
+    50px 720px 0 2px rgba(255,255,255,0.85),
+    /* Medium stars */
+    250px 40px 0 1px rgba(255,255,255,0.7),
+    480px 190px 0 1px rgba(255,255,255,0.65),
+    760px 420px 0 1px rgba(255,255,255,0.6),
+    160px 350px 0 1px rgba(255,255,255,0.7),
+    590px 620px 0 1px rgba(255,255,255,0.55),
+    870px 90px 0 1px rgba(255,255,255,0.65),
+    30px 550px 0 1px rgba(255,255,255,0.6),
+    420px 740px 0 1px rgba(255,255,255,0.5),
+    700px 280px 0 1px rgba(255,255,255,0.7),
+    310px 180px 0 1px rgba(255,255,255,0.55),
+    /* Small dim stars (many) */
+    80px 220px 0 0.5px rgba(255,255,255,0.45),
+    540px 110px 0 0.5px rgba(255,255,255,0.4),
+    200px 480px 0 0.5px rgba(255,255,255,0.35),
+    830px 560px 0 0.5px rgba(255,255,255,0.4),
+    450px 340px 0 0.5px rgba(255,255,255,0.3),
+    100px 640px 0 0.5px rgba(255,255,255,0.35),
+    620px 50px 0 0.5px rgba(255,255,255,0.4),
+    380px 700px 0 0.5px rgba(255,255,255,0.3),
+    740px 480px 0 0.5px rgba(255,255,255,0.35),
+    280px 600px 0 0.5px rgba(255,255,255,0.3),
+    960px 180px 0 0.5px rgba(255,255,255,0.25),
+    500px 450px 0 0.5px rgba(255,255,255,0.35),
+    150px 130px 0 0.5px rgba(255,255,255,0.3),
+    660px 680px 0 0.5px rgba(255,255,255,0.25),
+    40px 400px 0 0.5px rgba(255,255,255,0.3);
+  animation: pulse-soft 8s ease-in-out infinite;
 }
 
 .starfield::after {
-  animation-delay: -3s;
-  animation-duration: 9s;
+  animation-delay: -4s;
+  animation-duration: 11s;
   box-shadow:
-    80px 150px 0 0.5px rgba(212,160,84,0.12),
-    320px 280px 0 0.5px rgba(45,212,191,0.1),
-    560px 420px 0 1px rgba(212,160,84,0.1),
-    180px 60px 0 0.5px rgba(45,212,191,0.12),
-    720px 180px 0 0.5px rgba(212,160,84,0.1),
-    440px 550px 0 1px rgba(45,212,191,0.08),
-    620px 100px 0 0.5px rgba(212,160,84,0.08),
-    260px 480px 0 0.5px rgba(45,212,191,0.1),
-    140px 380px 0 0.5px rgba(212,160,84,0.06),
-    850px 520px 0 0.5px rgba(45,212,191,0.08);
+    /* Colored accent stars — warm gold and cool teal */
+    190px 100px 0 1px rgba(212,160,84,0.6),
+    550px 360px 0 1px rgba(45,212,191,0.5),
+    820px 70px 0 1.5px rgba(212,160,84,0.5),
+    370px 480px 0 1px rgba(45,212,191,0.4),
+    60px 300px 0 1px rgba(212,160,84,0.45),
+    720px 560px 0 1px rgba(45,212,191,0.5),
+    440px 140px 0 1px rgba(212,160,84,0.4),
+    130px 620px 0 1px rgba(45,212,191,0.35),
+    650px 230px 0 0.5px rgba(212,160,84,0.35),
+    290px 710px 0 0.5px rgba(45,212,191,0.3),
+    /* Extra white stars for density */
+    900px 440px 0 1px rgba(255,255,255,0.6),
+    480px 580px 0 0.5px rgba(255,255,255,0.4),
+    230px 260px 0 1px rgba(255,255,255,0.5),
+    770px 650px 0 0.5px rgba(255,255,255,0.35),
+    350px 30px 0 1px rgba(255,255,255,0.55);
 }
 
 /* ─── Nebula clouds ─── */
@@ -590,53 +612,53 @@ body {
 
 .shooting-stars [class^="star-"] {
   position: absolute;
-  height: 3px;
-  background: linear-gradient(90deg, rgba(255,255,255,1), rgba(232,194,120,1), rgba(212,160,84,0.8), rgba(212,160,84,0.4), transparent);
+  height: 1.5px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.95), rgba(255,255,255,0.6), rgba(212,160,84,0.3), transparent);
   border-radius: 100px;
   opacity: 0;
-  filter: blur(0.3px);
 }
 .shooting-stars [class^="star-"]::before {
   content: '';
   position: absolute;
   left: 0;
-  top: -4px;
-  width: 10px;
-  height: 10px;
+  top: -1.5px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,255,255,1), rgba(232,194,120,1));
-  box-shadow: 0 0 16px 5px rgba(255, 255, 255, 0.6), 0 0 35px 8px rgba(212, 160, 84, 0.8), 0 0 70px rgba(212, 160, 84, 0.4);
+  background: white;
+  box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.7), 0 0 15px rgba(212, 160, 84, 0.4);
 }
 
+/* Spread across different screen regions, no overlap */
 .shooting-stars .star-1 {
-  top: 6%;
-  left: 12%;
-  animation: shoot-1 4s ease-in-out infinite;
-  animation-delay: 0s;
+  top: 5%;
+  left: 8%;
+  animation: shoot-1 8s ease-out infinite;
+  animation-delay: 0.5s;
 }
 .shooting-stars .star-2 {
-  top: 18%;
-  left: 58%;
-  animation: shoot-2 5.5s ease-in-out infinite;
-  animation-delay: 1.5s;
-}
-.shooting-stars .star-3 {
-  top: 35%;
-  left: 28%;
-  animation: shoot-3 7s ease-in-out infinite;
+  top: 22%;
+  left: 55%;
+  animation: shoot-2 10s ease-out infinite;
   animation-delay: 3s;
 }
+.shooting-stars .star-3 {
+  top: 8%;
+  left: 30%;
+  animation: shoot-3 7s ease-out infinite;
+  animation-delay: 6s;
+}
 .shooting-stars .star-4 {
-  top: 12%;
-  left: 75%;
-  animation: shoot-4 4.5s ease-in-out infinite;
-  animation-delay: 2s;
+  top: 15%;
+  left: 70%;
+  animation: shoot-4 9s ease-out infinite;
+  animation-delay: 1.5s;
 }
 .shooting-stars .star-5 {
-  top: 50%;
-  left: 45%;
-  animation: shoot-5 6s ease-in-out infinite;
-  animation-delay: 4s;
+  top: 40%;
+  left: 15%;
+  animation: shoot-5 12s ease-out infinite;
+  animation-delay: 8s;
 }
 
 
