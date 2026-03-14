@@ -6,18 +6,17 @@ import dynamic from "next/dynamic"
 import BottomNav from "@/components/ui/BottomNav"
 import type { TabType } from "@/types/app"
 
-/* Lazy-load tabs */
-const QuestionsHome = dynamic(() => import("@/components/app/tabs/QuestionsHome"), { ssr: false })
-const QuestionsChat = dynamic(() => import("@/components/app/tabs/QuestionsChat"), { ssr: false })
+/* Lazy-load all tab components */
+const HomeTab = dynamic(() => import("@/components/app/tabs/HomeTab"), { ssr: false })
+const AskTab = dynamic(() => import("@/components/app/tabs/AskTab"), { ssr: false })
+const MyChartTab = dynamic(() => import("@/components/app/tabs/MyChartTab"), { ssr: false })
 const ReportsTab = dynamic(() => import("@/components/app/tabs/ReportsTab"), { ssr: false })
-const CompatibilityTab = dynamic(() => import("@/components/app/tabs/CompatibilityTab"), { ssr: false })
-const ProfileView = dynamic(() => import("@/components/app/ProfileView"), { ssr: false })
+const ProfileTab = dynamic(() => import("@/components/app/tabs/ProfileTab"), { ssr: false })
 const OnboardingFlow = dynamic(() => import("@/components/app/OnboardingFlow"), { ssr: false })
 
 export default function AppPage() {
-  const [activeTab, setActiveTab] = useState<TabType>("questions")
-  const [showChat, setShowChat] = useState(false)
-  const [showProfile, setShowProfile] = useState(false)
+  const [activeTab, setActiveTab] = useState<TabType>("home")
+  const [askQuestion, setAskQuestion] = useState<string | undefined>(undefined)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [isLoaded, setIsLoaded] = useState(false)
 
@@ -29,19 +28,41 @@ export default function AppPage() {
     setIsLoaded(true)
   }, [])
 
+  // Navigate to ask tab with an optional question
+  const goToAsk = (question?: string) => {
+    setAskQuestion(question)
+    setActiveTab("ask")
+  }
+
+  // Navigate to profile tab
+  const goToProfile = () => {
+    setActiveTab("profile")
+  }
+
+  // Navigate to reports tab
+  const goToReports = () => {
+    setActiveTab("reports")
+  }
+
   if (!isLoaded) {
     return (
-      <div className="min-h-dvh flex items-center justify-center bg-[#080818]">
+      <div className="min-h-dvh flex items-center justify-center bg-[#0A0E1A]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-pink-800 animate-pulse" />
-          <p className="text-xs text-white/30">Loading your stars...</p>
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#D4A054] to-[#A16E2A] animate-pulse
+            flex items-center justify-center">
+            <span className="text-[#0A0E1A] font-bold">G</span>
+          </div>
+          <p className="text-xs text-[#5A6478]">Loading your guidance...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-dvh bg-[#080818]">
+    <div className="min-h-dvh bg-[#0A0E1A]">
+      {/* Subtle starfield background */}
+      <div className="starfield" />
+
       {/* Onboarding */}
       <AnimatePresence>
         {showOnboarding && (
@@ -52,40 +73,43 @@ export default function AppPage() {
       {/* Main app */}
       {!showOnboarding && (
         <>
-          {/* Tab content */}
-          <div className="min-h-dvh">
-            {activeTab === "questions" && !showChat && (
-              <QuestionsHome
-                onAskQuestion={() => setShowChat(true)}
-                onProfileClick={() => setShowProfile(true)}
+          {/* Tab content — relative z-index above starfield */}
+          <div className="relative z-10 min-h-dvh">
+            {activeTab === "home" && (
+              <HomeTab
+                onAskQuestion={goToAsk}
+                onProfileClick={goToProfile}
+                onViewReports={goToReports}
+              />
+            )}
+
+            {activeTab === "ask" && (
+              <AskTab initialQuestion={askQuestion} />
+            )}
+
+            {activeTab === "chart" && (
+              <MyChartTab
+                onProfileClick={goToProfile}
+                onAskQuestion={(q) => goToAsk(q)}
               />
             )}
 
             {activeTab === "reports" && (
-              <ReportsTab onProfileClick={() => setShowProfile(true)} />
+              <ReportsTab onProfileClick={goToProfile} />
             )}
 
-            {activeTab === "compatibility" && (
-              <CompatibilityTab onProfileClick={() => setShowProfile(true)} />
+            {activeTab === "profile" && (
+              <ProfileTab onPricingClick={() => {}} />
             )}
           </div>
 
           {/* Bottom Nav */}
-          {!showChat && <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />}
-
-          {/* Questions Chat overlay */}
-          <AnimatePresence>
-            {showChat && (
-              <QuestionsChat onClose={() => setShowChat(false)} />
-            )}
-          </AnimatePresence>
-
-          {/* Profile overlay */}
-          <AnimatePresence>
-            {showProfile && (
-              <ProfileView onClose={() => setShowProfile(false)} />
-            )}
-          </AnimatePresence>
+          <BottomNav activeTab={activeTab} onTabChange={(tab) => {
+            if (tab === "ask") {
+              setAskQuestion(undefined) // reset when tapping ask tab directly
+            }
+            setActiveTab(tab)
+          }} />
         </>
       )}
     </div>

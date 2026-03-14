@@ -1,45 +1,49 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════
-   GrahAI Design System — Melooha-Inspired
-   Dark cosmic theme with magenta/cyan accents
+   GrahAI Design System v3
+   Premium dark · Navy/Gold · Calm & Intelligent
    ═══════════════════════════════════════════ */
 
 @theme {
-  /* Core backgrounds */
-  --color-bg: #08091A;
-  --color-bg-card: #10122A;
-  --color-bg-card-hover: #161840;
-  --color-bg-elevated: #1A1D3D;
-  --color-bg-input: #0D0F24;
+  /* Core backgrounds — deep navy/charcoal */
+  --color-bg: #0A0E1A;
+  --color-bg-card: #111827;
+  --color-bg-card-hover: #1A2236;
+  --color-bg-elevated: #1E2638;
+  --color-bg-input: #0D1220;
+  --color-bg-surface: #151C2C;
 
-  /* Accent palette — Melooha style */
-  --color-magenta: #D946EF;
-  --color-magenta-soft: #D946EF66;
-  --color-cyan: #22D3EE;
-  --color-cyan-soft: #22D3EE44;
-  --color-violet: #8B5CF6;
-  --color-violet-soft: #8B5CF644;
-  --color-gold: #FBBF24;
+  /* Accent palette — warm gold + supporting tones */
+  --color-gold: #D4A054;
+  --color-gold-light: #E8C278;
+  --color-gold-soft: #D4A05433;
+  --color-gold-glow: #D4A05422;
+  --color-amber: #F59E0B;
+  --color-teal: #2DD4BF;
+  --color-teal-soft: #2DD4BF33;
+  --color-sage: #94A3B8;
 
   /* Text hierarchy */
-  --color-text: #F0EDF6;
-  --color-text-secondary: #A8A3B3;
-  --color-text-dim: #6B6578;
-  --color-text-accent: #D946EF;
+  --color-text: #F1F0F5;
+  --color-text-secondary: #94A3B8;
+  --color-text-dim: #5A6478;
+  --color-text-accent: #D4A054;
 
   /* Borders */
-  --color-border: #1E2045;
-  --color-border-active: #D946EF44;
+  --color-border: #1E293B;
+  --color-border-active: #D4A05444;
+  --color-border-subtle: #1A2236;
 
   /* Status */
   --color-success: #34D399;
   --color-warning: #FBBF24;
   --color-error: #F87171;
 
-  /* Gradients tokens */
-  --color-grad-start: #D946EF;
-  --color-grad-end: #8B5CF6;
+  /* Gradient tokens */
+  --color-grad-start: #D4A054;
+  --color-grad-mid: #C4883C;
+  --color-grad-end: #A16E2A;
 
   /* Spacing */
   --spacing-safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -74,19 +78,24 @@ body {
 
 /* ═══ Selection ═══ */
 ::selection {
-  background: var(--color-magenta-soft);
+  background: var(--color-gold-soft);
   color: white;
 }
 
-/* ═══ Cosmic Background Particles ═══ */
-@keyframes float-star {
-  0%, 100% { opacity: 0.3; transform: translateY(0) scale(1); }
-  50% { opacity: 0.8; transform: translateY(-10px) scale(1.2); }
+/* ═══ Animations ═══ */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes pulse-glow {
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse-soft {
   0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
+  50% { opacity: 0.8; }
 }
 
 @keyframes shimmer {
@@ -94,69 +103,99 @@ body {
   100% { background-position: 200% center; }
 }
 
-@keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
 
-@keyframes gradient-rotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+@keyframes rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes glow-breathe {
+  0%, 100% { box-shadow: 0 0 20px rgba(212, 160, 84, 0.1); }
+  50% { box-shadow: 0 0 40px rgba(212, 160, 84, 0.2); }
 }
 
 /* ═══ Utility Classes ═══ */
-.cosmic-gradient {
-  background: linear-gradient(135deg, var(--color-magenta) 0%, var(--color-violet) 50%, var(--color-cyan) 100%);
+
+/* Gold gradient background */
+.gold-gradient {
+  background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-grad-end) 100%);
 }
 
-.cosmic-gradient-text {
-  background: linear-gradient(135deg, var(--color-magenta), var(--color-cyan));
+/* Gold gradient text */
+.gold-gradient-text {
+  background: linear-gradient(135deg, var(--color-gold-light), var(--color-gold));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.cosmic-border {
+/* Premium border with gold glow */
+.gold-border {
   border: 1px solid transparent;
   background: linear-gradient(var(--color-bg-card), var(--color-bg-card)) padding-box,
-              linear-gradient(135deg, var(--color-magenta-soft), var(--color-violet-soft), var(--color-cyan-soft)) border-box;
+              linear-gradient(135deg, var(--color-gold-soft), transparent, var(--color-gold-soft)) border-box;
 }
 
+/* Glass card */
 .glass-card {
-  background: rgba(16, 18, 42, 0.7);
+  background: rgba(17, 24, 39, 0.8);
   backdrop-filter: blur(16px);
   border: 1px solid var(--color-border);
 }
 
-.glow-magenta {
-  box-shadow: 0 0 20px var(--color-magenta-soft), 0 0 60px rgba(217, 70, 239, 0.1);
+/* Elevated card with subtle gold top border */
+.card-elevated {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
 }
 
-.glow-cyan {
-  box-shadow: 0 0 20px var(--color-cyan-soft), 0 0 60px rgba(34, 211, 238, 0.1);
+/* Gold glow effect */
+.glow-gold {
+  box-shadow: 0 0 20px var(--color-gold-glow), 0 0 60px rgba(212, 160, 84, 0.05);
 }
 
+/* Primary button */
 .btn-primary {
-  background: linear-gradient(135deg, var(--color-magenta), var(--color-violet));
-  color: white;
+  background: linear-gradient(135deg, var(--color-gold), var(--color-grad-end));
+  color: #0A0E1A;
   font-weight: 600;
   border-radius: 12px;
   transition: all 0.2s ease;
 }
 .btn-primary:hover {
-  opacity: 0.9;
+  opacity: 0.92;
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(217, 70, 239, 0.3);
+  box-shadow: 0 8px 24px rgba(212, 160, 84, 0.25);
 }
 .btn-primary:active {
   transform: translateY(0);
 }
 
+/* Secondary button */
+.btn-secondary {
+  background: var(--color-bg-elevated);
+  color: var(--color-text);
+  font-weight: 500;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+.btn-secondary:hover {
+  border-color: var(--color-gold-soft);
+  background: var(--color-bg-card-hover);
+}
+
+/* Animate in */
 .animate-in {
   animation: fade-in-up 0.4s ease-out both;
 }
 
-/* ═══ Star field background ═══ */
+/* ═══ Subtle star field ═══ */
 .starfield {
   position: fixed;
   inset: 0;
@@ -169,40 +208,50 @@ body {
 .starfield::after {
   content: '';
   position: absolute;
-  width: 2px;
-  height: 2px;
+  width: 1px;
+  height: 1px;
   border-radius: 50%;
   background: white;
   box-shadow:
-    100px 50px 0 0.5px rgba(255,255,255,0.3),
-    250px 120px 0 0.5px rgba(255,255,255,0.2),
-    400px 80px 0 1px rgba(255,255,255,0.15),
-    600px 200px 0 0.5px rgba(255,255,255,0.25),
-    150px 300px 0 0.5px rgba(255,255,255,0.2),
-    350px 400px 0 1px rgba(255,255,255,0.1),
-    500px 150px 0 0.5px rgba(255,255,255,0.3),
-    700px 350px 0 0.5px rgba(255,255,255,0.15),
-    50px 450px 0 1px rgba(255,255,255,0.2),
-    800px 100px 0 0.5px rgba(255,255,255,0.25),
-    200px 500px 0 0.5px rgba(255,255,255,0.15),
-    650px 50px 0 1px rgba(255,255,255,0.2),
-    300px 250px 0 0.5px rgba(255,255,255,0.1),
-    750px 450px 0 0.5px rgba(255,255,255,0.2),
-    450px 350px 0 1px rgba(255,255,255,0.15);
-  animation: float-star 6s ease-in-out infinite;
+    100px 50px 0 0.5px rgba(255,255,255,0.15),
+    250px 120px 0 0.5px rgba(255,255,255,0.1),
+    400px 80px 0 0.5px rgba(255,255,255,0.08),
+    600px 200px 0 0.5px rgba(255,255,255,0.12),
+    150px 300px 0 0.5px rgba(255,255,255,0.1),
+    350px 400px 0 0.5px rgba(255,255,255,0.06),
+    500px 150px 0 0.5px rgba(255,255,255,0.15),
+    700px 350px 0 0.5px rgba(255,255,255,0.08),
+    50px 450px 0 0.5px rgba(255,255,255,0.1),
+    800px 100px 0 0.5px rgba(255,255,255,0.12);
+  animation: pulse-soft 8s ease-in-out infinite;
 }
 
 .starfield::after {
-  animation-delay: -3s;
+  animation-delay: -4s;
   box-shadow:
-    80px 150px 0 0.5px rgba(217,70,239,0.15),
-    320px 280px 0 1px rgba(34,211,238,0.1),
-    560px 420px 0 0.5px rgba(217,70,239,0.1),
-    180px 60px 0 0.5px rgba(139,92,246,0.15),
-    720px 180px 0 1px rgba(34,211,238,0.1),
-    440px 500px 0 0.5px rgba(217,70,239,0.1),
-    90px 380px 0 1px rgba(139,92,246,0.1),
-    620px 290px 0 0.5px rgba(34,211,238,0.15);
+    80px 150px 0 0.5px rgba(212,160,84,0.08),
+    320px 280px 0 0.5px rgba(45,212,191,0.06),
+    560px 420px 0 0.5px rgba(212,160,84,0.06),
+    180px 60px 0 0.5px rgba(45,212,191,0.08),
+    720px 180px 0 0.5px rgba(212,160,84,0.06);
+}
+
+/* ═══ Sacred geometry motif (CSS only) ═══ */
+.sacred-motif {
+  position: relative;
+}
+.sacred-motif::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120%;
+  height: 120%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid var(--color-gold-glow);
+  animation: rotate-slow 60s linear infinite;
+  pointer-events: none;
 }
 
 /* ═══ Safe area for mobile ═══ */
@@ -217,10 +266,17 @@ body {
   left: 0;
   z-index: 9999;
   padding: 8px 16px;
-  background: var(--color-magenta);
-  color: white;
+  background: var(--color-gold);
+  color: var(--color-bg);
   font-weight: 600;
 }
 .skip-nav:focus {
   top: 0;
+}
+
+/* ═══ Source drawer ═══ */
+.source-drawer {
+  background: var(--color-bg-surface);
+  border-top: 1px solid var(--color-border);
+  border-radius: 16px 16px 0 0;
 }

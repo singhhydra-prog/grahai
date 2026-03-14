@@ -1,39 +1,79 @@
 /* ═══════════════════════════════════════
-   GrahAI — Frontend Type Definitions
-   Melooha-style 3-tab layout
+   GrahAI v3 — Premium AI Jyotish App
+   Navy/Gold design · 5-tab navigation
    ═══════════════════════════════════════ */
 
-/** Bottom navigation tabs (matches Melooha) */
-export type TabType = "compatibility" | "questions" | "reports"
+/** Primary navigation tabs */
+export type TabType = "home" | "ask" | "chart" | "reports" | "profile"
 
-/** Overlay screens */
+/** Overlay screens that slide over content */
 export type OverlayType =
-  | "profile"
+  | "ask-chat"
+  | "report-detail"
   | "pricing"
   | "settings"
-  | "report-detail"
-  | "sidebar"
 
-/** Birth data */
+/** Onboarding step identifiers */
+export type OnboardingStep =
+  | "welcome"
+  | "intent"
+  | "trust"
+  | "birth-details"
+  | "instant-reveal"
+
+/** User intent from onboarding */
+export type IntentCategory =
+  | "career"
+  | "love"
+  | "marriage"
+  | "money"
+  | "emotional"
+  | "daily"
+  | "exploring"
+
+/** Birth data collected during onboarding */
 export interface BirthData {
   name: string
-  gender?: string
+  gender?: "male" | "female" | "other"
   dateOfBirth: string
   timeOfBirth: string
+  timeUnknown?: boolean
   placeOfBirth: string
   latitude?: number
   longitude?: number
   timezone?: string
 }
 
-/** Astrological profile */
+/** Astrological profile computed from birth data */
 export interface AstroProfile {
+  moonSign: string
+  risingSign: string
   sunSignVedic: string
   sunSignWestern: string
-  moonSign: string
-  ascendant: string
-  birthNakshatra: string
-  nakshatraCharan: number
+  nakshatra: string
+  nakshatraPada?: number
+  currentDasha?: string
+  dominantTheme?: string
+}
+
+/** Cosmic snapshot returned after onboarding */
+export interface CosmicSnapshot {
+  profile: AstroProfile
+  todayInsight: string
+  dominantLifeTheme: string
+  suggestedFirstQuestion: string
+}
+
+/** Structured ask response — every answer follows this format */
+export interface AskResponse {
+  directAnswer: string
+  whyShowingUp: string
+  whatToDo: string
+  whatToAvoid: string
+  timeWindow: string
+  remedy?: string
+  sourceExplanation?: string
+  followUpChips: string[]
 }
 
 /** Chat message */
@@ -41,39 +81,67 @@ export interface ChatMessage {
   id: string
   role: "user" | "assistant"
   content: string
+  structured?: AskResponse
   timestamp: number
   isStreaming?: boolean
-  senderName?: string
+  topic?: string
 }
 
-/** Report card data */
+/** Daily guidance for home screen */
+export interface DailyGuidance {
+  theme: string
+  headline: string
+  body: string
+  doList: string[]
+  avoidList: string[]
+  loveCard?: string
+  careerCard?: string
+  energyCard?: string
+}
+
+/** Report card */
 export interface ReportCard {
   id: string
   title: string
-  subtitle: string
-  guidancePeriod: string
-  isLocked: boolean
-  isFree?: boolean
-  isNew?: boolean
-  isTrending?: boolean
-  category: string
+  description: string
+  whatItHelps: string
+  whatsInside: string[]
+  category: ReportCategoryId
+  pricing: "free" | "plus" | "premium" | "one-time"
+  price?: number
+  isUnlocked?: boolean
+  previewSnippet?: string
+  icon: string
 }
 
-/** Report category section */
-export interface ReportCategory {
-  id: string
-  title: string
-  reports: ReportCard[]
-}
+export type ReportCategoryId =
+  | "love-compatibility"
+  | "career-blueprint"
+  | "marriage-timing"
+  | "annual-forecast"
+  | "wealth-growth"
+  | "dasha-deep-dive"
 
 /** User profile */
 export interface UserProfile {
+  id?: string
   name: string
-  initials: string
   email?: string
-  gender: string
-  birthData?: BirthData
+  birthData: BirthData
   astroProfile?: AstroProfile
-  questionsLeft: number
-  reportsLeft: number
+  tier: "free" | "plus" | "premium"
+  questionsRemaining: number
+  reportsUnlocked: string[]
+  createdAt?: string
+}
+
+/** Pricing tier */
+export interface PricingTier {
+  id: "free" | "plus" | "premium"
+  name: string
+  price: number
+  period: "month" | "year"
+  features: string[]
+  questionsPerDay: number
+  highlighted?: boolean
 }
