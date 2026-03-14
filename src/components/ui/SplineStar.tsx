@@ -14,7 +14,7 @@ export default function SplineStar({ className = "" }: { className?: string }) {
   const [loaded, setLoaded] = useState(false)
 
   return (
-    <div className={`relative flex items-center justify-center ${className}`}>
+    <div className={`relative flex items-center justify-center overflow-hidden ${className}`}>
       {/* CSS star fallback — visible while iframe loads */}
       <div
         className={`absolute inset-0 flex items-center justify-center transition-opacity duration-1000 ${
@@ -24,15 +24,19 @@ export default function SplineStar({ className = "" }: { className?: string }) {
         <CSSStarFallback />
       </div>
 
-      {/* Spline iframe container — oversized so we can crop edges + watermark */}
+      {/*
+        Spline iframe — slightly oversized so the star fills the view.
+        Shifted up a bit so the bottom watermark is pushed out of frame.
+      */}
       <div
-        className={`absolute inset-[-25%] transition-opacity duration-1000 ${
+        className={`absolute transition-opacity duration-1000 ${
           loaded ? "opacity-100" : "opacity-0"
         }`}
         style={{
-          /* Circular clip so only the star center shows */
-          borderRadius: "50%",
-          overflow: "hidden",
+          top: "-15%",
+          left: "-10%",
+          width: "120%",
+          height: "130%",
         }}
       >
         <iframe
@@ -42,7 +46,7 @@ export default function SplineStar({ className = "" }: { className?: string }) {
           height="100%"
           style={{
             border: "none",
-            background: BG,
+            background: "transparent",
             display: "block",
             pointerEvents: "none",
           }}
@@ -52,19 +56,20 @@ export default function SplineStar({ className = "" }: { className?: string }) {
         />
       </div>
 
-      {/* Radial gradient overlay — feathers the edges into the page background */}
+      {/* Bottom bar — covers the Spline watermark area */}
       <div
-        className="absolute inset-[-30%] pointer-events-none"
+        className="absolute bottom-0 left-0 right-0 pointer-events-none"
         style={{
-          background: `radial-gradient(circle, transparent 20%, ${BG}88 45%, ${BG} 65%)`,
+          height: "18%",
+          background: `linear-gradient(to bottom, transparent, ${BG} 40%)`,
         }}
       />
 
-      {/* Extra vignette ring for perfectly smooth blending */}
+      {/* Soft edge vignette — seamless blend into dark background */}
       <div
-        className="absolute inset-[-10%] pointer-events-none"
+        className="absolute inset-[-5%] pointer-events-none"
         style={{
-          background: `radial-gradient(circle, transparent 50%, ${BG} 80%)`,
+          background: `radial-gradient(ellipse 70% 70% at 50% 45%, transparent 50%, ${BG} 100%)`,
         }}
       />
     </div>

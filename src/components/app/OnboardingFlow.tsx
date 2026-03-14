@@ -321,7 +321,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               className="text-center max-w-sm"
             >
               {/* Spline 3D Star — seamless with dark background */}
-              <SplineStar className="w-56 h-56 mx-auto mb-6" />
+              <SplineStar className="w-72 h-72 mx-auto mb-4" />
 
               <h1 className="text-3xl font-bold text-[#F1F0F5] mb-3 tracking-tight">
                 Clear answers for love,{" "}
