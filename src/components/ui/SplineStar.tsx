@@ -1,69 +1,42 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 
 /**
  * Spline 3D Star — "a star like our own" (G-type yellow dwarf)
- * Loads the Spline scene via runtime, seamless with dark background.
- * Shows a CSS star fallback while the 3D scene loads.
+ * Uses iframe embed for maximum compatibility and reliability.
+ * Shows a CSS star fallback while the iframe loads.
  */
+const SPLINE_URL = "https://my.spline.design/astarlikeourown-ukvK2EaYKfmPcjkfa9xzQqmD/"
+
 export default function SplineStar({ className = "" }: { className?: string }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
   const [loaded, setLoaded] = useState(false)
-  const [error, setError] = useState(false)
-
-  useEffect(() => {
-    let cancelled = false
-
-    async function loadScene() {
-      try {
-        // Dynamically import the Spline runtime (keeps bundle small)
-        const { Application } = await import("@splinetool/runtime")
-
-        if (cancelled || !canvasRef.current) return
-
-        const app = new Application(canvasRef.current)
-
-        // Load directly from the published Spline scene URL (permanent, no proxy needed)
-        const SCENE_URL =
-          "https://my.spline.design/astarlikeourown-ukvK2EaYKfmPcjkfa9xzQqmD/scene.splinecode"
-
-        if (cancelled) return
-
-        await app.load(SCENE_URL)
-
-        if (!cancelled) setLoaded(true)
-      } catch (err) {
-        console.warn("Spline scene failed to load:", err)
-        if (!cancelled) setError(true)
-      }
-    }
-
-    loadScene()
-    return () => { cancelled = true }
-  }, [])
 
   return (
-    <div className={`relative flex items-center justify-center ${className}`}>
-      {/* CSS star fallback — visible while Spline loads or on error */}
+    <div className={`relative flex items-center justify-center overflow-hidden ${className}`}>
+      {/* CSS star fallback — visible while iframe loads */}
       <div
         className={`absolute inset-0 flex items-center justify-center transition-opacity duration-1000 ${
-          loaded && !error ? "opacity-0 pointer-events-none" : "opacity-100"
+          loaded ? "opacity-0 pointer-events-none" : "opacity-100"
         }`}
       >
         <CSSStarFallback />
       </div>
 
-      {/* Spline canvas — hidden until loaded */}
-      {!error && (
-        <canvas
-          ref={canvasRef}
-          className={`w-full h-full transition-opacity duration-1000 ${
-            loaded ? "opacity-100" : "opacity-0"
-          }`}
-          style={{ background: "transparent" }}
-        />
-      )}
+      {/* Spline iframe — seamless with dark background */}
+      <iframe
+        src={SPLINE_URL}
+        frameBorder="0"
+        width="100%"
+        height="100%"
+        className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ${
+          loaded ? "opacity-100" : "opacity-0"
+        }`}
+        style={{ border: "none", background: "transparent" }}
+        onLoad={() => setLoaded(true)}
+        allow="autoplay"
+        title="3D Star Animation"
+      />
     </div>
   )
 }
