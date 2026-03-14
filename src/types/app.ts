@@ -1,94 +1,79 @@
 /* ═══════════════════════════════════════
    GrahAI — Frontend Type Definitions
+   Melooha-style 3-tab layout
    ═══════════════════════════════════════ */
 
-/** Bottom navigation tabs */
-export type TabType = "home" | "ask" | "reports" | "profile"
+/** Bottom navigation tabs (matches Melooha) */
+export type TabType = "compatibility" | "questions" | "reports"
 
-/** Overlay screens (modals, full-screen views) */
+/** Overlay screens */
 export type OverlayType =
-  | "onboarding"
+  | "profile"
   | "pricing"
   | "settings"
   | "report-detail"
-  | "compatibility"
-  | "notifications"
-  | "edit-profile"
-  | "birth-details"
+  | "sidebar"
 
-/** Birth data collected during onboarding */
+/** Birth data */
 export interface BirthData {
   name: string
-  dateOfBirth: string      // ISO date string
-  timeOfBirth: string      // HH:MM format
+  gender?: string
+  dateOfBirth: string
+  timeOfBirth: string
   placeOfBirth: string
   latitude?: number
   longitude?: number
   timezone?: string
 }
 
-/** Chat message in Ask tab */
+/** Astrological profile */
+export interface AstroProfile {
+  sunSignVedic: string
+  sunSignWestern: string
+  moonSign: string
+  ascendant: string
+  birthNakshatra: string
+  nakshatraCharan: number
+}
+
+/** Chat message */
 export interface ChatMessage {
   id: string
   role: "user" | "assistant"
   content: string
   timestamp: number
   isStreaming?: boolean
+  senderName?: string
 }
 
-/** Astrological report */
-export interface Report {
+/** Report card data */
+export interface ReportCard {
   id: string
   title: string
   subtitle: string
-  description: string
-  icon: string             // emoji or icon name
-  isFree: boolean
-  isPurchased?: boolean
-  price?: number           // in INR
-  validityDays?: number
-  sections?: ReportSection[]
+  guidancePeriod: string
+  isLocked: boolean
+  isFree?: boolean
+  isNew?: boolean
+  isTrending?: boolean
+  category: string
 }
 
-export interface ReportSection {
-  title: string
-  content: string
-}
-
-/** Life area categories for reports */
-export interface LifeArea {
+/** Report category section */
+export interface ReportCategory {
   id: string
-  label: string
-  icon: string
-  color: string            // tailwind color class
-  reports: Report[]
+  title: string
+  reports: ReportCard[]
 }
 
-/** User profile data */
+/** User profile */
 export interface UserProfile {
   name: string
-  email: string
-  plan: "free" | "plus" | "premium"
+  initials: string
+  email?: string
+  gender: string
   birthData?: BirthData
-  questionsToday: number
-  streakDays: number
-  joinedAt: string
-}
-
-/** Daily insight card */
-export interface DailyInsight {
-  title: string
-  body: string
-  category: string
-  icon: string
-}
-
-/** Cosmic snapshot (home screen) */
-export interface CosmicSnapshot {
-  greeting: string
-  moonSign: string
-  currentDasha: string
-  luckyNumber: number
-  dominantPlanet: string
-  briefInsight: string
+  astroProfile?: AstroProfile
+  questionsLeft: number
+  reportsLeft: number
 }

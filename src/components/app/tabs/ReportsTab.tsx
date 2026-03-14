@@ -1,300 +1,172 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { ArrowLeft, Lock, ChevronRight, Sparkles } from "lucide-react"
-import GlassCard from "@/components/ui/GlassCard"
-import SectionHeader from "@/components/ui/SectionHeader"
-import ReportCard from "@/components/ui/ReportCard"
-import type { LifeArea, Report, TabType } from "@/types/app"
+import { motion } from "framer-motion"
+import { Lock, Filter } from "lucide-react"
+import AppHeader from "@/components/ui/AppHeader"
+import type { ReportCategory } from "@/types/app"
 
-/* ═══ Report Data ═══ */
-const LIFE_AREAS: LifeArea[] = [
+const REPORT_CATEGORIES: ReportCategory[] = [
   {
-    id: "general",
-    label: "General Forecast",
-    icon: "🌟",
-    color: "magenta",
+    id: "life",
+    title: "Know Yourself Better",
     reports: [
-      {
-        id: "yearly-forecast",
-        title: "General Forecast Report",
-        subtitle: "Embark on a journey of self-discovery with your personalized yearly forecast",
-        description: "Comprehensive yearly overview based on your natal chart, current transits, and dasha periods.",
-        icon: "🌟",
-        isFree: true,
-        validityDays: 365,
-        sections: [
-          { title: "Overall Theme", content: "" },
-          { title: "Key Months", content: "" },
-          { title: "Opportunities", content: "" },
-          { title: "Challenges", content: "" },
-        ],
-      },
-    ],
-  },
-  {
-    id: "career",
-    label: "Career & Work",
-    icon: "💼",
-    color: "cyan",
-    reports: [
-      {
-        id: "career-forecast",
-        title: "Career Report",
-        subtitle: "Professional growth insights for the next 12 months",
-        description: "Detailed career analysis based on your 10th house, Dashamsha chart, and current Mahadasha.",
-        icon: "💼",
-        isFree: false,
-        price: 199,
-        validityDays: 365,
-      },
-      {
-        id: "business-muhurta",
-        title: "Business Muhurta",
-        subtitle: "Best times to launch or make key business decisions",
-        description: "Auspicious timing analysis for business ventures.",
-        icon: "📊",
-        isFree: false,
-        price: 149,
-        validityDays: 90,
-      },
-    ],
-  },
-  {
-    id: "love",
-    label: "Love & Relationships",
-    icon: "💜",
-    color: "violet",
-    reports: [
-      {
-        id: "relationship-forecast",
-        title: "Relationship Report",
-        subtitle: "Insights into love, marriage prospects, and compatibility",
-        description: "Analysis of your 7th house, Venus placement, and Navamsha chart.",
-        icon: "💜",
-        isFree: false,
-        price: 199,
-        validityDays: 365,
-      },
-      {
-        id: "compatibility",
-        title: "Compatibility Analysis",
-        subtitle: "Kundli matching with detailed Guna Milan",
-        description: "36-point Guna matching and dosha analysis.",
-        icon: "💕",
-        isFree: false,
-        price: 249,
-      },
-    ],
-  },
-  {
-    id: "health",
-    label: "Health",
-    icon: "🧘",
-    color: "success",
-    reports: [
-      {
-        id: "health-report",
-        title: "Health Report",
-        subtitle: "Guidance for your wellbeing over the next year",
-        description: "Health tendencies based on your 6th house, Ascendant, and planetary periods.",
-        icon: "🧘",
-        isFree: false,
-        price: 149,
-        validityDays: 365,
-      },
-    ],
-  },
-  {
-    id: "education",
-    label: "Education",
-    icon: "📚",
-    color: "gold",
-    reports: [
-      {
-        id: "education-report",
-        title: "Education Report",
-        subtitle: "Academic guidance for the next 2 years",
-        description: "Education prospects based on your 4th and 5th house analysis.",
-        icon: "📚",
-        isFree: false,
-        price: 149,
-        validityDays: 730,
-      },
+      { id: "life-guidance", title: "Life Guidance", subtitle: "Your kundali analysis and birth charts", guidancePeriod: "Lifetime", isLocked: false, isFree: true, category: "life" },
+      { id: "personality", title: "Personality Traits", subtitle: "Analysis of your 20+ characteristics", guidancePeriod: "Lifetime", isLocked: false, isFree: true, category: "life" },
     ],
   },
   {
     id: "wealth",
-    label: "Wealth & Finance",
-    icon: "💰",
-    color: "gold",
+    title: "Get Rich and Prosper",
     reports: [
-      {
-        id: "wealth-report",
-        title: "Wealth Report",
-        subtitle: "Financial prospects and investment timing",
-        description: "Analysis of your 2nd and 11th houses with Dhana yoga assessment.",
-        icon: "💰",
-        isFree: false,
-        price: 199,
-        validityDays: 365,
-      },
+      { id: "billionaire", title: "Billionaire Potential", subtitle: "Find your financial destiny", guidancePeriod: "Lifetime", isLocked: true, category: "wealth" },
+      { id: "wealth", title: "Wealth", subtitle: "Quick wealth creation", guidancePeriod: "1 Year", isLocked: true, category: "wealth" },
+    ],
+  },
+  {
+    id: "career",
+    title: "Plan Your Professional Roadmap",
+    reports: [
+      { id: "career-salaried", title: "Career (Salaried)", subtitle: "Career growth for corporate employees", guidancePeriod: "1 Year", isLocked: true, category: "career" },
+      { id: "govt-job", title: "Government Job", subtitle: "Selection, promotion and growth", guidancePeriod: "5 Years", isLocked: true, isNew: true, category: "career" },
+    ],
+  },
+  {
+    id: "marriage",
+    title: "Everything About Your Marriage",
+    reports: [
+      { id: "marriage", title: "Marriage", subtitle: "Early or delayed? Yogas, timing & remedies", guidancePeriod: "5 Years", isLocked: true, isTrending: true, category: "marriage" },
+      { id: "life-partner", title: "Life Partner", subtitle: "Your ideal life partner", guidancePeriod: "Lifetime", isLocked: true, category: "marriage" },
+    ],
+  },
+  {
+    id: "love",
+    title: "The Story of Love",
+    reports: [
+      { id: "love-navigator", title: "Love Navigator", subtitle: "Your style and strengths in romance", guidancePeriod: "1 Year", isLocked: true, category: "love" },
+      { id: "love-arrange", title: "Love or Arrange Marriage", subtitle: "What suits you the best?", guidancePeriod: "Lifetime", isLocked: true, isNew: true, category: "love" },
+    ],
+  },
+  {
+    id: "business",
+    title: "Growing Your Business",
+    reports: [
+      { id: "business-owner", title: "Business Owner", subtitle: "How to grow your business?", guidancePeriod: "1 Year", isLocked: true, category: "business" },
+      { id: "job-vs-business", title: "Job vs Business", subtitle: "A stable job, a bold business, or both?", guidancePeriod: "Lifetime", isLocked: true, category: "business" },
+    ],
+  },
+  {
+    id: "education",
+    title: "Prepare Your Educational Journey",
+    reports: [
+      { id: "multiple-intelligence", title: "Multiple Intelligence", subtitle: "Discover your unique strengths", guidancePeriod: "5 Years", isLocked: true, category: "education" },
+      { id: "education-report", title: "Education", subtitle: "Navigate your academic journey", guidancePeriod: "1 Year", isLocked: true, isFree: true, category: "education" },
     ],
   },
 ]
 
 interface ReportsTabProps {
-  onTabChange: (tab: TabType) => void
+  onProfileClick: () => void
 }
 
-export default function ReportsTab({ onTabChange }: ReportsTabProps) {
-  const [hasBirthData, setHasBirthData] = useState(false)
-  const [selectedArea, setSelectedArea] = useState<LifeArea | null>(null)
+export default function ReportsTab({ onProfileClick }: ReportsTabProps) {
+  const [reportsLeft, setReportsLeft] = useState(0)
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem("grahai-onboarding-birthdata")
-      setHasBirthData(!!stored)
+      const r = localStorage.getItem("grahai-reports-left")
+      if (r) setReportsLeft(parseInt(r))
     } catch {}
   }, [])
 
-  const freeReports = LIFE_AREAS.flatMap((a) => a.reports).filter((r) => r.isFree)
-  const lockedReports = LIFE_AREAS.flatMap((a) => a.reports).filter((r) => !r.isFree)
+  return (
+    <div className="min-h-full pb-28">
+      <AppHeader onProfileClick={onProfileClick} />
 
-  if (!hasBirthData) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full text-center px-6 pb-24">
-        <div className="text-5xl mb-4">📋</div>
-        <h2 className="text-lg font-semibold text-text mb-2">Your reports await</h2>
-        <p className="text-sm text-text-dim mb-6 max-w-xs">
-          Add your birth details to unlock personalized astrological reports tailored to your chart.
-        </p>
-        <button onClick={() => onTabChange("profile")} className="btn-primary px-6 py-2.5 text-sm">
-          Add Birth Details
+      <div className="px-4 py-2 flex items-center justify-between bg-[#0E0E25]">
+        <span className="text-xs text-white/40">Viewing your reports</span>
+        <button className="flex items-center gap-1.5 text-xs text-white/50">
+          <Filter className="w-3.5 h-3.5" />
+          All reports
         </button>
       </div>
-    )
-  }
 
-  return (
-    <div className="min-h-full px-4 pt-3 pb-24 max-w-lg mx-auto">
-      <AnimatePresence mode="wait">
-        {selectedArea ? (
-          /* ═══ Area Detail View ═══ */
+      <div className="px-4 pt-4">
+        {REPORT_CATEGORIES.map((cat, ci) => (
           <motion.div
-            key="detail"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2 }}
+            key={cat.id}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: ci * 0.06 }}
+            className="mb-6"
           >
-            <button
-              onClick={() => setSelectedArea(null)}
-              className="flex items-center gap-1.5 text-sm text-text-dim mb-4 hover:text-text transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              All Reports
-            </button>
-
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-bg-elevated flex items-center justify-center text-2xl">
-                {selectedArea.icon}
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-text">{selectedArea.label}</h2>
-                <p className="text-xs text-text-dim">
-                  {selectedArea.reports.length} report{selectedArea.reports.length > 1 ? "s" : ""} available
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {selectedArea.reports.map((report, i) => (
-                <ReportCard
+            <h2 className="text-base font-bold text-white/90 mb-3">{cat.title}</h2>
+            <div className="grid grid-cols-2 gap-3">
+              {cat.reports.map((report) => (
+                <button
                   key={report.id}
-                  title={report.title}
-                  subtitle={report.subtitle}
-                  icon={report.icon}
-                  isFree={report.isFree}
-                  validity={report.validityDays ? `${Math.round(report.validityDays / 365)} Year` : undefined}
-                  delay={i * 0.08}
-                />
-              ))}
-            </div>
-          </motion.div>
-        ) : (
-          /* ═══ Main Reports View ═══ */
-          <motion.div
-            key="main"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.2 }}
-          >
-            <h1 className="text-lg font-bold text-text mb-1">Your Reports</h1>
-            <p className="text-xs text-text-dim mb-5">Personalized insights based on your birth chart</p>
-
-            {/* Free reports */}
-            <SectionHeader
-              title={`Your Reports (${freeReports.length})`}
-              subtitle="Available now"
-            />
-            <div className="space-y-3 mb-6">
-              {freeReports.map((report, i) => (
-                <ReportCard
-                  key={report.id}
-                  title={report.title}
-                  subtitle={report.subtitle}
-                  icon={report.icon}
-                  isFree={report.isFree}
-                  validity={report.validityDays ? `1 Year` : undefined}
-                  delay={i * 0.08}
-                />
-              ))}
-            </div>
-
-            {/* Locked reports by area */}
-            <SectionHeader
-              title={`Locked Reports (${lockedReports.length})`}
-              subtitle="Unlock with Plus or Premium plan"
-            />
-            <div className="space-y-2 mb-6">
-              {LIFE_AREAS.filter((a) => a.reports.some((r) => !r.isFree)).map((area, i) => (
-                <GlassCard
-                  key={area.id}
-                  onClick={() => setSelectedArea(area)}
-                  delay={0.1 + i * 0.06}
-                  className="flex items-center gap-3"
+                  className="bg-[#12122A] border border-[#1E1E45] rounded-2xl p-3.5 text-left
+                    hover:border-pink-500/20 transition-colors relative overflow-hidden"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-bg-elevated flex items-center justify-center text-xl">
-                    {area.icon}
+                  <div className="flex items-start justify-between mb-6">
+                    <div>
+                      <span className="text-[9px] uppercase tracking-wider text-white/30 font-medium">
+                        Guidance
+                      </span>
+                      <p className="text-sm font-bold text-white/80">{report.guidancePeriod}</p>
+                    </div>
+                    {report.isLocked && <Lock className="w-4 h-4 text-white/20" />}
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-sm font-semibold text-text">{area.label}</h3>
-                    <p className="text-xs text-text-dim">
-                      {area.reports.filter((r) => !r.isFree).length} report{area.reports.filter((r) => !r.isFree).length > 1 ? "s" : ""}
-                    </p>
+
+                  <div className="w-full h-20 flex items-center justify-center mb-3 opacity-20">
+                    <div className="w-16 h-16 rounded-full border border-white/10" />
                   </div>
-                  <ChevronRight className="w-4 h-4 text-text-dim" />
-                </GlassCard>
+
+                  {(report.isNew || report.isTrending || report.isFree) && (
+                    <div className="mb-2">
+                      {report.isTrending && (
+                        <span className="text-[9px] bg-[#1E1E40] text-white/50 px-2 py-0.5 rounded-full font-medium">
+                          Trending
+                        </span>
+                      )}
+                      {report.isNew && (
+                        <span className="text-[9px] bg-[#1E1E40] text-white/50 px-2 py-0.5 rounded-full font-medium">
+                          New
+                        </span>
+                      )}
+                      {report.isFree && (
+                        <span className="text-[9px] bg-blue-600 text-white px-2 py-0.5 rounded-sm font-bold">
+                          FREE
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  <h3 className="text-sm font-bold text-white/80 mb-0.5">{report.title}</h3>
+                  <p className="text-[11px] text-white/35 leading-snug">{report.subtitle}</p>
+                </button>
               ))}
             </div>
-
-            {/* Upgrade CTA */}
-            <GlassCard glow="magenta" className="text-center">
-              <Sparkles className="w-5 h-5 text-magenta mx-auto mb-2" />
-              <h3 className="text-sm font-semibold text-text mb-1">Unlock all reports</h3>
-              <p className="text-xs text-text-dim mb-3">
-                Get unlimited access to all {lockedReports.length} premium reports with Plus
-              </p>
-              <button className="btn-primary px-5 py-2 text-sm">
-                Upgrade to Plus · ₹199/mo
-              </button>
-            </GlassCard>
           </motion.div>
-        )}
-      </AnimatePresence>
+        ))}
+      </div>
+
+      {/* Sticky bottom bar */}
+      <div className="fixed bottom-16 left-0 right-0 z-30 px-4 py-3
+        bg-gradient-to-t from-[#080818] via-[#080818]/95 to-transparent">
+        <div className="flex items-center justify-between max-w-lg mx-auto
+          bg-[#12122A] border border-[#1E1E45] rounded-full px-4 py-2.5">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-full border-2 border-pink-500/30 flex items-center justify-center">
+              <span className="text-[10px] font-bold text-white/50">{reportsLeft}</span>
+            </div>
+            <span className="text-xs text-white/40">Report left</span>
+          </div>
+          <button className="text-xs text-white bg-pink-600 px-4 py-1.5 rounded-full font-medium">
+            Buy Reports
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

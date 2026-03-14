@@ -1,14 +1,12 @@
 "use client"
 
-import { Home, MessageCircle, FileText, User } from "lucide-react"
-import { motion } from "framer-motion"
+import { Heart, MessageCircle, FileText } from "lucide-react"
 import type { TabType } from "@/types/app"
 
-const TABS: { id: TabType; label: string; Icon: typeof Home }[] = [
-  { id: "home", label: "Home", Icon: Home },
-  { id: "ask", label: "Vaani", Icon: MessageCircle },
-  { id: "reports", label: "Reports", Icon: FileText },
-  { id: "profile", label: "You", Icon: User },
+const TABS: { id: TabType; label: string; Icon: typeof Heart; badge?: string }[] = [
+  { id: "compatibility", label: "Compatibility", Icon: Heart },
+  { id: "questions", label: "Questions", Icon: MessageCircle },
+  { id: "reports", label: "Reports", Icon: FileText, badge: "FREE" },
 ]
 
 interface BottomNavProps {
@@ -18,37 +16,43 @@ interface BottomNavProps {
 
 export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 glass-card border-t border-border pb-safe">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[#080818] border-t border-white/5 pb-safe">
       <div className="flex items-center justify-around max-w-lg mx-auto h-16">
-        {TABS.map(({ id, label, Icon }) => {
+        {TABS.map(({ id, label, Icon, badge }) => {
           const isActive = activeTab === id
           return (
             <button
               key={id}
               onClick={() => onTabChange(id)}
-              className="relative flex flex-col items-center justify-center gap-0.5 w-16 h-full transition-colors"
+              className="relative flex flex-col items-center justify-center gap-1 flex-1 h-full"
               aria-label={label}
               aria-current={isActive ? "page" : undefined}
             >
-              <Icon
-                className={`w-5 h-5 transition-colors duration-200 ${
-                  isActive ? "text-magenta" : "text-text-dim"
-                }`}
-                strokeWidth={isActive ? 2.2 : 1.6}
-              />
-              <span
-                className={`text-[10px] font-medium transition-colors duration-200 ${
-                  isActive ? "text-magenta" : "text-text-dim"
-                }`}
-              >
-                {label}
-              </span>
-              {isActive && (
-                <motion.div
-                  layoutId="nav-indicator"
-                  className="absolute -top-px left-3 right-3 h-0.5 rounded-full bg-magenta"
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+              {badge && (
+                <span className="absolute top-1 right-[20%] text-[8px] font-bold bg-blue-600
+                  text-white px-1.5 py-0.5 rounded-sm leading-none">
+                  {badge}
+                </span>
+              )}
+
+              <div className="relative">
+                <Icon
+                  className={`w-5 h-5 transition-colors duration-200 ${
+                    isActive ? "text-white" : "text-white/30"
+                  }`}
+                  strokeWidth={isActive ? 2 : 1.5}
                 />
+              </div>
+
+              {isActive ? (
+                <span className="text-[10px] font-semibold text-white bg-pink-600
+                  px-3 py-0.5 rounded-full leading-tight">
+                  {label}
+                </span>
+              ) : (
+                <span className="text-[10px] font-medium text-white/30">
+                  {label}
+                </span>
               )}
             </button>
           )
