@@ -1,0 +1,2496 @@
+{
+  "timestamp": "2026-03-13T17:19:44.343Z",
+  "apiEndpoint": "http://localhost:3000/api/chat",
+  "summary": {
+    "totalTests": 160,
+    "overallAvgScore": 0,
+    "overallPassRate": 0,
+    "passCount": 0,
+    "failCount": 160,
+    "elapsedMs": 368
+  },
+  "categories": [
+    {
+      "category": "career",
+      "testCount": 20,
+      "avgScore": 0,
+      "passRate": 0,
+      "weakestCase": {
+        "testId": "career-01",
+        "score": 0
+      }
+    },
+    {
+      "category": "daily",
+      "testCount": 20,
+      "avgScore": 0,
+      "passRate": 0,
+      "weakestCase": {
+        "testId": "daily-01",
+        "score": 0
+      }
+    },
+    {
+      "category": "emotional-tone",
+      "testCount": 20,
+      "avgScore": 0,
+      "passRate": 0,
+      "weakestCase": {
+        "testId": "emotional-tone-01",
+        "score": 0
+      }
+    },
+    {
+      "category": "love",
+      "testCount": 20,
+      "avgScore": 0,
+      "passRate": 0,
+      "weakestCase": {
+        "testId": "love-01",
+        "score": 0
+      }
+    },
+    {
+      "category": "remedy",
+      "testCount": 20,
+      "avgScore": 0,
+      "passRate": 0,
+      "weakestCase": {
+        "testId": "remedy-01",
+        "score": 0
+      }
+    },
+    {
+      "category": "source-citation",
+      "testCount": 20,
+      "avgScore": 0,
+      "passRate": 0,
+      "weakestCase": {
+        "testId": "source-citation-01",
+        "score": 0
+      }
+    },
+    {
+      "category": "timing",
+      "testCount": 20,
+      "avgScore": 0,
+      "passRate": 0,
+      "weakestCase": {
+        "testId": "timing-01",
+        "score": 0
+      }
+    },
+    {
+      "category": "unknown-birth-time",
+      "testCount": 20,
+      "avgScore": 0,
+      "passRate": 0,
+      "weakestCase": {
+        "testId": "unknown-birth-time-01",
+        "score": 0
+      }
+    }
+  ],
+  "details": [
+    {
+      "testId": "career-01",
+      "category": "career",
+      "question": "Will I get a promotion this year?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "career-02",
+      "category": "career",
+      "question": "Should I switch jobs or stay with my current company?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "career-03",
+      "category": "career",
+      "question": "Is business entrepreneurship right for me?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "career-04",
+      "category": "career",
+      "question": "When should I expect a salary increase?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "career-05",
+      "category": "career",
+      "question": "Which field would be most profitable for me - tech, finance, or law?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "career-06",
+      "category": "career",
+      "question": "My career feels stuck. What should I do?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "career-07",
+      "category": "career",
+      "question": "Is now a good time to ask for a raise?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "career-08",
+      "category": "career",
+      "question": "What career changes are indicated in my chart?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "career-09",
+      "category": "career",
+      "question": "My boss is difficult. Should I change jobs?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "career-10",
+      "category": "career",
+      "question": "Am I capable of leadership roles?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "career-11",
+      "category": "career",
+      "question": "How long will my current job last?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "career-12",
+      "category": "career",
+      "question": "Will my side business become my main income?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "career-13",
+      "category": "career",
+      "question": "What work would be fulfilling for me?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "career-14",
+      "category": "career",
+      "question": "Should I pursue further education for my career?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "career-15",
+      "category": "career",
+      "question": "Am I in a mahadasha favourable for career growth?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "career-16",
+      "category": "career",
+      "question": "What's blocking my professional success?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "career-17",
+      "category": "career",
+      "question": "Should I negotiate my job offer or accept as is?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "career-18",
+      "category": "career",
+      "question": "My job involves travel. Will this continue?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "career-19",
+      "category": "career",
+      "question": "Should I invest in my own business now?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "career-20",
+      "category": "career",
+      "question": "Will I achieve my career goals in this lifetime?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "love-01",
+      "category": "love",
+      "question": "When will I find love?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "love-02",
+      "category": "love",
+      "question": "Is this person right for me?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "love-03",
+      "category": "love",
+      "question": "Will my marriage last forever?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "love-04",
+      "category": "love",
+      "question": "Why am I still single?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "love-05",
+      "category": "love",
+      "question": "Should I propose to my partner?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "love-06",
+      "category": "love",
+      "question": "My relationship has conflicts. Will it survive?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "love-07",
+      "category": "love",
+      "question": "What kind of partner would suit me?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "love-08",
+      "category": "love",
+      "question": "Is there unrequited love in my life?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "love-09",
+      "category": "love",
+      "question": "When is the best time to get married?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "love-10",
+      "category": "love",
+      "question": "Will I have a love marriage or arranged marriage?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "love-11",
+      "category": "love",
+      "question": "My ex keeps appearing in my life. What does this mean?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "love-12",
+      "category": "love",
+      "question": "How do I know if I'm in love?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "love-13",
+      "category": "love",
+      "question": "Will I have multiple marriages or lasting love?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "love-14",
+      "category": "love",
+      "question": "What's my ideal age to marry?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "love-15",
+      "category": "love",
+      "question": "Are we soulmates?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "love-16",
+      "category": "love",
+      "question": "My partner is distant. Should I leave?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "love-17",
+      "category": "love",
+      "question": "Will I have children?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "love-18",
+      "category": "love",
+      "question": "Is this relationship karmic?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "love-19",
+      "category": "love",
+      "question": "Will long distance love work for us?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "love-20",
+      "category": "love",
+      "question": "What does my Venus placement mean for love?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "timing-01",
+      "category": "timing",
+      "question": "When is the best time to invest money?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "timing-02",
+      "category": "timing",
+      "question": "Should I travel in April? Is it auspicious?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "timing-03",
+      "category": "timing",
+      "question": "What is the best month for my wedding?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "timing-04",
+      "category": "timing",
+      "question": "Is this a good time to buy property?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "timing-05",
+      "category": "timing",
+      "question": "When should I start my business venture?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "timing-06",
+      "category": "timing",
+      "question": "What's the best season for a new job?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "timing-07",
+      "category": "timing",
+      "question": "Is the next 6 months favorable for me?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "timing-08",
+      "category": "timing",
+      "question": "When will Saturn's bad effects end?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "timing-09",
+      "category": "timing",
+      "question": "Is now a good time for surgery?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "timing-10",
+      "category": "timing",
+      "question": "What month will my luck change?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "timing-11",
+      "category": "timing",
+      "question": "Is this a Shani Sade Sati period for me?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "timing-12",
+      "category": "timing",
+      "question": "When should I schedule important appointments?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "timing-13",
+      "category": "timing",
+      "question": "Is this the right time to relocate?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "timing-14",
+      "category": "timing",
+      "question": "What's my most challenging period coming up?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "timing-15",
+      "category": "timing",
+      "question": "When will Jupiter's blessings manifest?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "timing-16",
+      "category": "timing",
+      "question": "Is this a good year overall?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "timing-17",
+      "category": "timing",
+      "question": "Should I wait before making a major decision?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "timing-18",
+      "category": "timing",
+      "question": "What does my birth star (nakshatra) timing indicate?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "timing-19",
+      "category": "timing",
+      "question": "When is my next major life transition?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "timing-20",
+      "category": "timing",
+      "question": "Is the coming week auspicious for me?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "daily-01",
+      "category": "daily",
+      "question": "What should I focus on today?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "daily-02",
+      "category": "daily",
+      "question": "Any cautions for today?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "daily-03",
+      "category": "daily",
+      "question": "How is this week looking for me?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "daily-04",
+      "category": "daily",
+      "question": "What's my energy like today?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "daily-05",
+      "category": "daily",
+      "question": "Should I avoid anything today?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "daily-06",
+      "category": "daily",
+      "question": "What's the energy at work this week?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "daily-07",
+      "category": "daily",
+      "question": "Is today a good day for negotiations?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "daily-08",
+      "category": "daily",
+      "question": "What emotional theme is this month?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "daily-09",
+      "category": "daily",
+      "question": "Today feels off. What's happening astrologically?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "daily-10",
+      "category": "daily",
+      "question": "What's the best time to start a task today?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "daily-11",
+      "category": "daily",
+      "question": "How should I approach relationships today?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "daily-12",
+      "category": "daily",
+      "question": "Any opportunities coming this week?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "daily-13",
+      "category": "daily",
+      "question": "What should I be mindful of today?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "daily-14",
+      "category": "daily",
+      "question": "Is today good for financial decisions?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "daily-15",
+      "category": "daily",
+      "question": "What theme defines this season?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "daily-16",
+      "category": "daily",
+      "question": "Today I feel lucky. Is this astrological?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "daily-17",
+      "category": "daily",
+      "question": "Should I push forward or wait today?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "daily-18",
+      "category": "daily",
+      "question": "What's the health focus for this week?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "daily-19",
+      "category": "daily",
+      "question": "Is this a good day to celebrate?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "daily-20",
+      "category": "daily",
+      "question": "What spiritual lesson does today offer?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "unknown-birth-time-01",
+      "category": "unknown-birth-time",
+      "question": "Can you read my birth chart? I don't know my exact birth time.",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "unknown-birth-time-02",
+      "category": "unknown-birth-time",
+      "question": "Will I get married this year?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "unknown-birth-time-03",
+      "category": "unknown-birth-time",
+      "question": "What's my personality like?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "unknown-birth-time-04",
+      "category": "unknown-birth-time",
+      "question": "Should I change careers?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "unknown-birth-time-05",
+      "category": "unknown-birth-time",
+      "question": "Am I compatible with my partner?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "unknown-birth-time-06",
+      "category": "unknown-birth-time",
+      "question": "What are my strengths and weaknesses?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "unknown-birth-time-07",
+      "category": "unknown-birth-time",
+      "question": "Is this a good year for me?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "unknown-birth-time-08",
+      "category": "unknown-birth-time",
+      "question": "What career path suits me?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "unknown-birth-time-09",
+      "category": "unknown-birth-time",
+      "question": "Will I be wealthy?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "unknown-birth-time-10",
+      "category": "unknown-birth-time",
+      "question": "What does my chart say about love?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "unknown-birth-time-11",
+      "category": "unknown-birth-time",
+      "question": "Am I a confident person?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "unknown-birth-time-12",
+      "category": "unknown-birth-time",
+      "question": "What's my life purpose?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "unknown-birth-time-13",
+      "category": "unknown-birth-time",
+      "question": "Should I travel abroad?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "unknown-birth-time-14",
+      "category": "unknown-birth-time",
+      "question": "Am I good with money?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "unknown-birth-time-15",
+      "category": "unknown-birth-time",
+      "question": "Will I have a happy family?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "unknown-birth-time-16",
+      "category": "unknown-birth-time",
+      "question": "What health issues should I watch for?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "unknown-birth-time-17",
+      "category": "unknown-birth-time",
+      "question": "How can I improve my life?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "unknown-birth-time-18",
+      "category": "unknown-birth-time",
+      "question": "What are my hidden talents?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "unknown-birth-time-19",
+      "category": "unknown-birth-time",
+      "question": "Should I get married soon?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "unknown-birth-time-20",
+      "category": "unknown-birth-time",
+      "question": "Can you interpret my chart at all?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "source-citation-01",
+      "category": "source-citation",
+      "question": "What does Brihat Parashara Hora Shastra say about my Moon placement?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "source-citation-02",
+      "category": "source-citation",
+      "question": "Can you cite what the classical texts say about Mangal Dosha?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "source-citation-03",
+      "category": "source-citation",
+      "question": "What does Phaladeepika say about Saturn in the 8th house?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "source-citation-04",
+      "category": "source-citation",
+      "question": "Show me the classical basis for dasha periods.",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "source-citation-05",
+      "category": "source-citation",
+      "question": "What text describes planetary mahadashas?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "source-citation-06",
+      "category": "source-citation",
+      "question": "Cite the classical definition of yoga in astrology.",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "source-citation-07",
+      "category": "source-citation",
+      "question": "What's the classical rule for determining ascendant strength?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "source-citation-08",
+      "category": "source-citation",
+      "question": "Show the scriptural basis for Navagraha worship recommendations.",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "source-citation-09",
+      "category": "source-citation",
+      "question": "What do classical texts say about retrograde planets?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "source-citation-10",
+      "category": "source-citation",
+      "question": "Cite the source for Shad Bala calculation method.",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "source-citation-11",
+      "category": "source-citation",
+      "question": "What's the classical reference for 27-star nakshatras?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "source-citation-12",
+      "category": "source-citation",
+      "question": "Show me the classical basis for birth time rectification.",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "source-citation-13",
+      "category": "source-citation",
+      "question": "What text defines the 12 houses and their meanings?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "source-citation-14",
+      "category": "source-citation",
+      "question": "Cite classical sources about beneficial planet placements.",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "source-citation-15",
+      "category": "source-citation",
+      "question": "What does Vridha Yavana Jataka say about Saturn?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "source-citation-16",
+      "category": "source-citation",
+      "question": "Show the classical basis for gem recommendations.",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "source-citation-17",
+      "category": "source-citation",
+      "question": "Cite the source for three-fold judgment rule in astrology.",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "source-citation-18",
+      "category": "source-citation",
+      "question": "What text describes Rahu and Ketu's role in karma?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "source-citation-19",
+      "category": "source-citation",
+      "question": "Show the Vedic basis for maha and antardasha periods.",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "source-citation-20",
+      "category": "source-citation",
+      "question": "What classical text defines planetary exaltation and debilitation?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "remedy-01",
+      "category": "remedy",
+      "question": "What remedies can I do for Mangal Dosha?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "remedy-02",
+      "category": "remedy",
+      "question": "How can I strengthen weak Jupiter in my chart?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "remedy-03",
+      "category": "remedy",
+      "question": "What remedies help with Saturn's challenges?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "remedy-04",
+      "category": "remedy",
+      "question": "How can I balance Rahu's influence?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "remedy-05",
+      "category": "remedy",
+      "question": "What mantra can I chant for Mercury blessings?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "remedy-06",
+      "category": "remedy",
+      "question": "Can gems really help? Which gem for my chart?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "remedy-07",
+      "category": "remedy",
+      "question": "What charity would help balance my chart?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "remedy-08",
+      "category": "remedy",
+      "question": "Are Vedic rituals effective for life improvement?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "remedy-09",
+      "category": "remedy",
+      "question": "What remedy addresses the weak 10th house in my chart?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "remedy-10",
+      "category": "remedy",
+      "question": "How can I improve my relationship through remedies?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "remedy-11",
+      "category": "remedy",
+      "question": "What Puja would help me?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "remedy-12",
+      "category": "remedy",
+      "question": "Are there free remedies I can do?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "remedy-13",
+      "category": "remedy",
+      "question": "What remedies help with health issues?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "remedy-14",
+      "category": "remedy",
+      "question": "How do I do Graha Shanti for my chart?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "remedy-15",
+      "category": "remedy",
+      "question": "What remedy helps with Ketu's shadow?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "remedy-16",
+      "category": "remedy",
+      "question": "Can fasting help balance my planets?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "remedy-17",
+      "category": "remedy",
+      "question": "What's the best remedy for career blockage?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "remedy-18",
+      "category": "remedy",
+      "question": "Are breathing exercises remedies for astrology?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "remedy-19",
+      "category": "remedy",
+      "question": "What stones should I wear for financial growth?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "remedy-20",
+      "category": "remedy",
+      "question": "How long before remedies show effects?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "emotional-tone-01",
+      "category": "emotional-tone",
+      "question": "My marriage is falling apart. I'm devastated. Will it survive?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "emotional-tone-02",
+      "category": "emotional-tone",
+      "question": "I feel hopeless about my career. Everyone else is progressing. What's wrong with me?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "emotional-tone-03",
+      "category": "emotional-tone",
+      "question": "My health is failing and I'm scared. Is there hope in my chart?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "emotional-tone-04",
+      "category": "emotional-tone",
+      "question": "I've lost so much money. Am I cursed? Will I ever recover?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "emotional-tone-05",
+      "category": "emotional-tone",
+      "question": "Nobody loves me. I'm alone and it hurts. What does my chart say?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "emotional-tone-06",
+      "category": "emotional-tone",
+      "question": "My child is suffering and I don't know how to help. Is there light ahead?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "emotional-tone-07",
+      "category": "emotional-tone",
+      "question": "I made a terrible mistake and I'm ashamed. Can I recover?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "emotional-tone-08",
+      "category": "emotional-tone",
+      "question": "I feel stuck in life. Nothing changes. I'm losing hope.",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "emotional-tone-09",
+      "category": "emotional-tone",
+      "question": "My family doesn't believe in me. I'm feeling worthless.",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "emotional-tone-10",
+      "category": "emotional-tone",
+      "question": "I'm terrified of my future. Everything feels dark.",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "emotional-tone-11",
+      "category": "emotional-tone",
+      "question": "My partner betrayed me. I don't trust anyone. What does my chart show?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "emotional-tone-12",
+      "category": "emotional-tone",
+      "question": "I'm struggling with depression. Is there hope for me?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "emotional-tone-13",
+      "category": "emotional-tone",
+      "question": "My business is failing. I invested everything. I'm ruined.",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "emotional-tone-14",
+      "category": "emotional-tone",
+      "question": "I feel like giving up on life. Nothing works for me.",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "emotional-tone-15",
+      "category": "emotional-tone",
+      "question": "Everyone betrayed me. I'm alone and broken.",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "emotional-tone-16",
+      "category": "emotional-tone",
+      "question": "My health crisis left me traumatized. Will I heal?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "emotional-tone-17",
+      "category": "emotional-tone",
+      "question": "I lost my job and I feel like a failure. What's next?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "emotional-tone-18",
+      "category": "emotional-tone",
+      "question": "My dreams feel impossible. Am I chasing illusions?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "emotional-tone-19",
+      "category": "emotional-tone",
+      "question": "I'm grieving the loss of a loved one. Is there comfort in my chart?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    },
+    {
+      "testId": "emotional-tone-20",
+      "category": "emotional-tone",
+      "question": "I feel like I've wasted my life. Is it too late to change?",
+      "scores": {
+        "trait": "0.0",
+        "forbidden": "0.0",
+        "length": "0.0",
+        "overall": "0.0"
+      },
+      "response": "",
+      "errors": [
+        "fetch failed"
+      ]
+    }
+  ]
+}

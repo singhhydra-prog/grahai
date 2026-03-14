@@ -4,6 +4,7 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Heart, Briefcase, Gem, TrendingUp, Calendar, BookOpen, Lock, ArrowRight, X, ChevronRight, Download, Loader2, Sparkles } from "lucide-react"
 import AppHeader from "@/components/ui/AppHeader"
+import { useLanguage } from "@/lib/LanguageContext"
 import type { ReportCategoryId } from "@/types/app"
 
 interface ReportItem {
@@ -171,6 +172,7 @@ interface ReportsTabProps {
 }
 
 export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuestion }: ReportsTabProps) {
+  const { t } = useLanguage()
   const [selectedReport, setSelectedReport] = useState<ReportItem | null>(null)
   const [generating, setGenerating] = useState(false)
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null)
@@ -268,7 +270,7 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
                       <div className="flex items-center gap-2 mb-0.5">
                         <h3 className="text-sm font-semibold text-[#F1F0F5]">{report.title}</h3>
                         {report.pricing === "free" ? (
-                          <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-medium">FREE</span>
+                          <span className="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-medium">{t.pricing.free || "FREE"}</span>
                         ) : report.pricing === "one-time" ? (
                           <span className="text-[9px] bg-[#D4A054]/10 text-[#D4A054] px-1.5 py-0.5 rounded font-medium">₹{report.price}</span>
                         ) : (
@@ -321,7 +323,7 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
 
               {/* What's inside */}
               <div className="glass-card p-4 mb-4">
-                <h3 className="text-sm font-semibold text-[#F1F0F5] mb-3">What&apos;s inside</h3>
+                <h3 className="text-sm font-semibold text-[#F1F0F5] mb-3">What's inside</h3>
                 <div className="space-y-2">
                   {selectedReport.whatsInside.map((item, i) => (
                     <div key={i} className="flex items-center gap-2">
@@ -335,7 +337,7 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
               {/* Preview snippet */}
               {selectedReport.previewSnippet && (
                 <div className="glass-inner border border-[#D4A054]/10 rounded-xl p-4 mb-4">
-                  <p className="text-xs text-[#D4A054] font-medium mb-2">Preview</p>
+                  <p className="text-xs text-[#D4A054] font-medium mb-2">{t.reports.preview || "Preview"}</p>
                   <p className="text-sm text-[#94A3B8] leading-relaxed italic">
                     &ldquo;{selectedReport.previewSnippet}&rdquo;
                   </p>
@@ -365,7 +367,7 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
 
               {genError && (
                 <div className="bg-rose-500/10 border border-rose-500/20 rounded-xl p-4 mb-4 text-center">
-                  <p className="text-sm text-rose-400">{genError}</p>
+                  <p className="text-sm text-rose-400">{t.common.error || genError}</p>
                 </div>
               )}
             </div>
@@ -388,7 +390,7 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
                 ) : selectedReport.pricing === "one-time" ? (
                   <>Unlock for ₹{selectedReport.price}<ArrowRight className="w-4 h-4" /></>
                 ) : (
-                  <><Lock className="w-4 h-4" />Upgrade to {selectedReport.pricing === "plus" ? "Graha" : "Rishi"}<ArrowRight className="w-4 h-4" /></>
+                  <><Lock className="w-4 h-4" />{t.pricing.upgrade} {selectedReport.pricing === "plus" ? "Graha" : "Rishi"}<ArrowRight className="w-4 h-4" /></>
                 )}
               </button>
             </div>

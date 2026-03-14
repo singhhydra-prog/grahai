@@ -6,6 +6,7 @@ import {
   X, Gift, Copy, Check, Share2, Users, Star, ArrowRight,
   MessageCircle, Crown
 } from "lucide-react"
+import { useLanguage } from "@/lib/LanguageContext"
 
 interface ReferralPageProps {
   isOpen: boolean
@@ -13,6 +14,7 @@ interface ReferralPageProps {
 }
 
 export default function ReferralPage({ isOpen, onClose }: ReferralPageProps) {
+  const { t } = useLanguage()
   const [referralCode, setReferralCode] = useState("")
   const [copied, setCopied] = useState(false)
   const [userName, setUserName] = useState("")
@@ -87,7 +89,7 @@ export default function ReferralPage({ isOpen, onClose }: ReferralPageProps) {
           className="w-10 h-10 rounded-full bg-[#1E2638] border border-[#1E293B] flex items-center justify-center">
           <X className="w-4 h-4 text-[#5A6478]" />
         </button>
-        <h1 className="text-base font-semibold text-[#F1F0F5]">Refer & Earn</h1>
+        <h1 className="text-base font-semibold text-[#F1F0F5]">{t.referral.title || "Refer & Earn"}</h1>
         <div className="w-10" />
       </div>
 
@@ -98,16 +100,16 @@ export default function ReferralPage({ isOpen, onClose }: ReferralPageProps) {
             <Gift className="w-8 h-8 text-[#D4A054]" />
           </div>
           <h2 className="text-xl font-bold text-[#F1F0F5] mb-1">
-            Share GrahAI{userName ? `, ${userName}` : ""}
+            {t.referral.shareWithFriends || "Share GrahAI"}{userName ? `, ${userName}` : ""}
           </h2>
           <p className="text-sm text-[#94A3B8]">
-            Earn free questions, reports, and premium access for every friend who joins
+            {t.referral.subtitle || "Earn free questions, reports, and premium access for every friend who joins"}
           </p>
         </div>
 
         {/* Referral Code Card */}
         <div className="bg-[#111827] border border-[#D4A054]/20 rounded-2xl p-5 mb-5">
-          <p className="text-xs text-[#5A6478] mb-2 text-center">Your referral code</p>
+          <p className="text-xs text-[#5A6478] mb-2 text-center">{t.referral.yourCode || "Your referral code"}</p>
           <div className="flex items-center justify-center gap-3 mb-4">
             <span className="text-2xl font-bold tracking-wider text-[#D4A054]">{referralCode}</span>
             <button onClick={handleCopy}
@@ -118,7 +120,7 @@ export default function ReferralPage({ isOpen, onClose }: ReferralPageProps) {
           <button onClick={handleShare}
             className="w-full py-3 rounded-xl btn-primary text-sm font-semibold flex items-center justify-center gap-2">
             <Share2 className="w-4 h-4" />
-            Share with friends
+            {t.referral.shareWithFriends || "Share with friends"}
           </button>
         </div>
 
@@ -127,18 +129,18 @@ export default function ReferralPage({ isOpen, onClose }: ReferralPageProps) {
           <div className="bg-[#111827] border border-[#1E293B] rounded-xl p-4 text-center">
             <Users className="w-5 h-5 text-[#5A6478] mx-auto mb-1" />
             <p className="text-xl font-bold text-[#F1F0F5]">{referralCount}</p>
-            <p className="text-[10px] text-[#5A6478]">Friends joined</p>
+            <p className="text-[10px] text-[#5A6478]">{t.referral.friendsReferred || "Friends joined"}</p>
           </div>
           <div className="bg-[#111827] border border-[#1E293B] rounded-xl p-4 text-center">
             <Gift className="w-5 h-5 text-[#D4A054] mx-auto mb-1" />
             <p className="text-xl font-bold text-[#F1F0F5]">0</p>
-            <p className="text-[10px] text-[#5A6478]">Rewards earned</p>
+            <p className="text-[10px] text-[#5A6478]">{t.referral.rewardsTitle || "Rewards earned"}</p>
           </div>
         </div>
 
         {/* Rewards ladder */}
         <div className="bg-[#111827] border border-[#1E293B] rounded-2xl p-4 mb-5">
-          <h3 className="text-sm font-semibold text-[#F1F0F5] mb-3">Reward Milestones</h3>
+          <h3 className="text-sm font-semibold text-[#F1F0F5] mb-3">{t.referral.rewardsTitle || "Reward Milestones"}</h3>
           <div className="space-y-3">
             {REWARDS.map((r, i) => (
               <div key={r.milestone}

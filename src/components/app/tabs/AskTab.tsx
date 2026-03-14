@@ -9,29 +9,7 @@ import {
 } from "lucide-react"
 import type { ChatMessage, BirthData } from "@/types/app"
 import SourceDrawer from "@/components/ui/SourceDrawer"
-
-/* ─── Topic chips per document spec ───────────────────── */
-const TOPIC_CHIPS = [
-  { label: "Love", query: "What does my chart say about my love life right now?" },
-  { label: "Career", query: "What career direction does my chart support right now?" },
-  { label: "Timing", query: "Is this a good time for important decisions?" },
-  { label: "Family", query: "What does my chart show about my family life?" },
-  { label: "Health", query: "What should I watch out for regarding my health?" },
-  { label: "Money", query: "What does my chart say about financial growth?" },
-]
-
-const SUGGESTIONS = [
-  "What should I focus on this week based on my chart?",
-  "Why have I been feeling restless or stuck lately?",
-  "When is my next big opportunity coming?",
-]
-
-const FOLLOW_UPS = [
-  "Tell me more",
-  "When does this change?",
-  "Why does this keep repeating?",
-  "What should I do next?",
-]
+import { useLanguage } from "@/lib/LanguageContext"
 
 /* ─── Structured answer section parser ────────────────── */
 interface AnswerSection {
@@ -41,17 +19,17 @@ interface AnswerSection {
   icon: "answer" | "why" | "do" | "avoid" | "timing" | "reflect" | "source"
 }
 
-function parseStructuredAnswer(text: string): AnswerSection[] | null {
+function parseStructuredAnswer(text: string, t: any): AnswerSection[] | null {
   const sections: AnswerSection[] = []
 
   const sectionDefs: { pattern: RegExp; id: string; title: string; icon: AnswerSection["icon"] }[] = [
-    { pattern: /###\s*(?:1\.\s*)?Direct Answer/i, id: "direct", title: "Direct Answer", icon: "answer" },
-    { pattern: /###\s*(?:2\.\s*)?Why This Is (?:Showing Up|Happening)/i, id: "why", title: "Why This Is Showing Up", icon: "why" },
-    { pattern: /###\s*(?:3\.\s*)?What To Do/i, id: "do", title: "What To Do", icon: "do" },
-    { pattern: /###\s*(?:4\.\s*)?What To Avoid/i, id: "avoid", title: "What To Avoid", icon: "avoid" },
-    { pattern: /###\s*(?:5\.\s*)?Timing/i, id: "timing", title: "Timing", icon: "timing" },
-    { pattern: /###\s*(?:6\.\s*)?Reflection(?:\s*(?:or|\/)\s*Remedy)?/i, id: "reflect", title: "Reflection", icon: "reflect" },
-    { pattern: /###\s*(?:7\.\s*)?(?:Why GrahAI Says This|Source)/i, id: "source", title: "Why GrahAI Says This", icon: "source" },
+    { pattern: /###\s*(?:1\.\s*)?Direct Answer/i, id: "direct", title: t.ask.directAnswer, icon: "answer" },
+    { pattern: /###\s*(?:2\.\s*)?Why This Is (?:Showing Up|Happening)/i, id: "why", title: t.ask.whyShowingUp, icon: "why" },
+    { pattern: /###\s*(?:3\.\s*)?What To Do/i, id: "do", title: t.ask.whatToDo, icon: "do" },
+    { pattern: /###\s*(?:4\.\s*)?What To Avoid/i, id: "avoid", title: t.ask.whatToAvoid, icon: "avoid" },
+    { pattern: /###\s*(?:5\.\s*)?Timing/i, id: "timing", title: t.ask.timeWindow, icon: "timing" },
+    { pattern: /###\s*(?:6\.\s*)?Reflection(?:\s*(?:or|\/)\s*Remedy)?/i, id: "reflect", title: t.ask.remedy, icon: "reflect" },
+    { pattern: /###\s*(?:7\.\s*)?(?:Why GrahAI Says This|Source)/i, id: "source", title: t.ask.source, icon: "source" },
   ]
 
   // Find all section positions
@@ -107,7 +85,7 @@ function SectionIcon({ type }: { type: AnswerSection["icon"] }) {
 }
 
 /* ─── Structured answer renderer ──────────────────────── */
-function StructuredAnswer({ sections, onViewSource }: { sections: AnswerSection[]; onViewSource: (text: string) => void }) {
+function StructuredAnswer({ sections, onViewSource, t }: { sections: AnswerSection[]; onViewSource: (text: string) => void; t: any }) {
   return (
     <div className="space-y-3">
       {sections.map((section, i) => (
@@ -136,7 +114,7 @@ function StructuredAnswer({ sections, onViewSource }: { sections: AnswerSection[
               onClick={() => onViewSource(section.content)}
               className="flex items-center gap-1 mt-2 pl-9 text-[11px] text-[#D4A054] hover:text-[#E8C278] transition-colors"
             >
-              View full source <ChevronRight className="w-3 h-3" />
+              {t.home.sourcesTitle} <ChevronRight className="w-3 h-3" />
             </button>
           )}
         </motion.div>
@@ -151,6 +129,7 @@ interface AskTabProps {
 }
 
 export default function AskTab({ initialQuestion }: AskTabProps) {
+  const { t } = useLanguage()
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
   const [isStreaming, setIsStreaming] = useState(false)
@@ -162,6 +141,29 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
   const [sourceText, setSourceText] = useState("")
   const scrollRef = useRef<HTMLDivElement>(null)
   const hasProcessedInitial = useRef(false)
+
+  /* ─── Topic chips — moved inside component to access t ───────────── */
+  const TOPIC_CHIPS = useMemo(() => [
+    { label: t.ask.topicLove, query: "What does my chart say about my love life right now?" },
+    { label: t.ask.topicCareer, query: "What career direction does my chart support right now?" },
+    { label: t.ask.topicTiming, query: "Is this a good time for important decisions?" },
+    { label: t.ask.topicFamily, query: "What does my chart show about my family life?" },
+    { label: t.ask.topicHealth, query: "What should I watch out for regarding my health?" },
+    { label: t.ask.topicMoney, query: "What does my chart say about financial growth?" },
+  ], [t])
+
+  const SUGGESTIONS = [
+    "What should I focus on this week based on my chart?",
+    "Why have I been feeling restless or stuck lately?",
+    "When is my next big opportunity coming?",
+  ]
+
+  const FOLLOW_UPS = [
+    "Tell me more",
+    "When does this change?",
+    "Why does this keep repeating?",
+    "What should I do next?",
+  ]
 
   useEffect(() => {
     try {
@@ -330,13 +332,13 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
           <Sparkles className="w-4 h-4 text-[#0A0E1A]" />
         </div>
         <div className="flex-1">
-          <h1 className="text-sm font-semibold text-[#F1F0F5] text-3d">Ask GrahAI</h1>
-          <p className="text-[10px] text-[#5A6478]">{questionsLeft} questions remaining</p>
+          <h1 className="text-sm font-semibold text-[#F1F0F5] text-3d">{t.ask.title}</h1>
+          <p className="text-[10px] text-[#5A6478]">{questionsLeft} {t.ask.questionsLeft}</p>
         </div>
         <button onClick={() => setShowHistory(true)}
           className="flex items-center gap-1.5 bg-[#111827] border border-[#1E293B] rounded-full px-3 py-1.5">
           <Clock className="w-3 h-3 text-[#5A6478]" />
-          <span className="text-[10px] text-[#5A6478]">History</span>
+          <span className="text-[10px] text-[#5A6478]">{t.profile.questionsHistory}</span>
         </button>
       </div>
 
@@ -359,7 +361,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
               What&apos;s on your mind{userName ? `, ${userName}` : ""}?
             </h2>
             <p className="text-sm text-[#5A6478] mb-6 max-w-xs mx-auto text-visible">
-              Ask about love, work, timing, emotions, or anything you need clarity on.
+              {t.ask.placeholder}
             </p>
 
             {/* Topic chips — 6 categories from document */}
@@ -393,7 +395,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
             <AnimatePresence>
               {messages.map((msg) => {
                 const structured = !msg.isStreaming && msg.role === "assistant" && msg.content
-                  ? parseStructuredAnswer(msg.content)
+                  ? parseStructuredAnswer(msg.content, t)
                   : null
 
                 return (
@@ -411,12 +413,12 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
                             <span className="text-[9px] font-bold text-[#0A0E1A]">G</span>
                           </div>
                           <span className="text-[11px] text-[#5A6478] font-medium">GrahAI</span>
-                          {msg.isStreaming && <span className="text-[11px] text-[#D4A054]/60 animate-pulse">thinking...</span>}
+                          {msg.isStreaming && <span className="text-[11px] text-[#D4A054]/60 animate-pulse">{t.common.loading}</span>}
                         </div>
 
                         {/* Structured answer (post-stream) or raw text (during stream) */}
                         {structured ? (
-                          <StructuredAnswer sections={structured} onViewSource={openSourceDrawer} />
+                          <StructuredAnswer sections={structured} onViewSource={openSourceDrawer} t={t} />
                         ) : (
                           <div className="max-w-[95%] text-sm text-[#94A3B8] leading-relaxed whitespace-pre-wrap">
                             {msg.content}
@@ -458,14 +460,14 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
           <button onClick={() => { setMessages([]); hasProcessedInitial.current = false }}
             className="flex items-center gap-1.5 text-[10px] text-[#5A6478] hover:text-rose-400/70
               transition-colors mb-2 mx-auto">
-            <Trash2 className="w-3 h-3" /> Clear conversation
+            <Trash2 className="w-3 h-3" /> {t.common.close}
           </button>
         )}
         <div className="flex items-center gap-2 glass-card px-4 py-2.5
           focus-within:border-[#D4A054]/30 transition-colors">
           <input type="text" value={input} onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
-            placeholder="Ask about love, work, timing..."
+            placeholder={t.ask.placeholder}
             className="flex-1 bg-transparent text-sm text-[#F1F0F5] placeholder:text-[#5A6478]/50 outline-none" />
           <button onClick={() => handleSend()} disabled={!input.trim() || isStreaming}
             className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
@@ -491,7 +493,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
                 className="w-10 h-10 rounded-full bg-[#1E2638] border border-[#1E293B] flex items-center justify-center">
                 <ArrowLeft className="w-4 h-4 text-[#5A6478]" />
               </button>
-              <h1 className="text-base font-semibold text-[#F1F0F5]">Questions History</h1>
+              <h1 className="text-base font-semibold text-[#F1F0F5]">{t.profile.questionsHistory}</h1>
             </div>
             <div className="px-5 pt-8">
               {messages.filter(m => m.role === "user").length > 0 ? (

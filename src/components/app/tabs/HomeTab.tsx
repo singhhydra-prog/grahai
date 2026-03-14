@@ -9,6 +9,7 @@ import {
 } from "lucide-react"
 import AppHeader from "@/components/ui/AppHeader"
 import SourceDrawer from "@/components/ui/SourceDrawer"
+import { useLanguage } from "@/lib/LanguageContext"
 import type { BirthData } from "@/types/app"
 
 interface ThemeData {
@@ -39,20 +40,22 @@ interface HomeTabProps {
   onViewReports: () => void
 }
 
-const LIFE_AREA_CARDS: {
-  key: "relationship" | "career" | "self"
-  label: string
-  subtitle: string
-  Icon: typeof Heart
-  color: string
-  bgColor: string
-}[] = [
-  { key: "relationship", label: "Love", subtitle: "Emotional & relationship", Icon: Heart, color: "text-rose-400", bgColor: "bg-rose-500/10" },
-  { key: "career", label: "Career", subtitle: "Work & professional", Icon: Briefcase, color: "text-amber-400", bgColor: "bg-amber-500/10" },
-  { key: "self", label: "Energy", subtitle: "Wellbeing & vitality", Icon: Zap, color: "text-purple-400", bgColor: "bg-purple-500/10" },
-]
-
 export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }: HomeTabProps) {
+  const { t } = useLanguage()
+
+  const LIFE_AREA_CARDS: {
+    key: "relationship" | "career" | "self"
+    label: string
+    subtitle: string
+    Icon: typeof Heart
+    color: string
+    bgColor: string
+  }[] = [
+    { key: "relationship", label: t.home.loveCard, subtitle: t.ask.topicLove, Icon: Heart, color: "text-rose-400", bgColor: "bg-rose-500/10" },
+    { key: "career", label: t.home.careerCard, subtitle: t.ask.topicCareer, Icon: Briefcase, color: "text-amber-400", bgColor: "bg-amber-500/10" },
+    { key: "self", label: t.home.energyCard, subtitle: t.ask.topicHealth, Icon: Zap, color: "text-purple-400", bgColor: "bg-purple-500/10" },
+  ]
+
   const [horoscope, setHoroscope] = useState<DailyHoroscope | null>(null)
   const [dayOffset, setDayOffset] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -109,12 +112,12 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
   const tomorrow = new Date(today)
   tomorrow.setDate(tomorrow.getDate() + 1)
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-  const todayLabel = `Today (${months[today.getMonth()]} ${today.getDate()})`
-  const tomorrowLabel = `Tomorrow (${months[tomorrow.getMonth()]} ${tomorrow.getDate()})`
+  const todayLabel = `${t.common.today} (${months[today.getMonth()]} ${today.getDate()})`
+  const tomorrowLabel = `${t.common.tomorrow} (${months[tomorrow.getMonth()]} ${tomorrow.getDate()})`
 
   return (
     <div className="min-h-full pb-24">
-      <AppHeader onProfileClick={onProfileClick} subtitle="Your daily guidance" />
+      <AppHeader onProfileClick={onProfileClick} subtitle={t.home.todayGuidance} />
 
       <div className="px-5 pt-2">
         {/* ═══ Day Toggle ═══ */}
@@ -154,7 +157,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                 backgroundClip: "text",
                 animation: "gradient-text-flow 4s ease-in-out infinite",
               }}
-            >Reading your chart...</p>
+            >{t.onboarding.readingChart}</p>
           </div>
         ) : horoscope ? (
           <AnimatePresence mode="wait">
@@ -191,12 +194,12 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                     animation: "gradient-text-flow 4s ease-in-out infinite",
                   }}
                 >
-                  {horoscope.theme?.title || "Today for You"}
+                  {horoscope.theme?.title || t.home.todayGuidance}
                 </h2>
 
                 {/* One-line summary */}
                 <p className="text-sm text-[#94A3B8] leading-relaxed mb-4">
-                  {horoscope.theme?.headline || "Your daily guidance is being prepared."}
+                  {horoscope.theme?.headline || t.common.loading}
                 </p>
 
                 {/* Action + Caution */}
@@ -206,7 +209,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                       <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-medium text-emerald-400 uppercase tracking-wider mb-0.5">Do this</p>
+                      <p className="text-[10px] font-medium text-emerald-400 uppercase tracking-wider mb-0.5">{t.ask.whatToDo}</p>
                       <p className="text-xs text-[#94A3B8] leading-relaxed">{horoscope.theme?.action}</p>
                     </div>
                   </div>
@@ -215,7 +218,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                       <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-medium text-amber-400 uppercase tracking-wider mb-0.5">Be careful</p>
+                      <p className="text-[10px] font-medium text-amber-400 uppercase tracking-wider mb-0.5">{t.ask.whatToAvoid}</p>
                       <p className="text-xs text-[#94A3B8] leading-relaxed">{horoscope.theme?.caution}</p>
                     </div>
                   </div>
@@ -230,7 +233,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                       hover:bg-[#D4A054]/15 transition-colors"
                   >
                     <MessageCircle className="w-3.5 h-3.5" />
-                    Ask why
+                    {t.home.askQuestion}
                   </button>
                   <button
                     onClick={() => horoscope.theme?.source && openSource(horoscope.theme.source, horoscope.theme.headline)}
@@ -239,7 +242,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                       hover:border-[#D4A054]/20 transition-colors"
                   >
                     <BookOpen className="w-3.5 h-3.5" />
-                    View source
+                    {t.home.sourcesTitle}
                   </button>
                 </div>
               </div>
@@ -253,7 +256,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                   className="glass-card p-4 mb-4"
                 >
                   <p className="text-[10px] font-medium text-[#5A6478] uppercase tracking-wider mb-2">
-                    Why this is active
+                    {t.ask.whyShowingUp}
                   </p>
                   <p className="text-xs text-[#94A3B8] leading-relaxed">
                     {horoscope.theme.whyActive}
@@ -287,7 +290,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                     className="flex items-center gap-1.5 text-[11px] text-[#D4A054] font-medium
                       hover:text-[#E8C278] transition-colors"
                   >
-                    Ask more <ChevronRight className="w-3 h-3" />
+                    {t.home.askQuestion} <ChevronRight className="w-3 h-3" />
                   </button>
                 </motion.div>
               ))}
@@ -305,8 +308,8 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                   <Sparkles className="w-5 h-5 text-[#D4A054]" />
                 </div>
                 <div className="text-left flex-1">
-                  <p className="text-sm font-medium text-[#F1F0F5]">Ask GrahAI anything</p>
-                  <p className="text-[11px] text-[#5A6478]">Love, career, timing, life decisions...</p>
+                  <p className="text-sm font-medium text-[#F1F0F5]">{t.ask.title}</p>
+                  <p className="text-[11px] text-[#5A6478]">{t.ask.placeholder}</p>
                 </div>
                 <ArrowRight className="w-4 h-4 text-[#D4A054]" />
               </motion.button>
@@ -321,7 +324,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="text-center">
-                      <p className="text-[10px] text-[#5A6478] mb-1">Lucky Colour</p>
+                      <p className="text-[10px] text-[#5A6478] mb-1">{t.home.luckyColors}</p>
                       <div className="flex items-center gap-1.5">
                         <div className="w-3 h-3 rounded-full shadow-lg" style={{
                           backgroundColor: horoscope.lucky.colour.toLowerCase() === "white" ? "#f0f0f0" :
@@ -338,12 +341,12 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                     </div>
                     <div className="w-px h-8 bg-[#1E293B]" />
                     <div className="text-center">
-                      <p className="text-[10px] text-[#5A6478] mb-1">Lucky Number</p>
+                      <p className="text-[10px] text-[#5A6478] mb-1">{t.home.luckyNumbers}</p>
                       <span className="text-xs font-medium text-[#F1F0F5]">{horoscope.lucky.number}</span>
                     </div>
                     <div className="w-px h-8 bg-[#1E293B]" />
                     <div className="text-center">
-                      <p className="text-[10px] text-[#5A6478] mb-1">Auspicious</p>
+                      <p className="text-[10px] text-[#5A6478] mb-1">{t.home.panchangTitle}</p>
                       <span className="text-xs font-medium text-[#F1F0F5]">
                         {horoscope.timing.auspiciousTime.start}
                       </span>
@@ -363,8 +366,8 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-semibold text-[#D4A054] mb-0.5">Unlock deeper insights</p>
-                    <p className="text-xs text-[#5A6478]">Career blueprints, timing reports, compatibility</p>
+                    <p className="text-sm font-semibold text-[#D4A054] mb-0.5">{t.profile.upgradePremium}</p>
+                    <p className="text-xs text-[#5A6478]">{t.profile.upgradeDesc}</p>
                   </div>
                   <ArrowRight className="w-4 h-4 text-[#D4A054]" />
                 </div>
@@ -373,7 +376,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
           </AnimatePresence>
         ) : (
           <div className="text-center py-12">
-            <p className="text-sm text-[#5A6478]">Complete onboarding to see your daily guidance</p>
+            <p className="text-sm text-[#5A6478]">{t.home.todayGuidance}</p>
           </div>
         )}
       </div>

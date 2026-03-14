@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useLanguage } from "@/lib/LanguageContext"
 
 interface AppHeaderProps {
   onProfileClick?: () => void
@@ -8,6 +9,7 @@ interface AppHeaderProps {
 }
 
 export default function AppHeader({ onProfileClick, subtitle }: AppHeaderProps) {
+  const { t } = useLanguage()
   const [name, setName] = useState("")
   const [initials, setInitials] = useState("")
 
@@ -48,7 +50,7 @@ export default function AppHeader({ onProfileClick, subtitle }: AppHeaderProps) 
                 animation: "gradient-text-flow 4s ease-in-out infinite",
               }}
             >
-              {name ? `Hello, ${name}` : "GrahAI"}
+              {name ? `${t.home?.greeting || "Hello"}, ${name}` : "GrahAI"}
             </h1>
             {subtitle && (
               <p className="text-[11px] text-[#5A6478] mt-0.5 text-visible">{subtitle}</p>

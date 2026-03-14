@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion"
 import { Lock, Sparkles, ArrowRight, X } from "lucide-react"
+import { useLanguage } from "@/lib/LanguageContext"
 
 /* ════════════════════════════════════════════════════════
    SMART PAYWALL BANNER — Contextual upgrade prompt
@@ -51,8 +52,9 @@ const TRIGGER_MESSAGES: Record<string, { title: string; subtitle: string }> = {
 }
 
 export default function PaywallBanner({ isVisible, onClose, onUpgrade, trigger, tier }: PaywallBannerProps) {
+  const { t } = useLanguage()
   const message = TRIGGER_MESSAGES[trigger] || TRIGGER_MESSAGES.general
-  const tierLabel = tier === "premium" ? "Rishi" : "Graha"
+  const tierLabel = tier === "premium" ? (t.pricing.rishi || "Rishi") : (t.pricing.graha || "Graha")
   const tierPrice = tier === "premium" ? "₹499" : "₹199"
 
   return (
@@ -103,7 +105,7 @@ export default function PaywallBanner({ isVisible, onClose, onUpgrade, trigger, 
                     text-xs font-semibold text-[#D4A054]
                     hover:bg-[#D4A054]/20 transition-colors"
                 >
-                  Try {tierLabel} — {tierPrice}/mo
+                  {t.pricing.upgrade || `Try ${tierLabel} — ${tierPrice}/mo`}
                   <ArrowRight className="w-3 h-3" />
                 </button>
               </div>

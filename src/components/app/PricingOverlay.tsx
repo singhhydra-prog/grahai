@@ -6,6 +6,7 @@ import {
   X, Check, Crown, Sparkles, MessageCircle, FileText,
   Heart, Star, Zap, ArrowRight, Shield, BookOpen, TrendingUp, Calendar
 } from "lucide-react"
+import { useLanguage } from "@/lib/LanguageContext"
 
 interface PricingOverlayProps {
   isOpen: boolean
@@ -97,6 +98,7 @@ const ONE_TIME_PACKS = [
 ]
 
 export default function PricingOverlay({ isOpen, onClose, highlightTier }: PricingOverlayProps) {
+  const { t } = useLanguage()
   const [selectedPlan, setSelectedPlan] = useState<string>(highlightTier === "premium" ? "rishi" : "graha")
   const [loading, setLoading] = useState(false)
   const [tab, setTab] = useState<"plans" | "packs">("plans")
@@ -184,7 +186,7 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
               className="w-10 h-10 rounded-full bg-[#1E2638] border border-[#1E293B] flex items-center justify-center">
               <X className="w-4 h-4 text-[#5A6478]" />
             </button>
-            <h1 className="text-base font-semibold text-[#F1F0F5]">Choose Your Plan</h1>
+            <h1 className="text-base font-semibold text-[#F1F0F5]">{t.pricing.title || "Choose Your Plan"}</h1>
             <div className="w-10" />
           </div>
 
@@ -199,11 +201,11 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
             <button onClick={() => setTab("plans")}
               className={`flex-1 py-2.5 rounded-xl text-xs font-medium transition-all ${
                 tab === "plans" ? "bg-[#D4A054]/15 text-[#D4A054] border border-[#D4A054]/30" : "bg-[#111827] text-[#5A6478] border border-[#1E293B]"
-              }`}>Monthly Plans</button>
+              }`}>{t.pricing.monthly || "Monthly Plans"}</button>
             <button onClick={() => setTab("packs")}
               className={`flex-1 py-2.5 rounded-xl text-xs font-medium transition-all ${
                 tab === "packs" ? "bg-[#D4A054]/15 text-[#D4A054] border border-[#D4A054]/30" : "bg-[#111827] text-[#5A6478] border border-[#1E293B]"
-              }`}>One-Time Reports</button>
+              }`}>{t.pricing.oneTime || "One-Time Reports"}</button>
           </div>
 
           <div className="px-5 pb-32">
@@ -230,16 +232,16 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
 
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <h3 className={`text-lg font-bold ${plan.color}`}>{plan.name}</h3>
+                        <h3 className={`text-lg font-bold ${plan.color}`}>{plan.name === "Free" ? (t.pricing.free || "Free") : plan.name === "Graha" ? (t.pricing.graha || "Graha") : plan.name === "Rishi" ? (t.pricing.rishi || "Rishi") : plan.name}</h3>
                         <p className="text-xs text-[#5A6478]">{plan.description}</p>
                       </div>
                       <div className="text-right">
                         {plan.price === 0 ? (
-                          <p className="text-lg font-bold text-[#F1F0F5]">Free</p>
+                          <p className="text-lg font-bold text-[#F1F0F5]">{t.pricing.free || "Free"}</p>
                         ) : (
                           <>
                             <p className="text-lg font-bold text-[#F1F0F5]">₹{plan.price}</p>
-                            <p className="text-[10px] text-[#5A6478]">{plan.period}</p>
+                            <p className="text-[10px] text-[#5A6478]">{plan.period === "/month" ? (t.pricing.perMonth || "/month") : plan.period}</p>
                           </>
                         )}
                       </div>
@@ -281,7 +283,7 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
             ) : (
               <div className="space-y-3">
                 <p className="text-xs text-[#5A6478] mb-2">
-                  Buy individual reports. No subscription needed.
+                  "Buy individual reports. No subscription needed."
                 </p>
                 {ONE_TIME_PACKS.map((pack, i) => (
                   <motion.button
@@ -323,7 +325,7 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
                 ) : (
                   <>
                     <Zap className="w-4 h-4" />
-                    {PLANS.find(p => p.id === selectedPlan)?.cta || "Subscribe"}
+                    {selectedPlan === "graha" ? `${t.pricing.upgrade} ${t.pricing.graha} — ₹199${t.pricing.perMonth}` : selectedPlan === "rishi" ? `${t.pricing.upgrade} ${t.pricing.rishi} — ₹499${t.pricing.perMonth}` : (t.pricing.upgrade || "Upgrade")}
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
