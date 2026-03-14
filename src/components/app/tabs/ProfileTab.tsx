@@ -145,14 +145,14 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
         </div>
 
         {/* Vedic / Western toggle */}
-        <div className="flex gap-2 mb-3">
+        <div className="flex gap-2 mb-3 glass-inner rounded-2xl p-1">
           <button onClick={() => setAstroMode("vedic")}
-            className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
-              astroMode === "vedic" ? "bg-[#D4A054]/15 text-[#D4A054] border border-[#D4A054]/30" : "bg-[#111827] text-[#5A6478] border border-[#1E293B]"
+            className={`flex-1 py-2 text-xs font-medium tab-pill ${
+              astroMode === "vedic" ? "tab-pill-active" : "text-[#5A6478]"
             }`}>Vedic</button>
           <button onClick={() => setAstroMode("western")}
-            className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
-              astroMode === "western" ? "bg-[#D4A054]/15 text-[#D4A054] border border-[#D4A054]/30" : "bg-[#111827] text-[#5A6478] border border-[#1E293B]"
+            className={`flex-1 py-2 text-xs font-medium tab-pill ${
+              astroMode === "western" ? "tab-pill-active" : "text-[#5A6478]"
             }`}>Western</button>
         </div>
 
@@ -160,7 +160,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
         <div className="flex gap-2 mb-5">
           {signChips.map((chip) => (
             <div key={chip.type}
-              className="flex items-center gap-1.5 bg-[#111827] border border-[#1E293B] rounded-full px-3 py-1.5">
+              className="flex items-center gap-1.5 glass-inner rounded-full px-3 py-1.5">
               <chip.icon className="w-3 h-3 text-[#5A6478]" />
               <span className="text-xs text-[#94A3B8]">{chip.label}</span>
             </div>

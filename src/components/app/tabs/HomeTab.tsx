@@ -90,40 +90,36 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
       <AppHeader onProfileClick={onProfileClick} subtitle="Your daily guidance" />
 
       <div className="px-5 pt-2">
-        {/* ═══ Daily Horoscope Header ═══ */}
+        {/* ═══ Daily Horoscope Header with animated text ═══ */}
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-base font-semibold text-[#F1F0F5]">Daily Horoscope</h2>
+            <h2 className="text-base font-bold animated-gradient-text-gold">Daily Horoscope</h2>
             {userName && (
-              <p className="text-[11px] text-[#5A6478]">Personalized for {userName}</p>
+              <p className="text-[11px] text-[#5A6478] text-visible">Personalized for {userName}</p>
             )}
           </div>
           {horoscope?.panchang && (
-            <div className="text-right">
-              <p className="text-[10px] text-[#5A6478]">{horoscope.panchang.tithi} &middot; {horoscope.panchang.paksha}</p>
+            <div className="text-right glass-inner rounded-lg px-3 py-1.5">
+              <p className="text-[10px] text-[#94A3B8]">{horoscope.panchang.tithi} &middot; {horoscope.panchang.paksha}</p>
               <p className="text-[10px] text-[#5A6478]">{horoscope.panchang.vara}</p>
             </div>
           )}
         </div>
 
-        {/* ═══ Today / Tomorrow Toggle ═══ */}
-        <div className="flex items-center gap-2 mb-5">
+        {/* ═══ Today / Tomorrow Toggle — elastic pills ═══ */}
+        <div className="flex items-center gap-2 mb-5 glass-inner rounded-2xl p-1">
           <button
             onClick={() => setDayOffset(0)}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-medium transition-all ${
-              dayOffset === 0
-                ? "bg-[#1E2638] text-[#F1F0F5] border border-[#D4A054]/20"
-                : "bg-transparent text-[#5A6478] border border-[#1E293B]"
+            className={`flex-1 py-2.5 text-xs font-medium tab-pill ${
+              dayOffset === 0 ? "tab-pill-active" : "text-[#5A6478]"
             }`}
           >
             {todayLabel}
           </button>
           <button
             onClick={() => setDayOffset(1)}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-medium transition-all ${
-              dayOffset === 1
-                ? "bg-[#1E2638] text-[#F1F0F5] border border-[#D4A054]/20"
-                : "bg-transparent text-[#5A6478] border border-[#1E293B]"
+            className={`flex-1 py-2.5 text-xs font-medium tab-pill ${
+              dayOffset === 1 ? "tab-pill-active" : "text-[#5A6478]"
             }`}
           >
             {tomorrowLabel}
@@ -132,8 +128,12 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
 
         {loading ? (
           <div className="flex flex-col items-center py-16">
-            <div className="w-8 h-8 border-2 border-[#D4A054]/30 border-t-[#D4A054] rounded-full animate-spin mb-3" />
-            <p className="text-xs text-[#5A6478]">Reading your chart...</p>
+            <div className="zodiac-loader mb-4">
+              <div className="loader-ring" />
+              <div className="loader-ring-inner" />
+              <div className="loader-center" />
+            </div>
+            <p className="text-xs text-[#94A3B8] text-visible animated-gradient-text-gold">Reading your chart...</p>
           </div>
         ) : horoscope ? (
           <AnimatePresence mode="wait">

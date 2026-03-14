@@ -58,10 +58,17 @@ export default function RootLayout({
       <body className="antialiased bg-bg text-text">
         <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
         <div className="starfield" aria-hidden="true" />
+        <div className="nebula-layer" aria-hidden="true">
+          <div className="nebula-1" />
+          <div className="nebula-2" />
+          <div className="nebula-3" />
+        </div>
         <div className="shooting-stars" aria-hidden="true">
           <div className="star-1" />
           <div className="star-2" />
           <div className="star-3" />
+          <div className="star-4" />
+          <div className="star-5" />
         </div>
         <div className="constellations" aria-hidden="true">
           <div className="const-1" />

@@ -31,12 +31,13 @@ export default function AppHeader({ onProfileClick, subtitle }: AppHeaderProps) 
       <div className="flex items-center justify-between">
         {/* Logo + greeting */}
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#D4A054] to-[#A16E2A]
-            flex items-center justify-center shadow-lg shadow-[#D4A054]/20 gold-shimmer">
-            <span className="text-[#0A0E1A] font-bold text-sm">G</span>
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#D4A054] to-[#A16E2A]
+            flex items-center justify-center gold-shimmer relative
+            shadow-[0_4px_16px_rgba(212,160,84,0.25)]">
+            <span className="text-[#0A0E1A] font-bold text-sm relative z-10">G</span>
           </div>
           <div>
-            <h1 className="text-base font-semibold text-[#F1F0F5] leading-tight text-3d">
+            <h1 className="text-base font-bold leading-tight animated-gradient-text-gold">
               {name ? `Hello, ${name}` : "GrahAI"}
             </h1>
             {subtitle && (
@@ -45,13 +46,15 @@ export default function AppHeader({ onProfileClick, subtitle }: AppHeaderProps) 
           </div>
         </div>
 
-        {/* Avatar */}
+        {/* Avatar with glow ring */}
         <button
           onClick={onProfileClick}
-          className="w-9 h-9 rounded-full bg-[#1E2638] border border-[#D4A054]/20
-            flex items-center justify-center transition-all hover:border-[#D4A054]/40"
+          className="w-10 h-10 rounded-full glass-card
+            flex items-center justify-center transition-all
+            hover:shadow-[0_0_20px_rgba(212,160,84,0.15)]
+            border border-[#D4A054]/15 hover:border-[#D4A054]/35"
         >
-          <span className="text-[11px] font-semibold text-[#D4A054]">
+          <span className="text-[11px] font-bold text-[#D4A054] relative z-10">
             {initials || "?"}
           </span>
         </button>

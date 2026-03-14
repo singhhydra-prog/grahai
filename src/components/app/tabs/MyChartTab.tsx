@@ -119,14 +119,14 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
 
       <div className="px-5 pt-4">
         {/* Vedic / Western toggle */}
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-2 mb-4 glass-inner rounded-2xl p-1">
           <button onClick={() => setAstroMode("vedic")}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-medium transition-all ${
-              astroMode === "vedic" ? "bg-[#D4A054]/15 text-[#D4A054] border border-[#D4A054]/30" : "bg-[#111827] text-[#5A6478] border border-[#1E293B]"
+            className={`flex-1 py-2.5 text-xs font-medium tab-pill ${
+              astroMode === "vedic" ? "tab-pill-active" : "text-[#5A6478]"
             }`}>Vedic (Sidereal)</button>
           <button onClick={() => setAstroMode("western")}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-medium transition-all ${
-              astroMode === "western" ? "bg-[#D4A054]/15 text-[#D4A054] border border-[#D4A054]/30" : "bg-[#111827] text-[#5A6478] border border-[#1E293B]"
+            className={`flex-1 py-2.5 text-xs font-medium tab-pill ${
+              astroMode === "western" ? "tab-pill-active" : "text-[#5A6478]"
             }`}>Western (Tropical)</button>
         </div>
 

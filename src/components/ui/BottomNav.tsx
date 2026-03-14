@@ -31,22 +31,26 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
               aria-label={label}
               aria-current={isActive ? "page" : undefined}
             >
-              <Icon
-                className={`w-[22px] h-[22px] transition-all duration-200 ${
-                  isActive ? "text-[#D4A054]" : "text-[#5A6478]"
-                }`}
-                strokeWidth={isActive ? 2 : 1.5}
-              />
-              <span className={`text-[10px] font-medium transition-colors duration-200 ${
-                isActive ? "text-[#D4A054]" : "text-[#5A6478]"
+              <div className={`relative ${isActive ? "nav-icon-active" : ""}`}>
+                <Icon
+                  className={`w-[22px] h-[22px] transition-all duration-300 ${
+                    isActive ? "text-[#D4A054] drop-shadow-[0_0_6px_rgba(212,160,84,0.4)]" : "text-[#5A6478]"
+                  }`}
+                  strokeWidth={isActive ? 2.2 : 1.5}
+                />
+              </div>
+              <span className={`text-[10px] font-medium transition-all duration-300 ${
+                isActive ? "text-[#D4A054] text-glow" : "text-[#5A6478]"
               }`}>
                 {label}
               </span>
 
-              {/* Active indicator dot */}
+              {/* Active glow indicator */}
               {isActive && (
-                <div className="absolute -top-px left-1/2 -translate-x-1/2 w-6 h-0.5
-                  rounded-full bg-[#D4A054]" />
+                <>
+                  <div className="nav-glow-dot" />
+                  <div className="nav-reflection" />
+                </>
               )}
             </button>
           )

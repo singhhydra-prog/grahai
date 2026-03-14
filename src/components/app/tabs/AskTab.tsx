@@ -200,14 +200,12 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
       {/* Chat body */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 pb-4">
         {isEmpty ? (
-          <div className="pt-12 text-center">
-            <div className="w-16 h-16 rounded-full bg-[#D4A054]/10 flex items-center justify-center mx-auto mb-4">
-              <Sparkles className="w-7 h-7 text-[#D4A054]" />
-            </div>
-            <h2 className="text-lg font-semibold text-[#F1F0F5] mb-1">
+          <div className="pt-10 text-center">
+            <div className="cosmic-orb-sm mx-auto mb-5" />
+            <h2 className="text-lg font-bold animated-gradient-text mb-1">
               What&apos;s on your mind{userName ? `, ${userName}` : ""}?
             </h2>
-            <p className="text-sm text-[#5A6478] mb-6 max-w-xs mx-auto">
+            <p className="text-sm text-[#5A6478] mb-6 max-w-xs mx-auto text-visible">
               Ask about love, work, timing, emotions, or anything you need clarity on.
             </p>
             <div className="flex flex-wrap justify-center gap-2 mb-8">
@@ -215,8 +213,9 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
                 <button
                   key={topic}
                   onClick={() => setInput(`Tell me about my ${topic.toLowerCase()} right now`)}
-                  className="px-3.5 py-1.5 rounded-full bg-[#111827] border border-[#1E293B]
-                    text-xs text-[#94A3B8] font-medium hover:border-[#D4A054]/30 hover:text-[#D4A054] transition-colors"
+                  className="px-3.5 py-1.5 rounded-full glass-inner
+                    text-xs text-[#94A3B8] font-medium hover:border-[#D4A054]/30 hover:text-[#D4A054]
+                    transition-all card-scale"
                 >
                   {topic}
                 </button>
