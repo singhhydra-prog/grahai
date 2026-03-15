@@ -17,6 +17,7 @@ const OnboardingFlow = dynamic(() => import("@/components/app/OnboardingFlow"), 
 const PricingOverlay = dynamic(() => import("@/components/app/PricingOverlay"), { ssr: false })
 const ReferralPage = dynamic(() => import("@/components/app/ReferralPage"), { ssr: false })
 const PurchaseSuccess = dynamic(() => import("@/components/ui/PurchaseSuccess"), { ssr: false })
+const GlobalFooter = dynamic(() => import("@/components/ui/GlobalFooter"), { ssr: false })
 
 export default function AppPage() {
   const [activeTab, setActiveTab] = useState<TabType>("home")
@@ -175,6 +176,9 @@ export default function AppPage() {
                 )}
               </AnimatePresence>
             </div>
+
+            {/* Global Footer */}
+            <GlobalFooter />
 
             {/* Bottom Nav */}
             <BottomNav activeTab={activeTab} onTabChange={(tab) => {

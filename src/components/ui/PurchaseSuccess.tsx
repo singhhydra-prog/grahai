@@ -186,6 +186,20 @@ export default function PurchaseSuccess({
               {type === "subscription" ? "Start Exploring" : "Continue"}
               <ArrowRight className="w-4 h-4" />
             </motion.button>
+
+            {/* Legal links */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.9 }}
+              className="flex justify-center gap-2 mt-4"
+            >
+              <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#8892A3]/50 hover:text-[#D4A054] transition-colors">Terms</a>
+              <span className="text-[10px] text-[#8892A3]/30">·</span>
+              <a href="/refund-policy" target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#8892A3]/50 hover:text-[#D4A054] transition-colors">Refund Policy</a>
+              <span className="text-[10px] text-[#8892A3]/30">·</span>
+              <a href="/disclaimer" target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#8892A3]/50 hover:text-[#D4A054] transition-colors">Disclaimer</a>
+            </motion.div>
           </motion.div>
         </motion.div>
       )}

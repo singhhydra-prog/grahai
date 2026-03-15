@@ -7,7 +7,7 @@ import ReportDetailPage from "@/components/app/ReportDetailPage"
 function ReportContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const id = searchParams.get("id") || "love-clarity"
+  const id = searchParams.get("id") || "love-compat"
 
   return <ReportDetailPage reportId={id} onBack={() => { try { window.close() } catch {} ; router.back() }} />
 }

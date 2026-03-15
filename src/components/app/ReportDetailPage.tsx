@@ -199,7 +199,7 @@ export default function ReportDetailPage({ reportId, onBack }: ReportDetailPageP
 
       const birthData = JSON.parse(stored)
 
-      const res = await fetch("/api/reports/generate-typed", {
+      const res = await fetch("/api/reports/generate-code", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -217,9 +217,10 @@ export default function ReportDetailPage({ reportId, onBack }: ReportDetailPageP
       })
 
       const data = await res.json()
+      console.log("[ReportDetailPage] API response:", res.status, data.success, data.error)
 
       if (!res.ok || !data.success) {
-        setError(data.error || "Failed to generate report. Please try again.")
+        setError(data.error || `Failed to generate report (HTTP ${res.status}). Please try again.`)
         return
       }
 

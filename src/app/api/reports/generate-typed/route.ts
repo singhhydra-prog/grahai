@@ -848,12 +848,18 @@ function buildChartSummary(
   let summary = "NATAL CHART DATA:\n\n"
 
   // Ascendant
-  summary += `Ascendant (Lagna): ${natalChart.ascendantSign} (${natalChart.ascendant.toFixed(2)}°)\n`
+  summary += `Ascendant (Lagna): ${natalChart.ascendantSign?.name || natalChart.ascendantSign} (${natalChart.ascendant.toFixed(2)}°)\n`
 
   // Moon Sign
   const moonPlanet = natalChart.planets.find((p) => p.name === "Moon")
   if (moonPlanet) {
-    summary += `Moon Sign (Janma Rashi): ${moonPlanet.sign.name}\n`
+    summary += `Moon Sign (Janma Rashi): ${moonPlanet.sign?.name || moonPlanet.sign}\n`
+  }
+
+  // Sun Sign
+  const sunPlanet = natalChart.planets.find((p) => p.name === "Sun")
+  if (sunPlanet) {
+    summary += `Sun Sign: ${sunPlanet.sign?.name || sunPlanet.sign}\n`
   }
 
   // Janma Nakshatra
@@ -917,12 +923,12 @@ function buildPartnerChartSummary(
   let summary = `\nPARTNER NATAL CHART DATA (${partnerName || "Partner"}):\n\n`
 
   // Ascendant
-  summary += `Ascendant (Lagna): ${natalChart.ascendantSign} (${natalChart.ascendant.toFixed(2)}°)\n`
+  summary += `Ascendant (Lagna): ${natalChart.ascendantSign?.name || natalChart.ascendantSign} (${natalChart.ascendant.toFixed(2)}°)\n`
 
   // Moon Sign
   const moonPlanet = natalChart.planets.find((p) => p.name === "Moon")
   if (moonPlanet) {
-    summary += `Moon Sign (Janma Rashi): ${moonPlanet.sign.name}\n`
+    summary += `Moon Sign (Janma Rashi): ${moonPlanet.sign?.name || moonPlanet.sign}\n`
   }
 
   // Janma Nakshatra
@@ -1006,20 +1012,14 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
 
     const typedReportType = reportType as ReportType
 
-    // Validate partner details for kundli-match
-    if (typedReportType === "kundli-match" && !partnerBirthDetails) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "kundli-match report requires partnerBirthDetails",
-          code: "INVALID_REQUEST",
-        } as ErrorResponse,
-        { status: 400 }
-      )
-    }
+    // Note: kundli-match works best with partnerBirthDetails, but can generate
+    // a general compatibility profile from just the native's chart if partner
+    // details aren't provided.
 
     // Assemble natal chart data
+    console.log(`[generate-typed] Generating ${typedReportType} for ${name || "Native"}, birth: ${birthDetails.date}`)
     const reportData = await assembleReportData(birthDetails, name)
+    console.log(`[generate-typed] Chart assembled: Asc=${reportData.natalChart.ascendantSign?.name}, Moon=${reportData.natalChart.moonSign?.name}, Yogas=${reportData.yogas.length}`)
 
     // For kundli-match, also assemble partner chart
     let partnerReportData: Awaited<ReturnType<typeof assembleReportData>> | null = null
@@ -1047,6 +1047,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
     // Call Claude API with chart data
     const userMessage = `Please analyze this natal chart and generate a ${typedReportType} report.\n\n${chartDataSummary}`
 
+    console.log(`[generate-typed] Calling Claude API with ${userMessage.length} char prompt`)
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: 4096,
@@ -1121,7 +1122,8 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
 
     return NextResponse.json(typedReport, { status: 200 })
   } catch (error) {
-    console.error("Report generation error:", error)
+    console.error("[generate-typed] Report generation error:", error)
+    console.error("[generate-typed] Stack:", error instanceof Error ? error.stack : "no stack")
 
     const errorMessage =
       error instanceof Error ? error.message : "An unexpected error occurred"

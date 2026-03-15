@@ -1,0 +1,278 @@
+═══════════════════════════════════════════════════════════════
+GrahAI Personalization Audit
+Generated: 2026-03-15T16:37:37.830Z
+═══════════════════════════════════════════════════════════════
+
+PHASE 1: REPORT GENERATION
+─────────────────────────────────────────────────────────────
+
+
+>>> Generating charts for Profile A (Male, Mumbai, Known Time)
+    Birth: 1990-01-15 06:00:00 Mumbai, India
+    ✓ Chart assembled
+    Ascendant: Sagittarius
+    Moon Sign: Leo
+    Birth Nakshatra: Purva Phalguni
+
+>>> Generating charts for Profile B (Female, London, Known Time)
+    Birth: 1985-08-23 23:30:00 London, UK
+    ✓ Chart assembled
+    Ascendant: Gemini
+    Moon Sign: Scorpio
+    Birth Nakshatra: Jyeshtha
+
+>>> Generating charts for Profile C (Male, Delhi, Unknown Time)
+    Birth: 2000-12-01 12:00:00 Delhi, India
+    ✓ Chart assembled
+    Ascendant: Aquarius
+    Moon Sign: Capricorn
+    Birth Nakshatra: Shravana
+
+
+PHASE 2: REPORT GENERATION
+─────────────────────────────────────────────────────────────
+
+
+>>> A: Generating career-blueprint
+    ✓ Report generated with 5 sections
+    Summary length: 304 chars
+    First section: "Professional Archetype"
+    Preview: Your 10th house (Karma Sthana) is in Virgo, ruled by Mercury. Mercury, your career lord, is in a neutral sign and placed in the 1st house in Sagittarius, (retrograde) indicating favorable positioning ...
+
+>>> A: Generating love-compat
+    ✓ Report generated with 5 sections
+    Summary length: 368 chars
+    First section: "Love Language & Expression"
+    Preview: **Venus at 277.3 in Capricorn (2nd house, Uttara Ashadha)**
+
+Venus in Capricorn places you in a neutral position regarding romantic expression. Venus is well-supported, making love expression relative...
+
+>>> A: Generating annual-forecast
+    ✓ Report generated with 8 sections
+    Summary length: 570 chars
+    First section: "Yearly Overview & Themes"
+    Preview: 2026 is dominated by the Mars Mahadasha, which governs expenses, losses, foreign lands, spiritual liberation, sleep, and hidden enemies. The Mars is currently in own sign (strong and comfortable), pos...
+
+>>> B: Generating career-blueprint
+    ✓ Report generated with 5 sections
+    Summary length: 343 chars
+    First section: "Professional Archetype"
+    Preview: Your 10th house (Karma Sthana) is in Pisces, ruled by Jupiter. Jupiter, your career lord, is debilitated (weakened placement) and placed in the 8th house in Capricorn, (retrograde) indicating challeng...
+
+>>> B: Generating love-compat
+    ✓ Report generated with 5 sections
+    Summary length: 367 chars
+    First section: "Love Language & Expression"
+    Preview: **Venus at 91.4 in Cancer (2nd house, Punarvasu)**
+
+Venus in Cancer places you in a neutral position regarding romantic expression. Love requires intentional cultivation. You're not blocked, but also ...
+
+>>> B: Generating annual-forecast
+    ✓ Report generated with 8 sections
+    Summary length: 571 chars
+    First section: "Yearly Overview & Themes"
+    Preview: 2026 is dominated by the Venus Mahadasha, which governs wealth, family, speech, food habits, and accumulated resources. The Venus is currently in a neutral sign, positioned in Cancer in the 2nd house....
+
+>>> C: Generating career-blueprint
+    ✓ Report generated with 5 sections
+    Summary length: 303 chars
+    First section: "Professional Archetype"
+    Preview: Your 10th house (Karma Sthana) is in Scorpio, ruled by Mars. Mars, your career lord, is in an enemy sign (challenged) and placed in the 8th house in Virgo, indicating challenges in career expression r...
+
+>>> C: Generating love-compat
+    ✓ Report generated with 5 sections
+    Summary length: 373 chars
+    First section: "Love Language & Expression"
+    Preview: **Venus at 267.8 in Sagittarius (11th house, Uttara Ashadha)**
+
+Venus in Sagittarius places you in a neutral position regarding romantic expression. Love requires intentional cultivation. You're not b...
+
+>>> C: Generating annual-forecast
+    ✓ Report generated with 8 sections
+    Summary length: 570 chars
+    First section: "Yearly Overview & Themes"
+    Preview: 2026 is dominated by the Rahu Mahadasha, which governs intelligence, children, creativity, romance, speculation, and past-life merit. The Rahu is currently in a friendly sign (well-supported), positio...
+
+
+PHASE 3: TEXT SIMILARITY ANALYSIS
+─────────────────────────────────────────────────────────────
+
+Comparing first 500 characters from each section across profiles...
+
+
+=== CAREER-BLUEPRINT ===
+
+Comparison A vs B:
+  Average similarity: 22.52%
+  Sections compared: 5
+    Section 0 ("Professional Archetype"): 13.00%
+    Section 1 ("Best Industries & Career Paths"): 30.40%
+    Section 2 ("Promotion Windows & Growth Timing"): 32.40%
+    Section 3 ("Leadership Style & Authority"): 19.40%
+    Section 4 ("5-Year Professional Outlook"): 17.40%
+
+Comparison A vs C:
+  Average similarity: 50.68%
+  Sections compared: 5
+    Section 0 ("Professional Archetype"): 11.40%
+    Section 1 ("Best Industries & Career Paths"): 99.40%
+    Section 2 ("Promotion Windows & Growth Timing"): 37.80%
+    Section 3 ("Leadership Style & Authority"): 21.60%
+    Section 4 ("5-Year Professional Outlook"): 83.20%
+
+Comparison B vs C:
+  Average similarity: 23.32%
+  Sections compared: 5
+    Section 0 ("Professional Archetype"): 14.20%
+    Section 1 ("Best Industries & Career Paths"): 30.40%
+    Section 2 ("Promotion Windows & Growth Timing"): 31.00%
+    Section 3 ("Leadership Style & Authority"): 24.00%
+    Section 4 ("5-Year Professional Outlook"): 17.00%
+
+
+=== LOVE-COMPAT ===
+
+Comparison A vs B:
+  Average similarity: 21.28%
+  Sections compared: 5
+    Section 0 ("Love Language & Expression"): 9.00%
+    Section 1 ("Emotional Patterns & Security Needs"): 6.80%
+    Section 2 ("Ideal Partner Profile & Marriage Prospects"): 12.20%
+    Section 3 ("Relationship Timeline & Dasha Periods"): 10.40%
+    Section 4 ("Remedies for Love & Relationship Support"): 68.00%
+
+Comparison A vs C:
+  Average similarity: 26.64%
+  Sections compared: 5
+    Section 0 ("Love Language & Expression"): 8.00%
+    Section 1 ("Emotional Patterns & Security Needs"): 12.20%
+    Section 2 ("Ideal Partner Profile & Marriage Prospects"): 17.20%
+    Section 3 ("Relationship Timeline & Dasha Periods"): 13.40%
+    Section 4 ("Remedies for Love & Relationship Support"): 82.40%
+
+Comparison B vs C:
+  Average similarity: 22.64%
+  Sections compared: 5
+    Section 0 ("Love Language & Expression"): 7.20%
+    Section 1 ("Emotional Patterns & Security Needs"): 11.40%
+    Section 2 ("Ideal Partner Profile & Marriage Prospects"): 13.00%
+    Section 3 ("Relationship Timeline & Dasha Periods"): 12.60%
+    Section 4 ("Remedies for Love & Relationship Support"): 69.00%
+
+
+=== ANNUAL-FORECAST ===
+
+Comparison A vs B:
+  Average similarity: 19.13%
+  Sections compared: 8
+    Section 0 ("Yearly Overview & Themes"): 11.20%
+    Section 1 ("Q1 (January–March 2026)"): 22.38%
+    Section 2 ("Q2 (April–June 2026)"): 23.78%
+    Section 3 ("Q3 (July–September 2026)"): 21.95%
+    Section 4 ("Q4 (October–December 2026)"): 22.49%
+    Section 5 ("Best Months for Major Actions"): 30.80%
+    Section 6 ("Caution Periods"): 5.00%
+    Section 7 ("Key Dates & Transitions"): 15.40%
+
+Comparison A vs C:
+  Average similarity: 19.71%
+  Sections compared: 8
+    Section 0 ("Yearly Overview & Themes"): 15.60%
+    Section 1 ("Q1 (January–March 2026)"): 24.55%
+    Section 2 ("Q2 (April–June 2026)"): 16.11%
+    Section 3 ("Q3 (July–September 2026)"): 23.34%
+    Section 4 ("Q4 (October–December 2026)"): 23.88%
+    Section 5 ("Best Months for Major Actions"): 33.60%
+    Section 6 ("Caution Periods"): 5.00%
+    Section 7 ("Key Dates & Transitions"): 15.60%
+
+Comparison B vs C:
+  Average similarity: 22.50%
+  Sections compared: 8
+    Section 0 ("Yearly Overview & Themes"): 11.80%
+    Section 1 ("Q1 (January–March 2026)"): 48.10%
+    Section 2 ("Q2 (April–June 2026)"): 19.93%
+    Section 3 ("Q3 (July–September 2026)"): 22.41%
+    Section 4 ("Q4 (October–December 2026)"): 22.95%
+    Section 5 ("Best Months for Major Actions"): 31.20%
+    Section 6 ("Caution Periods"): 7.00%
+    Section 7 ("Key Dates & Transitions"): 16.60%
+
+
+
+PHASE 4: SUMMARY & CONCLUSIONS
+─────────────────────────────────────────────────────────────
+
+Total comparisons: 9
+Average text similarity across all reports: 25.38%
+Highest similarity: 50.68%
+Lowest similarity: 19.13%
+
+⚠ PARTIAL PERSONALIZATION: Some template reuse detected
+  Reports share ~25.38% text, suggesting some templating.
+
+
+PHASE 5: SAMPLE EXCERPTS
+─────────────────────────────────────────────────────────────
+
+
+>>> Profile A (Male, Mumbai, Known Time)
+
+    [career-blueprint]
+    Summary: With Virgo on your 10th house ruled by Mercury, Saturn in Sagittarius (neutral) shapes your career path through effort and persistence. Your D10 Dasamsa Ascendant in Pisces points to a Pisces-oriented professional identity. Currently running Mars Mahadasha, a period activating Mars-ruled career them...
+    First section: "Professional Archetype"
+    Content: Your 10th house (Karma Sthana) is in Virgo, ruled by Mercury. Mercury, your career lord, is in a neutral sign and placed in the 1st house in Sagittarius, (retrograde) indicating favorable positioning of career potential with growth and recognition.
+
+...
+
+    [love-compat]
+    Summary: Your love blueprint: Venus in Capricorn (Uttara Ashadha, 2nd house) shapes how you love. Moon in Leo (Purva Phalguni) governs your emotional needs. 7th house in Gemini defines who you attract. You're currently in Mars Dasha (through May 25, 2026). With conscious attention to your chart patterns and ...
+    First section: "Love Language & Expression"
+    Content: **Venus at 277.3 in Capricorn (2nd house, Uttara Ashadha)**
+
+Venus in Capricorn places you in a neutral position regarding romantic expression. Venus is well-supported, making love expression relatively natural. You attract reasonably aligned partner...
+
+    [annual-forecast]
+    Summary: The Annual Forecast 2026 for the Native is generated from precise calculation of Vimshottari Dasha periods, Ashtakavarga house strengths, and active doshas. The year is governed by Mars Mahadasha with shifting Antardasha emphasis. Quarters present distinct opportunities and cautions based on Antarda...
+    First section: "Yearly Overview & Themes"
+    Content: 2026 is dominated by the Mars Mahadasha, which governs expenses, losses, foreign lands, spiritual liberation, sleep, and hidden enemies. The Mars is currently in own sign (strong and comfortable), positioned in Scorpio in the 12th house. This is a fa...
+
+
+>>> Profile B (Female, London, Known Time)
+
+    [career-blueprint]
+    Summary: With Pisces on your 10th house ruled by Jupiter, and Saturn exalted (strongest placement) in Libra, your chart strongly supports disciplined career achievement. Your D10 Dasamsa Ascendant in Cancer points to a Cancer-oriented professional identity. Currently running Venus Mahadasha, a period enhanci...
+    First section: "Professional Archetype"
+    Content: Your 10th house (Karma Sthana) is in Pisces, ruled by Jupiter. Jupiter, your career lord, is debilitated (weakened placement) and placed in the 8th house in Capricorn, (retrograde) indicating challenges in career expression requiring sustained effort...
+
+    [love-compat]
+    Summary: Your love blueprint: Venus in Cancer (Punarvasu, 2nd house) shapes how you love. Moon in Scorpio (Jyeshtha) governs your emotional needs. 7th house in Sagittarius defines who you attract. You're currently in Venus Dasha (through October 1, 2028). With conscious attention to your chart patterns and a...
+    First section: "Love Language & Expression"
+    Content: **Venus at 91.4 in Cancer (2nd house, Punarvasu)**
+
+Venus in Cancer places you in a neutral position regarding romantic expression. Love requires intentional cultivation. You're not blocked, but also not inherently favored—your choices matter most. Y...
+
+    [annual-forecast]
+    Summary: The Annual Forecast 2026 for the Native is generated from precise calculation of Vimshottari Dasha periods, Ashtakavarga house strengths, and active doshas. The year is governed by Venus Mahadasha with shifting Antardasha emphasis. Quarters present distinct opportunities and cautions based on Antard...
+    First section: "Yearly Overview & Themes"
+    Content: 2026 is dominated by the Venus Mahadasha, which governs wealth, family, speech, food habits, and accumulated resources. The Venus is currently in a neutral sign, positioned in Cancer in the 2nd house. This placement provides balanced opportunities an...
+
+
+>>> Profile C (Male, Delhi, Unknown Time)
+
+    [career-blueprint]
+    Summary: With Scorpio on your 10th house ruled by Mars, Saturn in Taurus (friendly) shapes your career path through effort and persistence. Your D10 Dasamsa Ascendant in Aquarius points to a Aquarius-oriented professional identity. Currently running Rahu Mahadasha, a period activating Rahu-ruled career theme...
+    First section: "Professional Archetype"
+    Content: Your 10th house (Karma Sthana) is in Scorpio, ruled by Mars. Mars, your career lord, is in an enemy sign (challenged) and placed in the 8th house in Virgo, indicating challenges in career expression requiring sustained effort and strategic planning. ...
+
+    [love-compat]
+    Summary: Your love blueprint: Venus in Sagittarius (Uttara Ashadha, 11th house) shapes how you love. Moon in Capricorn (Shravana) governs your emotional needs. 7th house in Leo defines who you attract. You're currently in Rahu Dasha (through November 28, 2032). With conscious attention to your chart patterns...
+    First section: "Love Language & Expression"
+    Content: **Venus at 267.8 in Sagittarius (11th house, Uttara Ashadha)**
+
+Venus in Sagittarius places you in a neutral position regarding romantic expression. Love requires intentional cultivation. You're not blocked, but also not inherently favored—your choic...
+
+    [annual-forecast]
+    Summary: The Annual Forecast 2026 for the Native is generated from precise calculation of Vimshottari Dasha periods, Ashtakavarga house strengths, and active doshas. The year is governed by Rahu Mahadasha with shifting Antardasha emphasis. Quarters present distinct opportunities and cautions based on Antarda...
+    First section: "Yearly Overview & Themes"
+    Content: 2026 is dominated by the Rahu Mahadasha, which governs intelligence, children, creativity, romance, speculation, and past-life merit. The Rahu is currently in a friendly sign (well-supported), positioned in Gemini in the 5th house. This placement pro...

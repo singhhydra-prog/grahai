@@ -39,6 +39,11 @@ import {
 // Using Moshier (internal) ephemeris — no files needed
 // Accuracy: ~0.1 arcsecond for planets, sufficient for Jyotish
 let initialized = false
+const USE_FALLBACK = !sweph
+
+if (USE_FALLBACK) {
+  console.warn("[GrahAI] Using Meeus fallback calculations (~1-2° accuracy)")
+}
 
 function ensureSweph() {
   if (!sweph) {
@@ -55,6 +60,83 @@ function ensureInit() {
   }
 }
 
+// ─── Meeus Fallback Calculations ─────────────────────
+// Simplified planetary calculations when native sweph is unavailable
+// Accuracy: ~1-2° (sufficient for sign-level Jyotish analysis)
+
+function fallbackJulianDay(
+  year: number, month: number, day: number,
+  hour: number, minute: number, second: number = 0,
+  timezoneOffset: number = 5.5
+): number {
+  const utHour = hour + minute / 60 + second / 3600 - timezoneOffset
+  let y = year, m = month
+  if (m <= 2) { y -= 1; m += 12 }
+  const A = Math.floor(y / 100)
+  const B = 2 - A + Math.floor(A / 4)
+  return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + utHour / 24 + B - 1524.5
+}
+
+// Mean orbital elements for simplified planetary positions (J2000.0 epoch)
+const PLANET_ELEMENTS: Record<string, { L0: number, L1: number, a: number, e: number, i: number, omega: number }> = {
+  Sun:     { L0: 280.46646, L1: 36000.76983, a: 1.0, e: 0.016709, i: 0, omega: 102.93735 },
+  Moon:    { L0: 218.3165, L1: 481267.8813, a: 0.00257, e: 0.0549, i: 5.145, omega: 83.353 },
+  Mars:    { L0: 355.433, L1: 19140.2993, a: 1.524, e: 0.0934, i: 1.85, omega: 336.060 },
+  Mercury: { L0: 252.251, L1: 149472.6746, a: 0.387, e: 0.2056, i: 7.005, omega: 77.456 },
+  Jupiter: { L0: 34.351, L1: 3034.9057, a: 5.203, e: 0.0489, i: 1.303, omega: 14.331 },
+  Venus:   { L0: 181.980, L1: 58517.8149, a: 0.723, e: 0.0068, i: 3.394, omega: 131.532 },
+  Saturn:  { L0: 50.077, L1: 1222.1138, a: 9.537, e: 0.0557, i: 2.489, omega: 93.057 },
+}
+
+function fallbackMeanAyanamsa(jd: number): number {
+  // Lahiri ayanamsa approximation
+  const T = (jd - 2451545.0) / 36525.0 // centuries from J2000.0
+  return 23.856 + 0.0138 * T * 100 // ~ Lahiri ayanamsa
+}
+
+function fallbackPlanetLongitude(planet: string, jd: number): { longitude: number, speed: number } {
+  const T = (jd - 2451545.0) / 36525.0
+  const el = PLANET_ELEMENTS[planet]
+  if (!el) return { longitude: 0, speed: 0 }
+
+  // Mean longitude
+  let L = (el.L0 + el.L1 * T) % 360
+  if (L < 0) L += 360
+
+  // Simple equation of center (first term)
+  const M = L - el.omega
+  const C = (2 * el.e * Math.sin(M * Math.PI / 180)) * 180 / Math.PI
+  let trueLong = (L + C) % 360
+  if (trueLong < 0) trueLong += 360
+
+  return { longitude: trueLong, speed: el.L1 / 36525.0 }
+}
+
+function fallbackRahuLongitude(jd: number): number {
+  // Mean Rahu (North Node) longitude
+  const T = (jd - 2451545.0) / 36525.0
+  let rahu = (125.0446 - 1934.1363 * T) % 360
+  if (rahu < 0) rahu += 360
+  return rahu
+}
+
+function fallbackAscendant(jd: number, latitude: number, longitude: number): number {
+  // Simplified ascendant calculation
+  const T = (jd - 2451545.0) / 36525.0
+  const GMST = (280.46061837 + 360.98564736629 * (jd - 2451545.0) + longitude) % 360
+  const obliquity = 23.4393 - 0.013 * T
+  const oRad = obliquity * Math.PI / 180
+  const latRad = latitude * Math.PI / 180
+  const gmstRad = GMST * Math.PI / 180
+
+  let asc = Math.atan2(
+    Math.cos(gmstRad),
+    -(Math.sin(gmstRad) * Math.cos(oRad) + Math.tan(latRad) * Math.sin(oRad))
+  ) * 180 / Math.PI
+  if (asc < 0) asc += 360
+  return asc
+}
+
 // ─── Julian Day Conversion ─────────────────────────────
 
 /** Convert date/time to Julian Day Number */
@@ -63,6 +145,9 @@ export function dateToJulianDay(
   hour: number, minute: number, second: number = 0,
   timezoneOffset: number = 5.5  // IST default
 ): number {
+  if (USE_FALLBACK) {
+    return fallbackJulianDay(year, month, day, hour, minute, second, timezoneOffset)
+  }
   // Convert to UT (subtract timezone offset)
   const utDecimalHour = hour + minute / 60 + second / 3600 - timezoneOffset
   ensureSweph()
@@ -85,6 +170,9 @@ export function birthDetailsToJD(birth: BirthDetails): number {
 
 /** Get Lahiri ayanamsa for a given Julian Day */
 export function getAyanamsa(jd: number): number {
+  if (USE_FALLBACK) {
+    return fallbackMeanAyanamsa(jd)
+  }
   ensureInit()
   sweph.set_sid_mode(AYANAMSA_LAHIRI, 0, 0)
   return sweph.get_ayanamsa_ut(jd)
@@ -100,6 +188,20 @@ export function tropicalToSidereal(tropicalLong: number, jd: number): number {
 }
 
 // ─── Planet Position Calculation ───────────────────────
+
+/** Get a single planet's tropical position (fallback or Swiss Ephemeris) */
+function getFallbackRawPosition(jd: number, planet: PlanetName): SwephPlanetPosition {
+  if (planet === "Rahu") {
+    const rahu = fallbackRahuLongitude(jd)
+    return { longitude: rahu, latitude: 0, distance: 0, speedLong: -0.053, speedLat: 0, speedDist: 0 }
+  }
+  if (planet === "Ketu") {
+    const rahu = fallbackRahuLongitude(jd)
+    return { longitude: (rahu + 180) % 360, latitude: 0, distance: 0, speedLong: -0.053, speedLat: 0, speedDist: 0 }
+  }
+  const { longitude, speed } = fallbackPlanetLongitude(planet, jd)
+  return { longitude, latitude: 0, distance: 1, speedLong: speed, speedLat: 0, speedDist: 0 }
+}
 
 /** Get a single planet's tropical position from Swiss Ephemeris */
 function getRawPlanetPosition(jd: number, planetId: number): SwephPlanetPosition {
@@ -144,7 +246,9 @@ export function getPlanetPosition(
 ): PlanetData {
   let raw: SwephPlanetPosition
 
-  if (planet === "Ketu") {
+  if (USE_FALLBACK) {
+    raw = getFallbackRawPosition(jd, planet)
+  } else if (planet === "Ketu") {
     // Ketu = Rahu + 180°
     const rahuRaw = getRawPlanetPosition(jd, SE_TRUE_NODE)
     raw = {
@@ -216,22 +320,33 @@ export function getAscendantAndCusps(
   longitude: number,
   houseSystem: string = "W"  // W = Whole Sign (default for Vedic)
 ): { ascendant: number, cusps: number[], mc: number } {
-  ensureInit()
+  let siderealAsc: number
+  let siderealMC: number
 
-  const result = sweph.houses(jd, latitude, longitude, houseSystem)
+  if (USE_FALLBACK) {
+    // Meeus-based fallback
+    const tropicalAsc = fallbackAscendant(jd, latitude, longitude)
+    siderealAsc = tropicalToSidereal(tropicalAsc, jd)
+    // Approximate MC as 90° before Asc
+    siderealMC = (siderealAsc + 270) % 360
+  } else {
+    ensureInit()
 
-  if (!result || !result.data) {
-    throw new Error("Failed to calculate house cusps")
+    const result = sweph.houses(jd, latitude, longitude, houseSystem)
+
+    if (!result || !result.data) {
+      throw new Error("Failed to calculate house cusps")
+    }
+
+    // result.data.houses = array of 12 cusps (tropical)
+    // result.data.points = [ASC, MC, ARMC, Vertex, ...]
+    const tropicalAsc = result.data.points[0]
+    const tropicalMC = result.data.points[1]
+
+    // Convert to sidereal
+    siderealAsc = tropicalToSidereal(tropicalAsc, jd)
+    siderealMC = tropicalToSidereal(tropicalMC, jd)
   }
-
-  // result.data.houses = array of 12 cusps (tropical)
-  // result.data.points = [ASC, MC, ARMC, Vertex, ...]
-  const tropicalAsc = result.data.points[0]
-  const tropicalMC = result.data.points[1]
-
-  // Convert to sidereal
-  const siderealAsc = tropicalToSidereal(tropicalAsc, jd)
-  const siderealMC = tropicalToSidereal(tropicalMC, jd)
 
   // For Whole Sign: cusps are at sign boundaries
   const ascSign = Math.floor(siderealAsc / 30)

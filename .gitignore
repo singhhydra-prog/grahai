@@ -40,3 +40,16 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 /.next-old/
+
+# session logs (keep locally, comment out to track in git)
+# 04_logs/
+
+# reference assets (WhatsApp images, source .docx, large binaries)
+03_docs/reference/images/
+03_docs/reference/legal-source/
+
+# generated reports (keep locally, don't bloat repo)
+03_docs/reports/*.docx
+
+# Word temp lock files
+~$*.docx

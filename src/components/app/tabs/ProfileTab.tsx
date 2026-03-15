@@ -360,6 +360,8 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
             { icon: FileText, label: "Terms & Conditions", href: "/terms" },
             { icon: Shield, label: "Privacy Policy", href: "/privacy-policy" },
             { icon: CreditCard, label: "Cancellation & Refund", href: "/refund-policy" },
+            { icon: HelpCircle, label: "FAQ", href: "/faq" },
+            { icon: MessageCircle, label: "Support", href: "/support" },
           ]).map((item, i, arr) => (
             <button key={item.label} onClick={() => window.open(item.href, "_blank")}
               className={`w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/[0.02] transition-colors relative z-10 ${

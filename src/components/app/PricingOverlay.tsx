@@ -331,6 +331,15 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
                 )}
               </button>
             )}
+            <div className="flex justify-center gap-3 mt-2">
+              <a href="/disclaimer" target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#8892A3]/60 hover:text-[#D4A054] transition-colors">Disclaimer</a>
+              <span className="text-[10px] text-[#8892A3]/30">·</span>
+              <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#8892A3]/60 hover:text-[#D4A054] transition-colors">Terms</a>
+              <span className="text-[10px] text-[#8892A3]/30">·</span>
+              <a href="/refund-policy" target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#8892A3]/60 hover:text-[#D4A054] transition-colors">Refund Policy</a>
+              <span className="text-[10px] text-[#8892A3]/30">·</span>
+              <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#8892A3]/60 hover:text-[#D4A054] transition-colors">Privacy</a>
+            </div>
           </div>
         </motion.div>
       )}
