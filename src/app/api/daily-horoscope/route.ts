@@ -302,8 +302,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { birthDate, birthTime, placeOfBirth, latitude, longitude, timezone, offset, name, userId } = body
 
-    // offset: 0 = today, 1 = tomorrow
-    const dayOffset = offset === 1 ? 1 : 0
+    // offset: 0 = today, 1 = tomorrow, 2-6 = rest of week
+    const dayOffset = typeof offset === "number" && offset >= 0 && offset <= 6 ? offset : 0
     const targetDate = new Date()
     targetDate.setDate(targetDate.getDate() + dayOffset)
 

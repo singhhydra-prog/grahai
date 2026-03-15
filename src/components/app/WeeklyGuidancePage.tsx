@@ -71,7 +71,6 @@ export default function WeeklyGuidancePage({ onBack }: WeeklyGuidancePageProps) 
         if (!bd) { setLoading(false); return }
         const birthData = JSON.parse(bd)
 
-        // Fetch daily horoscopes for each day of the week
         const today = new Date()
         const startOfWeek = new Date(today)
         startOfWeek.setDate(today.getDate() - today.getDay() + 1) // Monday
@@ -80,69 +79,142 @@ export default function WeeklyGuidancePage({ onBack }: WeeklyGuidancePageProps) 
 
         const weekRange = `${startOfWeek.toLocaleDateString("en-IN", { month: "long", day: "numeric" })} - ${endOfWeek.toLocaleDateString("en-IN", { month: "long", day: "numeric", year: "numeric" })}`
 
-        // Fetch today's horoscope for the theme, then build week structure
-        const res = await fetch("/api/daily-horoscope", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            birthDate: birthData.dateOfBirth,
-            birthTime: birthData.timeOfBirth,
-            placeOfBirth: birthData.placeOfBirth,
-            latitude: birthData.latitude,
-            longitude: birthData.longitude,
-            timezone: birthData.timezone,
-            name: birthData.name,
-            offset: 0,
-          }),
-        })
+        // Calculate day offsets from today for each day of the week
+        const todayDate = new Date()
+        todayDate.setHours(0, 0, 0, 0)
+        const startDate = new Date(startOfWeek)
+        startDate.setHours(0, 0, 0, 0)
 
+        // Fetch horoscopes for all 7 days in parallel
         const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
         const fullDayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-        const energyLevels: ("high" | "medium" | "low")[] = ["medium", "high", "high", "medium", "high", "low", "medium"]
+        const payload = {
+          birthDate: birthData.dateOfBirth,
+          birthTime: birthData.timeOfBirth,
+          placeOfBirth: birthData.placeOfBirth,
+          latitude: birthData.latitude,
+          longitude: birthData.longitude,
+          timezone: birthData.timezone,
+          name: birthData.name,
+        }
 
-        const days: WeekDay[] = Array.from({ length: 7 }, (_, i) => {
+        // Fetch today (offset 0) and up to 6 future days
+        const offsets = Array.from({ length: 7 }, (_, i) => {
           const d = new Date(startOfWeek)
           d.setDate(startOfWeek.getDate() + i)
+          d.setHours(0, 0, 0, 0)
+          return Math.round((d.getTime() - todayDate.getTime()) / 86400000)
+        })
+
+        const fetches = offsets.map((off) =>
+          off >= 0 && off <= 6
+            ? fetch("/api/daily-horoscope", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...payload, offset: off }),
+              }).then((r) => (r.ok ? r.json() : null)).catch(() => null)
+            : Promise.resolve(null)
+        )
+
+        const results = await Promise.all(fetches)
+
+        // Build per-day data from real API responses
+        const days: WeekDay[] = results.map((apiData, i) => {
+          const d = new Date(startOfWeek)
+          d.setDate(startOfWeek.getDate() + i)
+
+          // Derive energy from theme keywords
+          let energy: "high" | "medium" | "low" = "medium"
+          if (apiData?.theme) {
+            const title = (apiData.theme.title || "").toLowerCase()
+            if (title.includes("momentum") || title.includes("communication") || title.includes("clarity")) {
+              energy = "high"
+            } else if (title.includes("inner") || title.includes("steady") || title.includes("persistence")) {
+              energy = "low"
+            }
+          }
+
           return {
             date: `${dayNames[d.getDay()]} ${d.getDate()}`,
             dayName: fullDayNames[d.getDay()],
-            energy: energyLevels[i],
-            bestFor: i < 3 ? "Planning, goal-setting, creative work" : i < 5 ? "Execution, social events, networking" : "Rest, reflection, family time",
-            avoid: i < 3 ? "Impulsive decisions" : i < 5 ? "Overcommitting" : "Work stress",
+            energy,
+            bestFor: apiData?.theme?.action || (energy === "high" ? "Important decisions, networking, bold moves" : energy === "low" ? "Rest, reflection, planning ahead" : "Steady progress, routine tasks"),
+            avoid: apiData?.theme?.caution || (energy === "high" ? "Overcommitting or spreading too thin" : energy === "low" ? "Forcing outcomes or confrontations" : "Impulsive decisions"),
           }
         })
 
-        let theme = "Week of Steady Progress"
-        let themeDesc = "This week brings a balanced mix of energy for work and rest. Plan wisely and act with intention."
-        let weeklyAdvice = "Balance action with rest this week. The mid-week days are your power days — use them wisely."
+        // Find the API response for today (or the first successful one)
+        const todayIdx = offsets.indexOf(0)
+        const todayData = results[todayIdx >= 0 ? todayIdx : 0]
 
-        if (res.ok) {
-          const apiData = await res.json()
-          theme = `Week of ${apiData.theme?.title?.split(" ").slice(-2).join(" ") || "Steady Progress"}`
-          themeDesc = apiData.theme?.whyActive || themeDesc
-          weeklyAdvice = apiData.theme?.headline ? `${apiData.theme.headline} Use this energy to guide your week.` : weeklyAdvice
-        }
+        // Build life area sections from actual category data across the week
+        const validResults = results.filter(Boolean)
+        const loveTexts = validResults.map((r) => r?.categories?.relationship).filter(Boolean)
+        const careerTexts = validResults.map((r) => r?.categories?.career).filter(Boolean)
+        const wealthTexts = validResults.map((r) => r?.categories?.wealth).filter(Boolean)
+        const selfTexts = validResults.map((r) => r?.categories?.self).filter(Boolean)
 
-        setData({
-          weekRange,
-          overallTheme: theme,
-          themeDescription: themeDesc,
-          days,
-          sections: [
-            { id: "love", title: "Love & Relationships", icon: Heart, trend: "up", summary: "Relationship energy builds through the week. Mid-week is best for meaningful conversations.", bestDay: "Wednesday", caution: "Avoid difficult conversations on low-energy days." },
-            { id: "career", title: "Career & Ambition", icon: Briefcase, trend: "up", summary: "Professional momentum is strong this week. Take initiative early in the week.", bestDay: "Tuesday", caution: "Don't push through fatigue on the weekend." },
-            { id: "money", title: "Money & Finances", icon: Coins, trend: "stable", summary: "Financial stability this week — a good time to review plans and budgets.", bestDay: "Thursday", caution: "Avoid impulse purchases mid-week." },
-            { id: "health", title: "Health & Wellbeing", icon: Activity, trend: "stable", summary: "Energy fluctuates — channel high-energy days into exercise, rest on low days.", bestDay: "Friday", caution: "Listen to your body on the weekend." },
-          ],
-          keyDates: [
-            { date: days[1]?.date || "Tue", event: "High Energy Day", significance: "Best day for career moves and bold decisions" },
-            { date: days[2]?.date || "Wed", event: "Creative Peak", significance: "Express yourself — creativity and romance flourish" },
-            { date: days[4]?.date || "Fri", event: "Social Window", significance: "Social connections bring unexpected opportunities" },
-          ],
-          weeklyAdvice,
-        })
+        // Determine trends from energy distribution
+        const highCount = days.filter((d) => d.energy === "high").length
+        const lowCount = days.filter((d) => d.energy === "low").length
+
+        const bestDayForLove = days.find((d) => d.energy === "high")?.dayName || "Wednesday"
+        const bestDayForCareer = days.find((d) => d.energy === "high")?.dayName || "Tuesday"
+        const bestDayForMoney = days.filter((d) => d.energy !== "low")[2]?.dayName || "Thursday"
+        const bestDayForHealth = days.find((d) => d.energy === "low")?.dayName || "Saturday"
+
+        // Build sections with real data
+        const sections: WeeklySection[] = [
+          {
+            id: "love", title: "Love & Relationships", icon: Heart,
+            trend: highCount >= 3 ? "up" : highCount >= 2 ? "stable" : "down",
+            summary: loveTexts[0] || "Emotional connections evolve this week. Pay attention to how you communicate with those closest to you.",
+            bestDay: bestDayForLove,
+            caution: loveTexts[1]?.split(". ").slice(-1)[0] || "Avoid heavy conversations on low-energy days.",
+          },
+          {
+            id: "career", title: "Career & Ambition", icon: Briefcase,
+            trend: highCount >= 3 ? "up" : "stable",
+            summary: careerTexts[0] || "Professional energy is building. Focus your efforts on the high-energy days for maximum impact.",
+            bestDay: bestDayForCareer,
+            caution: careerTexts[1]?.split(". ").slice(-1)[0] || "Don't push through fatigue — rest days matter.",
+          },
+          {
+            id: "money", title: "Money & Finances", icon: Coins,
+            trend: lowCount >= 3 ? "down" : "stable",
+            summary: wealthTexts[0] || "Financial awareness is key this week. Review before committing to anything major.",
+            bestDay: bestDayForMoney,
+            caution: wealthTexts[1]?.split(". ").slice(-1)[0] || "Avoid impulsive purchases or commitments.",
+          },
+          {
+            id: "health", title: "Health & Wellbeing", icon: Activity,
+            trend: lowCount <= 1 ? "up" : "stable",
+            summary: selfTexts[0] || "Your energy fluctuates this week. Tune into your body and adapt your schedule accordingly.",
+            bestDay: bestDayForHealth,
+            caution: selfTexts[1]?.split(". ").slice(-1)[0] || "Listen to your body when it asks for rest.",
+          },
+        ]
+
+        // Find notable days for key dates
+        const highDays = days.filter((d) => d.energy === "high")
+        const keyDates = highDays.slice(0, 3).map((d, i) => ({
+          date: d.date,
+          event: i === 0 ? "Peak Energy Day" : i === 1 ? "Creative Window" : "Social Opportunity",
+          significance: d.bestFor,
+        }))
+
+        // Theme from today's API data
+        const theme = todayData?.theme?.title
+          ? `Week of ${todayData.theme.title.split(" ").slice(-2).join(" ")}`
+          : "Week of Steady Progress"
+        const themeDesc = todayData?.theme?.whyActive
+          || "Your chart shows a mix of active and reflective energy this week. Time your actions wisely."
+        const weeklyAdvice = todayData?.theme?.headline
+          ? `${todayData.theme.headline} Use this energy to guide your week.`
+          : "Trust the rhythms your chart reveals — act on high days, reflect on quiet ones."
+
+        setData({ weekRange, overallTheme: theme, themeDescription: themeDesc, days, sections, keyDates, weeklyAdvice })
       } catch {
-        // Fallback
         setData({
           weekRange: "This Week",
           overallTheme: "Week of Steady Growth",
