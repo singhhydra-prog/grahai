@@ -1,14 +1,15 @@
 "use client"
 
 import { Suspense } from "react"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import ReportDetailPage from "@/components/app/ReportDetailPage"
 
 function ReportContent() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const id = searchParams.get("id") || "love-clarity"
 
-  return <ReportDetailPage reportId={id} onBack={() => window.close()} />
+  return <ReportDetailPage reportId={id} onBack={() => { try { window.close() } catch {} ; router.back() }} />
 }
 
 export default function ReportRoute() {

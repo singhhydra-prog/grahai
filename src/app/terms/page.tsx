@@ -1,7 +1,9 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import TermsPage from "@/components/app/legal/TermsPage"
 
 export default function TermsRoute() {
-  return <TermsPage onBack={() => window.close()} />
+  const router = useRouter()
+  return <TermsPage onBack={() => { try { window.close() } catch {} ; router.back() }} />
 }

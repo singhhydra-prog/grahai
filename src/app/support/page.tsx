@@ -1,7 +1,9 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import SupportPage from "@/components/app/legal/SupportPage"
 
 export default function SupportRoute() {
-  return <SupportPage onBack={() => window.close()} />
+  const router = useRouter()
+  return <SupportPage onBack={() => { try { window.close() } catch {} ; router.back() }} />
 }

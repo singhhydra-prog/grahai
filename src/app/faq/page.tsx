@@ -1,7 +1,9 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import FAQPage from "@/components/app/legal/FAQPage"
 
 export default function FAQRoute() {
-  return <FAQPage onBack={() => window.close()} />
+  const router = useRouter()
+  return <FAQPage onBack={() => { try { window.close() } catch {} ; router.back() }} />
 }

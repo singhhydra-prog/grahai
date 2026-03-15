@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import dynamic from "next/dynamic"
 
 const BillingHistoryPage = dynamic(
@@ -8,5 +9,6 @@ const BillingHistoryPage = dynamic(
 )
 
 export default function BillingRoute() {
-  return <BillingHistoryPage onBack={() => window.close()} />
+  const router = useRouter()
+  return <BillingHistoryPage onBack={() => { try { window.close() } catch {} ; router.back() }} />
 }
