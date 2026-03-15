@@ -139,7 +139,7 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
           <div className="grid grid-cols-3 gap-2 mb-4">
             {[
               { icon: Moon, label: t.chart.moonSign, value: profile.moonSign, color: "text-blue-300" },
-              { icon: Star, label: t.chart.nakshatra, value: `${profile.nakshatra}`, color: "text-purple-300" },
+              { icon: Star, label: t.chart.nakshatra, value: `${profile.nakshatra}`, color: "text-[#D4A054]" },
               { icon: Sunrise, label: t.chart.risingSign, value: risingSignData?.name || profile.risingSign, color: "text-amber-300" },
             ].map((item, i) => (
               <motion.div
@@ -347,7 +347,7 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
           >
             <button onClick={() => toggleSection("nakshatra")} className="w-full flex items-center justify-between p-4">
               <div className="flex items-center gap-2">
-                <Star className="w-4 h-4 text-purple-400" />
+                <Star className="w-4 h-4 text-[#D4A054]" />
                 <span className="text-sm font-semibold text-[#F1F0F5]">{t.chart.nakshatra} {t.chart.deepDive}</span>
               </div>
               {expandedSection === "nakshatra" ? <ChevronUp className="w-4 h-4 text-[#5A6478]" /> : <ChevronDown className="w-4 h-4 text-[#5A6478]" />}

@@ -30,9 +30,9 @@ const TIER_CONFIG = {
   },
   premium: {
     label: "Rishi",
-    color: "text-purple-400",
-    bg: "bg-purple-500/10",
-    border: "border-purple-500/20",
+    color: "text-[#D4A054]",
+    bg: "bg-[#D4A054]/10",
+    border: "border-[#D4A054]/20",
     Icon: Crown,
   },
 }

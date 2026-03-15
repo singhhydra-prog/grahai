@@ -86,8 +86,8 @@ const REPORT_SECTIONS: ReportSection[] = [
     id: "marriage-timing",
     title: "Marriage Timing",
     Icon: Gem,
-    color: "text-purple-400",
-    bgColor: "bg-purple-500/10",
+    color: "text-[#D4A054]",
+    bgColor: "bg-[#D4A054]/10",
     reports: [
       {
         id: "marriage-timing",

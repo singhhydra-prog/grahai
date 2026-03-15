@@ -71,8 +71,8 @@ export default function SupportPage({ onBack }: SupportPageProps) {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                  <Clock className="w-5 h-5 text-purple-400" />
+                <div className="w-10 h-10 rounded-xl bg-[#D4A054]/10 flex items-center justify-center">
+                  <Clock className="w-5 h-5 text-[#D4A054]" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-[#F1F0F5]">Response time</p>

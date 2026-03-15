@@ -89,7 +89,7 @@ export default function SpaceParticles({ className = "" }: { className?: string 
         phase: Math.PI, phaseSpeed: 0.004,
       },
       {
-        // Subtle purple accent (mid area)
+        // Subtle gold accent (mid area)
         x: 0, y: 0, vx: 0.06, vy: -0.1,
         radius: 0, color: [160, 100, 200], baseAlpha: 0.05,
         phase: Math.PI * 0.5, phaseSpeed: 0.005,

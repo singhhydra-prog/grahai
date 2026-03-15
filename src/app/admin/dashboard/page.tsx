@@ -159,7 +159,7 @@ export default function FounderDashboard() {
           <StatCard label="Conv. Rate" value={`${(d.monetization.conversionRate * 100).toFixed(1)}%`}
             icon={TrendingUp} color="bg-blue-500/10 text-blue-400" />
           <StatCard label="Report Sales" value={d.monetization.reportPurchases}
-            icon={CreditCard} color="bg-purple-500/10 text-purple-400" />
+            icon={CreditCard} color="bg-[#D4A054]/10 text-[#D4A054]" />
         </div>
       </div>
 
@@ -167,7 +167,7 @@ export default function FounderDashboard() {
       {d.topThemes.length > 0 && (
         <div className="mb-6">
           <h2 className="text-sm font-semibold text-[#F1F0F5] mb-3 flex items-center gap-2">
-            <MessageCircle className="w-4 h-4 text-purple-400" />
+            <MessageCircle className="w-4 h-4 text-[#D4A054]" />
             Top User Themes
           </h2>
           <div className="bg-[#111827] border border-[#1E293B] rounded-xl p-4 space-y-2">

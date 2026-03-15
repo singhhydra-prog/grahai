@@ -73,9 +73,9 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
       price: 499,
       period: t.pricing.perMonth || "/month",
       description: t.pricing.completeCompanion || "Complete Jyotish companion",
-      color: "text-purple-400",
-      bgColor: "bg-purple-500/5",
-      borderColor: "border-purple-500/20",
+      color: "text-[#D4A054]",
+      bgColor: "bg-[#D4A054]/5",
+      borderColor: "border-[#D4A054]/20",
       badge: t.pricing.bestValue || "Best Value",
       features: [
         "Unlimited AI questions",
@@ -226,7 +226,7 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
                   >
                     {plan.badge && (
                       <span className={`absolute -top-2.5 right-4 text-[10px] font-semibold px-2.5 py-0.5 rounded-full ${
-                        plan.id === "graha" ? "bg-[#D4A054] text-[#0A0E1A]" : "bg-purple-500 text-white"
+                        plan.id === "graha" ? "bg-[#D4A054] text-[#0A0E1A]" : "bg-[#D4A054] text-[#0A0E1A]"
                       }`}>{plan.badge}</span>
                     )}
 
@@ -275,7 +275,7 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
                     <span className="text-[10px] text-[#5A6478]">{t.pricing.cancelAnytime || "Cancel Anytime"}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <Sparkles className="w-3 h-3 text-purple-400" />
+                    <Sparkles className="w-3 h-3 text-[#D4A054]" />
                     <span className="text-[10px] text-[#5A6478]">{t.pricing.bphsSourced || "BPHS-sourced"}</span>
                   </div>
                 </div>

@@ -53,7 +53,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
   }[] = [
     { key: "relationship", label: t.home.loveCard, subtitle: t.ask.topicLove, Icon: Heart, color: "text-rose-400", bgColor: "bg-rose-500/10" },
     { key: "career", label: t.home.careerCard, subtitle: t.ask.topicCareer, Icon: Briefcase, color: "text-amber-400", bgColor: "bg-amber-500/10" },
-    { key: "self", label: t.home.energyCard, subtitle: t.ask.topicHealth, Icon: Zap, color: "text-purple-400", bgColor: "bg-purple-500/10" },
+    { key: "self", label: t.home.energyCard, subtitle: t.ask.topicHealth, Icon: Zap, color: "text-[#D4A054]", bgColor: "bg-[#D4A054]/10" },
   ]
 
   const [horoscope, setHoroscope] = useState<DailyHoroscope | null>(null)
@@ -313,8 +313,8 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                 className="w-full glass-card-hero p-4 mb-4 text-left hover:border-[#D4A054]/20 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0">
-                    <Calendar className="w-5 h-5 text-purple-400" />
+                  <div className="w-10 h-10 rounded-xl bg-[#D4A054]/10 flex items-center justify-center shrink-0">
+                    <Calendar className="w-5 h-5 text-[#D4A054]" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-[#F1F0F5] mb-0.5">Your Week Ahead</p>
@@ -346,8 +346,8 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                   onClick={() => onViewReports()}
                   className="glass-card p-3 flex flex-col items-center gap-2 hover:border-[#D4A054]/20 transition-colors"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                    <BookOpen className="w-4.5 h-4.5 text-purple-400" />
+                  <div className="w-9 h-9 rounded-xl bg-[#D4A054]/10 flex items-center justify-center">
+                    <BookOpen className="w-4.5 h-4.5 text-[#D4A054]" />
                   </div>
                   <span className="text-[11px] font-medium text-[#F1F0F5]">{t.nav.reports}</span>
                 </button>

@@ -153,7 +153,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const INTENTS: { id: IntentCategory; label: string; Icon: typeof Briefcase; color: string }[] = [
     { id: "career", label: t.onboarding.intentCareer, Icon: Briefcase, color: "from-amber-500/20 to-amber-600/10" },
     { id: "love", label: t.onboarding.intentLove, Icon: Heart, color: "from-rose-500/20 to-rose-600/10" },
-    { id: "marriage", label: t.onboarding.intentMarriage, Icon: Gem, color: "from-purple-500/20 to-purple-600/10" },
+    { id: "marriage", label: t.onboarding.intentMarriage, Icon: Gem, color: "from-[#D4A054]/20 to-[#D4A054]/10" },
     { id: "money", label: t.onboarding.intentMoney, Icon: TrendingUp, color: "from-emerald-500/20 to-emerald-600/10" },
     { id: "emotional", label: t.onboarding.intentEmotional, Icon: Moon, color: "from-blue-500/20 to-blue-600/10" },
     { id: "daily", label: t.onboarding.intentDaily, Icon: Compass, color: "from-teal-500/20 to-teal-600/10" },

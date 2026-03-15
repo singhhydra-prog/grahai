@@ -73,7 +73,7 @@ function SectionIcon({ type }: { type: AnswerSection["icon"] }) {
     why: { Icon: MessageCircle, color: "text-blue-400", bg: "bg-blue-500/10" },
     do: { Icon: CheckCircle, color: "text-emerald-400", bg: "bg-emerald-500/10" },
     avoid: { Icon: AlertTriangle, color: "text-amber-400", bg: "bg-amber-500/10" },
-    timing: { Icon: Timer, color: "text-purple-400", bg: "bg-purple-500/10" },
+    timing: { Icon: Timer, color: "text-[#D4A054]", bg: "bg-[#D4A054]/10" },
     reflect: { Icon: Lightbulb, color: "text-teal-400", bg: "bg-teal-500/10" },
     source: { Icon: BookOpen, color: "text-[#94A3B8]", bg: "bg-[#94A3B8]/10" },
   }
