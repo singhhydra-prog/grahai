@@ -14,12 +14,14 @@ function ReportContent() {
 
 export default function ReportRoute() {
   return (
-    <Suspense fallback={
-      <div className="min-h-dvh bg-[#0A0E1A] flex items-center justify-center">
-        <p className="text-xs text-[#5A6478]">Loading report...</p>
-      </div>
-    }>
-      <ReportContent />
-    </Suspense>
+    <div className="page-enter">
+      <Suspense fallback={
+        <div className="min-h-dvh bg-[#0A0E1A] flex items-center justify-center">
+          <p className="text-xs text-[#5A6478]">Loading report...</p>
+        </div>
+      }>
+        <ReportContent />
+      </Suspense>
+    </div>
   )
 }

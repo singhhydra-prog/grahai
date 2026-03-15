@@ -5,5 +5,5 @@ import TermsPage from "@/components/app/legal/TermsPage"
 
 export default function TermsRoute() {
   const router = useRouter()
-  return <TermsPage onBack={() => { try { window.close() } catch {} ; router.back() }} />
+  return <div className="page-enter"><TermsPage onBack={() => { try { window.close() } catch {} ; router.back() }} /></div>
 }

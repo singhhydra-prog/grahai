@@ -5,5 +5,5 @@ import PrivacyPolicyPage from "@/components/app/legal/PrivacyPolicyPage"
 
 export default function PrivacyPolicyRoute() {
   const router = useRouter()
-  return <PrivacyPolicyPage onBack={() => { try { window.close() } catch {} ; router.back() }} />
+  return <div className="page-enter"><PrivacyPolicyPage onBack={() => { try { window.close() } catch {} ; router.back() }} /></div>
 }

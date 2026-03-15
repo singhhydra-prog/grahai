@@ -5,5 +5,5 @@ import WeeklyGuidancePage from "@/components/app/WeeklyGuidancePage"
 
 export default function WeeklyRoute() {
   const router = useRouter()
-  return <WeeklyGuidancePage onBack={() => { try { window.close() } catch {} ; router.back() }} />
+  return <div className="page-enter"><WeeklyGuidancePage onBack={() => { try { window.close() } catch {} ; router.back() }} /></div>
 }

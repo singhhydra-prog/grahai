@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { AnimatePresence } from "framer-motion"
+import { useState, useEffect, useRef } from "react"
+import { AnimatePresence, motion } from "framer-motion"
 import dynamic from "next/dynamic"
 import BottomNav from "@/components/ui/BottomNav"
 import { LanguageProvider } from "@/lib/LanguageContext"
@@ -58,13 +58,18 @@ export default function AppPage() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-dvh flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#D4A054] to-[#A16E2A] animate-pulse
-            flex items-center justify-center">
-            <span className="text-[#0A0E1A] font-bold">G</span>
+      <div className="min-h-dvh flex items-center justify-center bg-[#0A0E1A]">
+        <div className="flex flex-col items-center gap-5">
+          <div className="app-loading-logo w-16 h-16 rounded-2xl bg-gradient-to-br from-[#D4A054] via-[#E8C278] to-[#A16E2A]
+            flex items-center justify-center shadow-lg">
+            <span className="text-[#0A0E1A] font-bold text-xl tracking-tight">G</span>
           </div>
-          <p className="text-xs text-[#5A6478]">Loading your guidance...</p>
+          <p className="app-loading-text text-[10px] text-[#5A6478] uppercase tracking-[0.12em] font-medium">
+            Reading your stars
+          </p>
+          <div className="app-loading-bar">
+            <div className="app-loading-bar-fill" />
+          </div>
         </div>
       </div>
     )
@@ -92,41 +97,83 @@ export default function AppPage() {
           <>
             {/* Tab content — relative z-index above starfield */}
             <div className="relative z-10 min-h-dvh">
-              {activeTab === "home" && (
-                <HomeTab
-                  onAskQuestion={goToAsk}
-                  onProfileClick={goToProfile}
-                  onViewReports={goToReports}
-                />
-              )}
+              <AnimatePresence mode="wait">
+                {activeTab === "home" && (
+                  <motion.div
+                    key="home"
+                    initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  >
+                    <HomeTab
+                      onAskQuestion={goToAsk}
+                      onProfileClick={goToProfile}
+                      onViewReports={goToReports}
+                    />
+                  </motion.div>
+                )}
 
-              {activeTab === "ask" && (
-                <AskTab initialQuestion={askQuestion} />
-              )}
+                {activeTab === "ask" && (
+                  <motion.div
+                    key="ask"
+                    initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  >
+                    <AskTab initialQuestion={askQuestion} />
+                  </motion.div>
+                )}
 
-              {activeTab === "compatibility" && (
-                <CompatibilityTab
-                  onProfileClick={goToProfile}
-                  onAskQuestion={(q) => goToAsk(q)}
-                  onPricingClick={() => setShowPricing(true)}
-                />
-              )}
+                {activeTab === "compatibility" && (
+                  <motion.div
+                    key="compatibility"
+                    initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  >
+                    <CompatibilityTab
+                      onProfileClick={goToProfile}
+                      onAskQuestion={(q) => goToAsk(q)}
+                      onPricingClick={() => setShowPricing(true)}
+                    />
+                  </motion.div>
+                )}
 
-              {activeTab === "reports" && (
-                <ReportsTab
-                  onProfileClick={goToProfile}
-                  onPricingClick={() => setShowPricing(true)}
-                  onAskQuestion={(q) => goToAsk(q)}
-                />
-              )}
+                {activeTab === "reports" && (
+                  <motion.div
+                    key="reports"
+                    initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  >
+                    <ReportsTab
+                      onProfileClick={goToProfile}
+                      onPricingClick={() => setShowPricing(true)}
+                      onAskQuestion={(q) => goToAsk(q)}
+                    />
+                  </motion.div>
+                )}
 
-              {activeTab === "profile" && (
-                <ProfileTab
-                  onPricingClick={() => setShowPricing(true)}
-                  onReferralClick={() => setShowReferral(true)}
-                  onAskQuestion={(q) => goToAsk(q)}
-                />
-              )}
+                {activeTab === "profile" && (
+                  <motion.div
+                    key="profile"
+                    initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  >
+                    <ProfileTab
+                      onPricingClick={() => setShowPricing(true)}
+                      onReferralClick={() => setShowReferral(true)}
+                      onAskQuestion={(q) => goToAsk(q)}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Bottom Nav */}

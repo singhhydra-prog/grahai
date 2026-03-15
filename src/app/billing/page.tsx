@@ -10,5 +10,5 @@ const BillingHistoryPage = dynamic(
 
 export default function BillingRoute() {
   const router = useRouter()
-  return <BillingHistoryPage onBack={() => { try { window.close() } catch {} ; router.back() }} />
+  return <div className="page-enter"><BillingHistoryPage onBack={() => { try { window.close() } catch {} ; router.back() }} /></div>
 }

@@ -5,5 +5,5 @@ import SupportPage from "@/components/app/legal/SupportPage"
 
 export default function SupportRoute() {
   const router = useRouter()
-  return <SupportPage onBack={() => { try { window.close() } catch {} ; router.back() }} />
+  return <div className="page-enter"><SupportPage onBack={() => { try { window.close() } catch {} ; router.back() }} /></div>
 }

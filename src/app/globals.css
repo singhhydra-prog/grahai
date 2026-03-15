@@ -1521,3 +1521,350 @@ body {
   font-weight: 600;
   color: #F1F0F5;
 }
+
+
+/* ══════════════════════════════════════════════
+   PREMIUM ANIMATION SYSTEM v4.2
+   Screen Transitions · Scroll Reveals · Loading
+   ══════════════════════════════════════════════ */
+
+/* ═══ Tab Screen Transitions ═══ */
+@keyframes tab-enter {
+  0% { opacity: 0; transform: translateY(12px) scale(0.98); filter: blur(4px); }
+  60% { opacity: 1; filter: blur(0px); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
+}
+@keyframes tab-exit {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-8px) scale(0.98); }
+}
+.tab-screen-enter {
+  animation: tab-enter 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+.tab-screen-exit {
+  animation: tab-exit 0.25s cubic-bezier(0.55, 0, 1, 0.45) both;
+}
+
+/* ═══ Page Slide-In (standalone pages) ═══ */
+@keyframes page-slide-in {
+  0% { opacity: 0; transform: translateX(30px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes page-slide-out {
+  0% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(-20px); }
+}
+.page-enter {
+  animation: page-slide-in 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+/* ═══ Overlay / Modal Transitions ═══ */
+@keyframes overlay-rise {
+  0% { opacity: 0; transform: translateY(100%); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes overlay-backdrop {
+  0% { opacity: 0; backdrop-filter: blur(0px); }
+  100% { opacity: 1; backdrop-filter: blur(12px); }
+}
+.overlay-enter {
+  animation: overlay-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.overlay-backdrop {
+  animation: overlay-backdrop 0.35s ease both;
+}
+
+/* ═══ Scroll Reveal System ═══ */
+@keyframes scroll-reveal-up {
+  0% { opacity: 0; transform: translateY(24px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes scroll-reveal-scale {
+  0% { opacity: 0; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes scroll-reveal-left {
+  0% { opacity: 0; transform: translateX(-20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes scroll-reveal-right {
+  0% { opacity: 0; transform: translateX(20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+.scroll-reveal {
+  opacity: 0;
+  animation: scroll-reveal-up 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+.scroll-reveal-scale {
+  opacity: 0;
+  animation: scroll-reveal-scale 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+.scroll-reveal-left {
+  opacity: 0;
+  animation: scroll-reveal-left 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+.scroll-reveal-right {
+  opacity: 0;
+  animation: scroll-reveal-right 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+/* Stagger delays for sequential card reveals */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
+.stagger-7 { animation-delay: 0.35s; }
+.stagger-8 { animation-delay: 0.4s; }
+
+/* ═══ Premium Loading Sequence ═══ */
+@keyframes app-logo-breathe {
+  0% { transform: scale(1); box-shadow: 0 0 0 rgba(212, 160, 84, 0); }
+  50% { transform: scale(1.08); box-shadow: 0 0 40px rgba(212, 160, 84, 0.3); }
+  100% { transform: scale(1); box-shadow: 0 0 0 rgba(212, 160, 84, 0); }
+}
+@keyframes app-logo-reveal {
+  0% { opacity: 0; transform: scale(0.5) rotate(-15deg); filter: blur(10px); }
+  60% { opacity: 1; transform: scale(1.05) rotate(2deg); filter: blur(0); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); filter: blur(0); }
+}
+@keyframes loading-text-fade {
+  0% { opacity: 0; transform: translateY(8px); letter-spacing: 0.3em; }
+  100% { opacity: 0.6; transform: translateY(0); letter-spacing: 0.08em; }
+}
+@keyframes loading-dots {
+  0%, 20% { content: ''; }
+  40% { content: '.'; }
+  60% { content: '..'; }
+  80%, 100% { content: '...'; }
+}
+@keyframes loading-progress {
+  0% { width: 0%; }
+  30% { width: 45%; }
+  60% { width: 70%; }
+  90% { width: 92%; }
+  100% { width: 100%; }
+}
+.app-loading-logo {
+  animation: app-logo-reveal 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both,
+             app-logo-breathe 2.5s ease-in-out 0.8s infinite;
+}
+.app-loading-text {
+  animation: loading-text-fade 0.6s ease 0.4s both;
+}
+.app-loading-bar {
+  height: 2px;
+  background: rgba(212, 160, 84, 0.15);
+  border-radius: 2px;
+  overflow: hidden;
+  width: 120px;
+}
+.app-loading-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, transparent, #D4A054, transparent);
+  border-radius: 2px;
+  animation: loading-progress 2s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* ═══ Onboarding Step Transitions ═══ */
+@keyframes onboard-step-in {
+  0% { opacity: 0; transform: translateX(40px) scale(0.96); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes onboard-step-out {
+  0% { opacity: 1; transform: translateX(0) scale(1); }
+  100% { opacity: 0; transform: translateX(-40px) scale(0.96); }
+}
+.onboard-step-enter {
+  animation: onboard-step-in 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+.onboard-step-exit {
+  animation: onboard-step-out 0.35s cubic-bezier(0.55, 0, 1, 0.45) both;
+}
+
+/* ═══ Chart Reveal (birth chart generation) ═══ */
+@keyframes chart-reveal-ring {
+  0% { transform: scale(0) rotate(-90deg); opacity: 0; }
+  50% { transform: scale(1.1) rotate(180deg); opacity: 0.8; }
+  100% { transform: scale(1) rotate(360deg); opacity: 1; }
+}
+@keyframes chart-data-cascade {
+  0% { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.chart-ring-reveal {
+  animation: chart-reveal-ring 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+.chart-data-enter {
+  animation: chart-data-cascade 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+/* ═══ Bottom Nav Transitions ═══ */
+@keyframes nav-dot-expand {
+  0% { width: 0; opacity: 0; }
+  50% { width: 32px; opacity: 1; }
+  100% { width: 24px; opacity: 1; }
+}
+@keyframes nav-icon-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.25); }
+  70% { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+.nav-dot-enter {
+  animation: nav-dot-expand 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.nav-icon-pop {
+  animation: nav-icon-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ═══ Button Tap Animations ═══ */
+@keyframes btn-ripple {
+  0% { transform: scale(0); opacity: 0.5; }
+  100% { transform: scale(4); opacity: 0; }
+}
+.btn-primary:active .btn-ripple,
+.btn-gold:active .btn-ripple {
+  animation: btn-ripple 0.6s ease-out;
+}
+.btn-primary:active, .btn-gold:active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
+}
+
+/* ═══ Input Focus Animations ═══ */
+@keyframes input-focus-glow {
+  0% { box-shadow: 0 0 0 0 rgba(212, 160, 84, 0); }
+  50% { box-shadow: 0 0 0 4px rgba(212, 160, 84, 0.12); }
+  100% { box-shadow: 0 0 0 2px rgba(212, 160, 84, 0.08); }
+}
+.input-focus-glow:focus {
+  animation: input-focus-glow 0.4s ease both;
+  border-color: rgba(212, 160, 84, 0.35);
+}
+
+/* ═══ Card Hover Tilt (3D) ═══ */
+.card-tilt {
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform-style: preserve-3d;
+}
+.card-tilt:hover {
+  transform: perspective(500px) rotateY(2deg) rotateX(1deg) translateZ(8px);
+}
+
+/* ═══ Scroll Progress Indicator ═══ */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #D4A054, #E8C278);
+  z-index: 100;
+  transition: width 0.15s ease;
+  box-shadow: 0 0 8px rgba(212, 160, 84, 0.3);
+}
+
+/* ═══ Skeleton Loading Upgrade ═══ */
+@keyframes skeleton-wave {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.skeleton-premium {
+  background: linear-gradient(
+    110deg,
+    rgba(17, 24, 39, 0.4) 30%,
+    rgba(212, 160, 84, 0.06) 50%,
+    rgba(17, 24, 39, 0.4) 70%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-wave 2s ease-in-out infinite;
+  border-radius: 10px;
+}
+
+/* ═══ Floating Particle Trail (on scroll) ═══ */
+@keyframes particle-float {
+  0% { opacity: 0; transform: translateY(0) scale(0); }
+  30% { opacity: 0.8; transform: translateY(-10px) scale(1); }
+  100% { opacity: 0; transform: translateY(-30px) scale(0.5); }
+}
+
+/* ═══ Haptic Pulse (visual feedback for taps) ═══ */
+@keyframes haptic-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(212, 160, 84, 0.3); }
+  70% { box-shadow: 0 0 0 8px rgba(212, 160, 84, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(212, 160, 84, 0); }
+}
+.haptic-tap:active {
+  animation: haptic-pulse 0.4s ease;
+}
+
+/* ═══ Number Counter Animation ═══ */
+@keyframes count-up {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.count-animate {
+  animation: count-up 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+/* ═══ Text Shimmer (premium headings) ═══ */
+@keyframes text-shimmer-gold {
+  0% { background-position: -100% center; }
+  100% { background-position: 200% center; }
+}
+.text-shimmer {
+  background: linear-gradient(
+    110deg,
+    #D4A054 0%,
+    #E8C278 25%,
+    #FFD700 50%,
+    #E8C278 75%,
+    #D4A054 100%
+  );
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: text-shimmer-gold 4s ease-in-out infinite;
+}
+
+/* ═══ Accordion / Expand Collapse ═══ */
+@keyframes expand-down {
+  0% { max-height: 0; opacity: 0; }
+  100% { max-height: 500px; opacity: 1; }
+}
+@keyframes collapse-up {
+  0% { max-height: 500px; opacity: 1; }
+  100% { max-height: 0; opacity: 0; }
+}
+.expand-enter {
+  animation: expand-down 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  overflow: hidden;
+}
+
+/* ═══ Smooth Scroll Behavior ═══ */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+.snap-scroll {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.snap-item {
+  scroll-snap-align: start;
+}
+
+/* ═══ Respect User Motion Preferences ═══ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .scroll-reveal, .scroll-reveal-scale,
+  .scroll-reveal-left, .scroll-reveal-right {
+    opacity: 1;
+    transform: none;
+  }
+}

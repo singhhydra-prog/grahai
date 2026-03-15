@@ -5,5 +5,5 @@ import FAQPage from "@/components/app/legal/FAQPage"
 
 export default function FAQRoute() {
   const router = useRouter()
-  return <FAQPage onBack={() => { try { window.close() } catch {} ; router.back() }} />
+  return <div className="page-enter"><FAQPage onBack={() => { try { window.close() } catch {} ; router.back() }} /></div>
 }

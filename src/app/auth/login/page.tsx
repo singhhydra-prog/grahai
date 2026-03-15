@@ -134,9 +134,9 @@ function LoginForm() {
       <div className="starfield" aria-hidden="true" />
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
         className="relative z-10 w-full max-w-md"
       >
         {reason === "login_required" && (
@@ -199,7 +199,7 @@ function LoginForm() {
                       onChange={(e) => handleOtpChange(i, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(i, e)}
                       className="h-14 w-11 rounded-xl border border-border bg-bg-input text-center text-xl font-bold text-text
-                        transition-all focus:border-[#D4A054]/50 focus:outline-none focus:ring-2 focus:ring-[#D4A054]/20"
+                        transition-all input-focus-glow focus:border-[#D4A054]/50 focus:outline-none focus:ring-2 focus:ring-[#D4A054]/20"
                     />
                   ))}
                 </div>
@@ -321,7 +321,7 @@ function LoginForm() {
                           required
                           className="h-12 w-full rounded-xl border border-border bg-bg-input pl-14 pr-4
                             text-text placeholder:text-text-dim/50
-                            transition-all focus:border-[#D4A054]/50 focus:outline-none focus:ring-2 focus:ring-[#D4A054]/20"
+                            transition-all input-focus-glow focus:border-[#D4A054]/50 focus:outline-none focus:ring-2 focus:ring-[#D4A054]/20"
                         />
                       </div>
                     </div>
@@ -360,7 +360,7 @@ function LoginForm() {
                           required
                           className="h-12 w-full rounded-xl border border-border bg-bg-input pl-11 pr-4
                             text-text placeholder:text-text-dim/50
-                            transition-all focus:border-magenta/50 focus:outline-none focus:ring-2 focus:ring-magenta/20"
+                            transition-all input-focus-glow focus:border-[#D4A054]/50 focus:outline-none focus:ring-2 focus:ring-[#D4A054]/20"
                         />
                       </div>
                     </div>

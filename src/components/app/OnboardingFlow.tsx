@@ -269,9 +269,15 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   }
 
   const slideVariants = {
-    enter: { opacity: 0, y: 24 },
-    center: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -16 },
+    enter: { opacity: 0, x: 40, scale: 0.96, filter: "blur(6px)" },
+    center: {
+      opacity: 1, x: 0, scale: 1, filter: "blur(0px)",
+      transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const }
+    },
+    exit: {
+      opacity: 0, x: -30, scale: 0.96, filter: "blur(4px)",
+      transition: { duration: 0.3, ease: [0.55, 0, 1, 0.45] as const }
+    },
   }
 
   const suggestedQuestions = intent ? INTENT_QUESTIONS[intent] || INTENT_QUESTIONS.exploring : INTENT_QUESTIONS.exploring
@@ -527,7 +533,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     placeholder={t.onboarding.fullNamePlaceholder} autoFocus
                     className="w-full bg-[#0D1220] border border-[#1E293B] rounded-xl px-4 py-3.5
                       text-[#F1F0F5] text-sm placeholder:text-[#5A6478]/50
-                      focus:border-[#D4A054]/40 focus:outline-none transition-colors" />
+                      input-focus-glow focus:border-[#D4A054]/40 focus:outline-none transition-colors" />
                 </div>
                 <div>
                   <label className="flex items-center gap-2 text-xs font-medium text-[#94A3B8] mb-1.5">
@@ -535,7 +541,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   </label>
                   <input type="date" value={form.dateOfBirth} onChange={(e) => updateField("dateOfBirth", e.target.value)}
                     className="w-full bg-[#0D1220] border border-[#1E293B] rounded-xl px-4 py-3
-                      text-[#F1F0F5] text-sm focus:border-[#D4A054]/40 focus:outline-none transition-colors [color-scheme:dark]" />
+                      text-[#F1F0F5] text-sm input-focus-glow focus:border-[#D4A054]/40 focus:outline-none transition-colors [color-scheme:dark]" />
                 </div>
                 <div>
                   <label className="flex items-center gap-2 text-xs font-medium text-[#94A3B8] mb-1.5">
@@ -544,7 +550,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   <input type="time" value={form.timeOfBirth} onChange={(e) => updateField("timeOfBirth", e.target.value)}
                     disabled={timeUnknown}
                     className={`w-full bg-[#0D1220] border border-[#1E293B] rounded-xl px-4 py-3
-                      text-[#F1F0F5] text-sm focus:border-[#D4A054]/40 focus:outline-none transition-colors
+                      text-[#F1F0F5] text-sm input-focus-glow focus:border-[#D4A054]/40 focus:outline-none transition-colors
                       [color-scheme:dark] ${timeUnknown ? "opacity-40" : ""}`} />
                   <label className="flex items-center gap-2 mt-2 cursor-pointer">
                     <input type="checkbox" checked={timeUnknown} onChange={(e) => setTimeUnknown(e.target.checked)}

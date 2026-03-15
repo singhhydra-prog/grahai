@@ -5,5 +5,5 @@ import SavedLibraryPage from "@/components/app/SavedLibraryPage"
 
 export default function LibraryRoute() {
   const router = useRouter()
-  return <SavedLibraryPage onBack={() => { try { window.close() } catch {} ; router.back() }} />
+  return <div className="page-enter"><SavedLibraryPage onBack={() => { try { window.close() } catch {} ; router.back() }} /></div>
 }
