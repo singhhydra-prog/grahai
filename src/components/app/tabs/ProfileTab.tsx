@@ -6,12 +6,16 @@ import {
   User, Calendar, MapPin, Clock, LogOut, ChevronRight, Crown,
   Bell, Shield, HelpCircle, Star, CreditCard, MessageCircle,
   FileText, Heart, History, Users, Share2, Moon, Sun, ArrowRight,
-  X, ArrowLeft, Globe, Edit3
+  X, ArrowLeft, Globe, Edit3, AlertTriangle
 } from "lucide-react"
 import type { BirthData, AstroProfile } from "@/types/app"
 import { useLanguage } from "@/lib/LanguageContext"
 import { LANGUAGES, type Language } from "@/lib/i18n"
 import LocationSearch, { type CityData } from "@/components/ui/LocationSearch"
+import DisclaimerPage from "@/components/app/legal/DisclaimerPage"
+import TermsPage from "@/components/app/legal/TermsPage"
+import PrivacyPolicyPage from "@/components/app/legal/PrivacyPolicyPage"
+import RefundPolicyPage from "@/components/app/legal/RefundPolicyPage"
 
 interface ProfileTabProps {
   onPricingClick: () => void
@@ -24,7 +28,7 @@ const DEFAULT_ASTRO: AstroProfile = {
   sunSignWestern: "Libra", nakshatra: "Pushya",
 }
 
-type SubPage = null | "questions-history" | "reports-history" | "compatibility-history" | "family" | "help" | "edit-birth" | "change-language"
+type SubPage = null | "questions-history" | "reports-history" | "compatibility-history" | "family" | "help" | "edit-birth" | "change-language" | "disclaimer" | "terms" | "privacy-policy" | "refund-policy"
 
 export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuestion }: ProfileTabProps) {
   const { lang, t, setLanguage } = useLanguage()
@@ -175,6 +179,10 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
     "help": { title: t.profile.helpSupport, emptyMsg: "" },
     "edit-birth": { title: t.profile.editBirthTitle, emptyMsg: "" },
     "change-language": { title: t.profile.changeLanguage, emptyMsg: "" },
+    "disclaimer": { title: "Disclaimer", emptyMsg: "" },
+    "terms": { title: "Terms & Conditions", emptyMsg: "" },
+    "privacy-policy": { title: "Privacy Policy", emptyMsg: "" },
+    "refund-policy": { title: "Cancellation & Refund Policy", emptyMsg: "" },
   }
 
   return (
@@ -315,6 +323,28 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
         </div>
       )}
 
+      {/* Legal section */}
+      <div className="mx-5 mb-5">
+        <p className="text-xs font-semibold text-[#5A6478] mb-2 uppercase tracking-wide px-1">Legal</p>
+        <div className="glass-card overflow-hidden">
+          {([
+            { icon: AlertTriangle, label: "Disclaimer", page: "disclaimer" as SubPage },
+            { icon: FileText, label: "Terms & Conditions", page: "terms" as SubPage },
+            { icon: Shield, label: "Privacy Policy", page: "privacy-policy" as SubPage },
+            { icon: CreditCard, label: "Cancellation & Refund", page: "refund-policy" as SubPage },
+          ]).map((item, i, arr) => (
+            <button key={item.label} onClick={() => setSubPage(item.page)}
+              className={`w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/[0.02] transition-colors relative z-10 ${
+                i < arr.length - 1 ? "border-b border-white/[0.04]" : ""
+              }`}>
+              <item.icon className="w-4 h-4 text-[#5A6478]" />
+              <span className="text-sm text-[#F1F0F5] flex-1">{item.label}</span>
+              <ChevronRight className="w-4 h-4 text-[#5A6478]" />
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Sign out */}
       <div className="mx-5 mb-4">
         <button onClick={() => setShowSignOut(true)}
@@ -362,9 +392,17 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
         )}
       </AnimatePresence>
 
+      {/* ═══ Legal Pages (full-screen) ═══ */}
+      <AnimatePresence>
+        {subPage === "disclaimer" && <DisclaimerPage onBack={() => setSubPage(null)} />}
+        {subPage === "terms" && <TermsPage onBack={() => setSubPage(null)} />}
+        {subPage === "privacy-policy" && <PrivacyPolicyPage onBack={() => setSubPage(null)} />}
+        {subPage === "refund-policy" && <RefundPolicyPage onBack={() => setSubPage(null)} />}
+      </AnimatePresence>
+
       {/* ═══ Sub Pages ═══ */}
       <AnimatePresence>
-        {subPage && (
+        {subPage && !["disclaimer", "terms", "privacy-policy", "refund-policy"].includes(subPage) && (
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
