@@ -1127,3 +1127,397 @@ body {
   color: #D4A054;
   box-shadow: 0 0 16px rgba(212, 160, 84, 0.1);
 }
+
+
+/* ══════════════════════════════════════════════
+   PREMIUM EXPERIENCE v4.1 — Elevated Design System
+   ══════════════════════════════════════════════ */
+
+/* ═══ Energy Arc Timeline ═══ */
+.energy-arc {
+  background: linear-gradient(90deg,
+    rgba(248, 113, 113, 0.15) 0%,
+    rgba(251, 191, 36, 0.2) 30%,
+    rgba(52, 211, 153, 0.25) 60%,
+    rgba(212, 160, 84, 0.2) 100%);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  height: 6px;
+}
+.energy-arc::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #D4A054;
+  top: 50%;
+  transform: translateY(-50%);
+  box-shadow: 0 0 12px rgba(212, 160, 84, 0.6), 0 0 24px rgba(212, 160, 84, 0.3);
+  animation: energy-pulse 3s ease-in-out infinite;
+}
+@keyframes energy-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(212, 160, 84, 0.5), 0 0 16px rgba(212, 160, 84, 0.2); }
+  50% { box-shadow: 0 0 16px rgba(212, 160, 84, 0.8), 0 0 32px rgba(212, 160, 84, 0.4); }
+}
+
+/* ═══ Dasha Progress Bar ═══ */
+.dasha-progress {
+  background: rgba(10, 14, 26, 0.6);
+  border: 1px solid rgba(212, 160, 84, 0.12);
+  border-radius: 10px;
+  overflow: hidden;
+  height: 8px;
+}
+.dasha-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #A16E2A, #D4A054, #E8C278);
+  border-radius: 10px;
+  position: relative;
+  transition: width 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.dasha-progress-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  animation: dasha-shimmer 2.5s ease-in-out infinite;
+}
+@keyframes dasha-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ═══ Radial Life Area Chart ═══ */
+.radial-chart {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+.radial-chart svg {
+  transform: rotate(-90deg);
+}
+.radial-segment {
+  fill: none;
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ═══ Score Dial Premium ═══ */
+.score-dial {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.score-dial-ring {
+  stroke-dasharray: 283;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  filter: drop-shadow(0 0 6px currentColor);
+}
+.score-dial-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 160, 84, 0.08), transparent 70%);
+  animation: dial-glow 3s ease-in-out infinite;
+}
+@keyframes dial-glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ═══ Lucky Element Badges ═══ */
+.lucky-badge {
+  background: rgba(212, 160, 84, 0.08);
+  border: 1px solid rgba(212, 160, 84, 0.15);
+  border-radius: 14px;
+  padding: 10px 14px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+.lucky-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(212, 160, 84, 0.06), transparent);
+  animation: lucky-sweep 4s ease-in-out infinite;
+}
+@keyframes lucky-sweep {
+  0% { transform: translateX(-50%); }
+  50% { transform: translateX(50%); }
+  100% { transform: translateX(-50%); }
+}
+.lucky-badge:hover {
+  border-color: rgba(212, 160, 84, 0.25);
+  background: rgba(212, 160, 84, 0.12);
+  transform: translateY(-1px);
+}
+
+/* ═══ Timeline Component ═══ */
+.timeline-track {
+  position: relative;
+  padding-left: 24px;
+}
+.timeline-track::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, rgba(212, 160, 84, 0.3), rgba(212, 160, 84, 0.08));
+  border-radius: 1px;
+}
+.timeline-node {
+  position: absolute;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #0A0E1A;
+  border: 2px solid rgba(212, 160, 84, 0.4);
+  box-shadow: 0 0 8px rgba(212, 160, 84, 0.2);
+  transition: all 0.3s ease;
+}
+.timeline-node.active {
+  background: #D4A054;
+  border-color: #D4A054;
+  box-shadow: 0 0 12px rgba(212, 160, 84, 0.5);
+}
+
+/* ═══ Planet Icon System ═══ */
+.planet-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  position: relative;
+}
+.planet-icon::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  opacity: 0.2;
+}
+.planet-sun { background: rgba(212, 160, 84, 0.15); color: #D4A054; }
+.planet-moon { background: rgba(226, 232, 240, 0.12); color: #E2E8F0; }
+.planet-mars { background: rgba(239, 68, 68, 0.12); color: #EF4444; }
+.planet-mercury { background: rgba(34, 211, 238, 0.12); color: #22D3EE; }
+.planet-jupiter { background: rgba(251, 191, 36, 0.12); color: #FBBF24; }
+.planet-venus { background: rgba(236, 72, 153, 0.12); color: #EC4899; }
+.planet-saturn { background: rgba(100, 116, 139, 0.15); color: #64748B; }
+.planet-rahu { background: rgba(99, 102, 241, 0.12); color: #6366F1; }
+.planet-ketu { background: rgba(168, 162, 158, 0.12); color: #A8A29E; }
+
+/* ═══ Weekly Energy Line Chart ═══ */
+.weekly-chart {
+  position: relative;
+  height: 80px;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 0 4px;
+}
+.weekly-bar {
+  flex: 1;
+  border-radius: 4px 4px 0 0;
+  min-height: 8px;
+  transition: height 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+}
+.weekly-bar.energy-high {
+  background: linear-gradient(180deg, #34D399, rgba(52, 211, 153, 0.3));
+}
+.weekly-bar.energy-medium {
+  background: linear-gradient(180deg, #FBBF24, rgba(251, 191, 36, 0.3));
+}
+.weekly-bar.energy-low {
+  background: linear-gradient(180deg, #F87171, rgba(248, 113, 113, 0.3));
+}
+.weekly-bar.today {
+  box-shadow: 0 0 8px rgba(212, 160, 84, 0.4);
+  border: 1px solid rgba(212, 160, 84, 0.3);
+}
+
+/* ═══ Micro-interactions ═══ */
+.press-scale {
+  transition: transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.press-scale:active {
+  transform: scale(0.97);
+}
+
+.reveal-up {
+  animation: reveal-slide-up 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+@keyframes reveal-slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
+
+/* ═══ Confidence Meter ═══ */
+.confidence-meter {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+.confidence-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #D4A054, #E8C278);
+  transition: width 1s ease;
+}
+
+/* ═══ Zodiac Sign Badges ═══ */
+.zodiac-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: rgba(212, 160, 84, 0.08);
+  border: 1px solid rgba(212, 160, 84, 0.15);
+  font-size: 12px;
+  font-weight: 500;
+  color: #D4A054;
+  transition: all 0.25s ease;
+}
+.zodiac-badge:hover {
+  background: rgba(212, 160, 84, 0.14);
+  border-color: rgba(212, 160, 84, 0.25);
+}
+.zodiac-badge .zodiac-symbol {
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* ═══ Insight Card Premium ═══ */
+.insight-card {
+  background: rgba(17, 24, 39, 0.5);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.insight-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #D4A054, rgba(212, 160, 84, 0.2));
+  border-radius: 0 2px 2px 0;
+}
+.insight-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* ═══ Status Indicator Dots ═══ */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: relative;
+}
+.status-dot::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  opacity: 0.15;
+  animation: status-ring 2.5s ease-in-out infinite;
+}
+@keyframes status-ring {
+  0%, 100% { transform: scale(1); opacity: 0.15; }
+  50% { transform: scale(1.3); opacity: 0; }
+}
+.status-favourable { background: #34D399; color: #34D399; }
+.status-neutral { background: #FBBF24; color: #FBBF24; }
+.status-challenging { background: #F87171; color: #F87171; }
+
+/* ═══ Section Divider ═══ */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 160, 84, 0.15), transparent);
+  margin: 20px 0;
+}
+
+/* ═══ Floating Action Hint ═══ */
+.action-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: rgba(212, 160, 84, 0.7);
+  letter-spacing: 0.02em;
+  transition: color 0.2s ease;
+}
+.action-hint:hover {
+  color: #D4A054;
+}
+
+/* ═══ Card Lift 3D Enhanced ═══ */
+.card-lift-3d {
+  transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              box-shadow 0.35s ease;
+  transform: perspective(600px) rotateX(0deg) translateZ(0);
+}
+.card-lift-3d:hover {
+  transform: perspective(600px) rotateX(1deg) translateZ(4px) translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+/* ═══ Panchang Info Grid ═══ */
+.panchang-item {
+  background: rgba(10, 14, 26, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+  transition: all 0.25s ease;
+}
+.panchang-item:hover {
+  border-color: rgba(212, 160, 84, 0.12);
+  background: rgba(10, 14, 26, 0.55);
+}
+.panchang-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #5A6478;
+  margin-bottom: 4px;
+}
+.panchang-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #F1F0F5;
+}

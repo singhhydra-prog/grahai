@@ -55,7 +55,7 @@ const TREND_ICON = {
 
 const TREND_COLOR = {
   up: "text-emerald-400",
-  stable: "text-amber-400",
+  stable: "text-[#D4A054]",
   down: "text-rose-400",
 }
 
@@ -198,13 +198,15 @@ export default function WeeklyGuidancePage({ onBack }: WeeklyGuidancePageProps) 
                   <button
                     key={day.date}
                     onClick={() => setSelectedDay(isSelected ? null : day.date)}
-                    className={`w-full rounded-xl border p-3 text-left transition-all ${
+                    className={`w-full rounded-xl border p-3 text-left transition-all press-scale ${
                       isSelected ? "border-[#D4A054]/30 bg-[#D4A054]/[0.04]" : "border-white/5 bg-white/[0.02]"
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className={`w-2 h-2 rounded-full ${energy.dot}`} />
+                        {day.energy === 'high' && <span className="status-dot status-favourable" />}
+                        {day.energy === 'medium' && <span className="status-dot status-neutral" />}
+                        {day.energy === 'low' && <span className="status-dot status-challenging" />}
                         <span className="text-sm font-medium text-[#F1F0F5]">{day.date}</span>
                         <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold ${energy.bg} ${energy.text}`}>
                           {energy.label}
@@ -271,9 +273,9 @@ export default function WeeklyGuidancePage({ onBack }: WeeklyGuidancePageProps) 
           {/* 4. Key Dates */}
           <div>
             <h3 className="text-sm font-semibold text-[#8A8F9E] uppercase tracking-wider px-1 mb-3">Key Dates</h3>
-            <div className="space-y-2">
+            <div className="timeline-track space-y-2">
               {data.keyDates.map((kd, i) => (
-                <div key={i} className="flex gap-3 rounded-xl border border-[#D4A054]/10 bg-[#D4A054]/[0.03] p-3">
+                <div key={i} className={`timeline-node ${i === 0 ? 'active' : ''} flex gap-3 rounded-xl border border-[#D4A054]/10 bg-[#D4A054]/[0.03] p-3`}>
                   <div className="flex-shrink-0">
                     <Clock className="w-4 h-4 text-[#D4A054]" />
                   </div>
@@ -290,7 +292,7 @@ export default function WeeklyGuidancePage({ onBack }: WeeklyGuidancePageProps) 
           </div>
 
           {/* 5. Weekly Advice */}
-          <div className="rounded-xl border border-[#D4A054]/20 bg-[#D4A054]/5 p-4">
+          <div className="insight-card rounded-xl border border-[#D4A054]/20 bg-[#D4A054]/5 p-4">
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="w-4 h-4 text-[#D4A054]" />
               <span className="text-xs font-semibold text-[#D4A054]">Your Weekly Takeaway</span>

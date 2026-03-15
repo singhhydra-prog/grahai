@@ -215,13 +215,13 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
         {/* Edit Birth Details and Change Language buttons */}
         <div className="px-0 space-y-2 mb-4">
           <button onClick={() => setSubPage("edit-birth")}
-            className="w-full flex items-center gap-3 glass-card px-4 py-3">
+            className="w-full flex items-center gap-3 glass-card px-4 py-3 press-scale">
             <Edit3 className="w-4 h-4 text-[#D4A054]" />
             <span className="text-sm text-[#F1F0F5] flex-1">{t.profile.editBirthDetails}</span>
             <ChevronRight className="w-4 h-4 text-[#5A6478]" />
           </button>
           <button onClick={() => setSubPage("change-language")}
-            className="w-full flex items-center gap-3 glass-card px-4 py-3">
+            className="w-full flex items-center gap-3 glass-card px-4 py-3 press-scale">
             <Globe className="w-4 h-4 text-[#D4A054]" />
             <div className="flex-1 text-left">
               <span className="text-sm text-[#F1F0F5]">{t.profile.changeLanguage}</span>
@@ -229,6 +229,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
             <ChevronRight className="w-4 h-4 text-[#5A6478]" />
           </button>
         </div>
+        <div className="section-divider" />
 
         {/* Vedic / Western toggle */}
         <div className="flex gap-2 mb-3 glass-inner rounded-2xl p-1">
@@ -246,7 +247,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
         <div className="flex gap-2 mb-5">
           {signChips.map((chip) => (
             <div key={chip.type}
-              className="flex items-center gap-1.5 glass-inner rounded-full px-3 py-1.5">
+              className="flex items-center gap-1.5 glass-inner rounded-full px-3 py-1.5 zodiac-badge">
               <chip.icon className="w-3 h-3 text-[#5A6478]" />
               <span className="text-xs text-[#94A3B8]">{chip.label}</span>
             </div>
@@ -266,6 +267,8 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
           </div>
         )}
       </div>
+
+      <div className="section-divider mx-5" />
 
       {/* Balance cards */}
       <div className="px-5 space-y-2.5 mb-5">
@@ -287,24 +290,26 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
         ))}
       </div>
 
+      <div className="section-divider mx-5" />
+
       {/* Help & Support */}
       <div className="mx-5 mb-5">
         <p className="text-xs font-semibold text-[#5A6478] mb-2 uppercase tracking-wide px-1">{t.profile.helpSupport}</p>
         <div className="glass-card overflow-hidden">
           <button onClick={() => window.open("/faq", "_blank")}
-            className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/[0.02] transition-colors relative z-10 border-b border-white/[0.04]">
+            className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/[0.02] transition-colors relative z-10 border-b border-white/[0.04] press-scale">
             <HelpCircle className="w-4 h-4 text-[#5A6478]" />
             <span className="text-sm text-[#F1F0F5] flex-1">FAQ</span>
             <ExternalLink className="w-3.5 h-3.5 text-[#5A6478]" />
           </button>
           <button onClick={() => window.open("/support", "_blank")}
-            className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/[0.02] transition-colors relative z-10 border-b border-white/[0.04]">
+            className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/[0.02] transition-colors relative z-10 border-b border-white/[0.04] press-scale">
             <MessageCircle className="w-4 h-4 text-[#5A6478]" />
             <span className="text-sm text-[#F1F0F5] flex-1">Contact Support</span>
             <ExternalLink className="w-3.5 h-3.5 text-[#5A6478]" />
           </button>
           <button onClick={() => setSubPage("help")}
-            className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/[0.02] transition-colors relative z-10">
+            className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/[0.02] transition-colors relative z-10 press-scale">
             <Star className="w-4 h-4 text-[#5A6478]" />
             <span className="text-sm text-[#F1F0F5] flex-1">Quick Help</span>
             <ChevronRight className="w-4 h-4 text-[#5A6478]" />
@@ -312,13 +317,15 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
         </div>
       </div>
 
+      <div className="section-divider mx-5" />
+
       {/* Activity section */}
       <div className="mx-5 mb-5">
         <p className="text-xs font-semibold text-[#5A6478] mb-2 uppercase tracking-wide px-1">{t.profile.activity}</p>
         <div className="glass-card overflow-hidden">
           {activityItems.map((item, i) => (
             <button key={item.label} onClick={item.action}
-              className={`w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/[0.02] transition-colors relative z-10 ${
+              className={`w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/[0.02] transition-colors relative z-10 press-scale ${
                 i < activityItems.length - 1 ? "border-b border-white/[0.04]" : ""
               }`}>
               <item.icon className="w-4 h-4 text-[#5A6478]" />

@@ -265,7 +265,7 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
                     // Open dedicated report detail page
                     window.open(`/report?id=${report.id}`, "_blank")
                   }}
-                  className="w-full text-left glass-card card-lift p-4 hover:border-[#D4A054]/15 transition-colors"
+                  className="w-full text-left glass-card card-lift p-4 press-scale card-lift-3d hover:border-[#D4A054]/15 transition-colors"
                 >
                   <div className="flex items-start gap-3">
                     <span className="text-xl mt-0.5">{report.icon}</span>
@@ -282,6 +282,9 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
                       </div>
                       <p className="text-[11px] text-[#D4A054]/70 font-medium mb-1">{report.outcome}</p>
                       <p className="text-xs text-[#5A6478] leading-relaxed line-clamp-2">{report.description}</p>
+                      <div className="confidence-meter mt-2 h-1.5 bg-[#1E293B] rounded-full overflow-hidden">
+                        <div className="confidence-fill h-full bg-gradient-to-r from-[#D4A054] to-[#E8C278] rounded-full" style={{ width: '85%' }} />
+                      </div>
                     </div>
                     <ChevronRight className="w-4 h-4 text-[#5A6478] shrink-0 mt-1" />
                   </div>

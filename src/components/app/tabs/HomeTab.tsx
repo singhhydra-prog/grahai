@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import {
   Sparkles, ArrowRight, Heart, Briefcase, Zap,
   BookOpen, MessageCircle, ChevronRight,
-  CheckCircle, AlertTriangle, Calendar, ExternalLink, Bookmark
+  CheckCircle, AlertTriangle, Calendar, ExternalLink, Bookmark, Clock
 } from "lucide-react"
 import AppHeader from "@/components/ui/AppHeader"
 import SourceDrawer from "@/components/ui/SourceDrawer"
@@ -264,7 +264,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                   transition={{ delay: 0.1 }}
                   className="glass-card p-4 mb-4"
                 >
-                  <p className="text-[10px] font-medium text-[#5A6478] uppercase tracking-wider mb-2">
+                  <p className="text-[10px] font-semibold text-[#5A6478] uppercase tracking-[0.08em] mb-2">
                     {t.ask.whyShowingUp}
                   </p>
                   <p className="text-xs text-[#94A3B8] leading-relaxed">
@@ -280,7 +280,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.15 + 0.05 * i }}
-                  className="glass-card card-lift p-4 mb-3"
+                  className="glass-card card-lift press-scale p-4 mb-3"
                 >
                   <div className="flex items-center gap-2.5 mb-2">
                     <div className={`w-8 h-8 rounded-lg ${card.bgColor} flex items-center justify-center`}>
@@ -303,6 +303,9 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                   </button>
                 </motion.div>
               ))}
+
+              {/* ═══ Section Divider ═══ */}
+              <div className="section-divider mb-4" />
 
               {/* ═══ 4. Weekly Guidance Card ═══ */}
               <motion.button
@@ -335,7 +338,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
               >
                 <button
                   onClick={() => onAskQuestion()}
-                  className="glass-card p-3 flex flex-col items-center gap-2 hover:border-[#D4A054]/20 transition-colors"
+                  className="glass-card press-scale card-lift-3d p-3 flex flex-col items-center gap-2 hover:border-[#D4A054]/20 transition-colors"
                 >
                   <div className="w-9 h-9 rounded-xl bg-[#D4A054]/10 flex items-center justify-center">
                     <Sparkles className="w-4.5 h-4.5 text-[#D4A054]" />
@@ -344,7 +347,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                 </button>
                 <button
                   onClick={() => onViewReports()}
-                  className="glass-card p-3 flex flex-col items-center gap-2 hover:border-[#D4A054]/20 transition-colors"
+                  className="glass-card press-scale card-lift-3d p-3 flex flex-col items-center gap-2 hover:border-[#D4A054]/20 transition-colors"
                 >
                   <div className="w-9 h-9 rounded-xl bg-[#D4A054]/10 flex items-center justify-center">
                     <BookOpen className="w-4.5 h-4.5 text-[#D4A054]" />
@@ -353,7 +356,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                 </button>
                 <button
                   onClick={() => onAskQuestion("Check my compatibility with my partner")}
-                  className="glass-card p-3 flex flex-col items-center gap-2 hover:border-[#D4A054]/20 transition-colors"
+                  className="glass-card press-scale card-lift-3d p-3 flex flex-col items-center gap-2 hover:border-[#D4A054]/20 transition-colors"
                 >
                   <div className="w-9 h-9 rounded-xl bg-rose-500/10 flex items-center justify-center">
                     <Heart className="w-4.5 h-4.5 text-rose-400" />
@@ -381,43 +384,49 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                 <ArrowRight className="w-4 h-4 text-[#D4A054]" />
               </motion.button>
 
-              {/* ═══ 6. Lucky Elements (compact) ═══ */}
+              {/* ═══ 6. Lucky Elements (badge layout) ═══ */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.45 }}
-                className="glass-card p-4 mb-4"
+                className="mb-4"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="text-center">
-                      <p className="text-[10px] text-[#5A6478] mb-1">{t.home.luckyColors}</p>
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-3 h-3 rounded-full shadow-lg" style={{
-                          backgroundColor: horoscope.lucky.colour.toLowerCase() === "white" ? "#f0f0f0" :
-                            horoscope.lucky.colour.toLowerCase() === "red" ? "#ef4444" :
-                            horoscope.lucky.colour.toLowerCase() === "green" ? "#22c55e" :
-                            horoscope.lucky.colour.toLowerCase() === "gold" ? "#D4A054" :
-                            horoscope.lucky.colour.toLowerCase() === "yellow" ? "#eab308" :
-                            horoscope.lucky.colour.toLowerCase() === "blue" ? "#3b82f6" :
-                            horoscope.lucky.colour.toLowerCase() === "black" ? "#1a1a1a" :
-                            horoscope.lucky.colour.toLowerCase()
-                        }} />
-                        <span className="text-xs font-medium text-[#F1F0F5]">{horoscope.lucky.colour}</span>
-                      </div>
+                <p className="text-[10px] font-semibold text-[#5A6478] uppercase tracking-[0.08em] px-1 mb-2">
+                  Lucky Elements
+                </p>
+                <div className="grid grid-cols-3 gap-2">
+                  {/* Lucky Color Badge */}
+                  <div className="lucky-badge glass-card p-3 flex flex-col items-center justify-center text-center">
+                    <div className="w-8 h-8 rounded-lg mb-2 flex items-center justify-center shadow-lg" style={{
+                      backgroundColor: horoscope.lucky.colour.toLowerCase() === "white" ? "#f0f0f0" :
+                        horoscope.lucky.colour.toLowerCase() === "red" ? "#ef4444" :
+                        horoscope.lucky.colour.toLowerCase() === "green" ? "#22c55e" :
+                        horoscope.lucky.colour.toLowerCase() === "gold" ? "#D4A054" :
+                        horoscope.lucky.colour.toLowerCase() === "yellow" ? "#eab308" :
+                        horoscope.lucky.colour.toLowerCase() === "blue" ? "#3b82f6" :
+                        horoscope.lucky.colour.toLowerCase() === "black" ? "#1a1a1a" :
+                        horoscope.lucky.colour.toLowerCase()
+                    }} />
+                    <p className="text-[9px] text-[#5A6478] mb-1 uppercase font-semibold tracking-wider">{t.home.luckyColors}</p>
+                    <span className="text-xs font-bold text-[#F1F0F5]">{horoscope.lucky.colour}</span>
+                  </div>
+
+                  {/* Lucky Number Badge */}
+                  <div className="lucky-badge glass-card p-3 flex flex-col items-center justify-center text-center">
+                    <div className="w-8 h-8 rounded-lg mb-2 flex items-center justify-center bg-[#D4A054]/20 border border-[#D4A054]/30">
+                      <span className="text-sm font-bold text-[#D4A054]">{horoscope.lucky.number}</span>
                     </div>
-                    <div className="w-px h-8 bg-[#1E293B]" />
-                    <div className="text-center">
-                      <p className="text-[10px] text-[#5A6478] mb-1">{t.home.luckyNumbers}</p>
-                      <span className="text-xs font-medium text-[#F1F0F5]">{horoscope.lucky.number}</span>
+                    <p className="text-[9px] text-[#5A6478] mb-1 uppercase font-semibold tracking-wider">{t.home.luckyNumbers}</p>
+                    <span className="text-xs font-bold text-[#F1F0F5]">#{horoscope.lucky.number}</span>
+                  </div>
+
+                  {/* Auspicious Time Badge */}
+                  <div className="lucky-badge glass-card p-3 flex flex-col items-center justify-center text-center">
+                    <div className="w-8 h-8 rounded-lg mb-2 flex items-center justify-center bg-emerald-500/20 border border-emerald-500/30">
+                      <Clock className="w-4 h-4 text-emerald-400" />
                     </div>
-                    <div className="w-px h-8 bg-[#1E293B]" />
-                    <div className="text-center">
-                      <p className="text-[10px] text-[#5A6478] mb-1">{t.home.panchangTitle}</p>
-                      <span className="text-xs font-medium text-[#F1F0F5]">
-                        {horoscope.timing.auspiciousTime.start}
-                      </span>
-                    </div>
+                    <p className="text-[9px] text-[#5A6478] mb-1 uppercase font-semibold tracking-wider">Auspicious</p>
+                    <span className="text-xs font-bold text-emerald-400">{horoscope.timing.auspiciousTime.start}</span>
                   </div>
                 </div>
               </motion.div>

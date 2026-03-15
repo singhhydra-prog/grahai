@@ -90,19 +90,20 @@ function StructuredAnswer({ sections, onViewSource, t }: { sections: AnswerSecti
   return (
     <div className="space-y-3">
       {sections.map((section, i) => (
-        <motion.div
-          key={section.id}
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.05 }}
-          className={`rounded-xl p-3.5 ${
-            section.icon === "answer"
-              ? "bg-[#111827] border border-[#D4A054]/15"
-              : section.icon === "source"
-              ? "bg-[#0A0E1A] border border-[#1E293B]"
-              : "bg-[#111827] border border-[#1E293B]"
-          }`}
-        >
+        <>
+          <motion.div
+            key={section.id}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05 }}
+            className={`rounded-xl p-3.5 insight-card ${
+              section.icon === "answer"
+                ? "bg-[#111827] border border-[#D4A054]/15"
+                : section.icon === "source"
+                ? "bg-[#0A0E1A] border border-[#1E293B]"
+                : "bg-[#111827] border border-[#1E293B]"
+            }`}
+          >
           <div className="flex items-center gap-2 mb-2">
             <SectionIcon type={section.icon} />
             <span className="text-xs font-semibold text-[#F1F0F5]">{section.title}</span>
@@ -118,7 +119,9 @@ function StructuredAnswer({ sections, onViewSource, t }: { sections: AnswerSecti
               {t.ask.viewFullSource} <ChevronRight className="w-3 h-3" />
             </button>
           )}
-        </motion.div>
+          </motion.div>
+          {i < sections.length - 1 && <div className="section-divider" />}
+        </>
       ))}
     </div>
   )
@@ -374,7 +377,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
                   onClick={() => handleSend(chip.query)}
                   className="px-3.5 py-1.5 rounded-full glass-inner
                     text-xs text-[#94A3B8] font-medium hover:border-[#D4A054]/30 hover:text-[#D4A054]
-                    transition-all card-scale"
+                    transition-all card-scale press-scale"
                 >
                   {chip.label}
                 </button>
@@ -385,7 +388,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
             <div className="space-y-2.5 max-w-sm mx-auto">
               {SUGGESTIONS.map((q) => (
                 <button key={q} onClick={() => handleSend(q)}
-                  className="w-full text-left glass-card card-lift px-4 py-3.5
+                  className="w-full text-left glass-card card-lift px-4 py-3.5 press-scale
                     text-sm text-[#94A3B8] hover:border-[#D4A054]/20 transition-colors">
                   {q}
                 </button>
@@ -440,7 +443,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
                             <div className="flex flex-wrap gap-1.5 mt-3">
                               {FOLLOW_UPS.map((chip) => (
                                 <button key={chip} onClick={() => handleSend(chip)}
-                                  className="px-3 py-1 rounded-full bg-[#111827] border border-[#1E293B]
+                                  className="px-3 py-1 rounded-full bg-[#111827] border border-[#1E293B] press-scale
                                     text-[11px] text-[#94A3B8] hover:border-[#D4A054]/20 hover:text-[#D4A054] transition-colors">
                                   {chip}
                                 </button>

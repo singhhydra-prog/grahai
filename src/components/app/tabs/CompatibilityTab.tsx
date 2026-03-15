@@ -436,7 +436,7 @@ export default function CompatibilityTab({
                   <button
                     key={type.id}
                     onClick={() => setRelationshipType(type.id)}
-                    className={`flex flex-col items-center gap-1.5 py-3 rounded-xl text-center transition-all border ${
+                    className={`flex flex-col items-center gap-1.5 py-3 rounded-xl text-center transition-all border press-scale ${
                       relationshipType === type.id
                         ? "border-[#D4A054]/40 bg-[#D4A054]/10"
                         : "border-white/5 bg-white/[0.02]"
@@ -543,11 +543,15 @@ export default function CompatibilityTab({
                 </div>
               </div>
 
-              <ScoreDial score={result.overallScore} label="Overall Compatibility" />
+              <div className="score-dial-glow flex items-center justify-center">
+                <ScoreDial score={result.overallScore} label="Overall Compatibility" />
+              </div>
 
               <p className="text-sm font-medium text-[#F1F0F5]">{result.headline}</p>
               <p className="text-xs text-[#8A8F9E] leading-relaxed">{result.advice}</p>
             </div>
+
+            <div className="section-divider" />
 
             {/* Section Cards */}
             <div className="space-y-3">

@@ -216,7 +216,7 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
                     key={area.id}
                     onClick={() => setActiveArea(area.id)}
                     className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium
-                      whitespace-nowrap transition-all border ${
+                      whitespace-nowrap transition-all border press-scale ${
                       isActive
                         ? "border-[#D4A054]/40 bg-[#D4A054]/10 text-[#D4A054]"
                         : "border-white/5 bg-white/[0.02] text-[#8A8F9E]"
@@ -261,8 +261,8 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
               </div>
               <div className="space-y-2.5">
                 {data.doList.map((item, i) => (
-                  <p key={i} className="text-xs text-[#8A8F9E] leading-relaxed pl-4 relative">
-                    <span className="absolute left-0 top-1.5 w-1.5 h-1.5 rounded-full bg-emerald-400/50" />
+                  <p key={i} className="text-xs text-[#8A8F9E] leading-relaxed pl-4 relative flex items-start gap-2">
+                    <span className="status-dot status-favourable inline-block mr-2" />
                     {item}
                   </p>
                 ))}
@@ -275,8 +275,8 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
               </div>
               <div className="space-y-2.5">
                 {data.avoidList.map((item, i) => (
-                  <p key={i} className="text-xs text-[#8A8F9E] leading-relaxed pl-4 relative">
-                    <span className="absolute left-0 top-1.5 w-1.5 h-1.5 rounded-full bg-rose-400/50" />
+                  <p key={i} className="text-xs text-[#8A8F9E] leading-relaxed pl-4 relative flex items-start gap-2">
+                    <span className="status-dot status-challenging inline-block mr-2" />
                     {item}
                   </p>
                 ))}
@@ -336,6 +336,9 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
                 {data.dasha.daysRemaining} days left
               </span>
             </div>
+            <div className="dasha-progress mt-2 mb-3">
+              <div className="dasha-progress-fill" style={{ width: '65%' }} />
+            </div>
             <p className="text-xs text-[#8A8F9E] leading-relaxed">{data.dasha.howItAffectsToday}</p>
           </div>
 
@@ -343,15 +346,32 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
           <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
             <h3 className="text-xs font-semibold text-[#8A8F9E] uppercase tracking-wider mb-3">Lucky Elements</h3>
             <div className="grid grid-cols-2 gap-3">
-              <div className="flex items-center gap-2.5">
+              <div className="lucky-badge flex items-center gap-2.5">
                 <Star className="w-4 h-4 text-[#D4A054]" />
                 <div>
                   <p className="text-[10px] text-[#5A6478]">Lucky Number</p>
                   <p className="text-sm font-medium text-[#F1F0F5]">{data.lucky.number}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2.5">
-                <Sun className="w-4 h-4 text-[#D4A054]" />
+              <div className="lucky-badge flex items-center gap-2.5">
+                <div
+                  className="w-4 h-4 rounded-full flex-shrink-0 border border-white/20"
+                  style={{
+                    backgroundColor: data.lucky.color.toLowerCase() === 'gold'
+                      ? '#FFD700'
+                      : data.lucky.color.toLowerCase() === 'white'
+                      ? '#FFFFFF'
+                      : data.lucky.color.toLowerCase() === 'red'
+                      ? '#EF4444'
+                      : data.lucky.color.toLowerCase() === 'blue'
+                      ? '#3B82F6'
+                      : data.lucky.color.toLowerCase() === 'green'
+                      ? '#10B981'
+                      : data.lucky.color.toLowerCase() === 'yellow'
+                      ? '#FBBF24'
+                      : '#D4A054'
+                  }}
+                />
                 <div>
                   <p className="text-[10px] text-[#5A6478]">Lucky Color</p>
                   <p className="text-sm font-medium text-[#F1F0F5]">{data.lucky.color}</p>
@@ -384,9 +404,9 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
                 { label: "Vara", value: data.panchang.vara },
                 { label: "Nakshatra", value: data.panchang.nakshatra },
               ].map((item) => (
-                <div key={item.label} className="bg-white/[0.02] rounded-lg px-3 py-2">
-                  <p className="text-[10px] text-[#5A6478]">{item.label}</p>
-                  <p className="text-xs font-medium text-[#F1F0F5]">{item.value}</p>
+                <div key={item.label} className="panchang-item bg-white/[0.02] rounded-lg px-3 py-2">
+                  <p className="panchang-label text-[10px] text-[#5A6478]">{item.label}</p>
+                  <p className="panchang-value text-xs font-medium text-[#F1F0F5]">{item.value}</p>
                 </div>
               ))}
             </div>
