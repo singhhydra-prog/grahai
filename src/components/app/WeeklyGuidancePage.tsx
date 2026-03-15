@@ -164,7 +164,7 @@ export default function WeeklyGuidancePage({ onBack }: WeeklyGuidancePageProps) 
           </button>
           <div>
             <h1 className="text-lg font-bold text-[#F1F0F5]">Weekly Guidance</h1>
-            <p className="text-xs text-[#5A6478]">{data?.weekRange || "Loading..."}</p>
+            <p className="text-xs text-[#8892A3]">{data?.weekRange || "Loading..."}</p>
           </div>
         </div>
       </div>
@@ -172,7 +172,7 @@ export default function WeeklyGuidancePage({ onBack }: WeeklyGuidancePageProps) 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20">
           <Calendar className="w-10 h-10 text-[#D4A054] animate-pulse mb-3" />
-          <p className="text-xs text-[#8A8F9E]">Preparing your weekly forecast...</p>
+          <p className="text-xs text-[#A0A5B2]">Preparing your weekly forecast...</p>
         </div>
       ) : data ? (
         <div className="max-w-lg mx-auto px-4 py-5 space-y-5 pb-12">
@@ -184,12 +184,12 @@ export default function WeeklyGuidancePage({ onBack }: WeeklyGuidancePageProps) 
               <span className="text-[10px] text-[#D4A054] font-semibold uppercase tracking-wider">This Week</span>
             </div>
             <h2 className="text-xl font-bold text-[#F1F0F5] mb-2">{data.overallTheme}</h2>
-            <p className="text-sm text-[#8A8F9E] leading-relaxed">{data.themeDescription}</p>
+            <p className="text-sm text-[#A0A5B2] leading-relaxed">{data.themeDescription}</p>
           </div>
 
           {/* 2. Day-by-Day Energy */}
           <div>
-            <h3 className="text-sm font-semibold text-[#8A8F9E] uppercase tracking-wider px-1 mb-3">Day-by-Day Energy</h3>
+            <h3 className="text-sm font-semibold text-[#A0A5B2] uppercase tracking-wider px-1 mb-3">Day-by-Day Energy</h3>
             <div className="space-y-2">
               {data.days.map((day) => {
                 const energy = ENERGY_CONFIG[day.energy]
@@ -212,7 +212,7 @@ export default function WeeklyGuidancePage({ onBack }: WeeklyGuidancePageProps) 
                           {energy.label}
                         </span>
                       </div>
-                      <ChevronRight className={`w-3.5 h-3.5 text-[#5A6478] transition-transform ${isSelected ? "rotate-90" : ""}`} />
+                      <ChevronRight className={`w-3.5 h-3.5 text-[#8892A3] transition-transform ${isSelected ? "rotate-90" : ""}`} />
                     </div>
                     {isSelected && (
                       <motion.div
@@ -222,11 +222,11 @@ export default function WeeklyGuidancePage({ onBack }: WeeklyGuidancePageProps) 
                       >
                         <div className="flex items-start gap-2">
                           <CheckCircle className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
-                          <p className="text-xs text-[#8A8F9E]"><span className="text-emerald-400 font-medium">Best for:</span> {day.bestFor}</p>
+                          <p className="text-xs text-[#A0A5B2]"><span className="text-emerald-400 font-medium">Best for:</span> {day.bestFor}</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <AlertTriangle className="w-3.5 h-3.5 text-rose-400 mt-0.5 flex-shrink-0" />
-                          <p className="text-xs text-[#8A8F9E]"><span className="text-rose-400 font-medium">Avoid:</span> {day.avoid}</p>
+                          <p className="text-xs text-[#A0A5B2]"><span className="text-rose-400 font-medium">Avoid:</span> {day.avoid}</p>
                         </div>
                       </motion.div>
                     )}
@@ -238,7 +238,7 @@ export default function WeeklyGuidancePage({ onBack }: WeeklyGuidancePageProps) 
 
           {/* 3. Life Area Sections */}
           <div>
-            <h3 className="text-sm font-semibold text-[#8A8F9E] uppercase tracking-wider px-1 mb-3">Life Area Forecast</h3>
+            <h3 className="text-sm font-semibold text-[#A0A5B2] uppercase tracking-wider px-1 mb-3">Life Area Forecast</h3>
             <div className="space-y-3">
               {data.sections.map((section) => {
                 const SectionIcon = section.icon
@@ -255,7 +255,7 @@ export default function WeeklyGuidancePage({ onBack }: WeeklyGuidancePageProps) 
                       </div>
                       <TrendIcon className={`w-4 h-4 ${trendColor}`} />
                     </div>
-                    <p className="text-xs text-[#8A8F9E] leading-relaxed">{section.summary}</p>
+                    <p className="text-xs text-[#A0A5B2] leading-relaxed">{section.summary}</p>
                     <div className="flex items-center gap-4 text-[10px]">
                       <span className="text-emerald-400">
                         <Star className="w-3 h-3 inline mr-0.5" />Best: {section.bestDay}
@@ -272,7 +272,7 @@ export default function WeeklyGuidancePage({ onBack }: WeeklyGuidancePageProps) 
 
           {/* 4. Key Dates */}
           <div>
-            <h3 className="text-sm font-semibold text-[#8A8F9E] uppercase tracking-wider px-1 mb-3">Key Dates</h3>
+            <h3 className="text-sm font-semibold text-[#A0A5B2] uppercase tracking-wider px-1 mb-3">Key Dates</h3>
             <div className="timeline-track space-y-2">
               {data.keyDates.map((kd, i) => (
                 <div key={i} className={`timeline-node ${i === 0 ? 'active' : ''} flex gap-3 rounded-xl border border-[#D4A054]/10 bg-[#D4A054]/[0.03] p-3`}>
@@ -284,7 +284,7 @@ export default function WeeklyGuidancePage({ onBack }: WeeklyGuidancePageProps) 
                       <span className="text-xs font-bold text-[#D4A054]">{kd.date}</span>
                       <span className="text-xs text-[#F1F0F5] font-medium">{kd.event}</span>
                     </div>
-                    <p className="text-xs text-[#8A8F9E] leading-relaxed">{kd.significance}</p>
+                    <p className="text-xs text-[#A0A5B2] leading-relaxed">{kd.significance}</p>
                   </div>
                 </div>
               ))}

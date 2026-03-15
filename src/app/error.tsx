@@ -31,7 +31,7 @@ export default function Error({
         Cosmic Disturbance
       </h1>
 
-      <p className="max-w-md mb-8" style={{ color: "#94A3B8" }}>
+      <p className="max-w-md mb-8" style={{ color: "#ACB8C4" }}>
         The celestial alignment encountered an unexpected shift.
         This is temporary — the stars will realign shortly.
       </p>

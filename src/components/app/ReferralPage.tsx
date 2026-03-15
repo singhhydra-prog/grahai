@@ -94,7 +94,7 @@ export default function ReferralPage({ isOpen, onClose }: ReferralPageProps) {
       <div className="flex items-center justify-between px-5 pt-4 pb-2">
         <button onClick={onClose}
           className="w-10 h-10 rounded-full bg-[#1E2638] border border-[#1E293B] flex items-center justify-center">
-          <X className="w-4 h-4 text-[#5A6478]" />
+          <X className="w-4 h-4 text-[#8892A3]" />
         </button>
         <h1 className="text-base font-semibold text-[#F1F0F5]">{t.referral.title || "Refer & Earn"}</h1>
         <div className="w-10" />
@@ -109,19 +109,19 @@ export default function ReferralPage({ isOpen, onClose }: ReferralPageProps) {
           <h2 className="text-xl font-bold text-[#F1F0F5] mb-1">
             {t.referral.invite || "Share GrahAI"}{userName ? `, ${userName}` : ""}
           </h2>
-          <p className="text-sm text-[#94A3B8]">
+          <p className="text-sm text-[#ACB8C4]">
             {t.referral.subtitle || "Earn free questions, reports, and premium access for every friend who joins"}
           </p>
         </div>
 
         {/* Referral Code Card */}
         <div className="bg-[#111827] border border-[#D4A054]/20 rounded-2xl p-5 mb-5">
-          <p className="text-xs text-[#5A6478] mb-2 text-center">{t.referral.yourCode || "Your referral code"}</p>
+          <p className="text-xs text-[#8892A3] mb-2 text-center">{t.referral.yourCode || "Your referral code"}</p>
           <div className="flex items-center justify-center gap-3 mb-4">
             <span className="text-2xl font-bold tracking-wider text-[#D4A054]">{referralCode}</span>
             <button onClick={handleCopy}
               className="w-9 h-9 rounded-lg bg-[#1E2638] border border-[#1E293B] flex items-center justify-center">
-              {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-[#5A6478]" />}
+              {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-[#8892A3]" />}
             </button>
           </div>
           <button onClick={handleShare}
@@ -134,14 +134,14 @@ export default function ReferralPage({ isOpen, onClose }: ReferralPageProps) {
         {/* Stats */}
         <div className="grid grid-cols-2 gap-3 mb-5">
           <div className="bg-[#111827] border border-[#1E293B] rounded-xl p-4 text-center">
-            <Users className="w-5 h-5 text-[#5A6478] mx-auto mb-1" />
+            <Users className="w-5 h-5 text-[#8892A3] mx-auto mb-1" />
             <p className="text-xl font-bold text-[#F1F0F5]">{referralCount}</p>
-            <p className="text-[10px] text-[#5A6478]">{t.referral.friendsJoined || "Friends joined"}</p>
+            <p className="text-[10px] text-[#8892A3]">{t.referral.friendsJoined || "Friends joined"}</p>
           </div>
           <div className="bg-[#111827] border border-[#1E293B] rounded-xl p-4 text-center">
             <Gift className="w-5 h-5 text-[#D4A054] mx-auto mb-1" />
             <p className="text-xl font-bold text-[#F1F0F5]">0</p>
-            <p className="text-[10px] text-[#5A6478]">{t.referral.rewardsEarned || "Rewards earned"}</p>
+            <p className="text-[10px] text-[#8892A3]">{t.referral.rewardsEarned || "Rewards earned"}</p>
           </div>
         </div>
 
@@ -155,16 +155,16 @@ export default function ReferralPage({ isOpen, onClose }: ReferralPageProps) {
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
                   referralCount >= r.milestone ? "bg-[#D4A054]/15" : "bg-[#1E2638]"
                 }`}>
-                  <r.icon className={`w-4 h-4 ${referralCount >= r.milestone ? "text-[#D4A054]" : "text-[#5A6478]"}`} />
+                  <r.icon className={`w-4 h-4 ${referralCount >= r.milestone ? "text-[#D4A054]" : "text-[#8892A3]"}`} />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm text-[#F1F0F5] font-medium">{r.reward}</p>
-                  <p className="text-[10px] text-[#5A6478]">{t.referral.invite || "Invite"} {r.milestone} {r.milestone > 1 ? (t.referral.friends || "friends") : (t.referral.friend || "friend")}</p>
+                  <p className="text-[10px] text-[#8892A3]">{t.referral.invite || "Invite"} {r.milestone} {r.milestone > 1 ? (t.referral.friends || "friends") : (t.referral.friend || "friend")}</p>
                 </div>
                 {referralCount >= r.milestone ? (
                   <Check className="w-4 h-4 text-emerald-400" />
                 ) : (
-                  <span className="text-xs text-[#5A6478]">{r.milestone - referralCount} more</span>
+                  <span className="text-xs text-[#8892A3]">{r.milestone - referralCount} more</span>
                 )}
               </div>
             ))}
@@ -180,7 +180,7 @@ export default function ReferralPage({ isOpen, onClose }: ReferralPageProps) {
                 <div className="w-6 h-6 rounded-full bg-[#D4A054]/10 flex items-center justify-center shrink-0">
                   <span className="text-xs font-bold text-[#D4A054]">{s.step}</span>
                 </div>
-                <p className="text-xs text-[#94A3B8] leading-relaxed">{s.text}</p>
+                <p className="text-xs text-[#ACB8C4] leading-relaxed">{s.text}</p>
               </div>
             ))}
           </div>

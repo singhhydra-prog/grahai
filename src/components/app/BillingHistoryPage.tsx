@@ -56,7 +56,7 @@ export default function BillingHistoryPage({ onBack }: BillingHistoryPageProps) 
           </button>
           <div>
             <h1 className="text-lg font-bold text-[#F1F0F5]">Billing & Invoices</h1>
-            <p className="text-xs text-[#5A6478]">Your payment history</p>
+            <p className="text-xs text-[#8892A3]">Your payment history</p>
           </div>
         </div>
       </div>
@@ -72,7 +72,7 @@ export default function BillingHistoryPage({ onBack }: BillingHistoryPageProps) 
               </div>
               <div>
                 <p className="text-sm font-semibold text-[#F1F0F5]">Graha Plan</p>
-                <p className="text-xs text-[#8A8F9E]">₹199/month — Renews April 10</p>
+                <p className="text-xs text-[#A0A5B2]">₹199/month — Renews April 10</p>
               </div>
             </div>
             <button className="text-xs text-[#D4A054] font-medium hover:underline">Manage</button>
@@ -82,11 +82,11 @@ export default function BillingHistoryPage({ onBack }: BillingHistoryPageProps) 
         {/* Summary */}
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4 text-center">
-            <p className="text-xs text-[#5A6478] mb-1">Total Spent</p>
+            <p className="text-xs text-[#8892A3] mb-1">Total Spent</p>
             <p className="text-lg font-bold text-[#F1F0F5]">₹{totalSpent}</p>
           </div>
           <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4 text-center">
-            <p className="text-xs text-[#5A6478] mb-1">Transactions</p>
+            <p className="text-xs text-[#8892A3] mb-1">Transactions</p>
             <p className="text-lg font-bold text-[#F1F0F5]">{MOCK_TRANSACTIONS.length}</p>
           </div>
         </div>
@@ -104,7 +104,7 @@ export default function BillingHistoryPage({ onBack }: BillingHistoryPageProps) 
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
                 filter === f.id
                   ? "border-[#D4A054]/30 bg-[#D4A054]/10 text-[#D4A054]"
-                  : "border-white/5 bg-white/[0.02] text-[#8A8F9E]"
+                  : "border-white/5 bg-white/[0.02] text-[#A0A5B2]"
               }`}
             >
               {f.label}
@@ -116,8 +116,8 @@ export default function BillingHistoryPage({ onBack }: BillingHistoryPageProps) 
         <div className="space-y-2">
           {filtered.length === 0 ? (
             <div className="text-center py-12">
-              <CreditCard className="w-10 h-10 text-[#5A6478]/30 mx-auto mb-3" />
-              <p className="text-sm text-[#5A6478]">No transactions found</p>
+              <CreditCard className="w-10 h-10 text-[#8892A3]/30 mx-auto mb-3" />
+              <p className="text-sm text-[#8892A3]">No transactions found</p>
             </div>
           ) : (
             filtered.map((txn) => {
@@ -133,7 +133,7 @@ export default function BillingHistoryPage({ onBack }: BillingHistoryPageProps) 
                       <div>
                         <p className="text-sm font-medium text-[#F1F0F5]">{txn.description}</p>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-[10px] text-[#5A6478]">
+                          <span className="text-[10px] text-[#8892A3]">
                             <Calendar className="w-3 h-3 inline mr-0.5" />
                             {new Date(txn.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                           </span>
@@ -165,8 +165,8 @@ export default function BillingHistoryPage({ onBack }: BillingHistoryPageProps) 
           onClick={() => window.open("/refund-policy", "_blank")}
           className="w-full flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3"
         >
-          <span className="text-xs text-[#8A8F9E]">View Cancellation & Refund Policy</span>
-          <ChevronRight className="w-3.5 h-3.5 text-[#5A6478]" />
+          <span className="text-xs text-[#A0A5B2]">View Cancellation & Refund Policy</span>
+          <ChevronRight className="w-3.5 h-3.5 text-[#8892A3]" />
         </button>
       </div>
     </div>

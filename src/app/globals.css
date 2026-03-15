@@ -21,11 +21,11 @@
   --color-amber: #F59E0B;
   --color-teal: #2DD4BF;
   --color-teal-soft: #2DD4BF33;
-  --color-sage: #94A3B8;
+  --color-sage: #ACB8C4;
 
   --color-text: #F1F0F5;
-  --color-text-secondary: #94A3B8;
-  --color-text-dim: #5A6478;
+  --color-text-secondary: #ACB8C4;
+  --color-text-dim: #8892A3;
   --color-text-accent: #D4A054;
 
   --color-border: #1E293B;
@@ -1622,7 +1622,7 @@ body {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #5A6478;
+  color: #8892A3;
   margin-bottom: 4px;
 }
 .panchang-value {

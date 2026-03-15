@@ -214,7 +214,7 @@ export default function KundliChart({
                   y={pos.y - (housePlanets.length > 0 ? 12 : 4)}
                   textAnchor="middle"
                   className="select-none"
-                  fill={isAscendant ? "#D4A054" : "#5A6478"}
+                  fill={isAscendant ? "#D4A054" : "#8892A3"}
                   fontSize={isAscendant ? "11" : "9"}
                   fontWeight={isAscendant ? "700" : "500"}
                   fontFamily="Inter, sans-serif"
@@ -251,7 +251,7 @@ export default function KundliChart({
                 x={pos.x}
                 y={pos.y + (housePlanets.length > 0 ? 22 : 12)}
                 textAnchor="middle"
-                fill="#5A6478"
+                fill="#8892A3"
                 fontSize="7"
                 fontFamily="Inter, sans-serif"
                 opacity="0.5"
@@ -282,7 +282,7 @@ export default function KundliChart({
           <p className="text-xs text-[#D4A054] font-medium">
             House {hoveredHouse} — {getSignForHouse(hoveredHouse).symbol} {SIGN_NAMES[getSignForHouse(hoveredHouse).index]}
           </p>
-          <p className="text-[10px] text-[#5A6478]">
+          <p className="text-[10px] text-[#8892A3]">
             {getPlanetsInHouse(hoveredHouse).length > 0
               ? getPlanetsInHouse(hoveredHouse).map((p) => p.name).join(", ")
               : "No planets"}

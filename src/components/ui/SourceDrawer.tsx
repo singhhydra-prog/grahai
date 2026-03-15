@@ -54,7 +54,7 @@ export default function SourceDrawer({ isOpen, onClose, source, context }: Sourc
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-[#F1F0F5]">{t.source.whyGrahaiSays || "Why GrahAI says this"}</h3>
-                  <p className="text-[10px] text-[#5A6478]">{t.source.sourceBackedReasoning || "Source-backed reasoning"}</p>
+                  <p className="text-[10px] text-[#8892A3]">{t.source.sourceBackedReasoning || "Source-backed reasoning"}</p>
                 </div>
               </div>
               <button
@@ -62,7 +62,7 @@ export default function SourceDrawer({ isOpen, onClose, source, context }: Sourc
                 className="w-8 h-8 rounded-full bg-[#1E2638] border border-[#1E293B]
                   flex items-center justify-center"
               >
-                <X className="w-4 h-4 text-[#5A6478]" />
+                <X className="w-4 h-4 text-[#8892A3]" />
               </button>
             </div>
 
@@ -79,10 +79,10 @@ export default function SourceDrawer({ isOpen, onClose, source, context }: Sourc
 
               {/* Explanation */}
               <div className="bg-[#111827] border border-[#1E293B] rounded-xl p-4">
-                <p className="text-[10px] font-medium text-[#94A3B8] uppercase tracking-wider mb-2">
+                <p className="text-[10px] font-medium text-[#ACB8C4] uppercase tracking-wider mb-2">
                   {t.source.explanation || "Explanation"}
                 </p>
-                <p className="text-sm text-[#94A3B8] leading-relaxed">
+                <p className="text-sm text-[#ACB8C4] leading-relaxed">
                   {source.text}
                 </p>
               </div>
@@ -91,7 +91,7 @@ export default function SourceDrawer({ isOpen, onClose, source, context }: Sourc
               <div className="flex items-start gap-3 bg-[#0A0E1A] border border-[#1E293B] rounded-xl p-4">
                 <Quote className="w-4 h-4 text-[#D4A054]/50 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs text-[#5A6478] italic leading-relaxed">
+                  <p className="text-xs text-[#8892A3] italic leading-relaxed">
                     {source.reference}
                   </p>
                 </div>
@@ -100,14 +100,14 @@ export default function SourceDrawer({ isOpen, onClose, source, context }: Sourc
               {/* Context (what the user saw) */}
               {context && (
                 <div className="pt-2 border-t border-[#1E293B]">
-                  <p className="text-[10px] text-[#5A6478] mb-1">{t.source.shownBecause || "This was shown because:"}</p>
-                  <p className="text-xs text-[#94A3B8]">{context}</p>
+                  <p className="text-[10px] text-[#8892A3] mb-1">{t.source.shownBecause || "This was shown because:"}</p>
+                  <p className="text-xs text-[#ACB8C4]">{context}</p>
                 </div>
               )}
 
               {/* Trust footer */}
               <div className="text-center pt-2">
-                <p className="text-[10px] text-[#5A6478]">
+                <p className="text-[10px] text-[#8892A3]">
                   {t.source.groundsInsight || "GrahAI grounds every insight in classical Jyotish tradition"}
                 </p>
               </div>

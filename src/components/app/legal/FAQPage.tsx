@@ -136,7 +136,7 @@ export default function FAQPage({ onBack }: FAQPageProps) {
           </button>
           <div>
             <h1 className="text-lg font-bold text-[#F1F0F5]">FAQ</h1>
-            <p className="text-xs text-[#5A6478]">Frequently Asked Questions</p>
+            <p className="text-xs text-[#8892A3]">Frequently Asked Questions</p>
           </div>
         </div>
       </div>
@@ -173,14 +173,14 @@ export default function FAQPage({ onBack }: FAQPageProps) {
                       >
                         <span className="text-sm font-medium text-[#F1F0F5] pr-4">{item.question}</span>
                         <ChevronDown
-                          className={`w-4 h-4 text-[#5A6478] flex-shrink-0 transition-transform duration-200 ${
+                          className={`w-4 h-4 text-[#8892A3] flex-shrink-0 transition-transform duration-200 ${
                             isOpen ? "rotate-180" : ""
                           }`}
                         />
                       </button>
                       {isOpen && (
                         <div className="px-4 pb-4">
-                          <p className="text-sm text-[#8A8F9E] leading-relaxed">{item.answer}</p>
+                          <p className="text-sm text-[#A0A5B2] leading-relaxed">{item.answer}</p>
                         </div>
                       )}
                     </div>
@@ -195,7 +195,7 @@ export default function FAQPage({ onBack }: FAQPageProps) {
         <div className="rounded-2xl border border-[#D4A054]/20 bg-[#D4A054]/5 p-5 text-center">
           <HelpCircle className="w-8 h-8 text-[#D4A054] mx-auto mb-2" />
           <p className="text-sm font-semibold text-[#F1F0F5] mb-1">Still have questions?</p>
-          <p className="text-xs text-[#8A8F9E] mb-3">
+          <p className="text-xs text-[#A0A5B2] mb-3">
             Our support team is here to help.
           </p>
           <button

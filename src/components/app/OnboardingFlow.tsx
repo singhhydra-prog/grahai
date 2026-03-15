@@ -312,7 +312,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           className="absolute top-12 left-4 z-10 w-10 h-10 rounded-full bg-[#1E2638]
             border border-[#1E293B] flex items-center justify-center"
         >
-          <ArrowLeft className="w-4 h-4 text-[#5A6478]" />
+          <ArrowLeft className="w-4 h-4 text-[#8892A3]" />
         </button>
       )}
 
@@ -339,7 +339,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 <h2 className="text-2xl font-bold text-[#F1F0F5] mb-2">
                   {t.langPicker.title}
                 </h2>
-                <p className="text-sm text-[#5A6478]">
+                <p className="text-sm text-[#8892A3]">
                   {t.langPicker.subtitle}
                 </p>
               </div>
@@ -365,7 +365,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                       {langMeta.label}
                     </p>
                     <p className={`text-xs ${
-                      lang === langMeta.code ? "text-[#D4A054]/80" : "text-[#5A6478]"
+                      lang === langMeta.code ? "text-[#D4A054]/80" : "text-[#8892A3]"
                     }`}>
                       {langMeta.labelEn}
                     </p>
@@ -440,7 +440,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 <h1 className="text-2xl font-bold text-[#F1F0F5] mb-2 tracking-tight">
                   {t.onboarding.welcomeSubtitle}
                 </h1>
-                <p className="text-sm text-[#94A3B8] leading-relaxed mb-6">
+                <p className="text-sm text-[#ACB8C4] leading-relaxed mb-6">
                   {t.onboarding.welcomeDesc}
                 </p>
               </div>
@@ -460,7 +460,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     </div>
                     <div>
                       <h3 className="text-sm font-semibold text-[#F1F0F5] mb-0.5">{title}</h3>
-                      <p className="text-xs text-[#5A6478] leading-relaxed">{desc}</p>
+                      <p className="text-xs text-[#8892A3] leading-relaxed">{desc}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -479,7 +479,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 <h2 className="text-2xl font-bold text-[#F1F0F5] mb-2">
                   {t.onboarding.intentTitle}
                 </h2>
-                <p className="text-sm text-[#5A6478]">
+                <p className="text-sm text-[#8892A3]">
                   {t.onboarding.intentSubtitle}
                 </p>
               </div>
@@ -498,10 +498,10 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   >
                     <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${color}
                       flex items-center justify-center shrink-0`}>
-                      <Icon className={`w-5 h-5 ${intent === id ? "text-[#D4A054]" : "text-[#94A3B8]"}`} />
+                      <Icon className={`w-5 h-5 ${intent === id ? "text-[#D4A054]" : "text-[#ACB8C4]"}`} />
                     </div>
                     <span className={`text-sm font-medium ${
-                      intent === id ? "text-[#D4A054]" : "text-[#94A3B8]"
+                      intent === id ? "text-[#D4A054]" : "text-[#ACB8C4]"
                     }`}>{label}</span>
                     {intent === id && (
                       <div className="ml-auto w-5 h-5 rounded-full bg-[#D4A054] flex items-center justify-center">
@@ -523,20 +523,20 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             >
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-[#F1F0F5] mb-2">{t.onboarding.birthTitle}</h2>
-                <p className="text-sm text-[#5A6478]">{t.onboarding.birthSubtitle}</p>
+                <p className="text-sm text-[#8892A3]">{t.onboarding.birthSubtitle}</p>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-xs font-medium text-[#94A3B8] mb-1.5 block">{t.onboarding.fullName}</label>
+                  <label className="text-xs font-medium text-[#ACB8C4] mb-1.5 block">{t.onboarding.fullName}</label>
                   <input type="text" value={form.name} onChange={(e) => updateField("name", e.target.value)}
                     placeholder={t.onboarding.fullNamePlaceholder} autoFocus
                     className="w-full bg-[#0D1220] border border-[#1E293B] rounded-xl px-4 py-3.5
-                      text-[#F1F0F5] text-sm placeholder:text-[#5A6478]/50
+                      text-[#F1F0F5] text-sm placeholder:text-[#8892A3]/50
                       input-focus-glow focus:border-[#D4A054]/40 focus:outline-none transition-colors" />
                 </div>
                 <div>
-                  <label className="flex items-center gap-2 text-xs font-medium text-[#94A3B8] mb-1.5">
+                  <label className="flex items-center gap-2 text-xs font-medium text-[#ACB8C4] mb-1.5">
                     <Calendar className="w-3.5 h-3.5" />{t.onboarding.dateOfBirth}
                   </label>
                   <input type="date" value={form.dateOfBirth} onChange={(e) => updateField("dateOfBirth", e.target.value)}
@@ -544,7 +544,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                       text-[#F1F0F5] text-sm input-focus-glow focus:border-[#D4A054]/40 focus:outline-none transition-colors [color-scheme:dark]" />
                 </div>
                 <div>
-                  <label className="flex items-center gap-2 text-xs font-medium text-[#94A3B8] mb-1.5">
+                  <label className="flex items-center gap-2 text-xs font-medium text-[#ACB8C4] mb-1.5">
                     <Clock className="w-3.5 h-3.5" />{t.onboarding.timeOfBirth}
                   </label>
                   <input type="time" value={form.timeOfBirth} onChange={(e) => updateField("timeOfBirth", e.target.value)}
@@ -555,11 +555,11 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   <label className="flex items-center gap-2 mt-2 cursor-pointer">
                     <input type="checkbox" checked={timeUnknown} onChange={(e) => setTimeUnknown(e.target.checked)}
                       className="w-4 h-4 rounded border-[#1E293B] bg-[#0D1220] accent-[#D4A054]" />
-                    <span className="text-xs text-[#5A6478]">{t.onboarding.dontKnowTime}</span>
+                    <span className="text-xs text-[#8892A3]">{t.onboarding.dontKnowTime}</span>
                   </label>
                 </div>
                 <div>
-                  <label className="flex items-center gap-2 text-xs font-medium text-[#94A3B8] mb-1.5">
+                  <label className="flex items-center gap-2 text-xs font-medium text-[#ACB8C4] mb-1.5">
                     <MapPin className="w-3.5 h-3.5" />{t.onboarding.placeOfBirth}
                   </label>
                   <LocationSearch
@@ -593,7 +593,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   <Sparkles className="w-7 h-7 text-[#D4A054]" />
                 </motion.div>
                 <h2 className="text-2xl font-bold text-[#F1F0F5] mb-1">{t.onboarding.revealTitle}</h2>
-                <p className="text-xs text-[#5A6478]">{form.name.split(" ")[0]}&apos;s {t.onboarding.revealSubtitle}</p>
+                <p className="text-xs text-[#8892A3]">{form.name.split(" ")[0]}&apos;s {t.onboarding.revealSubtitle}</p>
               </div>
 
               {/* Key triad: Moon Sign, Nakshatra, Rising Sign */}
@@ -607,7 +607,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 + i * 0.1 }}
                     className="bg-[#111827] border border-[#1E293B] rounded-xl p-3 text-center">
-                    <p className="text-[10px] text-[#5A6478] mb-1">{item.label}</p>
+                    <p className="text-[10px] text-[#8892A3] mb-1">{item.label}</p>
                     <p className="text-sm font-semibold text-[#D4A054]">{item.value}</p>
                   </motion.div>
                 ))}
@@ -617,20 +617,20 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
                 className="bg-[#111827] border border-[#D4A054]/15 rounded-xl p-4 mb-4">
                 <p className="text-xs text-[#D4A054] font-medium mb-2">{snapshot.profile.dominantTheme || t.common.today}</p>
-                <p className="text-sm text-[#94A3B8] leading-relaxed">{snapshot.dominantLifeTheme}</p>
+                <p className="text-sm text-[#ACB8C4] leading-relaxed">{snapshot.dominantLifeTheme}</p>
               </motion.div>
 
               {/* Today insight */}
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}
                 className="bg-[#0D1220] border border-[#1E293B] rounded-xl p-4 mb-4">
-                <p className="text-xs text-[#5A6478] font-medium mb-2">{t.onboarding.todayLabel}</p>
-                <p className="text-sm text-[#94A3B8] leading-relaxed">{snapshot.todayInsight}</p>
+                <p className="text-xs text-[#8892A3] font-medium mb-2">{t.onboarding.todayLabel}</p>
+                <p className="text-sm text-[#ACB8C4] leading-relaxed">{snapshot.todayInsight}</p>
               </motion.div>
 
               {/* Teaser for next step */}
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
                 className="text-center">
-                <p className="text-[10px] text-[#5A6478]">{t.onboarding.readyToAsk}</p>
+                <p className="text-[10px] text-[#8892A3]">{t.onboarding.readyToAsk}</p>
               </motion.div>
             </motion.div>
           )}
@@ -646,7 +646,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 <h2 className="text-2xl font-bold text-[#F1F0F5] mb-2">
                   {t.onboarding.askFirstTitle}
                 </h2>
-                <p className="text-sm text-[#5A6478] leading-relaxed">
+                <p className="text-sm text-[#8892A3] leading-relaxed">
                   {t.onboarding.askFirstSubtitle}
                 </p>
               </div>
@@ -661,7 +661,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   onKeyDown={(e) => { if (e.key === "Enter" && firstQuestion.trim()) handleAskNow() }}
                   placeholder={t.onboarding.typePlaceholder}
                   className="w-full bg-[#0D1220] border border-[#1E293B] rounded-xl px-4 py-3.5 pr-12
-                    text-[#F1F0F5] text-sm placeholder:text-[#5A6478]/50
+                    text-[#F1F0F5] text-sm placeholder:text-[#8892A3]/50
                     focus:border-[#D4A054]/40 focus:outline-none transition-colors"
                 />
                 {firstQuestion.trim() && (
@@ -677,7 +677,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
               {/* Suggested questions based on intent */}
               <div className="space-y-2.5">
-                <p className="text-[10px] font-medium text-[#5A6478] uppercase tracking-wider">{t.onboarding.suggestionsLabel}</p>
+                <p className="text-[10px] font-medium text-[#8892A3] uppercase tracking-wider">{t.onboarding.suggestionsLabel}</p>
                 {suggestedQuestions.map((q, i) => (
                   <motion.button
                     key={q}
@@ -693,13 +693,13 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     }`}
                   >
                     <Sparkles className={`w-4 h-4 shrink-0 ${
-                      firstQuestion === q ? "text-[#D4A054]" : "text-[#5A6478]"
+                      firstQuestion === q ? "text-[#D4A054]" : "text-[#8892A3]"
                     }`} />
                     <span className={`text-sm leading-snug ${
-                      firstQuestion === q ? "text-[#D4A054]" : "text-[#94A3B8]"
+                      firstQuestion === q ? "text-[#D4A054]" : "text-[#ACB8C4]"
                     }`}>{q}</span>
                     <ChevronRight className={`w-4 h-4 ml-auto shrink-0 ${
-                      firstQuestion === q ? "text-[#D4A054]" : "text-[#5A6478]/40"
+                      firstQuestion === q ? "text-[#D4A054]" : "text-[#8892A3]/40"
                     }`} />
                   </motion.button>
                 ))}
@@ -721,7 +721,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             transition-all ${
             canProceed() && !isSubmitting
               ? "btn-primary"
-              : "bg-[#1E2638] text-[#5A6478] cursor-not-allowed"
+              : "bg-[#1E2638] text-[#8892A3] cursor-not-allowed"
           }`}
         >
           {isSubmitting ? (

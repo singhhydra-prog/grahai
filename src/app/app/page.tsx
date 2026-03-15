@@ -64,7 +64,7 @@ export default function AppPage() {
             flex items-center justify-center shadow-lg">
             <span className="text-[#0A0E1A] font-bold text-xl tracking-tight">G</span>
           </div>
-          <p className="app-loading-text text-[10px] text-[#5A6478] uppercase tracking-[0.12em] font-medium">
+          <p className="app-loading-text text-[10px] text-[#8892A3] uppercase tracking-[0.12em] font-medium">
             Reading your stars
           </p>
           <div className="app-loading-bar">

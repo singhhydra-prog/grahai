@@ -62,7 +62,7 @@ export default function ShareCard({ title, body, footer, onClose }: ShareCardPro
 
     // Tagline
     ctx.font = "14px Inter, sans-serif"
-    ctx.fillStyle = "#5A6478"
+    ctx.fillStyle = "#8892A3"
     ctx.fillText("Your Planets. Your Path.", 80, 170)
 
     // Title
@@ -84,7 +84,7 @@ export default function ShareCard({ title, body, footer, onClose }: ShareCardPro
 
     // Bottom branding
     ctx.font = "14px Inter, sans-serif"
-    ctx.fillStyle = "#5A6478"
+    ctx.fillStyle = "#8892A3"
     ctx.fillText("grahai-app.vercel.app", 80, h - 80)
 
     // Bottom gold line
@@ -144,7 +144,7 @@ export default function ShareCard({ title, body, footer, onClose }: ShareCardPro
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-[#F1F0F5]">Share Insight</h3>
           <button onClick={onClose} className="p-1 rounded-lg hover:bg-white/5">
-            <X className="w-4 h-4 text-[#5A6478]" />
+            <X className="w-4 h-4 text-[#8892A3]" />
           </button>
         </div>
 
@@ -152,7 +152,7 @@ export default function ShareCard({ title, body, footer, onClose }: ShareCardPro
         <div className="rounded-xl border border-[#D4A054]/20 bg-gradient-to-b from-[#D4A054]/[0.06] to-transparent p-4 mb-4">
           <p className="text-[10px] text-[#D4A054] font-semibold mb-1">GrahAI</p>
           <p className="text-sm font-bold text-[#F1F0F5] mb-2">{title}</p>
-          <p className="text-xs text-[#8A8F9E] leading-relaxed line-clamp-3">{body}</p>
+          <p className="text-xs text-[#A0A5B2] leading-relaxed line-clamp-3">{body}</p>
           {footer && <p className="text-[10px] text-[#D4A054] mt-2 italic">{footer}</p>}
         </div>
 
@@ -165,7 +165,7 @@ export default function ShareCard({ title, body, footer, onClose }: ShareCardPro
               hover:border-[#25D366]/30 hover:bg-[#25D366]/5 transition-all"
           >
             <WhatsAppIcon className="w-5 h-5 text-[#25D366]" />
-            <span className="text-[10px] text-[#8A8F9E]">WhatsApp</span>
+            <span className="text-[10px] text-[#A0A5B2]">WhatsApp</span>
           </button>
           <button
             onClick={handleShare}
@@ -174,7 +174,7 @@ export default function ShareCard({ title, body, footer, onClose }: ShareCardPro
               hover:border-[#E4405F]/30 hover:bg-[#E4405F]/5 transition-all"
           >
             <Instagram className="w-5 h-5 text-[#E4405F]" />
-            <span className="text-[10px] text-[#8A8F9E]">Instagram</span>
+            <span className="text-[10px] text-[#A0A5B2]">Instagram</span>
           </button>
           <button
             onClick={handleDownload}
@@ -182,7 +182,7 @@ export default function ShareCard({ title, body, footer, onClose }: ShareCardPro
               hover:border-[#D4A054]/30 hover:bg-[#D4A054]/5 transition-all"
           >
             <Download className="w-5 h-5 text-[#D4A054]" />
-            <span className="text-[10px] text-[#8A8F9E]">Save</span>
+            <span className="text-[10px] text-[#A0A5B2]">Save</span>
           </button>
         </div>
 

@@ -53,7 +53,7 @@ export default function AppHeader({ onProfileClick, subtitle }: AppHeaderProps) 
               {name ? `${t.home?.greeting || "Hello"}, ${name}` : "GrahAI"}
             </h1>
             {subtitle && (
-              <p className="text-[11px] text-[#5A6478] mt-0.5 text-visible">{subtitle}</p>
+              <p className="text-[11px] text-[#8892A3] mt-0.5 text-visible">{subtitle}</p>
             )}
           </div>
         </div>

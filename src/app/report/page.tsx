@@ -17,7 +17,7 @@ export default function ReportRoute() {
     <div className="page-enter">
       <Suspense fallback={
         <div className="min-h-dvh bg-[#0A0E1A] flex items-center justify-center">
-          <p className="text-xs text-[#5A6478]">Loading report...</p>
+          <p className="text-xs text-[#8892A3]">Loading report...</p>
         </div>
       }>
         <ReportContent />

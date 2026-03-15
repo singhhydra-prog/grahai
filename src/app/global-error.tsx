@@ -32,7 +32,7 @@ export default function GlobalError({
           <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>
             Cosmic Disturbance
           </h1>
-          <p style={{ color: "#94A3B8", maxWidth: 400, marginBottom: 32 }}>
+          <p style={{ color: "#ACB8C4", maxWidth: 400, marginBottom: 32 }}>
             Something unexpected happened. Please try refreshing the page.
           </p>
           <button

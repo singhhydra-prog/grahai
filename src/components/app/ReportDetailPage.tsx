@@ -164,7 +164,7 @@ export default function ReportDetailPage({ reportId, onBack }: ReportDetailPageP
           </button>
           <div className="flex-1">
             <h1 className="text-lg font-bold text-[#F1F0F5]">{report.title}</h1>
-            <p className="text-xs text-[#5A6478]">{report.subtitle}</p>
+            <p className="text-xs text-[#8892A3]">{report.subtitle}</p>
           </div>
           <span className="text-sm font-bold text-[#D4A054]">₹{report.price}</span>
         </div>
@@ -177,12 +177,12 @@ export default function ReportDetailPage({ reportId, onBack }: ReportDetailPageP
           <span className="text-4xl mb-3 block">{report.icon}</span>
           <h2 className="text-xl font-bold text-[#F1F0F5] mb-1">{report.title}</h2>
           <p className="text-sm text-[#D4A054] font-medium mb-3">{report.oneLineValue}</p>
-          <p className="text-xs text-[#8A8F9E] leading-relaxed">{report.description}</p>
+          <p className="text-xs text-[#A0A5B2] leading-relaxed">{report.description}</p>
         </div>
 
         {/* What's Inside */}
         <div>
-          <h3 className="text-sm font-semibold text-[#8A8F9E] uppercase tracking-wider px-1 mb-3">What&apos;s Inside</h3>
+          <h3 className="text-sm font-semibold text-[#A0A5B2] uppercase tracking-wider px-1 mb-3">What&apos;s Inside</h3>
           <div className="space-y-2">
             {report.sections.map((section, i) => {
               const isExpanded = expandedSection === i
@@ -195,9 +195,9 @@ export default function ReportDetailPage({ reportId, onBack }: ReportDetailPageP
                     <div className="flex items-center gap-2.5">
                       <span className="text-xs font-bold text-[#D4A054] w-5">{i + 1}</span>
                       <span className="text-sm font-medium text-[#F1F0F5]">{section.title}</span>
-                      {section.isLocked && <Lock className="w-3 h-3 text-[#5A6478]" />}
+                      {section.isLocked && <Lock className="w-3 h-3 text-[#8892A3]" />}
                     </div>
-                    <ChevronDown className={`w-4 h-4 text-[#5A6478] transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                    <ChevronDown className={`w-4 h-4 text-[#8892A3] transition-transform ${isExpanded ? "rotate-180" : ""}`} />
                   </button>
                   {isExpanded && (
                     <motion.div
@@ -205,7 +205,7 @@ export default function ReportDetailPage({ reportId, onBack }: ReportDetailPageP
                       animate={{ opacity: 1 }}
                       className="px-4 pb-4"
                     >
-                      <p className={`text-sm leading-relaxed ${section.isLocked ? "text-[#5A6478] blur-[2px] select-none" : "text-[#C5C1D6]"}`}>
+                      <p className={`text-sm leading-relaxed ${section.isLocked ? "text-[#8892A3] blur-[2px] select-none" : "text-[#C5C1D6]"}`}>
                         {section.preview}
                       </p>
                       {section.isLocked && (
@@ -232,7 +232,7 @@ export default function ReportDetailPage({ reportId, onBack }: ReportDetailPageP
             {report.whoIsItFor.map((item, i) => (
               <div key={i} className="flex items-start gap-2.5">
                 <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-[#8A8F9E] leading-relaxed">{item}</p>
+                <p className="text-xs text-[#A0A5B2] leading-relaxed">{item}</p>
               </div>
             ))}
           </div>
@@ -253,13 +253,13 @@ export default function ReportDetailPage({ reportId, onBack }: ReportDetailPageP
             <Clock className="w-4 h-4 text-[#D4A054]" />
             <h3 className="text-sm font-semibold text-[#F1F0F5]">Why This Matters Now</h3>
           </div>
-          <p className="text-xs text-[#8A8F9E] leading-relaxed">{report.whyNow}</p>
+          <p className="text-xs text-[#A0A5B2] leading-relaxed">{report.whyNow}</p>
         </div>
 
         {/* Trust badge */}
         <div className="flex items-center gap-3 rounded-xl bg-white/[0.02] border border-white/5 p-3">
           <ShieldCheck className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-          <p className="text-[10px] text-[#8A8F9E] leading-relaxed">
+          <p className="text-[10px] text-[#A0A5B2] leading-relaxed">
             Generated uniquely for your birth chart. Based on classical Jyotish principles (BPHS). 24-hour refund policy.
           </p>
         </div>
@@ -270,7 +270,7 @@ export default function ReportDetailPage({ reportId, onBack }: ReportDetailPageP
         <div className="max-w-lg mx-auto flex items-center justify-between px-4 py-3">
           <div>
             <p className="text-lg font-bold text-[#F1F0F5]">₹{report.price}</p>
-            <p className="text-[10px] text-[#5A6478]">One-time purchase</p>
+            <p className="text-[10px] text-[#8892A3]">One-time purchase</p>
           </div>
           <button className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm
             bg-gradient-to-r from-[#D4A054] to-[#B8863A] text-[#0A0E1A]

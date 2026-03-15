@@ -343,7 +343,7 @@ export default function LocationSearch({ value, onChange, placeholder = "Search 
   return (
     <div ref={wrapperRef} className="relative">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5A6478]" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8892A3]" />
         <input
           ref={inputRef}
           type="text"
@@ -360,7 +360,7 @@ export default function LocationSearch({ value, onChange, placeholder = "Search 
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           className="w-full bg-[#0D1220] border border-[#1E293B] rounded-xl pl-10 pr-9 py-3
-            text-[#F1F0F5] text-sm placeholder:text-[#5A6478]/50
+            text-[#F1F0F5] text-sm placeholder:text-[#8892A3]/50
             focus:border-[#D4A054]/40 focus:outline-none transition-colors"
         />
         {query && (
@@ -373,7 +373,7 @@ export default function LocationSearch({ value, onChange, placeholder = "Search 
             className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full
               bg-[#1E293B] flex items-center justify-center hover:bg-[#2A3450] transition-colors"
           >
-            <X className="w-3 h-3 text-[#5A6478]" />
+            <X className="w-3 h-3 text-[#8892A3]" />
           </button>
         )}
       </div>
@@ -390,16 +390,16 @@ export default function LocationSearch({ value, onChange, placeholder = "Search 
                 ${i === highlighted ? "bg-[#D4A054]/10" : "hover:bg-white/[0.03]"}
                 ${i > 0 ? "border-t border-[#1E293B]/50" : ""}`}
             >
-              <MapPin className={`w-4 h-4 shrink-0 ${i === highlighted ? "text-[#D4A054]" : "text-[#5A6478]"}`} />
+              <MapPin className={`w-4 h-4 shrink-0 ${i === highlighted ? "text-[#D4A054]" : "text-[#8892A3]"}`} />
               <div className="min-w-0">
                 <p className={`text-sm font-medium truncate ${i === highlighted ? "text-[#D4A054]" : "text-[#F1F0F5]"}`}>
                   {city.name}
                 </p>
-                <p className="text-[11px] text-[#5A6478] truncate">
+                <p className="text-[11px] text-[#8892A3] truncate">
                   {city.state ? `${city.state}, ${city.country}` : city.country}
                 </p>
               </div>
-              <span className="ml-auto text-[10px] text-[#5A6478]/60 shrink-0">
+              <span className="ml-auto text-[10px] text-[#8892A3]/60 shrink-0">
                 {city.lat.toFixed(1)}°, {city.lng.toFixed(1)}°
               </span>
             </button>
@@ -411,7 +411,7 @@ export default function LocationSearch({ value, onChange, placeholder = "Search 
       {isOpen && query.length >= 2 && results.length === 0 && (
         <div className="absolute z-50 w-full mt-1.5 bg-[#111827] border border-[#1E293B]
           rounded-xl px-4 py-3 shadow-xl shadow-black/40">
-          <p className="text-xs text-[#5A6478] text-center">
+          <p className="text-xs text-[#8892A3] text-center">
             No match found. Type a city name manually.
           </p>
         </div>

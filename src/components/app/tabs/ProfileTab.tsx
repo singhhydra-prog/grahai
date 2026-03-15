@@ -186,7 +186,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
       <div className="flex items-center justify-between px-5 pt-4 pb-2">
         <h1 className="text-base font-semibold text-[#F1F0F5] text-3d">{t.profile.title}</h1>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] text-[#5A6478] bg-[#111827] border border-[#1E293B] rounded-full px-2.5 py-1">
+          <span className="text-[10px] text-[#8892A3] bg-[#111827] border border-[#1E293B] rounded-full px-2.5 py-1">
             {tierLabel}
           </span>
         </div>
@@ -201,7 +201,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
           </div>
           <div className="flex-1">
             <h2 className="text-base font-bold text-[#F1F0F5]">{name || "Guest"}</h2>
-            <div className="flex items-center gap-2 text-xs text-[#5A6478]">
+            <div className="flex items-center gap-2 text-xs text-[#8892A3]">
               {birthData?.dateOfBirth && (
                 <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{birthData.dateOfBirth}</span>
               )}
@@ -218,7 +218,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
             className="w-full flex items-center gap-3 glass-card px-4 py-3 press-scale">
             <Edit3 className="w-4 h-4 text-[#D4A054]" />
             <span className="text-sm text-[#F1F0F5] flex-1">{t.profile.editBirthDetails}</span>
-            <ChevronRight className="w-4 h-4 text-[#5A6478]" />
+            <ChevronRight className="w-4 h-4 text-[#8892A3]" />
           </button>
           <button onClick={() => setSubPage("change-language")}
             className="w-full flex items-center gap-3 glass-card px-4 py-3 press-scale">
@@ -226,7 +226,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
             <div className="flex-1 text-left">
               <span className="text-sm text-[#F1F0F5]">{t.profile.changeLanguage}</span>
             </div>
-            <ChevronRight className="w-4 h-4 text-[#5A6478]" />
+            <ChevronRight className="w-4 h-4 text-[#8892A3]" />
           </button>
         </div>
         <div className="section-divider" />
@@ -235,11 +235,11 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
         <div className="flex gap-2 mb-3 glass-inner rounded-2xl p-1">
           <button onClick={() => setAstroMode("vedic")}
             className={`flex-1 py-2 text-xs font-medium tab-pill ${
-              astroMode === "vedic" ? "tab-pill-active" : "text-[#5A6478]"
+              astroMode === "vedic" ? "tab-pill-active" : "text-[#8892A3]"
             }`}>{t.profile.vedic}</button>
           <button onClick={() => setAstroMode("western")}
             className={`flex-1 py-2 text-xs font-medium tab-pill ${
-              astroMode === "western" ? "tab-pill-active" : "text-[#5A6478]"
+              astroMode === "western" ? "tab-pill-active" : "text-[#8892A3]"
             }`}>{t.profile.western}</button>
         </div>
 
@@ -248,8 +248,8 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
           {signChips.map((chip) => (
             <div key={chip.type}
               className="flex items-center gap-1.5 glass-inner rounded-full px-3 py-1.5 zodiac-badge">
-              <chip.icon className="w-3 h-3 text-[#5A6478]" />
-              <span className="text-xs text-[#94A3B8]">{chip.label}</span>
+              <chip.icon className="w-3 h-3 text-[#8892A3]" />
+              <span className="text-xs text-[#ACB8C4]">{chip.label}</span>
             </div>
           ))}
         </div>
@@ -276,10 +276,10 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
           <div key={card.label}
             className="flex items-center justify-between glass-card px-4 py-3.5">
             <div className="flex items-center gap-3">
-              <card.icon className="w-4 h-4 text-[#5A6478]" />
+              <card.icon className="w-4 h-4 text-[#8892A3]" />
               <div>
                 <p className="text-sm font-semibold text-[#F1F0F5]">{card.count} {card.label}</p>
-                <p className="text-[10px] text-[#5A6478]">{t.profile.available}</p>
+                <p className="text-[10px] text-[#8892A3]">{t.profile.available}</p>
               </div>
             </div>
             <button onClick={onPricingClick}
@@ -294,25 +294,25 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
 
       {/* Help & Support */}
       <div className="mx-5 mb-5">
-        <p className="text-xs font-semibold text-[#5A6478] mb-2 uppercase tracking-wide px-1">{t.profile.helpSupport}</p>
+        <p className="text-xs font-semibold text-[#8892A3] mb-2 uppercase tracking-wide px-1">{t.profile.helpSupport}</p>
         <div className="glass-card overflow-hidden">
           <button onClick={() => window.open("/faq", "_blank")}
             className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/[0.02] transition-colors relative z-10 border-b border-white/[0.04] press-scale">
-            <HelpCircle className="w-4 h-4 text-[#5A6478]" />
+            <HelpCircle className="w-4 h-4 text-[#8892A3]" />
             <span className="text-sm text-[#F1F0F5] flex-1">FAQ</span>
-            <ExternalLink className="w-3.5 h-3.5 text-[#5A6478]" />
+            <ExternalLink className="w-3.5 h-3.5 text-[#8892A3]" />
           </button>
           <button onClick={() => window.open("/support", "_blank")}
             className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/[0.02] transition-colors relative z-10 border-b border-white/[0.04] press-scale">
-            <MessageCircle className="w-4 h-4 text-[#5A6478]" />
+            <MessageCircle className="w-4 h-4 text-[#8892A3]" />
             <span className="text-sm text-[#F1F0F5] flex-1">Contact Support</span>
-            <ExternalLink className="w-3.5 h-3.5 text-[#5A6478]" />
+            <ExternalLink className="w-3.5 h-3.5 text-[#8892A3]" />
           </button>
           <button onClick={() => setSubPage("help")}
             className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/[0.02] transition-colors relative z-10 press-scale">
-            <Star className="w-4 h-4 text-[#5A6478]" />
+            <Star className="w-4 h-4 text-[#8892A3]" />
             <span className="text-sm text-[#F1F0F5] flex-1">Quick Help</span>
-            <ChevronRight className="w-4 h-4 text-[#5A6478]" />
+            <ChevronRight className="w-4 h-4 text-[#8892A3]" />
           </button>
         </div>
       </div>
@@ -321,16 +321,16 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
 
       {/* Activity section */}
       <div className="mx-5 mb-5">
-        <p className="text-xs font-semibold text-[#5A6478] mb-2 uppercase tracking-wide px-1">{t.profile.activity}</p>
+        <p className="text-xs font-semibold text-[#8892A3] mb-2 uppercase tracking-wide px-1">{t.profile.activity}</p>
         <div className="glass-card overflow-hidden">
           {activityItems.map((item, i) => (
             <button key={item.label} onClick={item.action}
               className={`w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/[0.02] transition-colors relative z-10 press-scale ${
                 i < activityItems.length - 1 ? "border-b border-white/[0.04]" : ""
               }`}>
-              <item.icon className="w-4 h-4 text-[#5A6478]" />
+              <item.icon className="w-4 h-4 text-[#8892A3]" />
               <span className="text-sm text-[#F1F0F5] flex-1">{item.label}</span>
-              {item.external ? <ExternalLink className="w-3.5 h-3.5 text-[#5A6478]" /> : <ChevronRight className="w-4 h-4 text-[#5A6478]" />}
+              {item.external ? <ExternalLink className="w-3.5 h-3.5 text-[#8892A3]" /> : <ChevronRight className="w-4 h-4 text-[#8892A3]" />}
             </button>
           ))}
         </div>
@@ -344,7 +344,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
             <Crown className="w-5 h-5 text-[#D4A054]" />
             <div className="text-left flex-1">
               <p className="text-sm font-semibold text-[#D4A054]">{t.profile.upgradePremium}</p>
-              <p className="text-xs text-[#5A6478]">{t.profile.upgradeDesc}</p>
+              <p className="text-xs text-[#8892A3]">{t.profile.upgradeDesc}</p>
             </div>
             <ArrowRight className="w-4 h-4 text-[#D4A054]" />
           </button>
@@ -353,7 +353,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
 
       {/* Legal section */}
       <div className="mx-5 mb-5">
-        <p className="text-xs font-semibold text-[#5A6478] mb-2 uppercase tracking-wide px-1">Legal</p>
+        <p className="text-xs font-semibold text-[#8892A3] mb-2 uppercase tracking-wide px-1">Legal</p>
         <div className="glass-card overflow-hidden">
           {([
             { icon: AlertTriangle, label: "Disclaimer", href: "/disclaimer" },
@@ -365,9 +365,9 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
               className={`w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/[0.02] transition-colors relative z-10 ${
                 i < arr.length - 1 ? "border-b border-white/[0.04]" : ""
               }`}>
-              <item.icon className="w-4 h-4 text-[#5A6478]" />
+              <item.icon className="w-4 h-4 text-[#8892A3]" />
               <span className="text-sm text-[#F1F0F5] flex-1">{item.label}</span>
-              <ExternalLink className="w-3.5 h-3.5 text-[#5A6478]" />
+              <ExternalLink className="w-3.5 h-3.5 text-[#8892A3]" />
             </button>
           ))}
         </div>
@@ -381,7 +381,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
         </button>
       </div>
       <div className="text-center pb-8">
-        <p className="text-[10px] text-[#5A6478]/40">{t.profile.version}</p>
+        <p className="text-[10px] text-[#8892A3]/40">{t.profile.version}</p>
       </div>
 
       {/* ═══ Sign Out Confirmation ═══ */}
@@ -402,12 +402,12 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
               className="bg-[#111827] border border-[#1E293B] rounded-2xl p-6 w-full max-w-sm"
             >
               <h3 className="text-base font-semibold text-[#F1F0F5] text-center mb-2">{t.profile.signOut}?</h3>
-              <p className="text-sm text-[#5A6478] text-center mb-5">
+              <p className="text-sm text-[#8892A3] text-center mb-5">
                 {t.profile.signOutDesc}
               </p>
               <div className="flex gap-3">
                 <button onClick={() => setShowSignOut(false)}
-                  className="flex-1 py-3 rounded-xl text-sm font-medium text-[#94A3B8] bg-[#1E2638] border border-[#1E293B]">
+                  className="flex-1 py-3 rounded-xl text-sm font-medium text-[#ACB8C4] bg-[#1E2638] border border-[#1E293B]">
                   {t.profile.cancel}
                 </button>
                 <button onClick={handleSignOut}
@@ -433,7 +433,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
             <div className="flex items-center gap-3 px-5 pt-4 pb-3 border-b border-[#1E293B]">
               <button onClick={() => setSubPage(null)}
                 className="w-10 h-10 rounded-full bg-[#1E2638] border border-[#1E293B] flex items-center justify-center">
-                <ArrowLeft className="w-4 h-4 text-[#5A6478]" />
+                <ArrowLeft className="w-4 h-4 text-[#8892A3]" />
               </button>
               <h1 className="text-base font-semibold text-[#F1F0F5]">{subPageContent[subPage].title}</h1>
             </div>
@@ -450,7 +450,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
                       value={editBirthName}
                       onChange={(e) => setEditBirthName(e.target.value)}
                       placeholder={t.onboarding.fullNamePlaceholder}
-                      className="w-full bg-[#111827] border border-[#1E293B] rounded-xl px-4 py-3 text-[#F1F0F5] placeholder-[#5A6478] focus:outline-none focus:border-[#D4A054]"
+                      className="w-full bg-[#111827] border border-[#1E293B] rounded-xl px-4 py-3 text-[#F1F0F5] placeholder-[#8892A3] focus:outline-none focus:border-[#D4A054]"
                     />
                   </div>
 
@@ -477,7 +477,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
                       disabled={editBirthTimeUnknown}
                       className="w-full bg-[#111827] border border-[#1E293B] rounded-xl px-4 py-3 text-[#F1F0F5] focus:outline-none focus:border-[#D4A054] disabled:opacity-50"
                     />
-                    <label className="flex items-center gap-2 mt-2 text-sm text-[#5A6478] cursor-pointer">
+                    <label className="flex items-center gap-2 mt-2 text-sm text-[#8892A3] cursor-pointer">
                       <input
                         type="checkbox"
                         checked={editBirthTimeUnknown}
@@ -523,7 +523,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
                       }`}
                     >
                       <p className="text-sm font-semibold text-[#F1F0F5]">{language.label}</p>
-                      <p className="text-xs text-[#5A6478] mt-1">{language.labelEn}</p>
+                      <p className="text-xs text-[#8892A3] mt-1">{language.labelEn}</p>
                     </button>
                   ))}
                 </div>
@@ -538,7 +538,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
                   ].map((faq, i) => (
                     <div key={i} className="bg-[#111827] border border-[#1E293B] rounded-xl p-4">
                       <p className="text-sm font-medium text-[#F1F0F5] mb-2">{faq.label}</p>
-                      <p className="text-xs text-[#5A6478] leading-relaxed">{faq.answer}</p>
+                      <p className="text-xs text-[#8892A3] leading-relaxed">{faq.answer}</p>
                     </div>
                   ))}
                   <button
@@ -546,14 +546,14 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
                     className="w-full flex items-center gap-3 bg-[#111827] border border-[#D4A054]/15
                       rounded-xl px-4 py-3.5 mt-4">
                     <MessageCircle className="w-4 h-4 text-[#D4A054]" />
-                    <span className="text-sm text-[#94A3B8] flex-1">{t.profile.askForHelp}</span>
-                    <ArrowRight className="w-4 h-4 text-[#5A6478]" />
+                    <span className="text-sm text-[#ACB8C4] flex-1">{t.profile.askForHelp}</span>
+                    <ArrowRight className="w-4 h-4 text-[#8892A3]" />
                   </button>
                 </div>
               ) : subPage === "family" ? (
                 <div className="text-center pt-8">
-                  <Users className="w-12 h-12 text-[#5A6478]/30 mx-auto mb-3" />
-                  <p className="text-sm text-[#5A6478] mb-2">{subPageContent[subPage].emptyMsg}</p>
+                  <Users className="w-12 h-12 text-[#8892A3]/30 mx-auto mb-3" />
+                  <p className="text-sm text-[#8892A3] mb-2">{subPageContent[subPage].emptyMsg}</p>
                   <button onClick={onPricingClick}
                     className="mt-4 px-6 py-2.5 rounded-xl text-sm font-medium text-[#D4A054] bg-[#D4A054]/10 border border-[#D4A054]/20">
                     Unlock with Rishi plan
@@ -561,8 +561,8 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
                 </div>
               ) : (
                 <div className="text-center pt-8">
-                  <History className="w-12 h-12 text-[#5A6478]/30 mx-auto mb-3" />
-                  <p className="text-sm text-[#5A6478] mb-2">{subPageContent[subPage].emptyMsg}</p>
+                  <History className="w-12 h-12 text-[#8892A3]/30 mx-auto mb-3" />
+                  <p className="text-sm text-[#8892A3] mb-2">{subPageContent[subPage].emptyMsg}</p>
                   {subPageContent[subPage].emptyAction && (
                     <button
                       onClick={() => { setSubPage(null); onAskQuestion("") }}

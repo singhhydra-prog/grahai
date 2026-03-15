@@ -175,7 +175,7 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
           </button>
           <div>
             <h1 className="text-lg font-bold text-[#F1F0F5]">Today&apos;s Insight</h1>
-            <p className="text-xs text-[#5A6478]">{new Date().toLocaleDateString("en-IN", { weekday: "long", month: "long", day: "numeric" })}</p>
+            <p className="text-xs text-[#8892A3]">{new Date().toLocaleDateString("en-IN", { weekday: "long", month: "long", day: "numeric" })}</p>
           </div>
         </div>
       </div>
@@ -187,7 +187,7 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
             <div className="loader-ring-inner" />
             <div className="loader-center" />
           </div>
-          <p className="text-xs text-[#8A8F9E]">Reading your stars...</p>
+          <p className="text-xs text-[#A0A5B2]">Reading your stars...</p>
         </div>
       ) : data ? (
         <div className="max-w-lg mx-auto px-4 py-5 space-y-5 pb-12">
@@ -200,12 +200,12 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
             </div>
             <h2 className="text-xl font-bold text-[#F1F0F5] mb-2">{data.theme.title}</h2>
             <p className="text-sm text-[#D4A054]/80 leading-relaxed mb-3">{data.theme.headline}</p>
-            <p className="text-sm text-[#8A8F9E] leading-relaxed">{data.theme.body}</p>
+            <p className="text-sm text-[#A0A5B2] leading-relaxed">{data.theme.body}</p>
           </div>
 
           {/* 2. Life Area Tabs */}
           <div>
-            <h3 className="text-sm font-semibold text-[#8A8F9E] uppercase tracking-wider px-1 mb-3">Life Areas</h3>
+            <h3 className="text-sm font-semibold text-[#A0A5B2] uppercase tracking-wider px-1 mb-3">Life Areas</h3>
             <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
               {data.lifeAreas.map((area) => {
                 const AreaIcon = area.icon
@@ -219,7 +219,7 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
                       whitespace-nowrap transition-all border press-scale ${
                       isActive
                         ? "border-[#D4A054]/40 bg-[#D4A054]/10 text-[#D4A054]"
-                        : "border-white/5 bg-white/[0.02] text-[#8A8F9E]"
+                        : "border-white/5 bg-white/[0.02] text-[#A0A5B2]"
                     }`}
                   >
                     <AreaIcon className="w-3.5 h-3.5" />
@@ -261,7 +261,7 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
               </div>
               <div className="space-y-2.5">
                 {data.doList.map((item, i) => (
-                  <p key={i} className="text-xs text-[#8A8F9E] leading-relaxed pl-4 relative flex items-start gap-2">
+                  <p key={i} className="text-xs text-[#A0A5B2] leading-relaxed pl-4 relative flex items-start gap-2">
                     <span className="status-dot status-favourable inline-block mr-2" />
                     {item}
                   </p>
@@ -275,7 +275,7 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
               </div>
               <div className="space-y-2.5">
                 {data.avoidList.map((item, i) => (
-                  <p key={i} className="text-xs text-[#8A8F9E] leading-relaxed pl-4 relative flex items-start gap-2">
+                  <p key={i} className="text-xs text-[#A0A5B2] leading-relaxed pl-4 relative flex items-start gap-2">
                     <span className="status-dot status-challenging inline-block mr-2" />
                     {item}
                   </p>
@@ -305,8 +305,8 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
                         : "border-white/5 bg-white/[0.02] hover:border-white/10"
                     }`}
                   >
-                    <BtnIcon className={`w-5 h-5 ${isSelected ? `text-${btn.color}-400` : "text-[#5A6478]"}`} />
-                    <span className={`text-[10px] font-medium ${isSelected ? `text-${btn.color}-400` : "text-[#5A6478]"}`}>
+                    <BtnIcon className={`w-5 h-5 ${isSelected ? `text-${btn.color}-400` : "text-[#8892A3]"}`} />
+                    <span className={`text-[10px] font-medium ${isSelected ? `text-${btn.color}-400` : "text-[#8892A3]"}`}>
                       {btn.label}
                     </span>
                   </button>
@@ -317,7 +317,7 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-xs text-[#8A8F9E] mt-3"
+                className="text-xs text-[#A0A5B2] mt-3"
               >
                 Thanks! Your feedback helps us improve your daily guidance.
               </motion.p>
@@ -332,24 +332,24 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
             </div>
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-medium text-[#F1F0F5]">{data.dasha.currentPhase}</p>
-              <span className="text-xs text-[#8A8F9E] bg-white/5 px-2 py-1 rounded-full">
+              <span className="text-xs text-[#A0A5B2] bg-white/5 px-2 py-1 rounded-full">
                 {data.dasha.daysRemaining} days left
               </span>
             </div>
             <div className="dasha-progress mt-2 mb-3">
               <div className="dasha-progress-fill" style={{ width: '65%' }} />
             </div>
-            <p className="text-xs text-[#8A8F9E] leading-relaxed">{data.dasha.howItAffectsToday}</p>
+            <p className="text-xs text-[#A0A5B2] leading-relaxed">{data.dasha.howItAffectsToday}</p>
           </div>
 
           {/* 6. Lucky Elements */}
           <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
-            <h3 className="text-xs font-semibold text-[#8A8F9E] uppercase tracking-wider mb-3">Lucky Elements</h3>
+            <h3 className="text-xs font-semibold text-[#A0A5B2] uppercase tracking-wider mb-3">Lucky Elements</h3>
             <div className="grid grid-cols-2 gap-3">
               <div className="lucky-badge flex items-center gap-2.5">
                 <Star className="w-4 h-4 text-[#D4A054]" />
                 <div>
-                  <p className="text-[10px] text-[#5A6478]">Lucky Number</p>
+                  <p className="text-[10px] text-[#8892A3]">Lucky Number</p>
                   <p className="text-sm font-medium text-[#F1F0F5]">{data.lucky.number}</p>
                 </div>
               </div>
@@ -373,21 +373,21 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
                   }}
                 />
                 <div>
-                  <p className="text-[10px] text-[#5A6478]">Lucky Color</p>
+                  <p className="text-[10px] text-[#8892A3]">Lucky Color</p>
                   <p className="text-sm font-medium text-[#F1F0F5]">{data.lucky.color}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2.5">
                 <Clock className="w-4 h-4 text-emerald-400" />
                 <div>
-                  <p className="text-[10px] text-[#5A6478]">Auspicious Time</p>
+                  <p className="text-[10px] text-[#8892A3]">Auspicious Time</p>
                   <p className="text-sm font-medium text-emerald-400">{data.lucky.auspiciousTime}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2.5">
                 <AlertTriangle className="w-4 h-4 text-rose-400" />
                 <div>
-                  <p className="text-[10px] text-[#5A6478]">Rahu Kaal</p>
+                  <p className="text-[10px] text-[#8892A3]">Rahu Kaal</p>
                   <p className="text-sm font-medium text-rose-400">{data.lucky.rahuKaal}</p>
                 </div>
               </div>
@@ -396,7 +396,7 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
 
           {/* 7. Panchang */}
           <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
-            <h3 className="text-xs font-semibold text-[#8A8F9E] uppercase tracking-wider mb-3">Panchang</h3>
+            <h3 className="text-xs font-semibold text-[#A0A5B2] uppercase tracking-wider mb-3">Panchang</h3>
             <div className="grid grid-cols-2 gap-2">
               {[
                 { label: "Tithi", value: data.panchang.tithi },
@@ -405,7 +405,7 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
                 { label: "Nakshatra", value: data.panchang.nakshatra },
               ].map((item) => (
                 <div key={item.label} className="panchang-item bg-white/[0.02] rounded-lg px-3 py-2">
-                  <p className="panchang-label text-[10px] text-[#5A6478]">{item.label}</p>
+                  <p className="panchang-label text-[10px] text-[#8892A3]">{item.label}</p>
                   <p className="panchang-value text-xs font-medium text-[#F1F0F5]">{item.value}</p>
                 </div>
               ))}
@@ -414,8 +414,8 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
 
           {/* 8. Source */}
           <div className="flex items-start gap-2.5 p-3 rounded-xl bg-white/[0.02] border border-white/5">
-            <BookOpen className="w-4 h-4 text-[#5A6478] flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-[#5A6478] italic leading-relaxed">{data.source}</p>
+            <BookOpen className="w-4 h-4 text-[#8892A3] flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-[#8892A3] italic leading-relaxed">{data.source}</p>
           </div>
         </div>
       ) : null}

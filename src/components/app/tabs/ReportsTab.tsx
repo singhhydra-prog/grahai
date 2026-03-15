@@ -235,7 +235,7 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
 
       <div className="px-5 pt-4">
         {/* Intro text */}
-        <p className="text-xs text-[#5A6478] mb-5 leading-relaxed">
+        <p className="text-xs text-[#8892A3] mb-5 leading-relaxed">
           {t.reports.intro}
         </p>
 
@@ -277,16 +277,16 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
                         ) : report.pricing === "one-time" ? (
                           <span className="text-[9px] bg-[#D4A054]/10 text-[#D4A054] px-1.5 py-0.5 rounded font-medium">₹{report.price}</span>
                         ) : (
-                          <Lock className="w-3 h-3 text-[#5A6478]" />
+                          <Lock className="w-3 h-3 text-[#8892A3]" />
                         )}
                       </div>
                       <p className="text-[11px] text-[#D4A054]/70 font-medium mb-1">{report.outcome}</p>
-                      <p className="text-xs text-[#5A6478] leading-relaxed line-clamp-2">{report.description}</p>
+                      <p className="text-xs text-[#8892A3] leading-relaxed line-clamp-2">{report.description}</p>
                       <div className="confidence-meter mt-2 h-1.5 bg-[#1E293B] rounded-full overflow-hidden">
                         <div className="confidence-fill h-full bg-gradient-to-r from-[#D4A054] to-[#E8C278] rounded-full" style={{ width: '85%' }} />
                       </div>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-[#5A6478] shrink-0 mt-1" />
+                    <ChevronRight className="w-4 h-4 text-[#8892A3] shrink-0 mt-1" />
                   </div>
                 </button>
               ))}
@@ -310,7 +310,7 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
                 onClick={() => setSelectedReport(null)}
                 className="w-10 h-10 rounded-full bg-[#1E2638] border border-[#1E293B] flex items-center justify-center"
               >
-                <X className="w-4 h-4 text-[#5A6478]" />
+                <X className="w-4 h-4 text-[#8892A3]" />
               </button>
               {selectedReport.pricing !== "free" && (
                 <span className="text-sm font-semibold text-[#D4A054]">
@@ -324,7 +324,7 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
                 <span className="text-4xl block mb-3">{selectedReport.icon}</span>
                 <h1 className="text-xl font-bold text-[#F1F0F5] mb-1">{selectedReport.title}</h1>
                 <p className="text-sm text-[#D4A054]/80 font-medium mb-2">{selectedReport.outcome}</p>
-                <p className="text-sm text-[#94A3B8]">{selectedReport.whatItHelps}</p>
+                <p className="text-sm text-[#ACB8C4]">{selectedReport.whatItHelps}</p>
               </div>
 
               {/* What's inside */}
@@ -334,7 +334,7 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
                   {selectedReport.whatsInside.map((item, i) => (
                     <div key={i} className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-[#D4A054]" />
-                      <span className="text-sm text-[#94A3B8]">{item}</span>
+                      <span className="text-sm text-[#ACB8C4]">{item}</span>
                     </div>
                   ))}
                 </div>
@@ -344,7 +344,7 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
               {selectedReport.previewSnippet && (
                 <div className="glass-inner border border-[#D4A054]/10 rounded-xl p-4 mb-4">
                   <p className="text-xs text-[#D4A054] font-medium mb-2">{t.reports.preview || "Preview"}</p>
-                  <p className="text-sm text-[#94A3B8] leading-relaxed italic">
+                  <p className="text-sm text-[#ACB8C4] leading-relaxed italic">
                     &ldquo;{selectedReport.previewSnippet}&rdquo;
                   </p>
                 </div>
@@ -356,8 +356,8 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
                 className="w-full flex items-center gap-3 glass-card-hero px-4 py-3.5 mb-4 hover:border-[#D4A054]/30 transition-colors"
               >
                 <Sparkles className="w-4 h-4 text-[#D4A054]" />
-                <span className="text-sm text-[#94A3B8] flex-1">{t.reports.askAboutTopic}</span>
-                <ArrowRight className="w-4 h-4 text-[#5A6478]" />
+                <span className="text-sm text-[#ACB8C4] flex-1">{t.reports.askAboutTopic}</span>
+                <ArrowRight className="w-4 h-4 text-[#8892A3]" />
               </button>
 
               {downloadUrl && (

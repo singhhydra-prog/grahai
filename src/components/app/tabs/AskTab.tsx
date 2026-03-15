@@ -75,7 +75,7 @@ function SectionIcon({ type }: { type: AnswerSection["icon"] }) {
     avoid: { Icon: AlertTriangle, color: "text-amber-400", bg: "bg-amber-500/10" },
     timing: { Icon: Timer, color: "text-[#D4A054]", bg: "bg-[#D4A054]/10" },
     reflect: { Icon: Lightbulb, color: "text-teal-400", bg: "bg-teal-500/10" },
-    source: { Icon: BookOpen, color: "text-[#94A3B8]", bg: "bg-[#94A3B8]/10" },
+    source: { Icon: BookOpen, color: "text-[#ACB8C4]", bg: "bg-[#ACB8C4]/10" },
   }
   const { Icon, color, bg } = configs[type]
   return (
@@ -108,7 +108,7 @@ function StructuredAnswer({ sections, onViewSource, t }: { sections: AnswerSecti
             <SectionIcon type={section.icon} />
             <span className="text-xs font-semibold text-[#F1F0F5]">{section.title}</span>
           </div>
-          <div className="text-sm text-[#94A3B8] leading-relaxed whitespace-pre-wrap pl-9">
+          <div className="text-sm text-[#ACB8C4] leading-relaxed whitespace-pre-wrap pl-9">
             {section.content}
           </div>
           {section.icon === "source" && (
@@ -338,12 +338,12 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
         </div>
         <div className="flex-1">
           <h1 className="text-sm font-semibold text-[#F1F0F5] text-3d">{t.ask.title}</h1>
-          <p className="text-[10px] text-[#5A6478]">{questionsLeft} {t.ask.questionsRemaining}</p>
+          <p className="text-[10px] text-[#8892A3]">{questionsLeft} {t.ask.questionsRemaining}</p>
         </div>
         <button onClick={() => setShowHistory(true)}
           className="flex items-center gap-1.5 bg-[#111827] border border-[#1E293B] rounded-full px-3 py-1.5">
-          <Clock className="w-3 h-3 text-[#5A6478]" />
-          <span className="text-[10px] text-[#5A6478]">{t.profile.questionsHistory}</span>
+          <Clock className="w-3 h-3 text-[#8892A3]" />
+          <span className="text-[10px] text-[#8892A3]">{t.profile.questionsHistory}</span>
         </button>
       </div>
 
@@ -365,7 +365,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
             >
               {t.ask.whatsOnMind}{userName ? `, ${userName}` : ""}?
             </h2>
-            <p className="text-sm text-[#5A6478] mb-6 max-w-xs mx-auto text-visible">
+            <p className="text-sm text-[#8892A3] mb-6 max-w-xs mx-auto text-visible">
               {t.ask.placeholder}
             </p>
 
@@ -376,7 +376,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
                   key={chip.label}
                   onClick={() => handleSend(chip.query)}
                   className="px-3.5 py-1.5 rounded-full glass-inner
-                    text-xs text-[#94A3B8] font-medium hover:border-[#D4A054]/30 hover:text-[#D4A054]
+                    text-xs text-[#ACB8C4] font-medium hover:border-[#D4A054]/30 hover:text-[#D4A054]
                     transition-all card-scale press-scale"
                 >
                   {chip.label}
@@ -389,7 +389,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
               {SUGGESTIONS.map((q) => (
                 <button key={q} onClick={() => handleSend(q)}
                   className="w-full text-left glass-card card-lift px-4 py-3.5 press-scale
-                    text-sm text-[#94A3B8] hover:border-[#D4A054]/20 transition-colors">
+                    text-sm text-[#ACB8C4] hover:border-[#D4A054]/20 transition-colors">
                   {q}
                 </button>
               ))}
@@ -417,7 +417,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
                           <div className="w-6 h-6 rounded-md bg-gradient-to-br from-[#D4A054] to-[#A16E2A] flex items-center justify-center">
                             <span className="text-[9px] font-bold text-[#0A0E1A]">G</span>
                           </div>
-                          <span className="text-[11px] text-[#5A6478] font-medium">GrahAI</span>
+                          <span className="text-[11px] text-[#8892A3] font-medium">GrahAI</span>
                           {msg.isStreaming && <span className="text-[11px] text-[#D4A054]/60 animate-pulse">{t.ask.thinking}</span>}
                         </div>
 
@@ -425,7 +425,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
                         {structured ? (
                           <StructuredAnswer sections={structured} onViewSource={openSourceDrawer} t={t} />
                         ) : (
-                          <div className="max-w-[95%] text-sm text-[#94A3B8] leading-relaxed whitespace-pre-wrap">
+                          <div className="max-w-[95%] text-sm text-[#ACB8C4] leading-relaxed whitespace-pre-wrap">
                             {msg.content}
                             {msg.isStreaming && !msg.content && (
                               <span className="flex gap-1 py-2">
@@ -444,7 +444,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
                               {FOLLOW_UPS.map((chip) => (
                                 <button key={chip} onClick={() => handleSend(chip)}
                                   className="px-3 py-1 rounded-full bg-[#111827] border border-[#1E293B] press-scale
-                                    text-[11px] text-[#94A3B8] hover:border-[#D4A054]/20 hover:text-[#D4A054] transition-colors">
+                                    text-[11px] text-[#ACB8C4] hover:border-[#D4A054]/20 hover:text-[#D4A054] transition-colors">
                                   {chip}
                                 </button>
                               ))}
@@ -459,7 +459,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
                                   setShareData({ title: question, body: excerpt })
                                 }}
                                 className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#111827] border border-[#1E293B]
-                                  text-[10px] text-[#5A6478] hover:text-[#D4A054] hover:border-[#D4A054]/20 transition-colors"
+                                  text-[10px] text-[#8892A3] hover:text-[#D4A054] hover:border-[#D4A054]/20 transition-colors"
                               >
                                 <Share2 className="w-3 h-3" /> Share
                               </button>
@@ -473,7 +473,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
                                   } catch {}
                                 }}
                                 className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#111827] border border-[#1E293B]
-                                  text-[10px] text-[#5A6478] hover:text-[#D4A054] hover:border-[#D4A054]/20 transition-colors"
+                                  text-[10px] text-[#8892A3] hover:text-[#D4A054] hover:border-[#D4A054]/20 transition-colors"
                               >
                                 <Bookmark className="w-3 h-3" /> Save
                               </button>
@@ -494,7 +494,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
       <div className="px-5 pb-24 pt-2 shrink-0">
         {messages.length > 0 && !isStreaming && (
           <button onClick={() => { setMessages([]); hasProcessedInitial.current = false }}
-            className="flex items-center gap-1.5 text-[10px] text-[#5A6478] hover:text-rose-400/70
+            className="flex items-center gap-1.5 text-[10px] text-[#8892A3] hover:text-rose-400/70
               transition-colors mb-2 mx-auto">
             <Trash2 className="w-3 h-3" /> {t.common.close}
           </button>
@@ -504,12 +504,12 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
           <input type="text" value={input} onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
             placeholder={t.ask.placeholder}
-            className="flex-1 bg-transparent text-sm text-[#F1F0F5] placeholder:text-[#5A6478]/50 outline-none" />
+            className="flex-1 bg-transparent text-sm text-[#F1F0F5] placeholder:text-[#8892A3]/50 outline-none" />
           <button onClick={() => handleSend()} disabled={!input.trim() || isStreaming}
             className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
               input.trim() && !isStreaming ? "bg-gradient-to-br from-[#D4A054] to-[#A16E2A]" : "bg-[#1E2638]"
             }`}>
-            <Send className={`w-4 h-4 ${input.trim() && !isStreaming ? "text-[#0A0E1A]" : "text-[#5A6478]"}`} />
+            <Send className={`w-4 h-4 ${input.trim() && !isStreaming ? "text-[#0A0E1A]" : "text-[#8892A3]"}`} />
           </button>
         </div>
       </div>
@@ -527,7 +527,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
             <div className="flex items-center gap-3 px-5 pt-4 pb-3 border-b border-[#1E293B]">
               <button onClick={() => setShowHistory(false)}
                 className="w-10 h-10 rounded-full bg-[#1E2638] border border-[#1E293B] flex items-center justify-center">
-                <ArrowLeft className="w-4 h-4 text-[#5A6478]" />
+                <ArrowLeft className="w-4 h-4 text-[#8892A3]" />
               </button>
               <h1 className="text-base font-semibold text-[#F1F0F5]">{t.profile.questionsHistory}</h1>
             </div>
@@ -540,15 +540,15 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
                       className="w-full text-left bg-[#111827] border border-[#1E293B] rounded-xl px-4 py-3.5
                         hover:border-[#D4A054]/20 transition-colors">
                       <p className="text-sm text-[#F1F0F5]">{msg.content}</p>
-                      <p className="text-[10px] text-[#5A6478] mt-1">{t.ask.thisSession}</p>
+                      <p className="text-[10px] text-[#8892A3] mt-1">{t.ask.thisSession}</p>
                     </button>
                   ))}
                 </div>
               ) : (
                 <div className="text-center pt-8">
-                  <Clock className="w-12 h-12 text-[#5A6478]/30 mx-auto mb-3" />
-                  <p className="text-sm text-[#5A6478]">{t.ask.noQuestionsYet}</p>
-                  <p className="text-xs text-[#5A6478]/60 mt-1">{t.ask.questionsAppearHere}</p>
+                  <Clock className="w-12 h-12 text-[#8892A3]/30 mx-auto mb-3" />
+                  <p className="text-sm text-[#8892A3]">{t.ask.noQuestionsYet}</p>
+                  <p className="text-xs text-[#8892A3]/60 mt-1">{t.ask.questionsAppearHere}</p>
                 </div>
               )}
             </div>

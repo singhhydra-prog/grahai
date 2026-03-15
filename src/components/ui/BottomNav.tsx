@@ -52,13 +52,13 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
               } ${isActive ? "nav-icon-active" : ""}`}>
                 <Icon
                   className={`w-[22px] h-[22px] transition-all duration-300 ${
-                    isActive ? "text-[#D4A054] drop-shadow-[0_0_6px_rgba(212,160,84,0.4)]" : "text-[#5A6478]"
+                    isActive ? "text-[#D4A054] drop-shadow-[0_0_6px_rgba(212,160,84,0.4)]" : "text-[#8892A3]"
                   }`}
                   strokeWidth={isActive ? 2.2 : 1.5}
                 />
               </div>
               <span className={`text-[10px] font-medium transition-all duration-300 ${
-                isActive ? "text-[#D4A054] text-glow" : "text-[#5A6478]"
+                isActive ? "text-[#D4A054] text-glow" : "text-[#8892A3]"
               }`}>
                 {label}
               </span>

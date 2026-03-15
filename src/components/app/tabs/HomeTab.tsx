@@ -125,7 +125,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
           <button
             onClick={() => setDayOffset(0)}
             className={`flex-1 py-2.5 text-xs font-medium tab-pill ${
-              dayOffset === 0 ? "tab-pill-active" : "text-[#5A6478]"
+              dayOffset === 0 ? "tab-pill-active" : "text-[#8892A3]"
             }`}
           >
             {todayLabel}
@@ -133,7 +133,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
           <button
             onClick={() => setDayOffset(1)}
             className={`flex-1 py-2.5 text-xs font-medium tab-pill ${
-              dayOffset === 1 ? "tab-pill-active" : "text-[#5A6478]"
+              dayOffset === 1 ? "tab-pill-active" : "text-[#8892A3]"
             }`}
           >
             {tomorrowLabel}
@@ -173,10 +173,10 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                 {/* Panchang badge */}
                 {horoscope.panchang && (
                   <div className="flex items-center gap-1.5 mb-3">
-                    <span className="text-[10px] text-[#94A3B8] bg-[#1E2638] px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] text-[#ACB8C4] bg-[#1E2638] px-2 py-0.5 rounded-full">
                       {horoscope.panchang.tithi} &middot; {horoscope.panchang.paksha}
                     </span>
-                    <span className="text-[10px] text-[#5A6478] bg-[#1E2638] px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] text-[#8892A3] bg-[#1E2638] px-2 py-0.5 rounded-full">
                       {horoscope.panchang.vara}
                     </span>
                   </div>
@@ -198,7 +198,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                 </h2>
 
                 {/* One-line summary */}
-                <p className="text-sm text-[#94A3B8] leading-relaxed mb-4">
+                <p className="text-sm text-[#ACB8C4] leading-relaxed mb-4">
                   {horoscope.theme?.headline || t.common.loading}
                 </p>
 
@@ -210,7 +210,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                     </div>
                     <div>
                       <p className="text-[10px] font-medium text-emerald-400 uppercase tracking-wider mb-0.5">{t.ask.whatToDo}</p>
-                      <p className="text-xs text-[#94A3B8] leading-relaxed">{horoscope.theme?.action}</p>
+                      <p className="text-xs text-[#ACB8C4] leading-relaxed">{horoscope.theme?.action}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2.5">
@@ -219,7 +219,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                     </div>
                     <div>
                       <p className="text-[10px] font-medium text-amber-400 uppercase tracking-wider mb-0.5">{t.ask.whatToAvoid}</p>
-                      <p className="text-xs text-[#94A3B8] leading-relaxed">{horoscope.theme?.caution}</p>
+                      <p className="text-xs text-[#ACB8C4] leading-relaxed">{horoscope.theme?.caution}</p>
                     </div>
                   </div>
                 </div>
@@ -238,7 +238,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                   <button
                     onClick={() => horoscope.theme?.source && openSource(horoscope.theme.source, horoscope.theme.headline)}
                     className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl
-                      bg-[#1E2638] border border-[#1E293B] text-xs font-medium text-[#94A3B8]
+                      bg-[#1E2638] border border-[#1E293B] text-xs font-medium text-[#ACB8C4]
                       hover:border-[#D4A054]/20 transition-colors"
                   >
                     <BookOpen className="w-3.5 h-3.5" />
@@ -264,10 +264,10 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                   transition={{ delay: 0.1 }}
                   className="glass-card p-4 mb-4"
                 >
-                  <p className="text-[10px] font-semibold text-[#5A6478] uppercase tracking-[0.08em] mb-2">
+                  <p className="text-[10px] font-semibold text-[#8892A3] uppercase tracking-[0.08em] mb-2">
                     {t.ask.whyShowingUp}
                   </p>
-                  <p className="text-xs text-[#94A3B8] leading-relaxed">
+                  <p className="text-xs text-[#ACB8C4] leading-relaxed">
                     {horoscope.theme.whyActive}
                   </p>
                 </motion.div>
@@ -288,10 +288,10 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                     </div>
                     <div>
                       <span className="text-sm font-semibold text-[#F1F0F5]">{card.label}</span>
-                      <p className="text-[10px] text-[#5A6478]">{card.subtitle}</p>
+                      <p className="text-[10px] text-[#8892A3]">{card.subtitle}</p>
                     </div>
                   </div>
-                  <p className="text-sm text-[#94A3B8] leading-relaxed mb-3">
+                  <p className="text-sm text-[#ACB8C4] leading-relaxed mb-3">
                     {horoscope.categories[card.key]}
                   </p>
                   <button
@@ -321,7 +321,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-[#F1F0F5] mb-0.5">Your Week Ahead</p>
-                    <p className="text-[11px] text-[#5A6478] line-clamp-1">Day-by-day energy map and guidance for this week</p>
+                    <p className="text-[11px] text-[#8892A3] line-clamp-1">Day-by-day energy map and guidance for this week</p>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <ExternalLink className="w-3.5 h-3.5 text-[#D4A054]" />
@@ -379,7 +379,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                 </div>
                 <div className="text-left flex-1">
                   <p className="text-sm font-medium text-[#F1F0F5]">{t.ask.title}</p>
-                  <p className="text-[11px] text-[#5A6478]">{t.ask.placeholder}</p>
+                  <p className="text-[11px] text-[#8892A3]">{t.ask.placeholder}</p>
                 </div>
                 <ArrowRight className="w-4 h-4 text-[#D4A054]" />
               </motion.button>
@@ -391,7 +391,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                 transition={{ delay: 0.45 }}
                 className="mb-4"
               >
-                <p className="text-[10px] font-semibold text-[#5A6478] uppercase tracking-[0.08em] px-1 mb-2">
+                <p className="text-[10px] font-semibold text-[#8892A3] uppercase tracking-[0.08em] px-1 mb-2">
                   Lucky Elements
                 </p>
                 <div className="grid grid-cols-3 gap-2">
@@ -407,7 +407,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                         horoscope.lucky.colour.toLowerCase() === "black" ? "#1a1a1a" :
                         horoscope.lucky.colour.toLowerCase()
                     }} />
-                    <p className="text-[9px] text-[#5A6478] mb-1 uppercase font-semibold tracking-wider">{t.home.luckyColors}</p>
+                    <p className="text-[9px] text-[#8892A3] mb-1 uppercase font-semibold tracking-wider">{t.home.luckyColors}</p>
                     <span className="text-xs font-bold text-[#F1F0F5]">{horoscope.lucky.colour}</span>
                   </div>
 
@@ -416,7 +416,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                     <div className="w-8 h-8 rounded-lg mb-2 flex items-center justify-center bg-[#D4A054]/20 border border-[#D4A054]/30">
                       <span className="text-sm font-bold text-[#D4A054]">{horoscope.lucky.number}</span>
                     </div>
-                    <p className="text-[9px] text-[#5A6478] mb-1 uppercase font-semibold tracking-wider">{t.home.luckyNumbers}</p>
+                    <p className="text-[9px] text-[#8892A3] mb-1 uppercase font-semibold tracking-wider">{t.home.luckyNumbers}</p>
                     <span className="text-xs font-bold text-[#F1F0F5]">#{horoscope.lucky.number}</span>
                   </div>
 
@@ -425,7 +425,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                     <div className="w-8 h-8 rounded-lg mb-2 flex items-center justify-center bg-emerald-500/20 border border-emerald-500/30">
                       <Clock className="w-4 h-4 text-emerald-400" />
                     </div>
-                    <p className="text-[9px] text-[#5A6478] mb-1 uppercase font-semibold tracking-wider">Auspicious</p>
+                    <p className="text-[9px] text-[#8892A3] mb-1 uppercase font-semibold tracking-wider">Auspicious</p>
                     <span className="text-xs font-bold text-emerald-400">{horoscope.timing.auspiciousTime.start}</span>
                   </div>
                 </div>
@@ -445,9 +445,9 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-[#F1F0F5]">Your Library</p>
-                    <p className="text-[10px] text-[#5A6478]">Saved answers, reports, and compatibility results</p>
+                    <p className="text-[10px] text-[#8892A3]">Saved answers, reports, and compatibility results</p>
                   </div>
-                  <ExternalLink className="w-3.5 h-3.5 text-[#5A6478]" />
+                  <ExternalLink className="w-3.5 h-3.5 text-[#8892A3]" />
                 </div>
               </motion.button>
 
@@ -463,7 +463,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-semibold text-[#D4A054] mb-0.5">{t.profile.upgradePremium}</p>
-                    <p className="text-xs text-[#5A6478]">{t.profile.upgradeDesc}</p>
+                    <p className="text-xs text-[#8892A3]">{t.profile.upgradeDesc}</p>
                   </div>
                   <ArrowRight className="w-4 h-4 text-[#D4A054]" />
                 </div>
@@ -472,7 +472,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
           </AnimatePresence>
         ) : (
           <div className="text-center py-12">
-            <p className="text-sm text-[#5A6478]">{t.home.todayGuidance}</p>
+            <p className="text-sm text-[#8892A3]">{t.home.todayGuidance}</p>
           </div>
         )}
       </div>

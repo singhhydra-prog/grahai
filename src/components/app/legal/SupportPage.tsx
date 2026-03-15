@@ -45,7 +45,7 @@ export default function SupportPage({ onBack }: SupportPageProps) {
           </button>
           <div>
             <h1 className="text-lg font-bold text-[#F1F0F5]">Support</h1>
-            <p className="text-xs text-[#5A6478]">We&apos;re here to help</p>
+            <p className="text-xs text-[#8892A3]">We&apos;re here to help</p>
           </div>
         </div>
       </div>
@@ -76,20 +76,20 @@ export default function SupportPage({ onBack }: SupportPageProps) {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-[#F1F0F5]">Response time</p>
-                  <p className="text-xs text-[#8A8F9E]">Usually within 24 hours</p>
+                  <p className="text-xs text-[#A0A5B2]">Usually within 24 hours</p>
                 </div>
               </div>
             </div>
 
             {/* Support form */}
             <div className="space-y-4">
-              <h2 className="text-sm font-semibold text-[#8A8F9E] uppercase tracking-wider">
+              <h2 className="text-sm font-semibold text-[#A0A5B2] uppercase tracking-wider">
                 Send us a message
               </h2>
 
               {/* Category selection */}
               <div>
-                <label className="text-xs text-[#8A8F9E] mb-2 block">What is this about?</label>
+                <label className="text-xs text-[#A0A5B2] mb-2 block">What is this about?</label>
                 <div className="grid grid-cols-2 gap-2">
                   {SUPPORT_CATEGORIES.map((cat) => {
                     const CatIcon = cat.icon
@@ -102,7 +102,7 @@ export default function SupportPage({ onBack }: SupportPageProps) {
                           transition-all border ${
                           isSelected
                             ? "border-[#D4A054]/40 bg-[#D4A054]/10 text-[#D4A054]"
-                            : "border-white/5 bg-white/[0.02] text-[#8A8F9E] hover:border-white/10"
+                            : "border-white/5 bg-white/[0.02] text-[#A0A5B2] hover:border-white/10"
                         }`}
                       >
                         <CatIcon className="w-3.5 h-3.5 flex-shrink-0" />
@@ -115,7 +115,7 @@ export default function SupportPage({ onBack }: SupportPageProps) {
 
               {/* Email */}
               <div>
-                <label className="text-xs text-[#8A8F9E] mb-1.5 block">Your email</label>
+                <label className="text-xs text-[#A0A5B2] mb-1.5 block">Your email</label>
                 <div className="flex items-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-2.5">
                   <Mail className="w-4 h-4 text-[#D4A054]" />
                   <input
@@ -123,25 +123,25 @@ export default function SupportPage({ onBack }: SupportPageProps) {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="your@email.com"
-                    className="flex-1 bg-transparent text-sm text-[#F1F0F5] placeholder:text-[#5A6478] outline-none"
+                    className="flex-1 bg-transparent text-sm text-[#F1F0F5] placeholder:text-[#8892A3] outline-none"
                   />
                 </div>
               </div>
 
               {/* Message */}
               <div>
-                <label className="text-xs text-[#8A8F9E] mb-1.5 block">Your message</label>
+                <label className="text-xs text-[#A0A5B2] mb-1.5 block">Your message</label>
                 <div className="rounded-xl border border-white/5 bg-white/[0.02] px-3 py-2.5">
                   <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Describe your issue or question in detail..."
                     rows={5}
-                    className="w-full bg-transparent text-sm text-[#F1F0F5] placeholder:text-[#5A6478]
+                    className="w-full bg-transparent text-sm text-[#F1F0F5] placeholder:text-[#8892A3]
                       outline-none resize-none leading-relaxed"
                   />
                 </div>
-                <p className="text-[10px] text-[#5A6478] mt-1">
+                <p className="text-[10px] text-[#8892A3] mt-1">
                   {message.length < 10 ? `At least ${10 - message.length} more characters needed` : "Good to go!"}
                 </p>
               </div>
@@ -163,7 +163,7 @@ export default function SupportPage({ onBack }: SupportPageProps) {
 
             {/* FAQ link */}
             <div className="text-center">
-              <p className="text-xs text-[#5A6478] mb-2">
+              <p className="text-xs text-[#8892A3] mb-2">
                 Looking for quick answers?
               </p>
               <button
@@ -181,7 +181,7 @@ export default function SupportPage({ onBack }: SupportPageProps) {
               <MessageCircle className="w-8 h-8 text-emerald-400" />
             </div>
             <h2 className="text-xl font-bold text-[#F1F0F5] mb-2">Message Sent!</h2>
-            <p className="text-sm text-[#8A8F9E] max-w-[280px] mb-6">
+            <p className="text-sm text-[#A0A5B2] max-w-[280px] mb-6">
               Thank you for reaching out. We&apos;ll get back to you at <span className="text-[#D4A054]">{email}</span> within 24 hours.
             </p>
             <button

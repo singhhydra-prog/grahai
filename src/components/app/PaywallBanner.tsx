@@ -78,7 +78,7 @@ export default function PaywallBanner({ isVisible, onClose, onUpgrade, trigger, 
               className="absolute top-3 right-3 w-6 h-6 rounded-full bg-[#1E2638]
                 flex items-center justify-center"
             >
-              <X className="w-3 h-3 text-[#5A6478]" />
+              <X className="w-3 h-3 text-[#8892A3]" />
             </button>
 
             <div className="flex items-start gap-3">
@@ -94,7 +94,7 @@ export default function PaywallBanner({ isVisible, onClose, onUpgrade, trigger, 
                 <h3 className="text-sm font-semibold text-[#F1F0F5] mb-0.5">
                   {message.title}
                 </h3>
-                <p className="text-xs text-[#94A3B8] leading-relaxed mb-3">
+                <p className="text-xs text-[#ACB8C4] leading-relaxed mb-3">
                   {message.subtitle}
                 </p>
 

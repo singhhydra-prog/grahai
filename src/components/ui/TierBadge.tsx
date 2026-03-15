@@ -16,7 +16,7 @@ interface TierBadgeProps {
 const TIER_CONFIG = {
   free: {
     label: "Free",
-    color: "text-[#5A6478]",
+    color: "text-[#8892A3]",
     bg: "bg-[#1E2638]",
     border: "border-[#1E293B]",
     Icon: null,

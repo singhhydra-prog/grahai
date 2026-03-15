@@ -40,7 +40,7 @@ export default function StreakBadge({ days, compact = false }: StreakBadgeProps)
       <Flame className={`w-4 h-4 ${colors.flame}`} />
       <div>
         <p className={`text-xs font-semibold ${colors.flame}`}>{days}-day streak</p>
-        <p className="text-[10px] text-[#5A6478]">
+        <p className="text-[10px] text-[#8892A3]">
           {days >= 30 ? "Incredible consistency!" : days >= 7 ? "Keep it going!" : "Building momentum"}
         </p>
       </div>

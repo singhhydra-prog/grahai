@@ -25,7 +25,7 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
       price: 0,
       period: "",
       description: t.pricing.explorePlan || "Explore your cosmic blueprint",
-      color: "text-[#94A3B8]",
+      color: "text-[#ACB8C4]",
       bgColor: "bg-[#111827]",
       borderColor: "border-[#1E293B]",
       features: [
@@ -184,7 +184,7 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
           <div className="flex items-center justify-between px-5 pt-4 pb-2">
             <button onClick={onClose}
               className="w-10 h-10 rounded-full bg-[#1E2638] border border-[#1E293B] flex items-center justify-center">
-              <X className="w-4 h-4 text-[#5A6478]" />
+              <X className="w-4 h-4 text-[#8892A3]" />
             </button>
             <h1 className="text-base font-semibold text-[#F1F0F5]">{t.pricing.title || "Choose Your Plan"}</h1>
             <div className="w-10" />
@@ -193,18 +193,18 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
           {/* Tagline */}
           <div className="text-center px-5 pt-2 pb-4">
             <Crown className="w-8 h-8 text-[#D4A054] mx-auto mb-2" />
-            <p className="text-sm text-[#94A3B8]">{t.pricing.tagline || "Source-backed guidance, deeper clarity"}</p>
+            <p className="text-sm text-[#ACB8C4]">{t.pricing.tagline || "Source-backed guidance, deeper clarity"}</p>
           </div>
 
           {/* Plans / Packs toggle */}
           <div className="flex gap-2 mx-5 mb-5">
             <button onClick={() => setTab("plans")}
               className={`flex-1 py-2.5 rounded-xl text-xs font-medium transition-all ${
-                tab === "plans" ? "bg-[#D4A054]/15 text-[#D4A054] border border-[#D4A054]/30" : "bg-[#111827] text-[#5A6478] border border-[#1E293B]"
+                tab === "plans" ? "bg-[#D4A054]/15 text-[#D4A054] border border-[#D4A054]/30" : "bg-[#111827] text-[#8892A3] border border-[#1E293B]"
               }`}>{t.pricing.monthlyPlans || "Monthly Plans"}</button>
             <button onClick={() => setTab("packs")}
               className={`flex-1 py-2.5 rounded-xl text-xs font-medium transition-all ${
-                tab === "packs" ? "bg-[#D4A054]/15 text-[#D4A054] border border-[#D4A054]/30" : "bg-[#111827] text-[#5A6478] border border-[#1E293B]"
+                tab === "packs" ? "bg-[#D4A054]/15 text-[#D4A054] border border-[#D4A054]/30" : "bg-[#111827] text-[#8892A3] border border-[#1E293B]"
               }`}>{t.pricing.oneTimeReports || "One-Time Reports"}</button>
           </div>
 
@@ -233,7 +233,7 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <h3 className={`text-lg font-bold ${plan.color}`}>{plan.name}</h3>
-                        <p className="text-xs text-[#5A6478]">{plan.description}</p>
+                        <p className="text-xs text-[#8892A3]">{plan.description}</p>
                       </div>
                       <div className="text-right">
                         {plan.price === 0 ? (
@@ -241,7 +241,7 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
                         ) : (
                           <>
                             <p className="text-lg font-bold text-[#F1F0F5]">₹{plan.price}</p>
-                            <p className="text-[10px] text-[#5A6478]">{plan.period}</p>
+                            <p className="text-[10px] text-[#8892A3]">{plan.period}</p>
                           </>
                         )}
                       </div>
@@ -251,13 +251,13 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
                       {plan.features.map((f) => (
                         <div key={f} className="flex items-center gap-2">
                           <Check className="w-3 h-3 text-emerald-400 shrink-0" />
-                          <span className="text-xs text-[#94A3B8]">{f}</span>
+                          <span className="text-xs text-[#ACB8C4]">{f}</span>
                         </div>
                       ))}
                       {plan.limitations.map((l) => (
                         <div key={l} className="flex items-center gap-2">
-                          <X className="w-3 h-3 text-[#5A6478] shrink-0" />
-                          <span className="text-xs text-[#5A6478]">{l}</span>
+                          <X className="w-3 h-3 text-[#8892A3] shrink-0" />
+                          <span className="text-xs text-[#8892A3]">{l}</span>
                         </div>
                       ))}
                     </div>
@@ -268,21 +268,21 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
                 <div className="flex items-center justify-center gap-4 pt-4">
                   <div className="flex items-center gap-1.5">
                     <Shield className="w-3 h-3 text-emerald-400" />
-                    <span className="text-[10px] text-[#5A6478]">{t.pricing.secureRazorpay || "Secure via Razorpay"}</span>
+                    <span className="text-[10px] text-[#8892A3]">{t.pricing.secureRazorpay || "Secure via Razorpay"}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Star className="w-3 h-3 text-[#D4A054]" />
-                    <span className="text-[10px] text-[#5A6478]">{t.pricing.cancelAnytime || "Cancel Anytime"}</span>
+                    <span className="text-[10px] text-[#8892A3]">{t.pricing.cancelAnytime || "Cancel Anytime"}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Sparkles className="w-3 h-3 text-[#D4A054]" />
-                    <span className="text-[10px] text-[#5A6478]">{t.pricing.bphsSourced || "BPHS-sourced"}</span>
+                    <span className="text-[10px] text-[#8892A3]">{t.pricing.bphsSourced || "BPHS-sourced"}</span>
                   </div>
                 </div>
               </div>
             ) : (
               <div className="space-y-3">
-                <p className="text-xs text-[#5A6478] mb-2">
+                <p className="text-xs text-[#8892A3] mb-2">
                   {t.pricing.oneTimeDesc || "Buy individual reports. No subscription needed."}
                 </p>
                 {ONE_TIME_PACKS.map((pack, i) => (
@@ -300,7 +300,7 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
                       </div>
                       <div className="text-left">
                         <span className="text-sm text-[#F1F0F5] block">{pack.label}</span>
-                        <span className="text-[10px] text-[#5A6478]">{pack.description}</span>
+                        <span className="text-[10px] text-[#8892A3]">{pack.description}</span>
                       </div>
                     </div>
                     <span className="text-sm font-semibold text-[#D4A054]">₹{pack.price}</span>

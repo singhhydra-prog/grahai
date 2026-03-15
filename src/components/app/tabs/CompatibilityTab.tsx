@@ -78,7 +78,7 @@ function ScoreDial({ score, size = 160, label }: { score: number; size?: number;
         >
           {score}
         </motion.span>
-        <span className="text-xs text-[#8A8F9E] mt-0.5">out of 100</span>
+        <span className="text-xs text-[#A0A5B2] mt-0.5">out of 100</span>
       </div>
       {label && (
         <span className="text-sm text-[#D4A054] font-medium mt-2">{label}</span>
@@ -110,13 +110,13 @@ function PartnerInputForm({ onSubmit, onClose }: {
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-lg font-semibold text-[#F1F0F5]">Partner&apos;s Birth Details</h3>
         <button onClick={onClose} className="p-1.5 rounded-full hover:bg-white/5 transition-colors">
-          <X className="w-4 h-4 text-[#5A6478]" />
+          <X className="w-4 h-4 text-[#8892A3]" />
         </button>
       </div>
 
       {/* Name */}
       <div>
-        <label className="text-xs text-[#8A8F9E] mb-1 block">Name</label>
+        <label className="text-xs text-[#A0A5B2] mb-1 block">Name</label>
         <div className="flex items-center gap-2 glass-inner rounded-xl px-3 py-2.5">
           <User className="w-4 h-4 text-[#D4A054]" />
           <input
@@ -124,14 +124,14 @@ function PartnerInputForm({ onSubmit, onClose }: {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Their name"
-            className="flex-1 bg-transparent text-sm text-[#F1F0F5] placeholder:text-[#5A6478] outline-none"
+            className="flex-1 bg-transparent text-sm text-[#F1F0F5] placeholder:text-[#8892A3] outline-none"
           />
         </div>
       </div>
 
       {/* Date of Birth */}
       <div>
-        <label className="text-xs text-[#8A8F9E] mb-1 block">Date of Birth</label>
+        <label className="text-xs text-[#A0A5B2] mb-1 block">Date of Birth</label>
         <div className="flex items-center gap-2 glass-inner rounded-xl px-3 py-2.5">
           <Calendar className="w-4 h-4 text-[#D4A054]" />
           <input
@@ -146,7 +146,7 @@ function PartnerInputForm({ onSubmit, onClose }: {
 
       {/* Time of Birth */}
       <div>
-        <label className="text-xs text-[#8A8F9E] mb-1 block">Time of Birth</label>
+        <label className="text-xs text-[#A0A5B2] mb-1 block">Time of Birth</label>
         <div className="flex items-center gap-2 glass-inner rounded-xl px-3 py-2.5">
           <Clock className="w-4 h-4 text-[#D4A054]" />
           <input
@@ -168,13 +168,13 @@ function PartnerInputForm({ onSubmit, onClose }: {
             }}
             className="w-3.5 h-3.5 rounded accent-[#D4A054]"
           />
-          <span className="text-xs text-[#8A8F9E]">Time unknown</span>
+          <span className="text-xs text-[#A0A5B2]">Time unknown</span>
         </label>
       </div>
 
       {/* Place of Birth */}
       <div>
-        <label className="text-xs text-[#8A8F9E] mb-1 block">Place of Birth</label>
+        <label className="text-xs text-[#A0A5B2] mb-1 block">Place of Birth</label>
         <div className="flex items-center gap-2 glass-inner rounded-xl px-3 py-2.5">
           <MapPin className="w-4 h-4 text-[#D4A054]" />
           <input
@@ -182,7 +182,7 @@ function PartnerInputForm({ onSubmit, onClose }: {
             value={placeOfBirth}
             onChange={(e) => setPlaceOfBirth(e.target.value)}
             placeholder="City, Country"
-            className="flex-1 bg-transparent text-sm text-[#F1F0F5] placeholder:text-[#5A6478] outline-none"
+            className="flex-1 bg-transparent text-sm text-[#F1F0F5] placeholder:text-[#8892A3] outline-none"
           />
         </div>
       </div>
@@ -228,14 +228,14 @@ function SectionCard({ section, onAsk, onUnlock }: {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-[#F1F0F5]">{section.title}</span>
-            {section.isPremium && <Lock className="w-3.5 h-3.5 text-[#5A6478]" />}
+            {section.isPremium && <Lock className="w-3.5 h-3.5 text-[#8892A3]" />}
           </div>
-          <p className="text-xs text-[#8A8F9E] truncate">{section.summary}</p>
+          <p className="text-xs text-[#A0A5B2] truncate">{section.summary}</p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <span className={`text-lg font-bold ${scoreColor}`}>{section.score}</span>
           {!section.isPremium && (
-            <ChevronRight className={`w-4 h-4 text-[#5A6478] transition-transform ${expanded ? "rotate-90" : ""}`} />
+            <ChevronRight className={`w-4 h-4 text-[#8892A3] transition-transform ${expanded ? "rotate-90" : ""}`} />
           )}
         </div>
       </button>
@@ -404,7 +404,7 @@ export default function CompatibilityTab({
                 <h2 className="text-xl font-bold text-[#F1F0F5] mb-1">
                   Kundli Matching
                 </h2>
-                <p className="text-sm text-[#8A8F9E] leading-relaxed max-w-[280px] mx-auto">
+                <p className="text-sm text-[#A0A5B2] leading-relaxed max-w-[280px] mx-auto">
                   Discover your cosmic compatibility through Vedic astrology.
                   Based on Ashtakoot Milan — the ancient 8-fold matching system.
                 </p>
@@ -423,7 +423,7 @@ export default function CompatibilityTab({
 
             {/* Relationship Type Selector */}
             <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-[#8A8F9E] uppercase tracking-wider px-1">
+              <h3 className="text-sm font-semibold text-[#A0A5B2] uppercase tracking-wider px-1">
                 Relationship Type
               </h3>
               <div className="grid grid-cols-4 gap-2">
@@ -444,7 +444,7 @@ export default function CompatibilityTab({
                   >
                     <span className="text-lg">{type.emoji}</span>
                     <span className={`text-[10px] font-medium ${
-                      relationshipType === type.id ? "text-[#D4A054]" : "text-[#8A8F9E]"
+                      relationshipType === type.id ? "text-[#D4A054]" : "text-[#A0A5B2]"
                     }`}>{type.label}</span>
                   </button>
                 ))}
@@ -453,7 +453,7 @@ export default function CompatibilityTab({
 
             {/* How it works */}
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-[#8A8F9E] uppercase tracking-wider px-1">
+              <h3 className="text-sm font-semibold text-[#A0A5B2] uppercase tracking-wider px-1">
                 How It Works
               </h3>
               {[
@@ -467,7 +467,7 @@ export default function CompatibilityTab({
                   </div>
                   <div>
                     <p className="text-sm font-medium text-[#F1F0F5]">{item.title}</p>
-                    <p className="text-xs text-[#8A8F9E]">{item.desc}</p>
+                    <p className="text-xs text-[#A0A5B2]">{item.desc}</p>
                   </div>
                 </div>
               ))}
@@ -476,7 +476,7 @@ export default function CompatibilityTab({
             {/* Trust badge */}
             <div className="glass-inner rounded-xl p-3 flex items-center gap-3">
               <Sparkles className="w-5 h-5 text-[#D4A054] flex-shrink-0" />
-              <p className="text-xs text-[#8A8F9E] leading-relaxed">
+              <p className="text-xs text-[#A0A5B2] leading-relaxed">
                 <span className="text-[#D4A054] font-medium">Free:</span> Overall score + 3 sections.{" "}
                 <span className="text-[#D4A054] font-medium">Premium:</span> All 6 sections with deep analysis.
               </p>
@@ -513,7 +513,7 @@ export default function CompatibilityTab({
             </div>
             <div className="text-center space-y-1">
               <p className="text-sm font-medium text-[#F1F0F5]">Analyzing cosmic compatibility...</p>
-              <p className="text-xs text-[#8A8F9E]">Comparing birth charts & planetary positions</p>
+              <p className="text-xs text-[#A0A5B2]">Comparing birth charts & planetary positions</p>
             </div>
           </motion.div>
         )}
@@ -532,14 +532,14 @@ export default function CompatibilityTab({
                   <div className="w-10 h-10 rounded-full bg-[#D4A054]/10 flex items-center justify-center mx-auto mb-1">
                     <User className="w-5 h-5 text-[#D4A054]" />
                   </div>
-                  <span className="text-xs text-[#8A8F9E]">{userData?.name || "You"}</span>
+                  <span className="text-xs text-[#A0A5B2]">{userData?.name || "You"}</span>
                 </div>
                 <Heart className="w-5 h-5 text-[#D4A054]" />
                 <div className="text-center">
                   <div className="w-10 h-10 rounded-full bg-[#D4A054]/10 flex items-center justify-center mx-auto mb-1">
                     <Users className="w-5 h-5 text-[#D4A054]" />
                   </div>
-                  <span className="text-xs text-[#8A8F9E]">{partnerData?.name || "Partner"}</span>
+                  <span className="text-xs text-[#A0A5B2]">{partnerData?.name || "Partner"}</span>
                 </div>
               </div>
 
@@ -548,14 +548,14 @@ export default function CompatibilityTab({
               </div>
 
               <p className="text-sm font-medium text-[#F1F0F5]">{result.headline}</p>
-              <p className="text-xs text-[#8A8F9E] leading-relaxed">{result.advice}</p>
+              <p className="text-xs text-[#A0A5B2] leading-relaxed">{result.advice}</p>
             </div>
 
             <div className="section-divider" />
 
             {/* Section Cards */}
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-[#8A8F9E] uppercase tracking-wider px-1">
+              <h3 className="text-sm font-semibold text-[#A0A5B2] uppercase tracking-wider px-1">
                 Detailed Breakdown
               </h3>
               {result.sections.map((section) => (
@@ -579,9 +579,9 @@ export default function CompatibilityTab({
               </div>
               <div className="flex-1 text-left">
                 <p className="text-sm font-medium text-[#F1F0F5]">Ask about your compatibility</p>
-                <p className="text-xs text-[#8A8F9E]">Get personalized relationship advice</p>
+                <p className="text-xs text-[#A0A5B2]">Get personalized relationship advice</p>
               </div>
-              <ArrowRight className="w-4 h-4 text-[#5A6478] group-hover:text-[#D4A054] transition-colors" />
+              <ArrowRight className="w-4 h-4 text-[#8892A3] group-hover:text-[#D4A054] transition-colors" />
             </button>
 
             {/* Try Another */}

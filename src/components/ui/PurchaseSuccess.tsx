@@ -110,7 +110,7 @@ export default function PurchaseSuccess({
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.5 }}
-              className="text-sm text-[#8A8F9E] mb-6 leading-relaxed"
+              className="text-sm text-[#A0A5B2] mb-6 leading-relaxed"
             >
               {type === "subscription"
                 ? "Your premium features are now active. Enjoy deeper insights and unlimited guidance."

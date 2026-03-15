@@ -36,10 +36,10 @@ function StatCard({ label, value, icon: Icon, subtext, color }: {
         <div className={`w-7 h-7 rounded-lg ${color} flex items-center justify-center`}>
           <Icon className="w-3.5 h-3.5" />
         </div>
-        <span className="text-[10px] text-[#5A6478] uppercase tracking-wider">{label}</span>
+        <span className="text-[10px] text-[#8892A3] uppercase tracking-wider">{label}</span>
       </div>
       <p className="text-xl font-bold text-[#F1F0F5]">{value}</p>
-      {subtext && <p className="text-[10px] text-[#5A6478] mt-0.5">{subtext}</p>}
+      {subtext && <p className="text-[10px] text-[#8892A3] mt-0.5">{subtext}</p>}
     </div>
   )
 }
@@ -83,14 +83,14 @@ export default function FounderDashboard() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-lg font-bold text-[#F1F0F5]">Founder Dashboard</h1>
-          <p className="text-xs text-[#5A6478]">GrahAI — Real-time metrics</p>
+          <p className="text-xs text-[#8892A3]">GrahAI — Real-time metrics</p>
         </div>
         <button
           onClick={fetchDashboard}
           className="w-8 h-8 rounded-lg bg-[#1E2638] border border-[#1E293B]
             flex items-center justify-center"
         >
-          <RefreshCw className={`w-3.5 h-3.5 text-[#5A6478] ${loading ? "animate-spin" : ""}`} />
+          <RefreshCw className={`w-3.5 h-3.5 text-[#8892A3] ${loading ? "animate-spin" : ""}`} />
         </button>
       </div>
 
@@ -103,7 +103,7 @@ export default function FounderDashboard() {
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
               timeframe === tf
                 ? "bg-[#D4A054]/15 text-[#D4A054] border border-[#D4A054]/30"
-                : "bg-[#111827] text-[#5A6478] border border-[#1E293B]"
+                : "bg-[#111827] text-[#8892A3] border border-[#1E293B]"
             }`}
           >
             {tf.charAt(0).toUpperCase() + tf.slice(1)}
@@ -173,7 +173,7 @@ export default function FounderDashboard() {
           <div className="bg-[#111827] border border-[#1E293B] rounded-xl p-4 space-y-2">
             {d.topThemes.map((theme, i) => (
               <div key={i} className="flex items-center justify-between">
-                <span className="text-xs text-[#94A3B8]">{theme.theme}</span>
+                <span className="text-xs text-[#ACB8C4]">{theme.theme}</span>
                 <span className="text-xs font-medium text-[#D4A054]">{theme.count}</span>
               </div>
             ))}
@@ -201,7 +201,7 @@ export default function FounderDashboard() {
 
       {/* Footer */}
       <div className="text-center pt-4 pb-8 border-t border-[#1E293B]">
-        <p className="text-[10px] text-[#5A6478]">
+        <p className="text-[10px] text-[#8892A3]">
           GrahAI Founder Dashboard — Data refreshes on page load
         </p>
       </div>
