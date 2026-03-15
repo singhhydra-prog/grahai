@@ -96,7 +96,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
           place: birthData.placeOfBirth || "Unknown",
           latitude: birthData.latitude || 28.6139,
           longitude: birthData.longitude || 77.209,
-          timezone: typeof birthData.timezone === "string" ? parseFloat(birthData.timezone) || 5.5 : (birthData.timezone || 5.5),
+          timezone: birthData.timezone || 5.5,
         }
 
         const res = await fetch("/api/reports/generate-code", {

@@ -316,7 +316,7 @@ export default function CompatibilityTab({
         place: userData.placeOfBirth || "Unknown",
         latitude: userData.latitude || 28.6139,
         longitude: userData.longitude || 77.209,
-        timezone: typeof userData.timezone === "string" ? parseFloat(userData.timezone) || 5.5 : (userData.timezone || 5.5),
+        timezone: userData.timezone || 5.5,
       } : null
 
       const partnerBirth = {
@@ -325,7 +325,7 @@ export default function CompatibilityTab({
         place: partner.placeOfBirth || "Unknown",
         latitude: partner.latitude || 28.6139,
         longitude: partner.longitude || 77.209,
-        timezone: typeof partner.timezone === "string" ? parseFloat(partner.timezone) || 5.5 : (partner.timezone || 5.5),
+        timezone: partner.timezone || 5.5,
       }
 
       if (!userBirth) throw new Error("User birth data not available")

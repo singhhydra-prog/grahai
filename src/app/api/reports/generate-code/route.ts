@@ -53,6 +53,38 @@ interface ErrorResponse {
 
 type ApiResponse = SuccessResponse | ErrorResponse
 
+// ─── IANA timezone string → numeric UTC offset ────────
+function resolveTimezoneOffset(tz: unknown, birthDate?: string): number {
+  if (tz === null || tz === undefined) return 5.5
+  if (typeof tz === "number" && !isNaN(tz)) return tz
+  const tzStr = String(tz).trim()
+  const asNum = parseFloat(tzStr)
+  if (!isNaN(asNum) && /^-?\d+(\.\d+)?$/.test(tzStr)) return asNum
+  try {
+    const refDate = birthDate ? new Date(birthDate + "T12:00:00") : new Date()
+    const utcStr = refDate.toLocaleString("en-US", { timeZone: "UTC" })
+    const localStr = refDate.toLocaleString("en-US", { timeZone: tzStr })
+    const diffMs = new Date(localStr).getTime() - new Date(utcStr).getTime()
+    const hours = diffMs / (1000 * 60 * 60)
+    if (!isNaN(hours)) return hours
+  } catch { /* not valid IANA */ }
+  const COMMON_TZ: Record<string, number> = {
+    "Asia/Kolkata": 5.5, "Asia/Calcutta": 5.5, "America/New_York": -5,
+    "America/Chicago": -6, "America/Los_Angeles": -8, "Europe/London": 0,
+    "Asia/Dubai": 4, "Asia/Singapore": 8, "Asia/Tokyo": 9,
+  }
+  if (COMMON_TZ[tzStr] !== undefined) return COMMON_TZ[tzStr]
+  return 5.5
+}
+
+// ─── Normalize birthDetails timezone ────────────────────
+function normalizeBirthDetails(bd: BirthDetails): BirthDetails {
+  return {
+    ...bd,
+    timezone: resolveTimezoneOffset(bd.timezone, bd.date),
+  }
+}
+
 // ─── Main POST Handler ───────────────────────────────────────
 
 export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>> {
@@ -63,9 +95,9 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
     const body = await req.json()
     const {
       reportType,
-      birthDetails,
+      birthDetails: rawBirthDetails,
       name,
-      partnerBirthDetails,
+      partnerBirthDetails: rawPartnerBirthDetails,
       partnerName,
     } = body as {
       reportType?: string
@@ -74,6 +106,10 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
       partnerBirthDetails?: BirthDetails
       partnerName?: string
     }
+
+    // Normalize timezone fields (handles IANA strings like "Asia/Kolkata" → 5.5)
+    const birthDetails = rawBirthDetails ? normalizeBirthDetails(rawBirthDetails) : rawBirthDetails
+    const partnerBirthDetails = rawPartnerBirthDetails ? normalizeBirthDetails(rawPartnerBirthDetails) : rawPartnerBirthDetails
 
     // Validate required fields
     if (!reportType || !birthDetails) {
