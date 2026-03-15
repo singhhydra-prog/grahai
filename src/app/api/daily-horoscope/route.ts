@@ -18,6 +18,8 @@ import {
   DAY_LORDS,
   PLANET_SANSKRIT,
 } from "@/lib/ephemeris/constants"
+import { generateDailyInsight, type DailyInsight } from "@/lib/daily-insights/insight-generator"
+import type { BirthDetails } from "@/lib/ephemeris/types"
 
 // ─── Approximate sidereal positions ────────────────────
 function getSiderealSunLongitude(date: Date): number {
@@ -223,12 +225,82 @@ function generateCategoryInsights(
   }
 }
 
+// ─── Map per-user DailyInsight → legacy API response format ─
+function mapInsightToResponse(
+  insight: DailyInsight,
+  targetDate: Date,
+  dayOffset: number,
+  signName: string,
+  placeOfBirth?: string,
+) {
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+  const dateLabel = `${months[targetDate.getMonth()]} ${targetDate.getDate()}`
+  const seed = targetDate.getFullYear() * 10000 + (targetDate.getMonth() + 1) * 100 + targetDate.getDate()
+  const colours = LUCKY_COLOURS[signName] || ["White"]
+  const numbers = LUCKY_NUMBERS[signName] || [7]
+
+  return {
+    success: true,
+    date: dateLabel,
+    dayOffset,
+    personalized: true,
+    theme: {
+      title: insight.headline,
+      headline: insight.headline,
+      action: insight.activities.favorable.slice(0, 2).join(". ") || "Focus on your highest-priority task today.",
+      caution: insight.activities.unfavorable.slice(0, 2).join(". ") || "Avoid impulsive decisions during Rahu Kaal.",
+      whyActive: `${insight.moonTransit.effect} ${insight.dashaContext.interpretation.split(". ").slice(0, 1).join(".")}`,
+      source: {
+        principle: `Moon in ${insight.moonTransit.currentSign} (${insight.moonTransit.nakshatra})`,
+        text: `${insight.overallTrend}. ${insight.dashaContext.mahadasha} Mahadasha with ${insight.dashaContext.antardasha} Antardasha active.`,
+        reference: insight.bphsVerse.source,
+      },
+    },
+    panchang: {
+      tithi: insight.panchang.tithi,
+      paksha: insight.panchang.tithi.includes("Purnima") ? "Shukla Paksha" : insight.panchang.tithi.includes("Amavasya") ? "Krishna Paksha" : "Shukla Paksha",
+      nakshatra: insight.panchang.nakshatra,
+      vara: insight.panchang.vara,
+      varaLord: insight.panchang.vara,
+    },
+    timing: {
+      auspiciousTime: { start: insight.panchang.auspicious[0] || "06:00 AM", end: insight.panchang.auspicious[1] || "07:30 AM" },
+      rahuKaal: { start: insight.panchang.rahuKaal.split(" - ")[0] || "Unknown", end: insight.panchang.rahuKaal.split(" - ")[1] || "Unknown" },
+    },
+    lucky: {
+      colour: colours[seed % colours.length],
+      number: numbers[seed % numbers.length],
+    },
+    categories: {
+      wealth: insight.keyTransits.find(t => t.planet === "Jupiter")?.effect || `${insight.dashaContext.mahadasha} period influences your financial growth. ${insight.overallTrend}.`,
+      relationship: insight.keyTransits.find(t => t.planet === "Venus")?.effect || `Moon in ${insight.moonTransit.currentSign} colors your emotional connections today. ${insight.moonTransit.effect}.`,
+      career: insight.keyTransits.find(t => t.planet === "Saturn")?.effect || `${insight.dashaContext.mahadasha} Mahadasha shapes your professional direction. Focus on long-term goals.`,
+      self: `${insight.moonTransit.effect} ${insight.dailyRemedy.reason}`,
+    },
+    moonSign: insight.moonTransit.currentSign,
+    sunSign: signName,
+    place: placeOfBirth || "India",
+    dashaContext: {
+      mahadasha: insight.dashaContext.mahadasha,
+      antardasha: insight.dashaContext.antardasha,
+      interpretation: insight.dashaContext.interpretation,
+    },
+    dailyRemedy: insight.dailyRemedy,
+    bphsVerse: insight.bphsVerse,
+    sadeSati: insight.sadeSatiActive ? {
+      active: true,
+      phase: insight.sadeSatiPhase,
+      advice: insight.sadeSatiAdvice,
+    } : { active: false },
+  }
+}
+
 // ─── API Handler ───────────────────────────────────────
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { birthDate, placeOfBirth, offset } = body
+    const { birthDate, birthTime, placeOfBirth, latitude, longitude, timezone, offset, name, userId } = body
 
     // offset: 0 = today, 1 = tomorrow
     const dayOffset = offset === 1 ? 1 : 0
@@ -244,6 +316,41 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid birth date" }, { status: 400 })
     }
 
+    // ─── Try per-user chart-based generation first ───────
+    const hasFullBirthData = latitude && longitude && timezone !== undefined
+    if (hasFullBirthData) {
+      try {
+        const birthDetails: BirthDetails = {
+          date: birthDate,
+          time: birthTime || "12:00",
+          place: placeOfBirth || "Unknown",
+          latitude: Number(latitude),
+          longitude: Number(longitude),
+          timezone: Number(timezone),
+        }
+
+        const insight = await generateDailyInsight(
+          userId || "anonymous",
+          birthDetails,
+          name || "User",
+          targetDate,
+        )
+
+        // Calculate birth sun sign for lucky elements
+        const birthSunLong = getSiderealSunLongitude(dob)
+        const sunSign = SIGNS[Math.floor(birthSunLong / 30)]
+        const signName = sunSign?.name || "Aries"
+
+        return NextResponse.json(mapInsightToResponse(
+          insight, targetDate, dayOffset, signName, placeOfBirth,
+        ))
+      } catch (genErr) {
+        console.warn("Per-user insight generation failed, falling back to templates:", genErr)
+        // Fall through to template-based generation
+      }
+    }
+
+    // ─── Fallback: template-based generation ─────────────
     // Calculate birth chart basics
     const birthSunLong = getSiderealSunLongitude(dob)
     const sunSign = SIGNS[Math.floor(birthSunLong / 30)]
@@ -311,6 +418,7 @@ export async function POST(req: NextRequest) {
       success: true,
       date: dateLabel,
       dayOffset,
+      personalized: false,
       theme: todayTheme,
       panchang: {
         tithi: TITHI_NAMES[tithiNumber] || "Unknown",

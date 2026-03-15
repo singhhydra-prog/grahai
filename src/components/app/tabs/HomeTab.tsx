@@ -86,7 +86,12 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           birthDate: birthData.dateOfBirth,
+          birthTime: birthData.timeOfBirth,
           placeOfBirth: birthData.placeOfBirth,
+          latitude: birthData.latitude,
+          longitude: birthData.longitude,
+          timezone: birthData.timezone,
+          name: birthData.name,
           offset,
         }),
       })

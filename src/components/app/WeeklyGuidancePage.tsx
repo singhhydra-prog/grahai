@@ -84,7 +84,16 @@ export default function WeeklyGuidancePage({ onBack }: WeeklyGuidancePageProps) 
         const res = await fetch("/api/daily-horoscope", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ birthDate: birthData.dateOfBirth, placeOfBirth: birthData.placeOfBirth, offset: 0 }),
+          body: JSON.stringify({
+            birthDate: birthData.dateOfBirth,
+            birthTime: birthData.timeOfBirth,
+            placeOfBirth: birthData.placeOfBirth,
+            latitude: birthData.latitude,
+            longitude: birthData.longitude,
+            timezone: birthData.timezone,
+            name: birthData.name,
+            offset: 0,
+          }),
         })
 
         const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]

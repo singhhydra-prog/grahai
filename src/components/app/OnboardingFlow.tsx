@@ -12,6 +12,7 @@ import { useLanguage } from "@/lib/LanguageContext"
 import { LANGUAGES, type Language } from "@/lib/i18n"
 import type { BirthData, IntentCategory, CosmicSnapshot } from "@/types/app"
 import LocationSearch, { type CityData } from "@/components/ui/LocationSearch"
+import { supabase } from "@/lib/supabase"
 
 /* GrahAI branding — shown only on onboarding welcome step */
 
@@ -202,6 +203,25 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         localStorage.setItem("userNameForGreeting", form.name.split(" ")[0])
         if (intent) localStorage.setItem("grahai-user-intent", intent)
         localStorage.setItem("grahai-questions-left", "3")
+
+        // Persist birth data to Supabase (non-blocking)
+        if (supabase) {
+          supabase.auth.getUser().then(({ data: { user } }: { data: { user: { id: string } | null } }) => {
+            if (user) {
+              supabase
+                .from("profiles")
+                .upsert({
+                  id: user.id,
+                  name: form.name,
+                  birth_data: birthData,
+                  updated_at: new Date().toISOString(),
+                }, { onConflict: "id" })
+                .then(({ error: upsertError }: { error: { message: string } | null }) => {
+                  if (upsertError) console.warn("Failed to persist birth data to Supabase:", upsertError.message)
+                })
+            }
+          })
+        }
 
         const res = await fetch("/api/cosmic-snapshot", {
           method: "POST",

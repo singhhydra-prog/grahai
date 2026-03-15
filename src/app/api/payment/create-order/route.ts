@@ -4,13 +4,13 @@ import Razorpay from "razorpay"
 // Plan configuration
 const PLANS = {
   graha: {
-    amount: 49900, // ₹499 in paise
+    amount: 19900, // ₹199 in paise
     currency: "INR",
     name: "Graha",
     description: "Graha - Comprehensive Vedic Readings"
   },
   rishi: {
-    amount: 149900, // ₹1,499 in paise
+    amount: 49900, // ₹499 in paise
     currency: "INR",
     name: "Rishi",
     description: "Rishi - Premium Vedic Consultation"
