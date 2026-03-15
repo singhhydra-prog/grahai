@@ -1,6 +1,6 @@
 "use client"
 
-import { Home, MessageCircle, Compass, FileText, User } from "lucide-react"
+import { Home, MessageCircle, Heart, FileText, User } from "lucide-react"
 import type { TabType } from "@/types/app"
 import { useLanguage } from "@/lib/LanguageContext"
 
@@ -15,7 +15,7 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
   const TABS: { id: TabType; label: string; Icon: typeof Home }[] = [
     { id: "home", label: t.nav.home, Icon: Home },
     { id: "ask", label: t.nav.ask, Icon: MessageCircle },
-    { id: "chart", label: t.nav.chart, Icon: Compass },
+    { id: "compatibility", label: t.nav.compatibility, Icon: Heart },
     { id: "reports", label: t.nav.reports, Icon: FileText },
     { id: "profile", label: t.nav.profile, Icon: User },
   ]

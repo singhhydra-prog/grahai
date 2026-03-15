@@ -10,12 +10,13 @@ import type { TabType } from "@/types/app"
 /* Lazy-load all tab components */
 const HomeTab = dynamic(() => import("@/components/app/tabs/HomeTab"), { ssr: false })
 const AskTab = dynamic(() => import("@/components/app/tabs/AskTab"), { ssr: false })
-const MyChartTab = dynamic(() => import("@/components/app/tabs/MyChartTab"), { ssr: false })
+const CompatibilityTab = dynamic(() => import("@/components/app/tabs/CompatibilityTab"), { ssr: false })
 const ReportsTab = dynamic(() => import("@/components/app/tabs/ReportsTab"), { ssr: false })
 const ProfileTab = dynamic(() => import("@/components/app/tabs/ProfileTab"), { ssr: false })
 const OnboardingFlow = dynamic(() => import("@/components/app/OnboardingFlow"), { ssr: false })
 const PricingOverlay = dynamic(() => import("@/components/app/PricingOverlay"), { ssr: false })
 const ReferralPage = dynamic(() => import("@/components/app/ReferralPage"), { ssr: false })
+const PurchaseSuccess = dynamic(() => import("@/components/ui/PurchaseSuccess"), { ssr: false })
 
 export default function AppPage() {
   const [activeTab, setActiveTab] = useState<TabType>("home")
@@ -23,6 +24,12 @@ export default function AppPage() {
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [showPricing, setShowPricing] = useState(false)
   const [showReferral, setShowReferral] = useState(false)
+  const [purchaseSuccess, setPurchaseSuccess] = useState<{
+    type: "subscription" | "report"
+    planName?: string
+    reportTitle?: string
+    downloadUrl?: string
+  } | null>(null)
   const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
@@ -97,10 +104,11 @@ export default function AppPage() {
                 <AskTab initialQuestion={askQuestion} />
               )}
 
-              {activeTab === "chart" && (
-                <MyChartTab
+              {activeTab === "compatibility" && (
+                <CompatibilityTab
                   onProfileClick={goToProfile}
                   onAskQuestion={(q) => goToAsk(q)}
+                  onPricingClick={() => setShowPricing(true)}
                 />
               )}
 
@@ -142,6 +150,16 @@ export default function AppPage() {
                 />
               )}
             </AnimatePresence>
+
+            {/* Purchase Success Overlay */}
+            <PurchaseSuccess
+              isOpen={!!purchaseSuccess}
+              onClose={() => setPurchaseSuccess(null)}
+              type={purchaseSuccess?.type || "subscription"}
+              planName={purchaseSuccess?.planName}
+              reportTitle={purchaseSuccess?.reportTitle}
+              downloadUrl={purchaseSuccess?.downloadUrl}
+            />
           </>
         )}
       </div>

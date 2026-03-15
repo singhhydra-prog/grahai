@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import {
   Sparkles, ArrowRight, Heart, Briefcase, Zap,
   BookOpen, MessageCircle, ChevronRight,
-  CheckCircle, AlertTriangle
+  CheckCircle, AlertTriangle, Calendar, ExternalLink, Bookmark
 } from "lucide-react"
 import AppHeader from "@/components/ui/AppHeader"
 import SourceDrawer from "@/components/ui/SourceDrawer"
@@ -225,7 +225,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                 </div>
 
                 {/* Ask Why + View Source buttons */}
-                <div className="flex gap-2">
+                <div className="flex gap-2 mb-3">
                   <button
                     onClick={() => onAskQuestion(`Why is "${horoscope.theme?.title}" my theme today?`)}
                     className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl
@@ -245,6 +245,15 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                     {t.home.sourcesTitle}
                   </button>
                 </div>
+
+                {/* Read full insight link */}
+                <button
+                  onClick={() => window.open("/daily", "_blank")}
+                  className="w-full flex items-center justify-center gap-1.5 py-2 text-xs text-[#D4A054]/70 font-medium
+                    hover:text-[#D4A054] transition-colors"
+                >
+                  View full daily insight <ExternalLink className="w-3 h-3" />
+                </button>
               </div>
 
               {/* ═══ 2. Why This Is Active ═══ */}
@@ -295,11 +304,69 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                 </motion.div>
               ))}
 
-              {/* ═══ 4. Ask GrahAI Prompt ═══ */}
+              {/* ═══ 4. Weekly Guidance Card ═══ */}
               <motion.button
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                onClick={() => window.open("/weekly", "_blank")}
+                className="w-full glass-card-hero p-4 mb-4 text-left hover:border-[#D4A054]/20 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0">
+                    <Calendar className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-[#F1F0F5] mb-0.5">Your Week Ahead</p>
+                    <p className="text-[11px] text-[#5A6478] line-clamp-1">Day-by-day energy map and guidance for this week</p>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <ExternalLink className="w-3.5 h-3.5 text-[#D4A054]" />
+                  </div>
+                </div>
+              </motion.button>
+
+              {/* ═══ 5. Quick Actions Row ═══ */}
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.35 }}
+                className="grid grid-cols-3 gap-2.5 mb-4"
+              >
+                <button
+                  onClick={() => onAskQuestion()}
+                  className="glass-card p-3 flex flex-col items-center gap-2 hover:border-[#D4A054]/20 transition-colors"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-[#D4A054]/10 flex items-center justify-center">
+                    <Sparkles className="w-4.5 h-4.5 text-[#D4A054]" />
+                  </div>
+                  <span className="text-[11px] font-medium text-[#F1F0F5]">{t.nav.ask}</span>
+                </button>
+                <button
+                  onClick={() => onViewReports()}
+                  className="glass-card p-3 flex flex-col items-center gap-2 hover:border-[#D4A054]/20 transition-colors"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                    <BookOpen className="w-4.5 h-4.5 text-purple-400" />
+                  </div>
+                  <span className="text-[11px] font-medium text-[#F1F0F5]">{t.nav.reports}</span>
+                </button>
+                <button
+                  onClick={() => onAskQuestion("Check my compatibility with my partner")}
+                  className="glass-card p-3 flex flex-col items-center gap-2 hover:border-[#D4A054]/20 transition-colors"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-rose-500/10 flex items-center justify-center">
+                    <Heart className="w-4.5 h-4.5 text-rose-400" />
+                  </div>
+                  <span className="text-[11px] font-medium text-[#F1F0F5]">{t.nav.compatibility}</span>
+                </button>
+              </motion.div>
+
+              {/* ═══ 5. Ask GrahAI Prompt ═══ */}
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
                 onClick={() => onAskQuestion()}
                 className="w-full flex items-center gap-3 glass-card-hero gold-shimmer
                   px-4 py-4 mb-4 hover:border-[#D4A054]/30 transition-colors"
@@ -314,11 +381,11 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                 <ArrowRight className="w-4 h-4 text-[#D4A054]" />
               </motion.button>
 
-              {/* ═══ 5. Lucky Elements (compact) ═══ */}
+              {/* ═══ 6. Lucky Elements (compact) ═══ */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
+                transition={{ delay: 0.45 }}
                 className="glass-card p-4 mb-4"
               >
                 <div className="flex items-center justify-between">
@@ -355,11 +422,31 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                 </div>
               </motion.div>
 
-              {/* ═══ 6. Premium Depth ═══ */}
+              {/* ═══ 7. Saved Library ═══ */}
               <motion.button
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.45 }}
+                transition={{ delay: 0.47 }}
+                onClick={() => window.open("/library", "_blank")}
+                className="w-full glass-card p-4 mb-4 text-left hover:border-[#D4A054]/20 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-teal-500/10 flex items-center justify-center shrink-0">
+                    <Bookmark className="w-4 h-4 text-teal-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-[#F1F0F5]">Your Library</p>
+                    <p className="text-[10px] text-[#5A6478]">Saved answers, reports, and compatibility results</p>
+                  </div>
+                  <ExternalLink className="w-3.5 h-3.5 text-[#5A6478]" />
+                </div>
+              </motion.button>
+
+              {/* ═══ 8. Premium Depth ═══ */}
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
                 onClick={onViewReports}
                 className="w-full glass-card p-4 text-left mb-4
                   hover:border-[#D4A054]/20 transition-colors"

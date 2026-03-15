@@ -6,7 +6,7 @@ import dynamic from "next/dynamic"
 import {
   ArrowRight, ArrowLeft, Sparkles, MapPin, Clock, Calendar,
   Briefcase, Heart, Gem, TrendingUp, Moon, Compass, Eye,
-  BookOpen, Shield, Target, Send, Bookmark, ChevronRight, Globe,
+  BookOpen, Shield, Target, Send, ChevronRight, Globe,
 } from "lucide-react"
 import { useLanguage } from "@/lib/LanguageContext"
 import { LANGUAGES, type Language } from "@/lib/i18n"
@@ -20,14 +20,12 @@ interface OnboardingFlowProps {
 }
 
 const STEPS = [
-  { id: "language" },
-  { id: "welcome" },
-  { id: "intent" },
-  { id: "trust" },
-  { id: "birth" },
-  { id: "reveal" },
-  { id: "first-question" },
-  { id: "save-chart" },
+  { id: "language" },         // 0
+  { id: "welcome-trust" },    // 1 — merged welcome + trust
+  { id: "intent" },           // 2
+  { id: "birth" },            // 3
+  { id: "reveal" },           // 4
+  { id: "first-question" },   // 5
 ]
 
 // Intent-based suggested questions for the first-question step
@@ -136,12 +134,11 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [snapshot, setSnapshot] = useState<CosmicSnapshot | null>(null)
   const [firstQuestion, setFirstQuestion] = useState("")
-  const [email, setEmail] = useState("")
   const questionInputRef = useRef<HTMLInputElement>(null)
 
-  // Auto-focus question input when reaching step 6
+  // Auto-focus question input when reaching step 5
   useEffect(() => {
-    if (step === 6 && questionInputRef.current) {
+    if (step === 5 && questionInputRef.current) {
       setTimeout(() => questionInputRef.current?.focus(), 600)
     }
   }, [step])
@@ -171,15 +168,13 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
   const canProceed = useCallback(() => {
     if (step === 0) return true // language picker
-    if (step === 1) return true // welcome
-    if (step === 2) return intent !== null
-    if (step === 3) return true
-    if (step === 4) {
+    if (step === 1) return true // welcome-trust
+    if (step === 2) return intent !== null // intent
+    if (step === 3) {
       return form.name.trim().length >= 2 && form.dateOfBirth && form.placeOfBirth.trim() && (timeUnknown || form.timeOfBirth)
     }
-    if (step === 5) return true // reveal
-    if (step === 6) return true // first question (optional)
-    if (step === 7) return true // save chart (optional)
+    if (step === 4) return true // reveal
+    if (step === 5) return true // first question (optional)
     return false
   }, [step, intent, form, timeUnknown])
 
@@ -190,8 +185,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       return
     }
 
-    // Step 4 → 5: Generate chart then move to reveal
-    if (step === 4) {
+    // Step 3 → 4: Generate chart then move to reveal
+    if (step === 3) {
       setIsSubmitting(true)
       try {
         const birthData = {
@@ -230,36 +225,24 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         setSnapshot(makeFallbackSnapshot())
       }
       setIsSubmitting(false)
+      setStep(4)
+      return
+    }
+
+    // Step 4: Reveal — move to first question
+    if (step === 4) {
       setStep(5)
       return
     }
 
-    // Step 6: First question — go to Ask tab with the question
-    if (step === 6) {
-      if (firstQuestion.trim()) {
-        // User typed a question — enter app and go to Ask with this question
-        localStorage.setItem("grahai-onboarding-complete", "true")
-        onComplete(true, firstQuestion.trim())
-        return
-      }
-      // No question typed — move to save chart step
-      setStep(7)
-      return
-    }
-
-    // Step 7: Save chart — enter the app
-    if (step === 7) {
-      if (email.trim()) {
-        localStorage.setItem("grahai-user-email", email.trim())
-      }
-      localStorage.setItem("grahai-onboarding-complete", "true")
-      onComplete()
-      return
-    }
-
-    // Step 5: Reveal — move to first question
+    // Step 5: First question — go to Ask tab or enter app
     if (step === 5) {
-      setStep(6)
+      localStorage.setItem("grahai-onboarding-complete", "true")
+      if (firstQuestion.trim()) {
+        onComplete(true, firstQuestion.trim())
+      } else {
+        onComplete()
+      }
       return
     }
 
@@ -267,7 +250,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   }
 
   const handleBack = () => {
-    if (step > 0 && step <= 4) setStep(step - 1)
+    if (step > 0 && step <= 3) setStep(step - 1)
   }
 
   const handleSelectSuggestion = (q: string) => {
@@ -300,11 +283,11 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex flex-col"
     >
-      {/* Progress dots — show for steps 1-4 */}
-      {step >= 1 && step <= 4 && (
+      {/* Progress dots — show for steps 1-3 (welcome-trust, intent, birth) */}
+      {step >= 1 && step <= 3 && (
         <div className="px-6 pt-4 pb-2">
           <div className="flex gap-2">
-            {STEPS.slice(1, 5).map((s, i) => (
+            {STEPS.slice(1, 4).map((s, i) => (
               <div
                 key={s.id}
                 className={`h-1 flex-1 rounded-full transition-all duration-500 ${
@@ -317,7 +300,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       )}
 
       {/* Back button */}
-      {step > 0 && step <= 4 && (
+      {step > 0 && step <= 3 && (
         <button
           onClick={handleBack}
           className="absolute top-12 left-4 z-10 w-10 h-10 rounded-full bg-[#1E2638]
@@ -386,75 +369,96 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             </motion.div>
           )}
 
-          {/* ═══ Step 1: Welcome ═══ */}
+          {/* ═══ Step 1: Welcome + Trust (merged) ═══ */}
           {step === 1 && (
             <motion.div
-              key="welcome"
+              key="welcome-trust"
               variants={slideVariants} initial="enter" animate="center" exit="exit"
-              className="text-center max-w-sm"
+              className="w-full max-w-sm"
             >
               {/* ── Grah AI Brand with orange triangle ── */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.7 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3, duration: 1.2, ease: [0.33, 1, 0.68, 1] }}
-                className="relative inline-flex items-center justify-center mb-8 mt-10"
-              >
-                <span
-                  className="text-[4.5rem] sm:text-[5.5rem] font-extrabold tracking-tight text-white"
-                  style={{
-                    fontFamily: "Inter, system-ui, sans-serif",
-                    textShadow: "0 0 18px rgba(255,255,255,0.15)",
-                    lineHeight: 1,
-                  }}
+              <div className="text-center">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.7 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3, duration: 1.2, ease: [0.33, 1, 0.68, 1] }}
+                  className="relative inline-flex items-center justify-center mb-4 mt-6"
                 >
-                  Grah{" "}
-                </span>
-                <span className="relative inline-block">
-                  {/* Orange triangle behind AI */}
-                  <svg
-                    className="absolute"
-                    style={{
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      width: "130%",
-                      height: "110%",
-                      filter: "drop-shadow(0 0 30px rgba(255,102,0,0.5))",
-                    }}
-                    viewBox="0 0 100 90"
-                    preserveAspectRatio="none"
-                  >
-                    <defs>
-                      <linearGradient id="triGrad" x1="50%" y1="0%" x2="50%" y2="100%">
-                        <stop offset="0%" stopColor="#FF8800" />
-                        <stop offset="50%" stopColor="#FF5500" />
-                        <stop offset="100%" stopColor="#CC3300" />
-                      </linearGradient>
-                    </defs>
-                    <polygon points="50,2 98,88 2,88" fill="url(#triGrad)" />
-                    {/* Inner highlight */}
-                    <polygon points="50,32 72,74 28,74" fill="rgba(255,180,80,0.15)" />
-                  </svg>
                   <span
-                    className="relative z-10 text-[4.5rem] sm:text-[5.5rem] font-extrabold tracking-tight text-white"
+                    className="text-[3.5rem] sm:text-[4.5rem] font-extrabold tracking-tight text-white"
                     style={{
                       fontFamily: "Inter, system-ui, sans-serif",
-                      textShadow: "0 0 10px rgba(255,136,0,0.4)",
+                      textShadow: "0 0 18px rgba(255,255,255,0.15)",
                       lineHeight: 1,
                     }}
                   >
-                    AI
+                    Grah{" "}
                   </span>
-                </span>
-              </motion.div>
+                  <span className="relative inline-block">
+                    <svg
+                      className="absolute"
+                      style={{
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: "130%",
+                        height: "110%",
+                        filter: "drop-shadow(0 0 30px rgba(255,102,0,0.5))",
+                      }}
+                      viewBox="0 0 100 90"
+                      preserveAspectRatio="none"
+                    >
+                      <defs>
+                        <linearGradient id="triGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+                          <stop offset="0%" stopColor="#FF8800" />
+                          <stop offset="50%" stopColor="#FF5500" />
+                          <stop offset="100%" stopColor="#CC3300" />
+                        </linearGradient>
+                      </defs>
+                      <polygon points="50,2 98,88 2,88" fill="url(#triGrad)" />
+                      <polygon points="50,32 72,74 28,74" fill="rgba(255,180,80,0.15)" />
+                    </svg>
+                    <span
+                      className="relative z-10 text-[3.5rem] sm:text-[4.5rem] font-extrabold tracking-tight text-white"
+                      style={{
+                        fontFamily: "Inter, system-ui, sans-serif",
+                        textShadow: "0 0 10px rgba(255,136,0,0.4)",
+                        lineHeight: 1,
+                      }}
+                    >
+                      AI
+                    </span>
+                  </span>
+                </motion.div>
 
-              <h1 className="text-3xl font-bold text-[#F1F0F5] mb-3 tracking-tight">
-                {t.onboarding.welcomeSubtitle}
-              </h1>
-              <p className="text-sm text-[#94A3B8] leading-relaxed">
-                {t.onboarding.welcomeDesc}
-              </p>
+                <h1 className="text-2xl font-bold text-[#F1F0F5] mb-2 tracking-tight">
+                  {t.onboarding.welcomeSubtitle}
+                </h1>
+                <p className="text-sm text-[#94A3B8] leading-relaxed mb-6">
+                  {t.onboarding.welcomeDesc}
+                </p>
+              </div>
+
+              {/* Trust cards — integrated into welcome */}
+              <div className="space-y-3">
+                {TRUST_CARDS.map(({ Icon, title, desc }, i) => (
+                  <motion.div
+                    key={title}
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 + i * 0.12 }}
+                    className="flex gap-3 p-3.5 rounded-xl bg-[#111827] border border-[#1E293B]"
+                  >
+                    <div className="w-9 h-9 rounded-lg bg-[#D4A054]/10 flex items-center justify-center shrink-0">
+                      <Icon className="w-4.5 h-4.5 text-[#D4A054]" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-[#F1F0F5] mb-0.5">{title}</h3>
+                      <p className="text-xs text-[#5A6478] leading-relaxed">{desc}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             </motion.div>
           )}
 
@@ -504,43 +508,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             </motion.div>
           )}
 
-          {/* ═══ Step 3: Trust ═══ */}
+          {/* ═══ Step 3: Birth Details ═══ */}
           {step === 3 && (
-            <motion.div
-              key="trust"
-              variants={slideVariants} initial="enter" animate="center" exit="exit"
-              className="w-full max-w-sm"
-            >
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-[#F1F0F5] mb-2">
-                  {t.onboarding.trustTitle}
-                </h2>
-                <p className="text-sm text-[#5A6478]">{t.onboarding.trustSubtitle}</p>
-              </div>
-              <div className="space-y-4">
-                {TRUST_CARDS.map(({ Icon, title, desc }, i) => (
-                  <motion.div
-                    key={title}
-                    initial={{ opacity: 0, x: -12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.15 + i * 0.12 }}
-                    className="flex gap-4 p-4 rounded-xl bg-[#111827] border border-[#1E293B]"
-                  >
-                    <div className="w-10 h-10 rounded-lg bg-[#D4A054]/10 flex items-center justify-center shrink-0">
-                      <Icon className="w-5 h-5 text-[#D4A054]" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-[#F1F0F5] mb-1">{title}</h3>
-                      <p className="text-xs text-[#5A6478] leading-relaxed">{desc}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-
-          {/* ═══ Step 4: Birth Details ═══ */}
-          {step === 4 && (
             <motion.div
               key="birth"
               variants={slideVariants} initial="enter" animate="center" exit="exit"
@@ -600,8 +569,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             </motion.div>
           )}
 
-          {/* ═══ Step 5: Instant Reveal ═══ */}
-          {step === 5 && snapshot && (
+          {/* ═══ Step 4: Instant Reveal ═══ */}
+          {step === 4 && snapshot && (
             <motion.div
               key="reveal"
               variants={slideVariants} initial="enter" animate="center" exit="exit"
@@ -660,8 +629,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             </motion.div>
           )}
 
-          {/* ═══ Step 6: First Question — The Aha Moment ═══ */}
-          {step === 6 && (
+          {/* ═══ Step 5: First Question — The Aha Moment ═══ */}
+          {step === 5 && (
             <motion.div
               key="first-question"
               variants={slideVariants} initial="enter" animate="center" exit="exit"
@@ -732,130 +701,44 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             </motion.div>
           )}
 
-          {/* ═══ Step 7: Save Your Chart (Deferred Account) ═══ */}
-          {step === 7 && (
-            <motion.div
-              key="save-chart"
-              variants={slideVariants} initial="enter" animate="center" exit="exit"
-              className="w-full max-w-sm"
-            >
-              <div className="text-center mb-8">
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.2, type: "spring" }}
-                  className="w-14 h-14 rounded-full bg-gradient-to-br from-[#D4A054]/15 to-[#A16E2A]/10
-                    flex items-center justify-center mx-auto mb-4"
-                >
-                  <Bookmark className="w-6 h-6 text-[#D4A054]" />
-                </motion.div>
-                <h2 className="text-2xl font-bold text-[#F1F0F5] mb-2">
-                  {t.onboarding.saveChartTitle}
-                </h2>
-                <p className="text-sm text-[#5A6478] leading-relaxed">
-                  {t.onboarding.saveChartSubtitle}
-                </p>
-              </div>
-
-              <div className="mb-6">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t.onboarding.emailPlaceholder}
-                  className="w-full bg-[#0D1220] border border-[#1E293B] rounded-xl px-4 py-3.5
-                    text-[#F1F0F5] text-sm placeholder:text-[#5A6478]/50
-                    focus:border-[#D4A054]/40 focus:outline-none transition-colors"
-                />
-              </div>
-
-              <div className="space-y-3 mb-6">
-                {[
-                  t.onboarding.saveBenefit1,
-                  t.onboarding.saveBenefit2,
-                  t.onboarding.saveBenefit3,
-                ].map((benefit, i) => (
-                  <motion.div
-                    key={benefit}
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 + i * 0.1 }}
-                    className="flex items-center gap-3"
-                  >
-                    <div className="w-5 h-5 rounded-full bg-[#D4A054]/10 flex items-center justify-center shrink-0">
-                      <div className="w-2 h-2 rounded-full bg-[#D4A054]" />
-                    </div>
-                    <span className="text-sm text-[#94A3B8]">{benefit}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          )}
+          {/* Save-chart step removed — consolidated into 6-step flow */}
         </AnimatePresence>
       </div>
 
       {/* Bottom CTA */}
       <div className="px-6 pb-8 pt-4">
-        {/* Step 7 has two buttons: Save + Skip */}
-        {step === 7 ? (
-          <div className="space-y-3">
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={handleNext}
-              disabled={!email.trim()}
-              className={`w-full py-4 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2
-                transition-all ${
-                email.trim()
-                  ? "btn-primary"
-                  : "bg-[#1E2638] text-[#5A6478] cursor-not-allowed"
-              }`}
-            >
-              <Bookmark className="w-4 h-4" />{t.onboarding.saveAndEnter}
-            </motion.button>
-            <button
-              onClick={() => {
-                localStorage.setItem("grahai-onboarding-complete", "true")
-                onComplete()
-              }}
-              className="w-full py-3 text-sm text-[#5A6478] hover:text-[#94A3B8] transition-colors"
-            >
-              {t.onboarding.skipForNow}
-            </button>
-          </div>
-        ) : (
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            onClick={handleNext}
-            disabled={!canProceed() || isSubmitting}
-            className={`w-full py-4 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2
-              transition-all ${
-              canProceed() && !isSubmitting
-                ? "btn-primary"
-                : "bg-[#1E2638] text-[#5A6478] cursor-not-allowed"
-            }`}
-          >
-            {isSubmitting ? (
-              <>
-                <div className="w-5 h-5 border-2 border-[#0A0E1A]/30 border-t-[#0A0E1A] rounded-full animate-spin" />
-                <span>{t.onboarding.readingChart}</span>
-              </>
-            ) : step === 0 ? (
-              <>{t.onboarding.getFirstInsight}<ArrowRight className="w-4 h-4" /></>
-            ) : step === 5 ? (
-              <>{t.onboarding.askYourFirst}<ArrowRight className="w-4 h-4" /></>
-            ) : step === 6 ? (
-              firstQuestion.trim() ? (
-                <><Send className="w-4 h-4" />{t.onboarding.askNow}</>
-              ) : (
-                <>{t.onboarding.skipExplore}<ArrowRight className="w-4 h-4" /></>
-              )
-            ) : step === 4 ? (
-              <><Sparkles className="w-4 h-4" />{t.onboarding.generateChart}</>
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          onClick={handleNext}
+          disabled={!canProceed() || isSubmitting}
+          className={`w-full py-4 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2
+            transition-all ${
+            canProceed() && !isSubmitting
+              ? "btn-primary"
+              : "bg-[#1E2638] text-[#5A6478] cursor-not-allowed"
+          }`}
+        >
+          {isSubmitting ? (
+            <>
+              <div className="w-5 h-5 border-2 border-[#0A0E1A]/30 border-t-[#0A0E1A] rounded-full animate-spin" />
+              <span>{t.onboarding.readingChart}</span>
+            </>
+          ) : step === 0 ? (
+            <>{t.onboarding.getFirstInsight}<ArrowRight className="w-4 h-4" /></>
+          ) : step === 4 ? (
+            <>{t.onboarding.askYourFirst}<ArrowRight className="w-4 h-4" /></>
+          ) : step === 5 ? (
+            firstQuestion.trim() ? (
+              <><Send className="w-4 h-4" />{t.onboarding.askNow}</>
             ) : (
-              <>{t.onboarding.continueBtn}<ArrowRight className="w-4 h-4" /></>
-            )}
-          </motion.button>
-        )}
+              <>{t.onboarding.skipExplore}<ArrowRight className="w-4 h-4" /></>
+            )
+          ) : step === 3 ? (
+            <><Sparkles className="w-4 h-4" />{t.onboarding.generateChart}</>
+          ) : (
+            <>{t.onboarding.continueBtn}<ArrowRight className="w-4 h-4" /></>
+          )}
+        </motion.button>
       </div>
     </motion.div>
   )

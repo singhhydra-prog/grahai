@@ -261,7 +261,10 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
               {section.reports.map((report) => (
                 <button
                   key={report.id}
-                  onClick={() => { setSelectedReport(report); setDownloadUrl(null); setGenError(null) }}
+                  onClick={() => {
+                    // Open dedicated report detail page
+                    window.open(`/report?id=${report.id}`, "_blank")
+                  }}
                   className="w-full text-left glass-card card-lift p-4 hover:border-[#D4A054]/15 transition-colors"
                 >
                   <div className="flex items-start gap-3">

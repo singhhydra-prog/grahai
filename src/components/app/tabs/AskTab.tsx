@@ -5,10 +5,11 @@ import { motion, AnimatePresence } from "framer-motion"
 import {
   Send, Sparkles, Clock, ArrowLeft, Trash2,
   CheckCircle, AlertTriangle, Timer, Lightbulb, BookOpen,
-  MessageCircle, ChevronRight
+  MessageCircle, ChevronRight, Share2, Bookmark
 } from "lucide-react"
 import type { ChatMessage, BirthData } from "@/types/app"
 import SourceDrawer from "@/components/ui/SourceDrawer"
+import ShareCard from "@/components/ui/ShareCard"
 import { useLanguage } from "@/lib/LanguageContext"
 
 /* ─── Structured answer section parser ────────────────── */
@@ -139,6 +140,7 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
   const [showHistory, setShowHistory] = useState(false)
   const [sourceDrawerOpen, setSourceDrawerOpen] = useState(false)
   const [sourceText, setSourceText] = useState("")
+  const [shareData, setShareData] = useState<{ title: string; body: string } | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const hasProcessedInitial = useRef(false)
 
@@ -432,17 +434,48 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
                           </div>
                         )}
 
-                        {/* Follow-up chips (after answer completes) */}
+                        {/* Follow-up chips + actions (after answer completes) */}
                         {!msg.isStreaming && msg.content && (
-                          <div className="flex flex-wrap gap-1.5 mt-3">
-                            {FOLLOW_UPS.map((chip) => (
-                              <button key={chip} onClick={() => handleSend(chip)}
-                                className="px-3 py-1 rounded-full bg-[#111827] border border-[#1E293B]
-                                  text-[11px] text-[#94A3B8] hover:border-[#D4A054]/20 hover:text-[#D4A054] transition-colors">
-                                {chip}
+                          <>
+                            <div className="flex flex-wrap gap-1.5 mt-3">
+                              {FOLLOW_UPS.map((chip) => (
+                                <button key={chip} onClick={() => handleSend(chip)}
+                                  className="px-3 py-1 rounded-full bg-[#111827] border border-[#1E293B]
+                                    text-[11px] text-[#94A3B8] hover:border-[#D4A054]/20 hover:text-[#D4A054] transition-colors">
+                                  {chip}
+                                </button>
+                              ))}
+                            </div>
+                            {/* Share & Save actions */}
+                            <div className="flex gap-2 mt-2">
+                              <button
+                                onClick={() => {
+                                  const userMsg = messages.find(m => m.id === msg.id.replace("assistant", "user"))
+                                  const question = userMsg?.content || "My Insight"
+                                  const excerpt = msg.content.slice(0, 300).replace(/###\s*/g, "").trim()
+                                  setShareData({ title: question, body: excerpt })
+                                }}
+                                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#111827] border border-[#1E293B]
+                                  text-[10px] text-[#5A6478] hover:text-[#D4A054] hover:border-[#D4A054]/20 transition-colors"
+                              >
+                                <Share2 className="w-3 h-3" /> Share
                               </button>
-                            ))}
-                          </div>
+                              <button
+                                onClick={() => {
+                                  try {
+                                    const saved = JSON.parse(localStorage.getItem("grahai-saved-answers") || "[]")
+                                    const userMsg = messages.find(m => m.id === msg.id.replace("assistant", "user"))
+                                    saved.unshift({ id: msg.id, question: userMsg?.content || "", excerpt: msg.content.slice(0, 200), timestamp: Date.now() })
+                                    localStorage.setItem("grahai-saved-answers", JSON.stringify(saved.slice(0, 50)))
+                                  } catch {}
+                                }}
+                                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#111827] border border-[#1E293B]
+                                  text-[10px] text-[#5A6478] hover:text-[#D4A054] hover:border-[#D4A054]/20 transition-colors"
+                              >
+                                <Bookmark className="w-3 h-3" /> Save
+                              </button>
+                            </div>
+                          </>
                         )}
                       </div>
                     )}
@@ -527,6 +560,33 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
         source={sourceData}
         context={t.ask.basedOnChart}
       />
+
+      {/* Share Card Overlay */}
+      <AnimatePresence>
+        {shareData && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center px-6"
+            onClick={() => setShareData(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ShareCard
+                title={shareData.title}
+                body={shareData.body}
+                footer="Powered by GrahAI — Vedic Astrology"
+                onClose={() => setShareData(null)}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

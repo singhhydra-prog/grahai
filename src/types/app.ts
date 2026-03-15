@@ -4,7 +4,7 @@
    ═══════════════════════════════════════ */
 
 /** Primary navigation tabs */
-export type TabType = "home" | "ask" | "chart" | "reports" | "profile"
+export type TabType = "home" | "ask" | "compatibility" | "reports" | "profile"
 
 /** Overlay screens that slide over content */
 export type OverlayType =

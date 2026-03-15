@@ -6,8 +6,9 @@ import {
   User, Calendar, MapPin, Clock, LogOut, ChevronRight, Crown,
   Bell, Shield, HelpCircle, Star, CreditCard, MessageCircle,
   FileText, Heart, History, Users, Share2, Moon, Sun, ArrowRight,
-  X, ArrowLeft, Globe, Edit3, AlertTriangle, ExternalLink
+  X, ArrowLeft, Globe, Edit3, AlertTriangle, ExternalLink, Bookmark
 } from "lucide-react"
+import KundliChart, { SAMPLE_PLANETS } from "@/components/ui/KundliChart"
 import type { BirthData, AstroProfile } from "@/types/app"
 import { useLanguage } from "@/lib/LanguageContext"
 import { LANGUAGES, type Language } from "@/lib/i18n"
@@ -158,11 +159,13 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
     { icon: Heart, label: t.profile.compatibility, count: 0, cta: t.profile.buyCompatibility, color: "text-[#D4A054]" },
   ]
 
-  const activityItems: { icon: typeof Share2; label: string; action: () => void }[] = [
+  const activityItems: { icon: typeof Share2; label: string; action: () => void; external?: boolean }[] = [
     { icon: Share2, label: t.profile.referEarn, action: onReferralClick },
     { icon: History, label: t.profile.questionsHistory, action: () => setSubPage("questions-history") },
     { icon: FileText, label: t.profile.reportsHistory, action: () => setSubPage("reports-history") },
     { icon: Heart, label: t.profile.compatHistory, action: () => setSubPage("compatibility-history") },
+    { icon: Bookmark, label: "Your Library", action: () => window.open("/library", "_blank"), external: true },
+    { icon: CreditCard, label: "Billing & Payments", action: () => window.open("/billing", "_blank"), external: true },
     { icon: Users, label: t.profile.familyMembers, action: () => setSubPage("family") },
   ]
 
@@ -249,6 +252,19 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
             </div>
           ))}
         </div>
+
+        {/* Birth Chart (Kundli) */}
+        {astroMode === "vedic" && (
+          <div className="glass-card p-4 mb-5">
+            <KundliChart
+              planets={SAMPLE_PLANETS}
+              ascendantSign={5}
+              chartType="birth"
+              size={280}
+              showLabels
+            />
+          </div>
+        )}
       </div>
 
       {/* Balance cards */}
@@ -273,14 +289,27 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
 
       {/* Help & Support */}
       <div className="mx-5 mb-5">
-        <button onClick={() => setSubPage("help")}
-          className="w-full glass-card p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3 relative z-10">
+        <p className="text-xs font-semibold text-[#5A6478] mb-2 uppercase tracking-wide px-1">{t.profile.helpSupport}</p>
+        <div className="glass-card overflow-hidden">
+          <button onClick={() => window.open("/faq", "_blank")}
+            className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/[0.02] transition-colors relative z-10 border-b border-white/[0.04]">
             <HelpCircle className="w-4 h-4 text-[#5A6478]" />
-            <p className="text-sm font-semibold text-[#F1F0F5] text-visible">{t.profile.helpSupport}</p>
-          </div>
-          <ChevronRight className="w-4 h-4 text-[#5A6478]" />
-        </button>
+            <span className="text-sm text-[#F1F0F5] flex-1">FAQ</span>
+            <ExternalLink className="w-3.5 h-3.5 text-[#5A6478]" />
+          </button>
+          <button onClick={() => window.open("/support", "_blank")}
+            className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/[0.02] transition-colors relative z-10 border-b border-white/[0.04]">
+            <MessageCircle className="w-4 h-4 text-[#5A6478]" />
+            <span className="text-sm text-[#F1F0F5] flex-1">Contact Support</span>
+            <ExternalLink className="w-3.5 h-3.5 text-[#5A6478]" />
+          </button>
+          <button onClick={() => setSubPage("help")}
+            className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-white/[0.02] transition-colors relative z-10">
+            <Star className="w-4 h-4 text-[#5A6478]" />
+            <span className="text-sm text-[#F1F0F5] flex-1">Quick Help</span>
+            <ChevronRight className="w-4 h-4 text-[#5A6478]" />
+          </button>
+        </div>
       </div>
 
       {/* Activity section */}
@@ -294,7 +323,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
               }`}>
               <item.icon className="w-4 h-4 text-[#5A6478]" />
               <span className="text-sm text-[#F1F0F5] flex-1">{item.label}</span>
-              <ChevronRight className="w-4 h-4 text-[#5A6478]" />
+              {item.external ? <ExternalLink className="w-3.5 h-3.5 text-[#5A6478]" /> : <ChevronRight className="w-4 h-4 text-[#5A6478]" />}
             </button>
           ))}
         </div>

@@ -111,7 +111,7 @@ export interface Translations {
   nav: {
     home: string
     ask: string
-    chart: string
+    compatibility: string
     reports: string
     profile: string
   }
@@ -469,7 +469,7 @@ const en: Translations = {
   nav: {
     home: "Home",
     ask: "Ask",
-    chart: "Chart",
+    compatibility: "Match",
     reports: "Reports",
     profile: "Profile",
   },
@@ -805,7 +805,7 @@ const hi: Translations = {
   nav: {
     home: "होम",
     ask: "पूछें",
-    chart: "कुंडली",
+    compatibility: "मिलान",
     reports: "रिपोर्ट",
     profile: "प्रोफ़ाइल",
   },
@@ -1138,7 +1138,7 @@ const ta: Translations = {
     readingChart: "உங்கள் ஜாதகத்தை படிக்கிறது...",
     askYourFirst: "முதல் கேள்வியைக் கேளுங்கள்",
   },
-  nav: { home: "முகப்பு", ask: "கேளுங்கள்", chart: "ஜாதகம்", reports: "அறிக்கைகள்", profile: "புரொஃபைல்" },
+  nav: { home: "முகப்பு", ask: "கேளுங்கள்", compatibility: "பொருத்தம்", reports: "அறிக்கைகள்", profile: "புரொஃபைல்" },
   home: {
     greeting: "இனிய {timeOfDay}, {name}",
     todayGuidance: "இன்றைய வழிகாட்டுதல்",
@@ -1282,7 +1282,7 @@ const te: Translations = {
     saveAndEnter: "సేవ్ చేసి GrahAI లోకి ప్రవేశించండి", skipForNow: "ఇప్పుడు దాటవేయండి", continueBtn: "కొనసాగించు",
     readingChart: "మీ జాతకాన్ని చదువుతోంది...", askYourFirst: "మీ మొదటి ప్రశ్న అడగండి",
   },
-  nav: { home: "హోమ్", ask: "అడగండి", chart: "జాతకం", reports: "నివేదికలు", profile: "ప్రొఫైల్" },
+  nav: { home: "హోమ్", ask: "అడగండి", compatibility: "అనుకూలత", reports: "నివేదికలు", profile: "ప్రొఫైల్" },
   home: { ...en.home, greeting: "శుభ {timeOfDay}, {name}", todayGuidance: "ఈరోజు మార్గదర్శకత్వం", tomorrowGuidance: "రేపటి మార్గదర్శకత్వం", loveCard: "ప్రేమ", careerCard: "కెరీర్", energyCard: "శక్తి", panchangTitle: "పంచాంగం", luckyColors: "అదృష్ట రంగులు", luckyNumbers: "అదృష్ట సంఖ్యలు", askQuestion: "ప్రశ్న అడగండి", viewReports: "నివేదికలు చూడండి", sourcesTitle: "మూలాలు" },
   ask: { ...en.ask, title: "GrahAI ని అడగండి", placeholder: "ప్రేమ, కెరీర్, సమయం గురించి అడగండి...", topicLove: "ప్రేమ", topicCareer: "కెరీర్", topicTiming: "సమయం", topicFamily: "కుటుంబం", topicHealth: "ఆరోగ్యం", topicMoney: "డబ్బు", directAnswer: "నేరుగా సమాధానం", whyShowingUp: "ఇది ఎందుకు కనిపిస్తోంది", whatToDo: "ఏమి చేయాలి", whatToAvoid: "ఏమి తప్పించాలి", timeWindow: "సమయ వ్యవధి", remedy: "పరిహారం", source: "మూలం", followUp: "తదుపరి ప్రశ్నలు", questionsLeft: "ఈరోజు {count} ప్రశ్నలు మిగిలి ఉన్నాయి", upgradeForMore: "మరిన్ని కోసం అప్‌గ్రేడ్ చేయండి" },
   chart: { ...en.chart, title: "నా జాతకం", birthChart: "జన్మ జాతకం", sunSign: "సూర్య రాశి", moonSign: "చంద్ర రాశి", risingSign: "లగ్న రాశి", nakshatra: "నక్షత్రం", element: "తత్వం", strengths: "బలాలు", sensitivities: "సున్నితత్వాలు", showAdvanced: "మరింత చూపు", hideAdvanced: "తక్కువ చూపు" },
@@ -1345,7 +1345,7 @@ const kn: Translations = {
     saveAndEnter: "ಉಳಿಸಿ GrahAI ಪ್ರವೇಶಿಸಿ", skipForNow: "ಈಗ ಬಿಡಿ", continueBtn: "ಮುಂದುವರಿಸಿ",
     readingChart: "ನಿಮ್ಮ ಜಾತಕ ಓದುತ್ತಿದೆ...", askYourFirst: "ನಿಮ್ಮ ಮೊದಲ ಪ್ರಶ್ನೆ ಕೇಳಿ",
   },
-  nav: { home: "ಹೋಮ್", ask: "ಕೇಳಿ", chart: "ಜಾತಕ", reports: "ವರದಿಗಳು", profile: "ಪ್ರೊಫೈಲ್" },
+  nav: { home: "ಹೋಮ್", ask: "ಕೇಳಿ", compatibility: "ಹೊಂದಾಣಿಕೆ", reports: "ವರದಿಗಳು", profile: "ಪ್ರೊಫೈಲ್" },
   home: { ...en.home, greeting: "ಶುಭ {timeOfDay}, {name}", todayGuidance: "ಇಂದಿನ ಮಾರ್ಗದರ್ಶನ", tomorrowGuidance: "ನಾಳೆಯ ಮಾರ್ಗದರ್ಶನ", loveCard: "ಪ್ರೀತಿ", careerCard: "ವೃತ್ತಿ", energyCard: "ಶಕ್ತಿ", panchangTitle: "ಪಂಚಾಂಗ", luckyColors: "ಅದೃಷ್ಟ ಬಣ್ಣಗಳು", luckyNumbers: "ಅದೃಷ್ಟ ಸಂಖ್ಯೆಗಳು", askQuestion: "ಪ್ರಶ್ನೆ ಕೇಳಿ", viewReports: "ವರದಿಗಳು ನೋಡಿ", sourcesTitle: "ಮೂಲಗಳು" },
   ask: { ...en.ask, title: "GrahAI ಅನ್ನು ಕೇಳಿ", placeholder: "ಪ್ರೀತಿ, ವೃತ್ತಿ, ಸಮಯ ಬಗ್ಗೆ ಕೇಳಿ...", topicLove: "ಪ್ರೀತಿ", topicCareer: "ವೃತ್ತಿ", topicTiming: "ಸಮಯ", topicFamily: "ಕುಟುಂಬ", topicHealth: "ಆರೋಗ್ಯ", topicMoney: "ಹಣ", directAnswer: "ನೇರ ಉತ್ತರ", whyShowingUp: "ಇದು ಏಕೆ ಕಾಣಿಸುತ್ತಿದೆ", whatToDo: "ಏನು ಮಾಡಬೇಕು", whatToAvoid: "ಏನು ತಪ್ಪಿಸಬೇಕು", timeWindow: "ಸಮಯ ಅವಧಿ", remedy: "ಪರಿಹಾರ", source: "ಮೂಲ", followUp: "ಮುಂದಿನ ಪ್ರಶ್ನೆಗಳು", questionsLeft: "ಇಂದು {count} ಪ್ರಶ್ನೆಗಳು ಉಳಿದಿವೆ", upgradeForMore: "ಹೆಚ್ಚಿನದಕ್ಕಾಗಿ ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡಿ" },
   chart: { ...en.chart, title: "ನನ್ನ ಜಾತಕ", birthChart: "ಜನ್ಮ ಜಾತಕ", sunSign: "ಸೂರ್ಯ ರಾಶಿ", moonSign: "ಚಂದ್ರ ರಾಶಿ", risingSign: "ಲಗ್ನ ರಾಶಿ", nakshatra: "ನಕ್ಷತ್ರ", element: "ತತ್ವ", strengths: "ಶಕ್ತಿಗಳು", sensitivities: "ಸಂವೇದನೆಗಳು", showAdvanced: "ಹೆಚ್ಚು ತೋರಿಸಿ", hideAdvanced: "ಕಡಿಮೆ ತೋರಿಸಿ" },
@@ -1447,7 +1447,7 @@ const ml: Translations = {
   nav: {
     home: "ഹോം",
     ask: "ചോദിക്കൂ",
-    chart: "ചാർട്ട്",
+    compatibility: "പൊരുത്തം",
     reports: "റിപ്പോർട്ടുകൾ",
     profile: "പ്രൊഫൈൽ",
   },
@@ -1669,7 +1669,7 @@ const bn: Translations = {
   nav: {
     home: "হোম",
     ask: "জিজ্ঞাসা",
-    chart: "চার্ট",
+    compatibility: "মিল",
     reports: "রিপোর্ট",
     profile: "প্রোফাইল",
   },
@@ -1891,7 +1891,7 @@ const mr: Translations = {
   nav: {
     home: "होम",
     ask: "विचारा",
-    chart: "कुंडली",
+    compatibility: "जुळणी",
     reports: "अहवाल",
     profile: "प्रोफाइल",
   },
@@ -2113,7 +2113,7 @@ const gu: Translations = {
   nav: {
     home: "હોમ",
     ask: "પૂછો",
-    chart: "ચાર્ટ",
+    compatibility: "મેળ",
     reports: "રિપોર્ટ",
     profile: "પ્રોફાઈલ",
   },
