@@ -111,12 +111,12 @@ function transformApiResponse(apiData: any, dateOfBirth: string): CosmicSnapshot
 function makeFallbackSnapshot(): CosmicSnapshot {
   return {
     profile: {
-      moonSign: "Cancer", risingSign: "Leo", sunSignVedic: "Virgo",
-      sunSignWestern: "Libra", nakshatra: "Pushya", dominantTheme: "Patience Before Progress"
+      moonSign: "Calculating...", risingSign: "Requires birth time", sunSignVedic: "Calculating...",
+      sunSignWestern: "Calculating...", nakshatra: "Calculating...", dominantTheme: "Chart data unavailable — please retry later"
     },
-    todayInsight: "Your chart shows a period of thoughtful decision-making. Focus on clarity over speed.",
-    dominantLifeTheme: "You tend to think deeply before acting, but right now your chart shows momentum building.",
-    suggestedFirstQuestion: "What should I focus on this month for career growth?"
+    todayInsight: "We could not compute your cosmic snapshot at this time. Your personalized insights will appear once the chart engine is available.",
+    dominantLifeTheme: "Your full chart analysis will be generated once the astrology engine responds. Please try again shortly.",
+    suggestedFirstQuestion: "What should I focus on this month based on my chart?"
   }
 }
 

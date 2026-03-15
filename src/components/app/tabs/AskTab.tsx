@@ -147,15 +147,32 @@ export default function AskTab({ initialQuestion }: AskTabProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const hasProcessedInitial = useRef(false)
 
-  /* ─── Topic chips — moved inside component to access t ───────────── */
-  const TOPIC_CHIPS = useMemo(() => [
-    { label: t.ask.topicLove, query: "What does my chart say about my love life right now?" },
-    { label: t.ask.topicCareer, query: "What career direction does my chart support right now?" },
-    { label: t.ask.topicTiming, query: "Is this a good time for important decisions?" },
-    { label: t.ask.topicFamily, query: "What does my chart show about my family life?" },
-    { label: t.ask.topicHealth, query: "What should I watch out for regarding my health?" },
-    { label: t.ask.topicMoney, query: "What does my chart say about financial growth?" },
-  ], [t])
+  /* ─── Topic chips — personalized with user's chart data ───────────── */
+  const TOPIC_CHIPS = useMemo(() => {
+    // Try to load cosmic snapshot for personalized context
+    let moonSign = ""
+    let nakshatra = ""
+    try {
+      const snap = localStorage.getItem("grahai-cosmic-snapshot")
+      if (snap) {
+        const s = JSON.parse(snap)
+        moonSign = s.snapshot?.moonSign?.name || s.snapshot?.vedicSign?.name || ""
+        nakshatra = s.snapshot?.nakshatra?.name || ""
+      }
+    } catch {}
+
+    const signCtx = moonSign ? ` as a ${moonSign} Moon` : ""
+    const nakshatraCtx = nakshatra ? ` (${nakshatra} nakshatra)` : ""
+
+    return [
+      { label: t.ask.topicLove, query: `What does my chart say about my love life right now${signCtx}?` },
+      { label: t.ask.topicCareer, query: `What career direction does my chart support${signCtx}${nakshatraCtx}?` },
+      { label: t.ask.topicTiming, query: `Is this a good time for important decisions based on my current dasha and transits?` },
+      { label: t.ask.topicFamily, query: `What does my chart show about my family life${signCtx}?` },
+      { label: t.ask.topicHealth, query: `What should I watch out for regarding my health${signCtx}?` },
+      { label: t.ask.topicMoney, query: `What does my chart say about financial growth${nakshatraCtx}?` },
+    ]
+  }, [t])
 
   const SUGGESTIONS = useMemo(() => [
     t.ask.suggestion1,

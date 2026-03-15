@@ -8,7 +8,7 @@ import {
   FileText, Heart, History, Users, Share2, Moon, Sun, ArrowRight,
   X, ArrowLeft, Globe, Edit3, AlertTriangle, ExternalLink, Bookmark
 } from "lucide-react"
-import KundliChart, { SAMPLE_PLANETS } from "@/components/ui/KundliChart"
+import KundliChart from "@/components/ui/KundliChart"
 import type { BirthData, AstroProfile } from "@/types/app"
 import { useLanguage } from "@/lib/LanguageContext"
 import { LANGUAGES, type Language } from "@/lib/i18n"
@@ -21,8 +21,8 @@ interface ProfileTabProps {
 }
 
 const DEFAULT_ASTRO: AstroProfile = {
-  moonSign: "Cancer", risingSign: "Leo", sunSignVedic: "Virgo",
-  sunSignWestern: "Libra", nakshatra: "Pushya",
+  moonSign: "—", risingSign: "—", sunSignVedic: "—",
+  sunSignWestern: "—", nakshatra: "—",
 }
 
 type SubPage = null | "questions-history" | "reports-history" | "compatibility-history" | "family" | "help" | "edit-birth" | "change-language"
@@ -39,6 +39,11 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
   const [reportsLeft, setReportsLeft] = useState(0)
   const [subPage, setSubPage] = useState<SubPage>(null)
   const [showSignOut, setShowSignOut] = useState(false)
+
+  // Real planet positions for Kundli chart
+  const [chartPlanets, setChartPlanets] = useState<{ id: string; symbol: string; name: string; house: number; degree: number; isRetrograde?: boolean }[]>([])
+  const [ascendantSign, setAscendantSign] = useState(1)
+  const [chartLoading, setChartLoading] = useState(false)
 
   // Edit birth details state
   const [editBirthName, setEditBirthName] = useState("")
@@ -77,6 +82,82 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
       if (r) setReportsLeft(parseInt(r))
     } catch {}
   }, [])
+
+  // Fetch real natal chart data for Kundli display
+  useEffect(() => {
+    if (!birthData?.dateOfBirth) return
+    setChartLoading(true)
+
+    const fetchChart = async () => {
+      try {
+        const bd = {
+          date: birthData.dateOfBirth,
+          time: birthData.timeOfBirth || "12:00",
+          place: birthData.placeOfBirth || "Unknown",
+          latitude: birthData.latitude || 28.6139,
+          longitude: birthData.longitude || 77.209,
+          timezone: typeof birthData.timezone === "string" ? parseFloat(birthData.timezone) || 5.5 : (birthData.timezone || 5.5),
+        }
+
+        const res = await fetch("/api/reports/generate-code", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            reportType: "love-compat",
+            birthDetails: bd,
+            name: birthData.name || "Native",
+          }),
+        })
+
+        if (res.ok) {
+          const data = await res.json()
+          if (data.success && data.sections) {
+            // Try to extract planet positions from the report sections
+            const planetMap: Record<string, { symbol: string; name: string }> = {
+              sun: { symbol: "Su", name: "Sun" },
+              moon: { symbol: "Mo", name: "Moon" },
+              mars: { symbol: "Ma", name: "Mars" },
+              mercury: { symbol: "Me", name: "Mercury" },
+              jupiter: { symbol: "Ju", name: "Jupiter" },
+              venus: { symbol: "Ve", name: "Venus" },
+              saturn: { symbol: "Sa", name: "Saturn" },
+              rahu: { symbol: "Ra", name: "Rahu" },
+              ketu: { symbol: "Ke", name: "Ketu" },
+            }
+
+            // Parse planet positions from report content
+            const allContent = data.sections.map((s: { content: string }) => s.content).join("\n")
+            const planets: typeof chartPlanets = []
+            const houseRegex = /(\w+)\s+(?:in|→)\s+(?:House\s+)?(\d+)|House\s+(\d+).*?(\w+)/gi
+
+            // Also check for structured planet table
+            for (const [key, info] of Object.entries(planetMap)) {
+              const nameRegex = new RegExp(`${key}[^\\n]*?(?:house|H)\\s*(\\d+)[^\\n]*?([\\d.]+)°`, "i")
+              const match = allContent.match(nameRegex)
+              if (match) {
+                planets.push({
+                  id: key.substring(0, 2),
+                  symbol: info.symbol,
+                  name: info.name,
+                  house: parseInt(match[1]),
+                  degree: parseFloat(match[2]) || 0,
+                })
+              }
+            }
+
+            if (planets.length >= 5) {
+              setChartPlanets(planets)
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Could not fetch natal chart for profile:", err)
+      }
+      setChartLoading(false)
+    }
+
+    fetchChart()
+  }, [birthData])
 
   // Populate edit birth form when opening that subpage
   useEffect(() => {
@@ -257,13 +338,27 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
         {/* Birth Chart (Kundli) */}
         {astroMode === "vedic" && (
           <div className="glass-card p-4 mb-5">
-            <KundliChart
-              planets={SAMPLE_PLANETS}
-              ascendantSign={5}
-              chartType="birth"
-              size={280}
-              showLabels
-            />
+            {chartLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <p className="text-xs text-[#A0A5B2]">Computing your birth chart...</p>
+              </div>
+            ) : chartPlanets.length > 0 ? (
+              <KundliChart
+                planets={chartPlanets}
+                ascendantSign={ascendantSign}
+                chartType="birth"
+                size={280}
+                showLabels
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <p className="text-xs text-[#8892A3]">Birth chart requires complete birth details</p>
+                <button onClick={() => setSubPage("edit-birth")}
+                  className="mt-2 text-xs text-[#D4A054] underline">
+                  Update birth details
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

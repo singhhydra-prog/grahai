@@ -147,20 +147,21 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
   }
 
   function setFallbackData() {
+    // Show error state instead of hardcoded fake data
     setData({
-      theme: { title: "Day of Steady Progress", headline: "Your chart shows a day for focus and patience.", body: "Trust the process and take steady steps forward." },
+      theme: { title: "Unable to Load Insight", headline: "We couldn't generate your personalized daily insight right now.", body: "This may be due to a temporary server issue. Please try again in a few moments." },
       lifeAreas: [
-        { id: "love", label: "Love", icon: Heart, status: "neutral", insight: "Relationships are steady. Focus on understanding.", advice: "Listen more than you speak today." },
-        { id: "career", label: "Career", icon: Briefcase, status: "favourable", insight: "Professional energy supports progress.", advice: "Take on challenges with confidence." },
-        { id: "money", label: "Money", icon: Coins, status: "neutral", insight: "Finances are stable. Plan ahead.", advice: "Review your financial goals." },
-        { id: "health", label: "Health", icon: Activity, status: "favourable", insight: "Good energy for physical activity.", advice: "Move your body and stay hydrated." },
+        { id: "love", label: "Love", icon: Heart, status: "neutral", insight: "Insight unavailable — please retry.", advice: "Try refreshing your daily insight." },
+        { id: "career", label: "Career", icon: Briefcase, status: "neutral", insight: "Insight unavailable — please retry.", advice: "Try refreshing your daily insight." },
+        { id: "money", label: "Money", icon: Coins, status: "neutral", insight: "Insight unavailable — please retry.", advice: "Try refreshing your daily insight." },
+        { id: "health", label: "Health", icon: Activity, status: "neutral", insight: "Insight unavailable — please retry.", advice: "Try refreshing your daily insight." },
       ],
-      doList: ["Set clear priorities for the day", "Express gratitude", "Start something you've been postponing"],
-      avoidList: ["Impulsive decisions", "Overcommitting", "Late nights"],
-      dasha: { currentPhase: "Current Planetary Period", daysRemaining: 0, howItAffectsToday: "Your current planetary alignment supports steady growth." },
-      lucky: { number: 7, color: "Gold", auspiciousTime: "10:00 AM - 12:00 PM", rahuKaal: "1:30 PM - 3:00 PM" },
-      panchang: { tithi: "Calculating...", paksha: "", vara: "", nakshatra: "" },
-      source: "Based on general transit patterns for today.",
+      doList: ["Retry loading your daily insight"],
+      avoidList: [],
+      dasha: { currentPhase: "Loading...", daysRemaining: 0, howItAffectsToday: "Please retry to see your current dasha analysis." },
+      lucky: { number: 0, color: "—", auspiciousTime: "—", rahuKaal: "—" },
+      panchang: { tithi: "—", paksha: "—", vara: "—", nakshatra: "—" },
+      source: "Could not connect to the astrology engine. Please check your connection and try again.",
     })
   }
 
