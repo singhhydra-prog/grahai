@@ -62,6 +62,7 @@ const TREND_COLOR = {
 export default function WeeklyGuidancePage({ onBack }: WeeklyGuidancePageProps) {
   const [data, setData] = useState<WeeklyData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [selectedDay, setSelectedDay] = useState<string | null>(null)
 
   useEffect(() => {
@@ -215,20 +216,7 @@ export default function WeeklyGuidancePage({ onBack }: WeeklyGuidancePageProps) 
 
         setData({ weekRange, overallTheme: theme, themeDescription: themeDesc, days, sections, keyDates, weeklyAdvice })
       } catch {
-        setData({
-          weekRange: "This Week",
-          overallTheme: "Week of Steady Growth",
-          themeDescription: "A balanced week ahead with good energy for both work and relationships.",
-          days: [],
-          sections: [
-            { id: "love", title: "Love & Relationships", icon: Heart, trend: "stable", summary: "Steady energy for connections.", bestDay: "Wednesday", caution: "Be patient." },
-            { id: "career", title: "Career & Ambition", icon: Briefcase, trend: "up", summary: "Good momentum for progress.", bestDay: "Tuesday", caution: "Don't overextend." },
-            { id: "money", title: "Money & Finances", icon: Coins, trend: "stable", summary: "Stable outlook.", bestDay: "Thursday", caution: "Stick to your plan." },
-            { id: "health", title: "Health & Wellbeing", icon: Activity, trend: "stable", summary: "Balanced energy.", bestDay: "Friday", caution: "Rest when needed." },
-          ],
-          keyDates: [],
-          weeklyAdvice: "Trust the process and take steady steps forward this week.",
-        })
+        setError(true)
       }
       setLoading(false)
     }
@@ -255,7 +243,19 @@ export default function WeeklyGuidancePage({ onBack }: WeeklyGuidancePageProps) 
           <Calendar className="w-10 h-10 text-[#D4A054] animate-pulse mb-3" />
           <p className="text-xs text-[#A0A5B2]">Preparing your weekly forecast...</p>
         </div>
-      ) : data ? (
+      ) : error || !data ? (
+        <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+          <AlertTriangle className="w-10 h-10 text-rose-400/60 mb-3" />
+          <p className="text-sm font-medium text-[#F1F0F5] mb-1">Unable to Load Weekly Guidance</p>
+          <p className="text-xs text-[#8892A3] mb-4">We couldn't generate your weekly forecast. Please check your birth details and try again.</p>
+          <button
+            onClick={() => { setError(false); setLoading(true); window.location.reload() }}
+            className="px-4 py-2 rounded-xl bg-[#D4A054]/10 text-[#D4A054] text-xs font-semibold hover:bg-[#D4A054]/20 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      ) : (
         <div className="max-w-lg mx-auto px-4 py-5 space-y-5 pb-12">
 
           {/* 1. Theme Hero */}
@@ -381,7 +381,7 @@ export default function WeeklyGuidancePage({ onBack }: WeeklyGuidancePageProps) 
             <p className="text-sm text-[#C5C1D6] leading-relaxed">{data.weeklyAdvice}</p>
           </div>
         </div>
-      ) : null}
+      )}
     </div>
   )
 }

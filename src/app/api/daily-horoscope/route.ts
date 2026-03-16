@@ -389,7 +389,13 @@ export async function POST(req: NextRequest) {
           insight, targetDate, dayOffset, signName, placeOfBirth,
         ))
       } catch (genErr) {
-        console.warn("Per-user insight generation failed, falling back to templates:", genErr)
+        console.error("[daily-horoscope] Per-user insight generation FAILED:", {
+          error: genErr instanceof Error ? genErr.message : String(genErr),
+          stack: genErr instanceof Error ? genErr.stack?.split("\n").slice(0, 3).join(" | ") : undefined,
+          birthDetails: { date: birthDate, time: birthTime, lat: latitude, lng: longitude, tz: timezone, resolvedTz: numericTimezone },
+          dayOffset,
+          fallbackReason: "ephemeris_error",
+        })
         // Fall through to template-based generation
       }
     }

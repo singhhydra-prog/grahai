@@ -292,16 +292,3 @@ export default function KundliChart({
     </div>
   )
 }
-
-/* ── Default planet set for testing ── */
-export const SAMPLE_PLANETS: Planet[] = [
-  { id: "su", symbol: "Su", name: "Sun", house: 6, degree: 28.5 },
-  { id: "mo", symbol: "Mo", name: "Moon", house: 4, degree: 15.2 },
-  { id: "ma", symbol: "Ma", name: "Mars", house: 10, degree: 3.8 },
-  { id: "me", symbol: "Me", name: "Mercury", house: 5, degree: 22.1 },
-  { id: "ju", symbol: "Ju", name: "Jupiter", house: 1, degree: 18.9 },
-  { id: "ve", symbol: "Ve", name: "Venus", house: 7, degree: 11.4 },
-  { id: "sa", symbol: "Sa", name: "Saturn", house: 10, degree: 8.7, isRetrograde: true },
-  { id: "ra", symbol: "Ra", name: "Rahu", house: 5, degree: 25.3 },
-  { id: "ke", symbol: "Ke", name: "Ketu", house: 11, degree: 25.3 },
-]
