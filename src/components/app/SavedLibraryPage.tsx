@@ -42,22 +42,10 @@ const TABS: { id: LibraryTab; label: string; icon: typeof MessageCircle }[] = [
   { id: "compatibility", label: "Matches", icon: Heart },
 ]
 
-// Mock data
-const MOCK_ANSWERS: SavedAnswer[] = [
-  { id: "1", question: "Will I get a promotion this year?", excerpt: "Based on your Saturn-Jupiter aspect and current Mars transit, the window between April-June is particularly strong...", topic: "Career", timestamp: Date.now() - 86400000 },
-  { id: "2", question: "Is my relationship headed towards marriage?", excerpt: "Your 7th house lord Venus is currently in a favourable transit. The Navamsa chart shows commitment potential...", topic: "Love", timestamp: Date.now() - 172800000 },
-  { id: "3", question: "Should I invest in real estate?", excerpt: "Mars in the 4th house combined with Jupiter's aspect creates a favourable window for property decisions...", topic: "Money", timestamp: Date.now() - 432000000 },
-]
-
-const MOCK_REPORTS: SavedReport[] = [
-  { id: "1", title: "Love Clarity Report", status: "generated", timestamp: Date.now() - 259200000 },
-  { id: "2", title: "Career Timing Report", status: "purchased", timestamp: Date.now() - 604800000 },
-]
-
-const MOCK_COMPAT: SavedCompatibility[] = [
-  { id: "1", partnerName: "Priya", score: 78, timestamp: Date.now() - 86400000 },
-  { id: "2", partnerName: "Rahul", score: 65, timestamp: Date.now() - 604800000 },
-]
+// TODO: Fetch from Supabase question_history/reports tables when available
+const SAVED_ANSWERS: SavedAnswer[] = []
+const SAVED_REPORTS: SavedReport[] = []
+const SAVED_COMPAT: SavedCompatibility[] = []
 
 function timeAgo(ts: number): string {
   const diff = Date.now() - ts
@@ -73,7 +61,7 @@ export default function SavedLibraryPage({ onBack }: SavedLibraryPageProps) {
   const [activeTab, setActiveTab] = useState<LibraryTab>("answers")
   const [searchQuery, setSearchQuery] = useState("")
 
-  const filteredAnswers = MOCK_ANSWERS.filter((a) =>
+  const filteredAnswers = SAVED_ANSWERS.filter((a) =>
     a.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
     a.topic.toLowerCase().includes(searchQuery.toLowerCase())
   )
@@ -183,14 +171,14 @@ export default function SavedLibraryPage({ onBack }: SavedLibraryPageProps) {
               exit={{ opacity: 0, x: 10 }}
               className="space-y-2"
             >
-              {MOCK_REPORTS.length === 0 ? (
+              {SAVED_REPORTS.length === 0 ? (
                 <div className="text-center py-12">
                   <FileText className="w-10 h-10 text-[#8892A3]/30 mx-auto mb-3" />
                   <p className="text-sm text-[#8892A3]">No reports yet</p>
                   <p className="text-xs text-[#8892A3]/60 mt-1">Purchase or generate a report to see it here</p>
                 </div>
               ) : (
-                MOCK_REPORTS.map((report) => (
+                SAVED_REPORTS.map((report) => (
                   <div key={report.id} className="rounded-xl border border-white/5 bg-white/[0.02] p-4 flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-[#D4A054]/10 flex items-center justify-center flex-shrink-0">
                       <FileText className="w-5 h-5 text-[#D4A054]" />
@@ -224,14 +212,14 @@ export default function SavedLibraryPage({ onBack }: SavedLibraryPageProps) {
               exit={{ opacity: 0, x: 10 }}
               className="space-y-2"
             >
-              {MOCK_COMPAT.length === 0 ? (
+              {SAVED_COMPAT.length === 0 ? (
                 <div className="text-center py-12">
                   <Heart className="w-10 h-10 text-[#8892A3]/30 mx-auto mb-3" />
                   <p className="text-sm text-[#8892A3]">No compatibility checks yet</p>
                   <p className="text-xs text-[#8892A3]/60 mt-1">Check compatibility with someone to see results here</p>
                 </div>
               ) : (
-                MOCK_COMPAT.map((compat) => {
+                SAVED_COMPAT.map((compat) => {
                   const scoreColor = compat.score >= 75 ? "text-emerald-400" : compat.score >= 50 ? "text-amber-400" : "text-rose-400"
                   return (
                     <div key={compat.id} className="rounded-xl border border-white/5 bg-white/[0.02] p-4 flex items-center gap-3">

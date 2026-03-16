@@ -22,6 +22,7 @@ import { createServerClient } from "@supabase/ssr"
 import Anthropic from "@anthropic-ai/sdk"
 import { assembleReportData } from "@/lib/reports/kundli-report-generator"
 import type { BirthDetails } from "@/lib/ephemeris/types"
+import { resolveTimezoneOffset } from "@/lib/timezone-utils"
 
 // ─── Types ──────────────────────────────────────────────────────
 
@@ -976,24 +977,9 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
       partnerBirthDetails?: BirthDetails
     }
 
-    // Normalize timezone: handles IANA strings like "Asia/Kolkata" → 5.5
-    const resolveTz = (tz: unknown, date?: string): number => {
-      if (typeof tz === "number" && !isNaN(tz)) return tz
-      if (tz === null || tz === undefined) return 5.5
-      const s = String(tz).trim()
-      const n = parseFloat(s)
-      if (!isNaN(n) && /^-?\d+(\.\d+)?$/.test(s)) return n
-      try {
-        const ref = date ? new Date(date + "T12:00:00") : new Date()
-        const utc = ref.toLocaleString("en-US", { timeZone: "UTC" })
-        const loc = ref.toLocaleString("en-US", { timeZone: s })
-        const h = (new Date(loc).getTime() - new Date(utc).getTime()) / 3600000
-        if (!isNaN(h)) return h
-      } catch { /* ignore */ }
-      return 5.5
-    }
-    const birthDetails = rawBD ? { ...rawBD, timezone: resolveTz(rawBD.timezone, rawBD.date) } : rawBD
-    const partnerBirthDetails = rawPartnerBD ? { ...rawPartnerBD, timezone: resolveTz(rawPartnerBD.timezone, rawPartnerBD.date) } : rawPartnerBD
+    // Normalize timezone using shared utility
+    const birthDetails = rawBD ? { ...rawBD, timezone: resolveTimezoneOffset(rawBD.timezone, rawBD.date) } : rawBD
+    const partnerBirthDetails = rawPartnerBD ? { ...rawPartnerBD, timezone: resolveTimezoneOffset(rawPartnerBD.timezone, rawPartnerBD.date) } : rawPartnerBD
 
     // Validate required fields
     if (!reportType || !birthDetails) {

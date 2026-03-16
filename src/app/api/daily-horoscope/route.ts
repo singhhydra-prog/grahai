@@ -20,6 +20,7 @@ import {
 } from "@/lib/ephemeris/constants"
 import { generateDailyInsight, type DailyInsight } from "@/lib/daily-insights/insight-generator"
 import type { BirthDetails } from "@/lib/ephemeris/types"
+import { resolveTimezoneOffset } from "@/lib/timezone-utils"
 
 // ─── Approximate sidereal positions ────────────────────
 function getSiderealSunLongitude(date: Date): number {
@@ -352,47 +353,6 @@ function mapInsightToResponse(
       advice: insight.sadeSatiAdvice,
     } : { active: false },
   }
-}
-
-// ─── IANA timezone string → numeric UTC offset ────────
-// "Asia/Kolkata" → 5.5, "America/New_York" → -5, etc.
-// Falls through to parsing as a number if not a recognized IANA string.
-function resolveTimezoneOffset(tz: unknown, birthDate?: string): number {
-  if (tz === null || tz === undefined) return 5.5 // Default IST
-
-  // Already a number
-  if (typeof tz === "number" && !isNaN(tz)) return tz
-
-  const tzStr = String(tz).trim()
-
-  // Try parsing as a plain number first (e.g. "5.5", "-8")
-  const asNum = parseFloat(tzStr)
-  if (!isNaN(asNum) && /^-?\d+(\.\d+)?$/.test(tzStr)) return asNum
-
-  // IANA timezone string → compute offset for the birth date
-  try {
-    const refDate = birthDate ? new Date(birthDate + "T12:00:00") : new Date()
-    const utcStr = refDate.toLocaleString("en-US", { timeZone: "UTC" })
-    const localStr = refDate.toLocaleString("en-US", { timeZone: tzStr })
-    const diffMs = new Date(localStr).getTime() - new Date(utcStr).getTime()
-    const hours = diffMs / (1000 * 60 * 60)
-    if (!isNaN(hours)) return hours
-  } catch {
-    // Not a valid IANA timezone
-  }
-
-  // Common IANA → offset lookup as final fallback
-  const COMMON_TZ: Record<string, number> = {
-    "Asia/Kolkata": 5.5, "Asia/Calcutta": 5.5, "Asia/Mumbai": 5.5,
-    "Asia/Delhi": 5.5, "Asia/Colombo": 5.5,
-    "America/New_York": -5, "America/Chicago": -6, "America/Denver": -7,
-    "America/Los_Angeles": -8, "Europe/London": 0, "Europe/Paris": 1,
-    "Europe/Berlin": 1, "Asia/Dubai": 4, "Asia/Singapore": 8,
-    "Asia/Tokyo": 9, "Australia/Sydney": 11, "Pacific/Auckland": 13,
-  }
-  if (COMMON_TZ[tzStr] !== undefined) return COMMON_TZ[tzStr]
-
-  return 5.5 // Default to IST if nothing works
 }
 
 // ─── API Handler ───────────────────────────────────────

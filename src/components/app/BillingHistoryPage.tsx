@@ -28,23 +28,15 @@ const STATUS_CONFIG = {
   refunded: { icon: Receipt, color: "text-blue-400", bg: "bg-blue-500/10", label: "Refunded" },
 }
 
-// Mock data
-const MOCK_TRANSACTIONS: Transaction[] = [
-  { id: "TXN001", date: "2026-03-10", description: "Graha Plan — Monthly", amount: 199, status: "success", type: "subscription", receiptUrl: "#" },
-  { id: "TXN002", date: "2026-03-05", description: "Love Clarity Report", amount: 299, status: "success", type: "one-time", receiptUrl: "#" },
-  { id: "TXN003", date: "2026-02-10", description: "Graha Plan — Monthly", amount: 199, status: "success", type: "subscription", receiptUrl: "#" },
-  { id: "TXN004", date: "2026-02-02", description: "Career Timing Report", amount: 299, status: "refunded", type: "one-time" },
-  { id: "TXN005", date: "2026-01-10", description: "Graha Plan — Monthly", amount: 199, status: "success", type: "subscription", receiptUrl: "#" },
-]
-
 export default function BillingHistoryPage({ onBack }: BillingHistoryPageProps) {
   const [filter, setFilter] = useState<"all" | "subscription" | "one-time">("all")
+  const [transactions] = useState<Transaction[]>([]) // TODO: Fetch from Supabase payments table when available
 
-  const filtered = MOCK_TRANSACTIONS.filter((t) =>
+  const filtered = transactions.filter((t) =>
     filter === "all" ? true : t.type === filter
   )
 
-  const totalSpent = MOCK_TRANSACTIONS.filter((t) => t.status === "success").reduce((sum, t) => sum + t.amount, 0)
+  const totalSpent = transactions.filter((t) => t.status === "success").reduce((sum, t) => sum + t.amount, 0)
 
   return (
     <div className="min-h-dvh bg-[#0A0E1A] text-[#F1F0F5]">
@@ -87,7 +79,7 @@ export default function BillingHistoryPage({ onBack }: BillingHistoryPageProps) 
           </div>
           <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4 text-center">
             <p className="text-xs text-[#8892A3] mb-1">Transactions</p>
-            <p className="text-lg font-bold text-[#F1F0F5]">{MOCK_TRANSACTIONS.length}</p>
+            <p className="text-lg font-bold text-[#F1F0F5]">{transactions.length}</p>
           </div>
         </div>
 

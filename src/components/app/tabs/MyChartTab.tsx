@@ -31,9 +31,9 @@ interface CosmicSnapshotData {
 }
 
 const DEFAULT_PROFILE: AstroProfile = {
-  moonSign: "Cancer", risingSign: "Leo", sunSignVedic: "Virgo",
-  sunSignWestern: "Libra", nakshatra: "Pushya", nakshatraPada: 1,
-  currentDasha: "Venus-Mercury", dominantTheme: "Inner growth and clarity",
+  moonSign: "—", risingSign: "—", sunSignVedic: "—",
+  sunSignWestern: "—", nakshatra: "—", nakshatraPada: 0,
+  currentDasha: "—", dominantTheme: "Complete your birth details to see your chart",
 }
 
 // Derive strengths/sensitivities from element

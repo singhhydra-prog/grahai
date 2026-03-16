@@ -53,29 +53,7 @@ interface ErrorResponse {
 
 type ApiResponse = SuccessResponse | ErrorResponse
 
-// ─── IANA timezone string → numeric UTC offset ────────
-function resolveTimezoneOffset(tz: unknown, birthDate?: string): number {
-  if (tz === null || tz === undefined) return 5.5
-  if (typeof tz === "number" && !isNaN(tz)) return tz
-  const tzStr = String(tz).trim()
-  const asNum = parseFloat(tzStr)
-  if (!isNaN(asNum) && /^-?\d+(\.\d+)?$/.test(tzStr)) return asNum
-  try {
-    const refDate = birthDate ? new Date(birthDate + "T12:00:00") : new Date()
-    const utcStr = refDate.toLocaleString("en-US", { timeZone: "UTC" })
-    const localStr = refDate.toLocaleString("en-US", { timeZone: tzStr })
-    const diffMs = new Date(localStr).getTime() - new Date(utcStr).getTime()
-    const hours = diffMs / (1000 * 60 * 60)
-    if (!isNaN(hours)) return hours
-  } catch { /* not valid IANA */ }
-  const COMMON_TZ: Record<string, number> = {
-    "Asia/Kolkata": 5.5, "Asia/Calcutta": 5.5, "America/New_York": -5,
-    "America/Chicago": -6, "America/Los_Angeles": -8, "Europe/London": 0,
-    "Asia/Dubai": 4, "Asia/Singapore": 8, "Asia/Tokyo": 9,
-  }
-  if (COMMON_TZ[tzStr] !== undefined) return COMMON_TZ[tzStr]
-  return 5.5
-}
+import { resolveTimezoneOffset } from "@/lib/timezone-utils"
 
 // ─── Normalize birthDetails timezone ────────────────────
 function normalizeBirthDetails(bd: BirthDetails): BirthDetails {
