@@ -225,6 +225,43 @@ function generateCategoryInsights(
   }
 }
 
+// ─── Vara name → planet lord mapping ─────────────────
+const VARA_LORD_MAP: Record<string, string> = {
+  "Ravivara": "Sun", "Sunday": "Sun",
+  "Somavara": "Moon", "Monday": "Moon",
+  "Mangalavara": "Mars", "Tuesday": "Mars",
+  "Budhavara": "Mercury", "Wednesday": "Mercury",
+  "Guruvara": "Jupiter", "Thursday": "Jupiter",
+  "Shukravara": "Venus", "Friday": "Venus",
+  "Shanivara": "Saturn", "Saturday": "Saturn",
+}
+
+function extractVaraLord(vara: string): string {
+  // Try exact match first, then partial match from "Somavara (Monday)" format
+  if (VARA_LORD_MAP[vara]) return VARA_LORD_MAP[vara]
+  for (const [key, lord] of Object.entries(VARA_LORD_MAP)) {
+    if (vara.includes(key)) return lord
+  }
+  return "Sun"
+}
+
+// ─── Soften raw transit effects for user-facing display ─
+function softenTransitEffect(raw: string | undefined, planet: string, fallback: string): string {
+  if (!raw) return fallback
+  // Remove the technical prefix "Planet in Nth from Moon (Sign): "
+  const colonIdx = raw.indexOf(": ")
+  const effectText = colonIdx >= 0 ? raw.substring(colonIdx + 2) : raw
+  // Remove brackets like [RETROGRADE — ...]
+  const cleaned = effectText.replace(/\s*\[.*?\]\s*/g, "").trim()
+  // If the effect is overly negative/terse, wrap it in constructive framing
+  const negativeKeywords = ["loss", "imprisonment", "confusion", "danger", "enemies", "disease", "death"]
+  const hasNegative = negativeKeywords.some(k => cleaned.toLowerCase().includes(k))
+  if (hasNegative) {
+    return `${planet}'s transit calls for awareness around ${cleaned.toLowerCase().replace(/,\s*/g, " and ")}. Stay mindful and channel this energy into growth.`
+  }
+  return `${planet}'s influence today brings ${cleaned.charAt(0).toLowerCase() + cleaned.slice(1)}`
+}
+
 // ─── Map per-user DailyInsight → legacy API response format ─
 function mapInsightToResponse(
   insight: DailyInsight,
@@ -239,6 +276,16 @@ function mapInsightToResponse(
   const colours = LUCKY_COLOURS[signName] || ["White"]
   const numbers = LUCKY_NUMBERS[signName] || [7]
 
+  // Compute real auspicious time window (avoid Rahu Kaal)
+  const auspiciousTime = calculateAuspiciousTime(targetDate)
+
+  // Extract vara lord planet name from vara string like "Somavara (Monday)"
+  const varaLord = extractVaraLord(insight.panchang.vara)
+
+  // Ensure overallTrend starts with a capital letter and is a complete sentence
+  const trend = insight.overallTrend || "A balanced day ahead"
+  const capitalizedTrend = trend.charAt(0).toUpperCase() + trend.slice(1)
+
   return {
     success: true,
     date: dateLabel,
@@ -249,10 +296,10 @@ function mapInsightToResponse(
       headline: insight.headline,
       action: insight.activities.favorable.slice(0, 2).join(". ") || "Focus on your highest-priority task today.",
       caution: insight.activities.unfavorable.slice(0, 2).join(". ") || "Avoid impulsive decisions during Rahu Kaal.",
-      whyActive: `${insight.moonTransit.effect} ${insight.dashaContext.interpretation.split(". ").slice(0, 1).join(".")}`,
+      whyActive: `${insight.moonTransit.effect} ${insight.dashaContext.interpretation.split(". ").slice(0, 2).join(". ")}.`,
       source: {
         principle: `Moon in ${insight.moonTransit.currentSign} (${insight.moonTransit.nakshatra})`,
-        text: `${insight.overallTrend}. ${insight.dashaContext.mahadasha} Mahadasha with ${insight.dashaContext.antardasha} Antardasha active.`,
+        text: `${capitalizedTrend}. ${insight.dashaContext.mahadasha} Mahadasha with ${insight.dashaContext.antardasha} Antardasha active.`,
         reference: insight.bphsVerse.source,
       },
     },
@@ -261,10 +308,10 @@ function mapInsightToResponse(
       paksha: insight.panchang.tithi.includes("Purnima") ? "Shukla Paksha" : insight.panchang.tithi.includes("Amavasya") ? "Krishna Paksha" : "Shukla Paksha",
       nakshatra: insight.panchang.nakshatra,
       vara: insight.panchang.vara,
-      varaLord: insight.panchang.vara,
+      varaLord,
     },
     timing: {
-      auspiciousTime: { start: insight.panchang.auspicious[0] || "06:00 AM", end: insight.panchang.auspicious[1] || "07:30 AM" },
+      auspiciousTime,
       rahuKaal: { start: insight.panchang.rahuKaal.split(" - ")[0] || "Unknown", end: insight.panchang.rahuKaal.split(" - ")[1] || "Unknown" },
     },
     lucky: {
@@ -272,9 +319,21 @@ function mapInsightToResponse(
       number: numbers[seed % numbers.length],
     },
     categories: {
-      wealth: insight.keyTransits.find(t => t.planet === "Jupiter")?.effect || `${insight.dashaContext.mahadasha} period influences your financial growth. ${insight.overallTrend}.`,
-      relationship: insight.keyTransits.find(t => t.planet === "Venus")?.effect || `Moon in ${insight.moonTransit.currentSign} colors your emotional connections today. ${insight.moonTransit.effect}.`,
-      career: insight.keyTransits.find(t => t.planet === "Saturn")?.effect || `${insight.dashaContext.mahadasha} Mahadasha shapes your professional direction. Focus on long-term goals.`,
+      wealth: softenTransitEffect(
+        insight.keyTransits.find(t => t.planet === "Jupiter")?.effect,
+        "Jupiter",
+        `${insight.dashaContext.mahadasha} period influences your financial growth. ${capitalizedTrend}.`,
+      ),
+      relationship: softenTransitEffect(
+        insight.keyTransits.find(t => t.planet === "Venus")?.effect,
+        "Venus",
+        `Moon in ${insight.moonTransit.currentSign} colors your emotional connections today. ${insight.moonTransit.effect}.`,
+      ),
+      career: softenTransitEffect(
+        insight.keyTransits.find(t => t.planet === "Saturn")?.effect,
+        "Saturn",
+        `${insight.dashaContext.mahadasha} Mahadasha shapes your professional direction. Focus on long-term goals.`,
+      ),
       self: `${insight.moonTransit.effect} ${insight.dailyRemedy.reason}`,
     },
     moonSign: insight.moonTransit.currentSign,
