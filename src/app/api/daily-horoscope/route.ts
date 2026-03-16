@@ -13,10 +13,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import {
   SIGNS,
-  NAKSHATRAS,
-  NAKSHATRA_SPAN,
-  DAY_LORDS,
-  PLANET_SANSKRIT,
 } from "@/lib/ephemeris/constants"
 import { generateDailyInsight, type DailyInsight } from "@/lib/daily-insights/insight-generator"
 import type { BirthDetails } from "@/lib/ephemeris/types"
@@ -35,33 +31,9 @@ function getSiderealSunLongitude(date: Date): number {
   return ((tropicalLong - ayanamsa) % 360 + 360) % 360
 }
 
-function getApproxMoonLongitude(date: Date): number {
-  const j2000 = new Date("2000-01-01T12:00:00Z")
-  const days = (date.getTime() - j2000.getTime()) / 86400000
-  const L = (218.316 + 13.176396 * days) % 360
-  const year = date.getFullYear() + (date.getMonth() + 1) / 12
-  const ayanamsa = 23.85 + (year - 2000) * 0.01397
-  return ((L - ayanamsa) % 360 + 360) % 360
-}
-
-// ─── Rahu Kaal ─────────────────────────────────────────
+// ─── Rahu Kaal slots (used by auspicious time calc) ────
 const RAHU_KAAL_SLOTS: Record<number, number> = {
   0: 8, 1: 2, 2: 7, 3: 5, 4: 6, 5: 4, 6: 3,
-}
-
-function calculateRahuKaal(date: Date, sunrise = 6, sunset = 18) {
-  const slot = RAHU_KAAL_SLOTS[date.getDay()]
-  const duration = (sunset - sunrise) / 8
-  const start = sunrise + (slot - 1) * duration
-  const end = start + duration
-  const fmt = (h: number) => {
-    const hrs = Math.floor(h)
-    const mins = Math.round((h - hrs) * 60)
-    const period = hrs >= 12 ? "PM" : "AM"
-    const dh = hrs > 12 ? hrs - 12 : hrs === 0 ? 12 : hrs
-    return `${String(dh).padStart(2, "0")}:${String(mins).padStart(2, "0")} ${period}`
-  }
-  return { start: fmt(start), end: fmt(end) }
 }
 
 // ─── Auspicious Time (best 1.5-hour window) ────────────
@@ -104,126 +76,6 @@ const LUCKY_NUMBERS: Record<string, number[]> = {
   Cancer: [2, 4, 7], Leo: [1, 4, 9], Virgo: [5, 3, 6],
   Libra: [6, 5, 2], Scorpio: [8, 1, 9], Sagittarius: [3, 7, 9],
   Capricorn: [8, 4, 6], Aquarius: [4, 7, 8], Pisces: [3, 7, 9],
-}
-
-// ─── Today's Theme generation ─────────────────────────
-function generateTodayTheme(
-  moonSign: string,
-  sunSign: string,
-  dayLord: string,
-  moonLong: number,
-  sunLong: number,
-  nakshatra: string,
-  date: Date,
-) {
-  const seed = date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate()
-  const hash = (s: number, offset: number) => ((s * 31 + offset) % 100) / 100
-  const moonInSign = SIGNS[Math.floor(moonLong / 30)]?.name || moonSign
-
-  const themes = [
-    {
-      title: "Clarity Over Reaction",
-      headline: `Moon in ${moonInSign} favors thoughtful decisions. Today rewards patience and careful judgment over impulsive action.`,
-      action: "Take 10 minutes before any major decision. Write down your real priorities — the clearest path will reveal itself.",
-      caution: "Avoid reactive emails, confrontations, or commitments made in frustration. Your judgment improves with space.",
-      whyActive: `The Moon is transiting ${moonInSign}, creating a reflective mental quality. ${dayLord} as the day lord adds a layer of ${dayLord === "Saturn" ? "discipline and depth" : dayLord === "Jupiter" ? "wisdom and expansion" : dayLord === "Mars" ? "drive but also impatience" : dayLord === "Venus" ? "harmony-seeking" : dayLord === "Mercury" ? "mental agility" : dayLord === "Sun" ? "confidence and visibility" : "intuitive processing"}.`,
-      source: { principle: `Moon in ${moonInSign} (Chandra Rashi Gochara)`, text: `Classical Jyotish holds that the Moon's transit through ${moonInSign} colors the emotional and mental landscape. ${moonInSign} as a Moon-sign transit activates themes of ${moonInSign === "Aries" ? "initiative and courage" : moonInSign === "Taurus" ? "stability and comfort" : moonInSign === "Gemini" ? "communication and curiosity" : moonInSign === "Cancer" ? "nurturing and emotional depth" : moonInSign === "Leo" ? "creativity and self-expression" : moonInSign === "Virgo" ? "analysis and service" : moonInSign === "Libra" ? "balance and partnership" : moonInSign === "Scorpio" ? "transformation and intensity" : moonInSign === "Sagittarius" ? "expansion and philosophy" : moonInSign === "Capricorn" ? "structure and ambition" : moonInSign === "Aquarius" ? "innovation and detachment" : "intuition and surrender"}.`, reference: "Brihat Parashara Hora Shastra — Transit of Chandra" },
-    },
-    {
-      title: "Momentum Building",
-      headline: `${dayLord}'s energy combines with Moon in ${moonInSign} to create forward thrust. Act on what you've been planning.`,
-      action: "Take one concrete step on a stalled project or goal. The energy supports initiation — even a small move creates compounding momentum.",
-      caution: "Don't start multiple things at once. Channel the available energy into your highest-priority item only.",
-      whyActive: `${dayLord} is the ruling planet of today (Vara Lord), and its energy harmonizes with the Moon's transit through ${moonInSign}. This creates a window of aligned action.`,
-      source: { principle: `Vara Lord (${dayLord}) + Chandra in ${moonInSign}`, text: `The Vara Lord determines the day's overarching energy signature. When ${dayLord}'s influence aligns with the Moon's emotional tone in ${moonInSign}, it creates a supportive window for decisive action.`, reference: "Muhurta Chintamani — Vara Phala" },
-    },
-    {
-      title: "Inner Work Day",
-      headline: `Today's chart favors reflection and self-understanding. Go inward before pushing outward.`,
-      action: "Journal, meditate, or have a meaningful conversation. Insights that emerge today will guide better decisions this week.",
-      caution: "Avoid overcommitting to social plans or taking on new obligations. Protect your energy for what truly matters.",
-      whyActive: `The Moon's placement in ${moonInSign} activates the more introspective houses of your chart today. ${nakshatra} nakshatra adds a contemplative quality.`,
-      source: { principle: `Moon Nakshatra: ${nakshatra}`, text: `The Moon's nakshatra transit influences subtle emotional and spiritual undertones. ${nakshatra} brings themes that favor inner processing and meaning-making over external activity.`, reference: "Jataka Parijata — Nakshatra Phala" },
-    },
-    {
-      title: "Communication Sharpens",
-      headline: `Words carry extra weight today. Use this for important conversations, writing, or negotiations.`,
-      action: "Have the conversation you've been putting off. Express something you've been holding back — clarity serves you now.",
-      caution: "Be precise with your language. Casual remarks may be taken more seriously than intended today.",
-      whyActive: `Mercury-influenced energy is prominent today through ${dayLord}'s lordship and Moon in ${moonInSign}. This sharpens mental acuity and verbal expression.`,
-      source: { principle: `Budha (Mercury) influence via Vara and Rashi`, text: `When Mercury's energy is prominent — through day lordship, transit, or rashi affinity — communication, trade, and intellectual activities receive a boost. This is recognized in Muhurta Shastra as favorable for Vidya (learning) and Vak (speech).`, reference: "Muhurta Chintamani — Budha Phala" },
-    },
-    {
-      title: "Steady Persistence Wins",
-      headline: `No breakthroughs today — and that's perfect. Focus on consistency and small progress.`,
-      action: "Do the boring-but-important work. Pay bills, organize, follow up. Today rewards discipline, not inspiration.",
-      caution: "Don't chase excitement or make dramatic changes. The chart favors stability and reliability right now.",
-      whyActive: `Saturn's influence through the day's energy pattern creates a grounding, serious tone. Moon in ${moonInSign} supports methodical work.`,
-      source: { principle: `Shani (Saturn) influence pattern`, text: `Saturn's influence in daily Muhurta encourages patience, duty, and long-term thinking. Results from Shani periods are delayed but durable — the classical texts call this "fruits that ripen slowly."`, reference: "Phaladeepika — Shani Gochara Phala" },
-    },
-  ]
-
-  const idx = Math.floor(hash(seed, 7) * themes.length)
-  return themes[idx]
-}
-
-// ─── Category insight generation ───────────────────────
-function generateCategoryInsights(
-  moonSign: string,
-  sunSign: string,
-  dayLord: string,
-  moonLong: number,
-  date: Date,
-) {
-  // Seed based on date for consistency within the day
-  const seed = date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate()
-  const hash = (s: number, offset: number) => ((s * 31 + offset) % 100) / 100
-
-  const moonHouse = Math.floor(moonLong / 30)
-  const moonInSign = SIGNS[moonHouse]?.name || moonSign
-
-  // Wealth insights
-  const wealthPool = [
-    `Financial clarity is strong today with Moon in ${moonInSign}. Trust your instincts on investment decisions but verify the numbers before committing.`,
-    `Your 2nd house energies are activated. Focus on saving rather than spending today — small disciplined actions compound into significant wealth.`,
-    `${dayLord}'s influence supports calculated financial risks. A new income opportunity may present itself through an unexpected conversation.`,
-    `Material abundance flows more freely when you release scarcity thinking. Today's chart supports generous giving as a path to receiving.`,
-    `Your financial planets are in a holding pattern. Avoid major purchases or investments today — wait for clearer signals next week.`,
-  ]
-
-  // Relationship insights
-  const relationshipPool = [
-    `Emotional depth is available today. Listen more than you speak in close relationships — your partner needs understanding, not solutions.`,
-    `Venus energies are active. Express appreciation to someone you've been taking for granted. Small gestures create lasting bonds today.`,
-    `Communication in relationships may feel strained. Avoid assumptions — ask direct questions and give others the benefit of the doubt.`,
-    `Your chart shows a pull toward deeper connection. Vulnerability is your strength today — share what you've been holding back.`,
-    `Social interactions are best kept light today. Don't force heavy conversations — the right moment for depth will come naturally.`,
-  ]
-
-  // Career insights
-  const careerPool = [
-    `Professional momentum builds today. Focus on one key deliverable rather than spreading energy thin. Quality over quantity wins.`,
-    `Leadership opportunities arise naturally. Step up where others hesitate — your chart supports confident decision-making in work matters.`,
-    `Behind-the-scenes work yields the strongest results today. Don't seek recognition — let your output speak for itself.`,
-    `Collaboration over competition today. A colleague holds a missing piece of information that could significantly advance your project.`,
-    `Clarity returns after a foggy period. Use this mental sharpness to tackle the complex problem you've been avoiding.`,
-  ]
-
-  // Self insights
-  const selfPool = [
-    `Your emotional energy is high but needs direction. Channel intensity into creative expression or physical activity — not overthinking.`,
-    `Self-care isn't optional today. Your chart shows accumulated mental fatigue — take breaks, hydrate, and step away from screens.`,
-    `Your intuition is unusually sharp. Pay attention to gut feelings about people and situations — your subconscious is processing faster than your logic.`,
-    `Today rewards discipline over inspiration. Stick to your routine even when motivation dips — consistency is the real power move.`,
-    `Creative energy peaks today. Start that project you've been thinking about — the first step is all that matters.`,
-  ]
-
-  return {
-    wealth: wealthPool[Math.floor(hash(seed, 1) * wealthPool.length)],
-    relationship: relationshipPool[Math.floor(hash(seed, 2) * relationshipPool.length)],
-    career: careerPool[Math.floor(hash(seed, 3) * careerPool.length)],
-    self: selfPool[Math.floor(hash(seed, 4) * selfPool.length)],
-  }
 }
 
 // ─── Vara name → planet lord mapping ─────────────────
@@ -339,7 +191,7 @@ function mapInsightToResponse(
     },
     moonSign: insight.moonTransit.currentSign,
     sunSign: signName,
-    place: placeOfBirth || "India",
+    place: placeOfBirth || "Unknown",
     dashaContext: {
       mahadasha: insight.dashaContext.mahadasha,
       antardasha: insight.dashaContext.antardasha,

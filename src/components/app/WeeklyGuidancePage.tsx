@@ -139,8 +139,8 @@ export default function WeeklyGuidancePage({ onBack }: WeeklyGuidancePageProps) 
             date: `${dayNames[d.getDay()]} ${d.getDate()}`,
             dayName: fullDayNames[d.getDay()],
             energy,
-            bestFor: apiData?.theme?.action || (energy === "high" ? "Important decisions, networking, bold moves" : energy === "low" ? "Rest, reflection, planning ahead" : "Steady progress, routine tasks"),
-            avoid: apiData?.theme?.caution || (energy === "high" ? "Overcommitting or spreading too thin" : energy === "low" ? "Forcing outcomes or confrontations" : "Impulsive decisions"),
+            bestFor: apiData?.theme?.action || "Forecast unavailable for this day",
+            avoid: apiData?.theme?.caution || "—",
           }
         })
 
@@ -159,10 +159,10 @@ export default function WeeklyGuidancePage({ onBack }: WeeklyGuidancePageProps) 
         const highCount = days.filter((d) => d.energy === "high").length
         const lowCount = days.filter((d) => d.energy === "low").length
 
-        const bestDayForLove = days.find((d) => d.energy === "high")?.dayName || "Wednesday"
-        const bestDayForCareer = days.find((d) => d.energy === "high")?.dayName || "Tuesday"
-        const bestDayForMoney = days.filter((d) => d.energy !== "low")[2]?.dayName || "Thursday"
-        const bestDayForHealth = days.find((d) => d.energy === "low")?.dayName || "Saturday"
+        const bestDayForLove = days.find((d) => d.energy === "high")?.dayName || "—"
+        const bestDayForCareer = days.find((d) => d.energy === "high")?.dayName || "—"
+        const bestDayForMoney = days.filter((d) => d.energy !== "low")[2]?.dayName || "—"
+        const bestDayForHealth = days.find((d) => d.energy === "low")?.dayName || "—"
 
         // Build sections with real data
         const sections: WeeklySection[] = [

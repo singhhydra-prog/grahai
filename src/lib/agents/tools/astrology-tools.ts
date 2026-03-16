@@ -28,6 +28,7 @@ import { getSAVTransitReport, getEnhancedGocharPhal } from "@/lib/ephemeris/sav-
 import { getBhavaChalitReport } from "@/lib/ephemeris/bhava-chalit"
 import { synthesizeChart, calculateLifeDomainScores, getChartSignature } from "@/lib/ephemeris/chart-synthesis"
 import type { BirthDetails, NatalChart, PlanetName } from "@/lib/ephemeris/types"
+import { resolveTimezoneOffset } from "@/lib/timezone-utils"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -38,31 +39,13 @@ function getSupabase() {
 // ─── Helper: Parse Birth Details ────────────────────────
 
 function parseBirthDetails(input: Record<string, unknown>): BirthDetails {
-  // Resolve timezone: handles IANA strings ("Asia/Kolkata"), numeric strings ("5.5"), and numbers
-  const resolveTz = (tz: unknown): number => {
-    if (typeof tz === "number" && !isNaN(tz)) return tz
-    if (typeof tz === "string") {
-      const asNum = parseFloat(tz)
-      if (!isNaN(asNum) && /^-?\d+(\.\d+)?$/.test(tz.trim())) return asNum
-      // IANA → offset via date math
-      try {
-        const ref = new Date()
-        const utc = ref.toLocaleString("en-US", { timeZone: "UTC" })
-        const local = ref.toLocaleString("en-US", { timeZone: tz.trim() })
-        const h = (new Date(local).getTime() - new Date(utc).getTime()) / 3600000
-        if (!isNaN(h)) return h
-      } catch { /* not valid IANA */ }
-    }
-    return 5.5
-  }
-
   return {
     date: input.date as string,
     time: (input.time as string) || "12:00",
     place: (input.place as string) || (input.location as string) || "Unknown",
     latitude: input.latitude as number,
     longitude: input.longitude as number,
-    timezone: resolveTz(input.timezone),
+    timezone: resolveTimezoneOffset(input.timezone, input.date as string),
   }
 }
 
