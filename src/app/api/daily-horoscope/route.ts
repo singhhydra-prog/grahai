@@ -78,6 +78,47 @@ const LUCKY_NUMBERS: Record<string, number[]> = {
   Capricorn: [8, 4, 6], Aquarius: [4, 7, 8], Pisces: [3, 7, 9],
 }
 
+// ─── Generate a distinct, chart-specific theme title ──
+function generateThemeTitle(insight: DailyInsight, targetDate: Date): string {
+  const seed = targetDate.getFullYear() * 10000 + (targetDate.getMonth() + 1) * 100 + targetDate.getDate()
+  const moonSign = insight.moonTransit.currentSign
+  const mahadasha = insight.dashaContext.mahadasha
+  const trend = insight.overallTrend
+
+  // Titles keyed to the actual transit trend + moon sign + dasha lord
+  if (trend === "favorable") {
+    const pool = [
+      `${mahadasha}'s Blessing in ${moonSign}`,
+      `A Day of Momentum`,
+      `${moonSign} Moon Opens Doors`,
+      `Clarity and Confidence`,
+      `Cosmic Wind at Your Back`,
+    ]
+    return pool[seed % pool.length]
+  }
+
+  if (trend === "challenging") {
+    const pool = [
+      `Patience Under ${mahadasha}'s Watch`,
+      `Navigate with Awareness`,
+      `${moonSign} Moon Asks for Stillness`,
+      `A Day for Inner Strength`,
+      `Steady Through the Storm`,
+    ]
+    return pool[seed % pool.length]
+  }
+
+  // Mixed
+  const pool = [
+    `Balancing Light and Shadow`,
+    `Moon in ${moonSign}: Read the Signs`,
+    `${mahadasha} Period — Stay Centered`,
+    `A Day of Two Tides`,
+    `Mindful Action Wins Today`,
+  ]
+  return pool[seed % pool.length]
+}
+
 // ─── Vara name → planet lord mapping ─────────────────
 const VARA_LORD_MAP: Record<string, string> = {
   "Ravivara": "Sun", "Sunday": "Sun",
@@ -145,8 +186,8 @@ function mapInsightToResponse(
     dayOffset,
     personalized: true,
     theme: {
-      title: insight.headline,
-      headline: insight.headline,
+      title: generateThemeTitle(insight, targetDate),
+      headline: `${insight.headline} Moon transits ${insight.moonTransit.currentSign} (${insight.moonTransit.nakshatra}), activating house ${insight.moonTransit.houseFromMoon} from your natal Moon.`,
       action: insight.activities.favorable.slice(0, 2).join(". ") || "Focus on your highest-priority task today.",
       caution: insight.activities.unfavorable.slice(0, 2).join(". ") || "Avoid impulsive decisions during Rahu Kaal.",
       whyActive: `${insight.moonTransit.effect} ${insight.dashaContext.interpretation.split(". ").slice(0, 2).join(". ")}.`,

@@ -82,50 +82,50 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
             {
               id: "love", label: "Love", icon: Heart,
               status: getStatus(apiData.categories?.relationship),
-              insight: apiData.categories?.relationship || "Relationship energy is active today.",
-              advice: "Follow your heart and communicate openly.",
+              insight: apiData.categories?.relationship || "Insight unavailable",
+              advice: apiData.dashaContext?.interpretation ? apiData.dashaContext.interpretation.split(". ")[0] + "." : "—",
             },
             {
               id: "career", label: "Career", icon: Briefcase,
               status: getStatus(apiData.categories?.career),
-              insight: apiData.categories?.career || "Professional matters are steady today.",
-              advice: "Focus on what matters most at work.",
+              insight: apiData.categories?.career || "Insight unavailable",
+              advice: apiData.moonSign ? `Moon in ${apiData.moonSign} shapes your professional focus today.` : "—",
             },
             {
               id: "money", label: "Money", icon: Coins,
               status: getStatus(apiData.categories?.wealth),
-              insight: apiData.categories?.wealth || "Financial energy is moderate today.",
-              advice: "Be mindful with spending and review your plans.",
+              insight: apiData.categories?.wealth || "Insight unavailable",
+              advice: apiData.dashaContext?.mahadasha ? `${apiData.dashaContext.mahadasha} Mahadasha influences financial patterns.` : "—",
             },
             {
               id: "health", label: "Health", icon: Activity,
               status: getStatus(apiData.categories?.self),
-              insight: apiData.categories?.self || "Your energy levels are balanced today.",
-              advice: "Listen to your body and rest when needed.",
+              insight: apiData.categories?.self || "Insight unavailable",
+              advice: apiData.dailyRemedy?.reason || "—",
             },
           ],
           doList: apiData.theme?.action
-            ? [apiData.theme.action, "Follow your intuition on important decisions", "Connect with someone meaningful"]
-            : ["Start your day with intention", "Follow your intuition", "Connect with someone meaningful"],
+            ? apiData.theme.action.split(". ").filter(Boolean)
+            : ["Data unavailable — please retry"],
           avoidList: apiData.theme?.caution
-            ? [apiData.theme.caution, "Avoid impulsive decisions after sunset", "Don't overcommit your energy"]
-            : ["Avoid impulsive decisions", "Don't overcommit your energy", "Skip unnecessary confrontations"],
+            ? apiData.theme.caution.split(". ").filter(Boolean)
+            : [],
           dasha: {
-            currentPhase: "Current Planetary Period",
+            currentPhase: apiData.dashaContext ? `${apiData.dashaContext.mahadasha}–${apiData.dashaContext.antardasha} Period` : "—",
             daysRemaining: 0,
-            howItAffectsToday: apiData.theme?.whyActive || "Your current planetary period influences today's energies.",
+            howItAffectsToday: apiData.theme?.whyActive || "—",
           },
           lucky: {
-            number: apiData.lucky?.number || 7,
-            color: apiData.lucky?.colour || "Gold",
-            auspiciousTime: apiData.timing?.auspiciousTime ? `${apiData.timing.auspiciousTime.start} - ${apiData.timing.auspiciousTime.end}` : "10:00 AM - 12:00 PM",
-            rahuKaal: apiData.timing?.rahuKaal ? `${apiData.timing.rahuKaal.start} - ${apiData.timing.rahuKaal.end}` : "1:30 PM - 3:00 PM",
+            number: apiData.lucky?.number || 0,
+            color: apiData.lucky?.colour || "—",
+            auspiciousTime: apiData.timing?.auspiciousTime ? `${apiData.timing.auspiciousTime.start} - ${apiData.timing.auspiciousTime.end}` : "—",
+            rahuKaal: apiData.timing?.rahuKaal ? `${apiData.timing.rahuKaal.start} - ${apiData.timing.rahuKaal.end}` : "—",
           },
           panchang: {
-            tithi: apiData.panchang?.tithi || "Calculating...",
-            paksha: apiData.panchang?.paksha || "",
-            vara: apiData.panchang?.vara || "",
-            nakshatra: apiData.panchang?.nakshatra || "",
+            tithi: apiData.panchang?.tithi || "—",
+            paksha: apiData.panchang?.paksha || "—",
+            vara: apiData.panchang?.vara || "—",
+            nakshatra: apiData.panchang?.nakshatra || "—",
           },
           source: apiData.theme?.source?.text || `Based on your birth chart and today's planetary transits for ${birthData.placeOfBirth || "your location"}.`,
         })

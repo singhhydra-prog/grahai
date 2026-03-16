@@ -64,6 +64,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
   const [sourceDrawerOpen, setSourceDrawerOpen] = useState(false)
   const [activeSource, setActiveSource] = useState<ThemeData["source"] | null>(null)
   const [sourceContext, setSourceContext] = useState("")
+  const [apiError, setApiError] = useState<string | null>(null)
 
   useEffect(() => {
     try {
@@ -80,6 +81,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
       return
     }
     setLoading(true)
+    setApiError(null)
     try {
       const res = await fetch("/api/daily-horoscope", {
         method: "POST",
@@ -95,11 +97,17 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
           offset,
         }),
       })
-      if (res.ok) {
-        const data = await res.json()
+      const data = await res.json()
+      if (res.ok && data.success !== false) {
         setHoroscope(data)
+      } else {
+        console.error("[HomeTab] API error:", data)
+        setApiError(data.error || `Failed to load horoscope (HTTP ${res.status})`)
       }
-    } catch {}
+    } catch (err) {
+      console.error("[HomeTab] Network error:", err)
+      setApiError("Unable to connect. Please check your internet and try again.")
+    }
     setLoading(false)
   }, [birthData])
 
@@ -475,6 +483,30 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
               </motion.button>
             </motion.div>
           </AnimatePresence>
+        ) : apiError ? (
+          <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+            <AlertTriangle className="w-10 h-10 text-rose-400/60 mb-3" />
+            <p className="text-sm font-medium text-[#F1F0F5] mb-1">Unable to Load Your Horoscope</p>
+            <p className="text-xs text-[#8892A3] mb-4">{apiError}</p>
+            <button
+              onClick={() => fetchHoroscope(dayOffset)}
+              className="px-4 py-2 rounded-xl bg-[#D4A054]/10 text-[#D4A054] text-xs font-semibold hover:bg-[#D4A054]/20 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        ) : !birthData ? (
+          <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+            <Sparkles className="w-10 h-10 text-[#D4A054]/40 mb-3" />
+            <p className="text-sm font-medium text-[#F1F0F5] mb-1">Complete Your Birth Details</p>
+            <p className="text-xs text-[#8892A3] mb-4">We need your birth date, time, and location to generate your personalized horoscope.</p>
+            <button
+              onClick={onProfileClick}
+              className="px-4 py-2 rounded-xl bg-[#D4A054]/10 text-[#D4A054] text-xs font-semibold hover:bg-[#D4A054]/20 transition-colors"
+            >
+              Update Birth Details
+            </button>
+          </div>
         ) : (
           <div className="text-center py-12">
             <p className="text-sm text-[#8892A3]">{t.home.todayGuidance}</p>
