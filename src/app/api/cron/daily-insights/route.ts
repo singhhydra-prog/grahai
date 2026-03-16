@@ -14,6 +14,7 @@ import { createClient } from "@supabase/supabase-js"
 import { generateDailyInsight } from "@/lib/daily-insights/insight-generator"
 import { renderDailyInsightEmail, renderDailyInsightPlainText } from "@/lib/daily-insights/email-template"
 import type { BirthDetails } from "@/lib/ephemeris/types"
+import { resolveTimezoneOffset } from "@/lib/timezone-utils"
 
 // ─── Config ─────────────────────────────────────────────
 
@@ -155,14 +156,20 @@ export async function GET(req: NextRequest) {
             continue
           }
 
+          // Skip users with incomplete birth data
+          if (!kundli.birth_time || !kundli.latitude || !kundli.longitude) {
+            console.warn(`[cron] Skipping user ${kundli.user_id}: missing birth_time/lat/lng`)
+            continue
+          }
+
           // Build birth details
           const birthDetails: BirthDetails = {
-            date: kundli.birth_date,              // "YYYY-MM-DD" string from DB
-            time: kundli.birth_time || "12:00",   // default to noon if missing
+            date: kundli.birth_date,
+            time: kundli.birth_time,
             place: kundli.birth_place || "Unknown",
             latitude: kundli.latitude,
             longitude: kundli.longitude,
-            timezone: kundli.timezone || 5.5,
+            timezone: resolveTimezoneOffset(kundli.timezone, kundli.birth_date),
           }
 
           // Generate insight
@@ -283,13 +290,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Kundli not found" }, { status: 404 })
     }
 
+    if (!kundli.birth_time) {
+      return NextResponse.json({ error: "Birth time is required for accurate calculations" }, { status: 400 })
+    }
+    if (!kundli.latitude || !kundli.longitude) {
+      return NextResponse.json({ error: "Birth location coordinates are required" }, { status: 400 })
+    }
+
     const birthDetails: BirthDetails = {
       date: kundli.birth_date,
-      time: kundli.birth_time || "12:00",
+      time: kundli.birth_time,
       place: kundli.birth_place || "Unknown",
       latitude: kundli.latitude,
       longitude: kundli.longitude,
-      timezone: kundli.timezone || 5.5,
+      timezone: resolveTimezoneOffset(kundli.timezone, kundli.birth_date),
     }
 
     const insight = await generateDailyInsight(userId, birthDetails, kundli.name || "Friend")

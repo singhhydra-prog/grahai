@@ -89,9 +89,15 @@ export async function POST(req: NextRequest) {
     const date = new Date(birthDate)
     const sunLong = getSiderealSunLongitude(date)
     const signIdx = Math.floor(sunLong / 30)
-    const sunSign = SIGNS[signIdx]?.name || "Aries"
+    const sunSign = SIGNS[signIdx]?.name
+    if (!sunSign) {
+      return NextResponse.json({ error: "Unable to calculate sun sign from birth date. Please verify your birth details." }, { status: 400 })
+    }
     const nakIdx = Math.floor(sunLong / NAKSHATRA_SPAN)
-    const nakshatra = NAKSHATRAS[nakIdx]?.name || "Ashwini"
+    const nakshatra = NAKSHATRAS[nakIdx]?.name
+    if (!nakshatra) {
+      return NextResponse.json({ error: "Unable to calculate nakshatra from birth date. Please verify your birth details." }, { status: 400 })
+    }
     const lifePath = computeLifePath(date)
     const category = detectCategory(question)
 

@@ -379,136 +379,79 @@ export async function POST(req: NextRequest) {
     // Resolve timezone: handles both IANA strings ("Asia/Kolkata") and numbers (5.5)
     const numericTimezone = resolveTimezoneOffset(timezone, birthDate)
 
-    // ─── Try per-user chart-based generation first ───────
-    const hasFullBirthData = latitude && longitude
-    if (hasFullBirthData) {
-      try {
-        const birthDetails: BirthDetails = {
-          date: birthDate,
-          time: birthTime || "12:00",
-          place: placeOfBirth || "Unknown",
-          latitude: Number(latitude),
-          longitude: Number(longitude),
-          timezone: numericTimezone,
-        }
-
-        const insight = await generateDailyInsight(
-          userId || "anonymous",
-          birthDetails,
-          name || "User",
-          targetDate,
-        )
-
-        // Calculate birth sun sign for lucky elements
-        const birthSunLong = getSiderealSunLongitude(dob)
-        const sunSign = SIGNS[Math.floor(birthSunLong / 30)]
-        const signName = sunSign?.name || "Aries"
-
-        return NextResponse.json(mapInsightToResponse(
-          insight, targetDate, dayOffset, signName, placeOfBirth,
-        ))
-      } catch (genErr) {
-        console.error("[daily-horoscope] Per-user insight generation FAILED:", {
-          error: genErr instanceof Error ? genErr.message : String(genErr),
-          stack: genErr instanceof Error ? genErr.stack?.split("\n").slice(0, 3).join(" | ") : undefined,
-          birthDetails: { date: birthDate, time: birthTime, lat: latitude, lng: longitude, tz: timezone, resolvedTz: numericTimezone },
-          dayOffset,
-          fallbackReason: "ephemeris_error",
-        })
-        // Fall through to template-based generation
-      }
+    // ─── Validate required birth data for personalization ────
+    if (!latitude || !longitude) {
+      return NextResponse.json({
+        success: false,
+        error: "Birth location (latitude/longitude) required for personalized horoscope",
+        code: "MISSING_LOCATION",
+      }, { status: 400 })
     }
 
-    // ─── Fallback: template-based generation ─────────────
-    // Calculate birth chart basics
-    const birthSunLong = getSiderealSunLongitude(dob)
-    const sunSign = SIGNS[Math.floor(birthSunLong / 30)]
+    const lat = Number(latitude)
+    const lng = Number(longitude)
+    if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      return NextResponse.json({
+        success: false,
+        error: "Invalid latitude/longitude values",
+        code: "INVALID_COORDINATES",
+      }, { status: 400 })
+    }
 
-    // Today's transit positions
-    const todaySunLong = getSiderealSunLongitude(targetDate)
-    const todayMoonLong = getApproxMoonLongitude(targetDate)
-    const moonSign = SIGNS[Math.floor(todayMoonLong / 30)]
-    const dayLord = DAY_LORDS[targetDate.getDay()]
+    if (!birthTime) {
+      return NextResponse.json({
+        success: false,
+        error: "Birth time required for accurate chart calculations. Please update your birth details.",
+        code: "MISSING_BIRTH_TIME",
+      }, { status: 400 })
+    }
 
-    // Nakshatra from Moon
-    const nakshatraIndex = Math.floor(todayMoonLong / NAKSHATRA_SPAN)
-    const nakshatra = NAKSHATRAS[nakshatraIndex]
+    // ─── Generate personalized chart-based horoscope ───────
+    try {
+      const birthDetails: BirthDetails = {
+        date: birthDate,
+        time: birthTime,
+        place: placeOfBirth || "Unknown",
+        latitude: lat,
+        longitude: lng,
+        timezone: numericTimezone,
+      }
 
-    // Tithi (simplified)
-    const tithiDiff = ((todayMoonLong - todaySunLong) % 360 + 360) % 360
-    const tithiNumber = Math.floor(tithiDiff / 12)
-    const paksha = tithiNumber < 15 ? "Shukla Paksha" : "Krishna Paksha"
-    const TITHI_NAMES = [
-      "Pratipada", "Dwitiya", "Tritiya", "Chaturthi", "Panchami",
-      "Shashthi", "Saptami", "Ashtami", "Navami", "Dashami",
-      "Ekadashi", "Dwadashi", "Trayodashi", "Chaturdashi", "Purnima",
-      "Pratipada", "Dwitiya", "Tritiya", "Chaturthi", "Panchami",
-      "Shashthi", "Saptami", "Ashtami", "Navami", "Dashami",
-      "Ekadashi", "Dwadashi", "Trayodashi", "Chaturdashi", "Amavasya",
-    ]
+      const insight = await generateDailyInsight(
+        userId || "anonymous",
+        birthDetails,
+        name || "User",
+        targetDate,
+      )
 
-    // Timing
-    const rahuKaal = calculateRahuKaal(targetDate)
-    const auspiciousTime = calculateAuspiciousTime(targetDate)
+      // Calculate birth sun sign for lucky elements
+      const birthSunLong = getSiderealSunLongitude(dob)
+      const sunSign = SIGNS[Math.floor(birthSunLong / 30)]
+      if (!sunSign) {
+        return NextResponse.json({
+          success: false,
+          error: "Unable to calculate sun sign from birth date. Please verify your birth details.",
+          code: "SUN_SIGN_CALCULATION_FAILED",
+        }, { status: 500 })
+      }
 
-    // Lucky elements based on birth sun sign
-    const signName = sunSign?.name || "Aries"
-    const colours = LUCKY_COLOURS[signName] || ["White"]
-    const numbers = LUCKY_NUMBERS[signName] || [7]
-    const seed = targetDate.getFullYear() * 10000 + (targetDate.getMonth() + 1) * 100 + targetDate.getDate()
-    const luckyColour = colours[seed % colours.length]
-    const luckyNumber = numbers[seed % numbers.length]
-
-    // Today's theme (hero section)
-    const todayTheme = generateTodayTheme(
-      moonSign?.name || "Cancer",
-      signName,
-      dayLord?.lord || "Sun",
-      todayMoonLong,
-      todaySunLong,
-      nakshatra?.name || "Unknown",
-      targetDate,
-    )
-
-    // Category insights
-    const categories = generateCategoryInsights(
-      moonSign?.name || "Cancer",
-      signName,
-      dayLord?.lord || "Sun",
-      todayMoonLong,
-      targetDate,
-    )
-
-    // Date formatting
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    const dateLabel = `${months[targetDate.getMonth()]} ${targetDate.getDate()}`
-
-    return NextResponse.json({
-      success: true,
-      date: dateLabel,
-      dayOffset,
-      personalized: false,
-      theme: todayTheme,
-      panchang: {
-        tithi: TITHI_NAMES[tithiNumber] || "Unknown",
-        paksha,
-        nakshatra: nakshatra?.name || "Unknown",
-        vara: dayLord?.name || "Unknown",
-        varaLord: dayLord?.lord || "Sun",
-      },
-      timing: {
-        auspiciousTime,
-        rahuKaal,
-      },
-      lucky: {
-        colour: luckyColour,
-        number: luckyNumber,
-      },
-      categories,
-      moonSign: moonSign?.name || "Unknown",
-      sunSign: signName,
-      place: placeOfBirth || "India",
-    })
+      return NextResponse.json(mapInsightToResponse(
+        insight, targetDate, dayOffset, sunSign.name, placeOfBirth,
+      ))
+    } catch (genErr) {
+      console.error("[daily-horoscope] Personalized insight generation FAILED:", {
+        error: genErr instanceof Error ? genErr.message : String(genErr),
+        stack: genErr instanceof Error ? genErr.stack?.split("\n").slice(0, 3).join(" | ") : undefined,
+        birthDetails: { date: birthDate, time: birthTime, lat: latitude, lng: longitude, tz: timezone, resolvedTz: numericTimezone },
+        dayOffset,
+      })
+      return NextResponse.json({
+        success: false,
+        error: "Failed to generate personalized horoscope. Please try again.",
+        code: "GENERATION_FAILED",
+        reason: genErr instanceof Error ? genErr.message : "Unknown error",
+      }, { status: 500 })
+    }
   } catch (err) {
     console.error("Daily horoscope error:", err)
     return NextResponse.json({ error: "Failed to generate horoscope" }, { status: 500 })

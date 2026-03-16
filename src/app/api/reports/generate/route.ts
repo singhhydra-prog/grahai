@@ -14,6 +14,7 @@ import { createServerClient } from "@supabase/ssr"
 import { assembleReportData } from "@/lib/reports/kundli-report-generator"
 import { renderKundliPDF } from "@/lib/reports/pdf-renderer"
 import type { BirthDetails } from "@/lib/ephemeris/types"
+import { resolveTimezoneOffset } from "@/lib/timezone-utils"
 
 // ─── Supabase Client from Request Cookies ───────────────
 
@@ -81,13 +82,19 @@ export async function POST(req: NextRequest) {
         )
       }
 
+      if (!kundli.birth_time) {
+        return NextResponse.json({ error: "Birth time is required for report generation. Please update your birth details." }, { status: 400 })
+      }
+      if (!kundli.latitude || !kundli.longitude) {
+        return NextResponse.json({ error: "Birth location is required for report generation. Please update your birth details." }, { status: 400 })
+      }
       reportBirthDetails = {
         date: kundli.birth_date,
-        time: kundli.birth_time || "12:00",
+        time: kundli.birth_time,
         place: kundli.birth_place || "Unknown",
         latitude: kundli.latitude,
         longitude: kundli.longitude,
-        timezone: kundli.timezone || 5.5,
+        timezone: resolveTimezoneOffset(kundli.timezone, kundli.birth_date),
       }
       reportName = kundli.name || name || "Native"
     } else if (birthDetails) {
