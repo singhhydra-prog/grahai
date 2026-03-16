@@ -28,6 +28,22 @@ export default function AppHeader({ onProfileClick, subtitle }: AppHeaderProps) 
     } catch {}
   }, [])
 
+  // Resolve time-of-day greeting
+  const getTimeOfDay = () => {
+    const hour = new Date().getHours()
+    if (hour < 12) return "morning"
+    if (hour < 17) return "afternoon"
+    return "evening"
+  }
+
+  const resolveGreeting = () => {
+    if (!name) return "GrahAI"
+    const template = t.home?.greeting || "Hello, {name}"
+    return template
+      .replace("{timeOfDay}", getTimeOfDay())
+      .replace("{name}", name)
+  }
+
   return (
     <header className="px-5 pt-3 pb-2">
       <div className="flex items-center justify-between">
@@ -50,7 +66,7 @@ export default function AppHeader({ onProfileClick, subtitle }: AppHeaderProps) 
                 animation: "gradient-text-flow 4s ease-in-out infinite",
               }}
             >
-              {name ? `${t.home?.greeting || "Hello"}, ${name}` : "GrahAI"}
+              {resolveGreeting()}
             </h1>
             {subtitle && (
               <p className="text-[11px] text-[#8892A3] mt-0.5 text-visible">{subtitle}</p>
