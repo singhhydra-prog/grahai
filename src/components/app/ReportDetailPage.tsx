@@ -199,6 +199,12 @@ export default function ReportDetailPage({ reportId, onBack }: ReportDetailPageP
 
       const birthData = JSON.parse(stored)
 
+      if (!birthData.latitude || !birthData.longitude) {
+        setError("Birth location is required. Please update your birth details in Profile.")
+        setLoading(false)
+        return
+      }
+
       const res = await fetch("/api/reports/generate-code", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -208,9 +214,9 @@ export default function ReportDetailPage({ reportId, onBack }: ReportDetailPageP
             date: birthData.dateOfBirth,
             time: birthData.timeOfBirth || "12:00",
             place: birthData.placeOfBirth || "Unknown",
-            latitude: birthData.latitude || 28.6139,
-            longitude: birthData.longitude || 77.209,
-            timezone: birthData.timezone || 5.5,
+            latitude: birthData.latitude,
+            longitude: birthData.longitude,
+            timezone: birthData.timezone,
           },
           name: birthData.name || "Native",
         }),
@@ -485,9 +491,9 @@ export default function ReportDetailPage({ reportId, onBack }: ReportDetailPageP
                       date: birthData.dateOfBirth,
                       time: birthData.timeOfBirth || "12:00",
                       place: birthData.placeOfBirth || "Unknown",
-                      latitude: birthData.latitude || 28.6139,
-                      longitude: birthData.longitude || 77.209,
-                      timezone: birthData.timezone || 5.5,
+                      latitude: birthData.latitude,
+                      longitude: birthData.longitude,
+                      timezone: birthData.timezone,
                     },
                     name: birthData.name || "Native",
                   }),

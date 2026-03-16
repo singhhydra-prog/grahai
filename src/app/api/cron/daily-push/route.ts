@@ -21,6 +21,7 @@ import {
   createDailyPushContent,
   getGenericDailyContent,
 } from "@/lib/push/content-templates"
+import { resolveTimezoneOffset } from "@/lib/timezone-utils"
 
 // ─── Config ────────────────────────────────────────────
 
@@ -47,34 +48,8 @@ function verifyCronAuth(req: NextRequest): boolean {
 // ─── Get Timezones That Are At Sunrise Right Now ────────
 
 function getTimezoneOffsetHours(tz: string): number {
-  // Simple mapping of common Indian and international timezones
-  // Proper implementation would use Intl.DateTimeFormat or date-fns
-  const tzMap: Record<string, number> = {
-    "Asia/Kolkata": 5.5,
-    "Asia/Calcutta": 5.5,
-    "IST": 5.5,
-    "Asia/Bangalore": 5.5,
-    "Asia/Bombay": 5.5,
-    "Asia/Delhi": 5.5,
-    "Asia/Dhaka": 6,
-    "Asia/Bangkok": 7,
-    "Asia/Singapore": 8,
-    "Asia/Hong_Kong": 8,
-    "Asia/Tokyo": 9,
-    "UTC": 0,
-    "GMT": 0,
-    "Europe/London": 0,
-    "Europe/Paris": 1,
-    "Europe/Berlin": 1,
-    "America/New_York": -5,
-    "America/Los_Angeles": -8,
-    "America/Chicago": -6,
-    "America/Denver": -7,
-    "Australia/Sydney": 10,
-    "Pacific/Auckland": 12,
-  }
-
-  return tzMap[tz] ?? 5.5 // Default to IST
+  // Use shared resolveTimezoneOffset — handles IANA strings, numbers, and has 40+ timezone lookup
+  return resolveTimezoneOffset(tz)
 }
 
 function isTimezoneAtSunrise(tz: string): boolean {
@@ -148,7 +123,7 @@ export async function GET(req: NextRequest) {
 
     // Filter subscriptions by timezone (only send to sunrise timezones)
     const eligibleSubs = subscriptions.filter((sub) =>
-      isTimezoneAtSunrise(sub.timezone || "Asia/Kolkata")
+      isTimezoneAtSunrise(sub.timezone || "UTC")
     )
 
     if (eligibleSubs.length === 0) {

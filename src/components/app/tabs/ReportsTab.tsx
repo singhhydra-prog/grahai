@@ -195,6 +195,11 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
       }
 
       const birthData = JSON.parse(bd)
+      if (!birthData.latitude || !birthData.longitude) {
+        setGenError("Birth location is required. Please update your birth details in Profile.")
+        setGenerating(false)
+        return
+      }
       const res = await fetch("/api/reports/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -203,9 +208,9 @@ export default function ReportsTab({ onProfileClick, onPricingClick, onAskQuesti
             date: birthData.dateOfBirth,
             time: birthData.timeOfBirth || "12:00",
             place: birthData.placeOfBirth || "Unknown",
-            latitude: birthData.latitude || 28.6139,
-            longitude: birthData.longitude || 77.209,
-            timezone: birthData.timezone || 5.5,
+            latitude: birthData.latitude,
+            longitude: birthData.longitude,
+            timezone: birthData.timezone,
           },
           name: birthData.name || "Native",
         }),

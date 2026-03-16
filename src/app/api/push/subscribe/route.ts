@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
         user_id: user.id,
         endpoint: subscription.endpoint,
         keys: subscription.keys,
-        timezone: timezone || "Asia/Kolkata",
+        timezone: timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
         updated_at: new Date().toISOString(),
       }, { onConflict: "user_id,endpoint" })
 

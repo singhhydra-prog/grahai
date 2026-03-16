@@ -309,26 +309,28 @@ export default function CompatibilityTab({
     setShowPartnerForm(false)
 
     try {
-      // Build birth details for the API
-      const userBirth = userData ? {
+      // Build birth details for the API — require real location data
+      if (!userData) throw new Error("User birth data not available")
+      if (!userData.latitude || !userData.longitude) throw new Error("Your birth location is required. Please update your birth details in Profile.")
+      if (!partner.latitude || !partner.longitude) throw new Error("Partner's birth location is required. Please enter their city of birth.")
+
+      const userBirth = {
         date: userData.dateOfBirth,
         time: userData.timeOfBirth || "12:00",
         place: userData.placeOfBirth || "Unknown",
-        latitude: userData.latitude || 28.6139,
-        longitude: userData.longitude || 77.209,
-        timezone: userData.timezone || 5.5,
-      } : null
+        latitude: userData.latitude,
+        longitude: userData.longitude,
+        timezone: userData.timezone,
+      }
 
       const partnerBirth = {
         date: partner.dateOfBirth,
         time: partner.timeOfBirth || "12:00",
         place: partner.placeOfBirth || "Unknown",
-        latitude: partner.latitude || 28.6139,
-        longitude: partner.longitude || 77.209,
-        timezone: partner.timezone || 5.5,
+        latitude: partner.latitude,
+        longitude: partner.longitude,
+        timezone: partner.timezone,
       }
-
-      if (!userBirth) throw new Error("User birth data not available")
 
       const res = await fetch("/api/reports/generate-code", {
         method: "POST",

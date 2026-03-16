@@ -44,25 +44,13 @@ export async function POST(request: NextRequest) {
     const keyId = process.env.RAZORPAY_KEY_ID
     const keySecret = process.env.RAZORPAY_KEY_SECRET
 
-    // If keys are not set, return a mock order for testing
+    // If keys are not set, return an error
     if (!keyId || !keySecret) {
-      const mockOrder = {
-        id: `order_test_${Date.now()}`,
-        amount: plan.amount,
-        amount_paid: 0,
-        amount_due: plan.amount,
-        currency: plan.currency,
-        receipt: `receipt_${Date.now()}`,
-        status: "created",
-        created_at: Math.floor(Date.now() / 1000),
-      }
-
       return NextResponse.json({
-        success: true,
-        order: mockOrder,
-        testMode: true,
-        message: "Running in test mode (Razorpay keys not configured)"
-      })
+        success: false,
+        error: "Payment service is not configured. Please contact support.",
+        code: "PAYMENT_NOT_CONFIGURED",
+      }, { status: 503 })
     }
 
     // Initialize Razorpay client

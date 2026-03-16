@@ -376,8 +376,11 @@ async function getPanchangTool(
   input: Record<string, unknown>
 ): Promise<unknown> {
   const date = input.date ? new Date(input.date as string) : new Date()
-  const lat = (input.latitude as number) || 28.6139  // Default: Delhi
-  const lng = (input.longitude as number) || 77.2090
+  const lat = input.latitude as number
+  const lng = input.longitude as number
+  if (!lat || !lng) {
+    return { error: "Latitude and longitude are required for panchang calculations. Please provide the location." }
+  }
 
   const panchang = await calculatePanchang(date, lat, lng)
 

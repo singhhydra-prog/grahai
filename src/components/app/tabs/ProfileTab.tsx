@@ -90,13 +90,18 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
 
     const fetchChart = async () => {
       try {
+        if (!birthData.latitude || !birthData.longitude) {
+          console.warn("[ProfileTab] Skipping chart fetch: birth location (lat/lng) missing")
+          setChartLoading(false)
+          return
+        }
         const bd = {
           date: birthData.dateOfBirth,
           time: birthData.timeOfBirth || "12:00",
           place: birthData.placeOfBirth || "Unknown",
-          latitude: birthData.latitude || 28.6139,
-          longitude: birthData.longitude || 77.209,
-          timezone: birthData.timezone || 5.5,
+          latitude: birthData.latitude,
+          longitude: birthData.longitude,
+          timezone: birthData.timezone,
         }
 
         const res = await fetch("/api/reports/generate-code", {
