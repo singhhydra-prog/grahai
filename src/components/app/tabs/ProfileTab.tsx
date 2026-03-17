@@ -114,46 +114,35 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
           }),
         })
 
-        if (res.ok) {
-          const data = await res.json()
-          if (data.success && data.sections) {
-            // Try to extract planet positions from the report sections
-            const planetMap: Record<string, { symbol: string; name: string }> = {
-              sun: { symbol: "Su", name: "Sun" },
-              moon: { symbol: "Mo", name: "Moon" },
-              mars: { symbol: "Ma", name: "Mars" },
-              mercury: { symbol: "Me", name: "Mercury" },
-              jupiter: { symbol: "Ju", name: "Jupiter" },
-              venus: { symbol: "Ve", name: "Venus" },
-              saturn: { symbol: "Sa", name: "Saturn" },
-              rahu: { symbol: "Ra", name: "Rahu" },
-              ketu: { symbol: "Ke", name: "Ketu" },
-            }
-
-            // Parse planet positions from report content
-            const allContent = data.sections.map((s: { content: string }) => s.content).join("\n")
-            const planets: typeof chartPlanets = []
-            const houseRegex = /(\w+)\s+(?:in|→)\s+(?:House\s+)?(\d+)|House\s+(\d+).*?(\w+)/gi
-
-            // Also check for structured planet table
-            for (const [key, info] of Object.entries(planetMap)) {
-              const nameRegex = new RegExp(`${key}[^\\n]*?(?:house|H)\\s*(\\d+)[^\\n]*?([\\d.]+)°`, "i")
-              const match = allContent.match(nameRegex)
-              if (match) {
-                planets.push({
-                  id: key.substring(0, 2),
-                  symbol: info.symbol,
-                  name: info.name,
-                  house: parseInt(match[1]),
-                  degree: parseFloat(match[2]) || 0,
-                })
-              }
-            }
-
-            if (planets.length >= 5) {
-              setChartPlanets(planets)
-            }
+        const data = await res.json()
+        if (res.ok && data.success && data.chartData) {
+          // Use structured chart data from API (no regex parsing needed)
+          const cd = data.chartData
+          if (cd.planets && cd.planets.length > 0) {
+            setChartPlanets(cd.planets.map((p: { id: string; symbol: string; name: string; house: number; degree: number; isRetrograde?: boolean }) => ({
+              id: p.id,
+              symbol: p.symbol,
+              name: p.name,
+              house: p.house,
+              degree: p.degree,
+              isRetrograde: p.isRetrograde,
+            })))
           }
+          if (cd.ascendantSign) {
+            setAscendantSign(cd.ascendantSign)
+          }
+
+          // Also update astro profile from chart data
+          if (cd.moonSign || cd.sunSign || cd.ascendantName) {
+            setAstro(prev => ({
+              ...prev,
+              moonSign: cd.moonSign || prev.moonSign,
+              sunSignVedic: cd.sunSign || prev.sunSignVedic,
+              risingSign: cd.ascendantName || prev.risingSign,
+            }))
+          }
+        } else if (!res.ok) {
+          console.warn("[ProfileTab] Chart API error:", data.error || res.status)
         }
       } catch (err) {
         console.warn("Could not fetch natal chart for profile:", err)

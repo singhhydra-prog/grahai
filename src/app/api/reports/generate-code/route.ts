@@ -42,6 +42,21 @@ interface SuccessResponse {
     type: string
     description: string
   }>
+  chartData?: {
+    ascendantSign: number
+    ascendantName: string
+    planets: Array<{
+      id: string
+      symbol: string
+      name: string
+      house: number
+      degree: number
+      sign: string
+      isRetrograde: boolean
+    }>
+    moonSign?: string
+    sunSign?: string
+  }
   engine: "code"
 }
 
@@ -152,6 +167,23 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
     const totalTime = Date.now() - startTime
     console.log(`[generate-code] Report generated in ${totalTime}ms (${generated.sections.length} sections)`)
 
+    // Extract chart data for frontend Kundli visualization
+    const chartData = {
+      ascendantSign: (reportData.natalChart.ascendantSign?.index ?? 0) + 1, // 1-12
+      ascendantName: reportData.natalChart.ascendantSign?.name || "Aries",
+      planets: reportData.natalChart.planets.map((p) => ({
+        id: p.name.substring(0, 2),
+        symbol: p.name.substring(0, 2),
+        name: p.name,
+        house: p.house,
+        degree: Math.round(p.degree * 100) / 100,
+        sign: p.sign.name,
+        isRetrograde: p.retrograde,
+      })),
+      moonSign: reportData.natalChart.moonSign?.name,
+      sunSign: reportData.natalChart.sunSign?.name,
+    }
+
     // Build final response
     const response: SuccessResponse = {
       success: true,
@@ -162,6 +194,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse>>
       summary: generated.summary,
       sections: generated.sections,
       remedies: generated.remedies,
+      chartData,
       engine: "code",
     }
 
