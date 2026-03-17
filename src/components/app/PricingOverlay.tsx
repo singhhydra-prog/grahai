@@ -160,6 +160,12 @@ export default function PricingOverlay({ isOpen, onClose, highlightTier }: Prici
       }
     } catch (err) {
       console.error("Payment error:", err)
+      // Show error state to user
+      // In a real implementation, we would set an error state and display it in the UI
+      // For now, provide feedback via alert (consider adding proper error state)
+      if ((err as Error)?.message?.includes("Failed")) {
+        alert("Payment failed. Please try again.")
+      }
     } finally {
       setLoading(false)
     }

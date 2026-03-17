@@ -18,6 +18,7 @@ export default function ReferralPage({ isOpen, onClose }: ReferralPageProps) {
   const [referralCode, setReferralCode] = useState("")
   const [copied, setCopied] = useState(false)
   const [userName, setUserName] = useState("")
+  // Referral tracking not yet integrated — shows 0 until backend referral system is built
   const [referralCount] = useState(0)
 
   const REWARDS = [
@@ -74,7 +75,9 @@ export default function ReferralPage({ isOpen, onClose }: ReferralPageProps) {
           text: t.referral.shareText || `Join GrahAI for personalized Vedic astrology insights! Use my code: ${referralCode}`,
           url: `https://grahai-app.vercel.app?ref=${referralCode}`,
         })
-      } catch {}
+      } catch (err) {
+        console.warn("[ReferralPage] Share cancelled or failed:", err)
+      }
     } else {
       handleCopy()
     }

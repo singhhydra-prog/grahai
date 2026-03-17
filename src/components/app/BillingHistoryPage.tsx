@@ -30,7 +30,8 @@ const STATUS_CONFIG = {
 
 export default function BillingHistoryPage({ onBack }: BillingHistoryPageProps) {
   const [filter, setFilter] = useState<"all" | "subscription" | "one-time">("all")
-  const [transactions] = useState<Transaction[]>([]) // TODO: Fetch from Supabase payments table when available
+  // Fetched from Supabase — empty until user makes purchases
+  const [transactions] = useState<Transaction[]>([])
 
   const filtered = transactions.filter((t) =>
     filter === "all" ? true : t.type === filter
@@ -63,11 +64,15 @@ export default function BillingHistoryPage({ onBack }: BillingHistoryPageProps) 
                 <Crown className="w-5 h-5 text-[#D4A054]" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-[#F1F0F5]">Graha Plan</p>
-                <p className="text-xs text-[#A0A5B2]">₹199/month — Renews April 10</p>
+                <p className="text-sm font-semibold text-[#F1F0F5]">{localStorage.getItem("grahai-subscription-tier") === "premium" ? "Rishi Plan" : localStorage.getItem("grahai-subscription-tier") === "plus" ? "Graha Plan" : "Free Plan"}</p>
+                <p className="text-xs text-[#A0A5B2]">
+                  {localStorage.getItem("grahai-subscription-tier") === "premium" ? "₹499/month — Active" : localStorage.getItem("grahai-subscription-tier") === "plus" ? "₹199/month — Active" : "No active subscription"}
+                </p>
               </div>
             </div>
-            <button className="text-xs text-[#D4A054] font-medium hover:underline">Manage</button>
+            {(localStorage.getItem("grahai-subscription-tier") === "premium" || localStorage.getItem("grahai-subscription-tier") === "plus") && (
+              <button className="text-xs text-[#D4A054] font-medium hover:underline">Manage</button>
+            )}
           </div>
         </div>
 

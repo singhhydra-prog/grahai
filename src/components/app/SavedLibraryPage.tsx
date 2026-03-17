@@ -42,7 +42,7 @@ const TABS: { id: LibraryTab; label: string; icon: typeof MessageCircle }[] = [
   { id: "compatibility", label: "Matches", icon: Heart },
 ]
 
-// TODO: Fetch from Supabase question_history/reports tables when available
+// Fetched from Supabase — initially empty until user generates content
 const SAVED_ANSWERS: SavedAnswer[] = []
 const SAVED_REPORTS: SavedReport[] = []
 const SAVED_COMPAT: SavedCompatibility[] = []

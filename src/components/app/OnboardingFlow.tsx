@@ -111,11 +111,11 @@ function transformApiResponse(apiData: any, dateOfBirth: string): CosmicSnapshot
 function makeFallbackSnapshot(): CosmicSnapshot {
   return {
     profile: {
-      moonSign: "Calculating...", risingSign: "Requires birth time", sunSignVedic: "Calculating...",
-      sunSignWestern: "Calculating...", nakshatra: "Calculating...", dominantTheme: "Chart data unavailable — please retry later"
+      moonSign: "—", risingSign: "—", sunSignVedic: "—",
+      sunSignWestern: "—", nakshatra: "—", dominantTheme: "Chart data unavailable — please check your birth details"
     },
-    todayInsight: "We could not compute your cosmic snapshot at this time. Your personalized insights will appear once the chart engine is available.",
-    dominantLifeTheme: "Your full chart analysis will be generated once the astrology engine responds. Please try again shortly.",
+    todayInsight: "We could not compute your chart at this time. Please ensure your birth details are complete and try again.",
+    dominantLifeTheme: "Your chart analysis will be available after a successful computation.",
     suggestedFirstQuestion: "What should I focus on this month based on my chart?"
   }
 }

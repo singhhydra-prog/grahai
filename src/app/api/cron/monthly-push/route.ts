@@ -50,6 +50,13 @@ function getMonthName(): string {
 }
 
 // ─── Determine Major Transit for Month ──────────────────
+// Uses the Vedic solar ingress calendar: the Sun enters a new sign
+// at roughly the same dates every year. Maps each ingress to dasha themes.
+//
+// Vedic Solar Ingress Calendar:
+// Aries: ~April 14 | Taurus: ~May 15 | Gemini: ~June 15 | Cancer: ~July 16
+// Leo: ~August 17 | Virgo: ~September 17 | Libra: ~October 17 | Scorpio: ~November 16
+// Sagittarius: ~December 16 | Capricorn: ~January 14 | Aquarius: ~February 12 | Pisces: ~March 14
 
 function getMajorTransitForMonth(): {
   dasha: string
@@ -57,58 +64,109 @@ function getMajorTransitForMonth(): {
   theme: string
   advice: string
 } {
-  // Simplified — in production, this would check ephemeris for actual
-  // Saturn, Jupiter, Rahu/Ketu ingresses this month
+  const today = new Date()
+  const month = today.getMonth() // 0=January, 11=December
+  const date = today.getDate()
 
-  const dayOfMonth = new Date().getDate()
+  // Determine which Vedic sign the Sun is currently in (transiting)
+  // Using approximate ingress dates
+  let vedicSign = ""
+  let dashaPhase = ""
+  let theme = ""
+  let advice = ""
 
-  const monthlyTransits = [
-    {
-      dasha: "Sun-Mercury Period",
-      transit: "Mercury in Aquarius",
-      theme: "Intellectual Growth",
-      advice:
-        "Embrace learning and communication — this is a month for sharing ideas",
-    },
-    {
-      dasha: "Sun-Venus Period",
-      transit: "Venus in Pisces",
-      theme: "Harmony & Creativity",
-      advice:
-        "Nurture relationships and creative pursuits — magic happens in connection",
-    },
-    {
-      dasha: "Moon-Mercury Period",
-      transit: "Mercury Retrograde",
-      theme: "Reflection & Review",
-      advice:
-        "Revisit past projects, clarify intentions, and plan for the future",
-    },
-    {
-      dasha: "Mars-Sun Period",
-      transit: "Mars in Aries",
-      theme: "Courage & Action",
-      advice: "Channel your energy into bold moves and pioneering ventures",
-    },
-    {
-      dasha: "Jupiter-Venus Period",
-      transit: "Venus enters Taurus",
-      theme: "Abundance & Stability",
-      advice:
-        "Focus on building solid foundations in finance and relationships",
-    },
-    {
-      dasha: "Saturn-Mercury Period",
-      transit: "Saturn in Pisces",
-      theme: "Discipline & Spiritual Growth",
-      advice:
-        "Practice patience and long-term vision — steady effort yields results",
-    },
-  ]
+  if ((month === 0 && date >= 14) || (month === 1 && date < 12)) {
+    // January 14 - February 11: Capricorn
+    vedicSign = "Capricorn"
+    dashaPhase = "Saturn-ruled Period"
+    theme = "Discipline & Mastery"
+    advice =
+      "Practice patience and long-term vision — steady effort yields lasting results"
+  } else if ((month === 1 && date >= 12) || (month === 2 && date < 14)) {
+    // February 12 - March 13: Aquarius
+    vedicSign = "Aquarius"
+    dashaPhase = "Saturn-Mercury Period"
+    theme = "Innovation & Intellect"
+    advice =
+      "Embrace new ideas and humanitarian pursuits — this is a month for pioneering thought"
+  } else if ((month === 2 && date >= 14) || (month === 3 && date < 14)) {
+    // March 14 - April 13: Pisces
+    vedicSign = "Pisces"
+    dashaPhase = "Moon-Neptune Period"
+    theme = "Spirituality & Intuition"
+    advice =
+      "Deepen meditation and spiritual practices — trust your inner wisdom"
+  } else if ((month === 3 && date >= 14) || (month === 4 && date < 15)) {
+    // April 14 - May 14: Aries
+    vedicSign = "Aries"
+    dashaPhase = "Mars-ruled Period"
+    theme = "Courage & Initiative"
+    advice =
+      "Channel pioneering energy into new ventures — bold action brings rewards"
+  } else if ((month === 4 && date >= 15) || (month === 5 && date < 15)) {
+    // May 15 - June 14: Taurus
+    vedicSign = "Taurus"
+    dashaPhase = "Venus-ruled Period"
+    theme = "Stability & Abundance"
+    advice =
+      "Focus on building solid material and relationship foundations this month"
+  } else if ((month === 5 && date >= 15) || (month === 6 && date < 16)) {
+    // June 15 - July 15: Gemini
+    vedicSign = "Gemini"
+    dashaPhase = "Mercury-ruled Period"
+    theme = "Communication & Connection"
+    advice =
+      "Engage in meaningful conversations and collaborative projects — ideas flow freely"
+  } else if ((month === 6 && date >= 16) || (month === 7 && date < 17)) {
+    // July 16 - August 16: Cancer
+    vedicSign = "Cancer"
+    dashaPhase = "Moon-ruled Period"
+    theme = "Family & Emotion"
+    advice =
+      "Prioritize emotional security and family bonds — nurture your inner world"
+  } else if ((month === 7 && date >= 17) || (month === 8 && date < 17)) {
+    // August 17 - September 16: Leo
+    vedicSign = "Leo"
+    dashaPhase = "Sun-ruled Period"
+    theme = "Confidence & Leadership"
+    advice =
+      "Step into your power and lead with authentic purpose — your gifts are needed"
+  } else if ((month === 8 && date >= 17) || (month === 9 && date < 17)) {
+    // September 17 - October 16: Virgo
+    vedicSign = "Virgo"
+    dashaPhase = "Mercury-ruled Period"
+    theme = "Analysis & Service"
+    advice =
+      "Perfect your skills and serve others — attention to detail brings distinction"
+  } else if ((month === 9 && date >= 17) || (month === 10 && date < 16)) {
+    // October 17 - November 15: Libra
+    vedicSign = "Libra"
+    dashaPhase = "Venus-ruled Period"
+    theme = "Balance & Relationships"
+    advice =
+      "Seek harmony in partnerships and creative endeavors — beauty and justice matter"
+  } else if ((month === 10 && date >= 16) || (month === 11 && date < 16)) {
+    // November 16 - December 15: Scorpio
+    vedicSign = "Scorpio"
+    dashaPhase = "Mars-Pluto Period"
+    theme = "Transformation & Depth"
+    advice =
+      "Embrace deep research and personal transformation — hidden truths emerge"
+  } else {
+    // December 16 - January 13: Sagittarius
+    vedicSign = "Sagittarius"
+    dashaPhase = "Jupiter-ruled Period"
+    theme = "Expansion & Wisdom"
+    advice =
+      "Pursue higher learning and philosophical growth — wisdom expands your horizons"
+  }
 
-  return monthlyTransits[
-    (dayOfMonth + new Date().getMonth()) % monthlyTransits.length
-  ]
+  return {
+    dasha: dashaPhase,
+    transit: `Sun in ${vedicSign}`,
+    theme,
+    advice,
+  }
 }
 
 // ─── GET Handler (Vercel Cron) ────────────────────────

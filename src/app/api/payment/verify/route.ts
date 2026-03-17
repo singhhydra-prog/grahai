@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import crypto from "crypto"
+import Razorpay from "razorpay"
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 
@@ -79,11 +80,50 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Extract subscription tier from header (passed from client)
-    const planId = request.headers.get("x-plan-id") || "plus"
+    // SECURITY: Look up the plan from Razorpay order, not from client header
+    let planId: string | null = null
+
+    const keyId = process.env.RAZORPAY_KEY_ID
+    if (keyId) {
+      try {
+        const razorpay = new Razorpay({
+          key_id: keyId,
+          key_secret: keySecret,
+        })
+
+        const order = await razorpay.orders.fetch(razorpay_order_id)
+
+        // Extract plan_id from order notes
+        if (order.notes && typeof order.notes === "object") {
+          planId = (order.notes as Record<string, unknown>).plan_id as string | null
+        }
+      } catch (razorpayError) {
+        console.error("Error fetching Razorpay order:", razorpayError)
+        // Fall through to header fallback
+      }
+    }
+
+    // Fallback: if we couldn't get plan from Razorpay, check header (legacy orders)
+    if (!planId) {
+      const headerPlanId = request.headers.get("x-plan-id")
+      if (headerPlanId) {
+        console.warn(
+          `[SECURITY WARNING] Using plan_id from client header for order ${razorpay_order_id}. ` +
+          `This is a fallback for legacy orders. Client provided: ${headerPlanId}`
+        )
+        planId = headerPlanId
+      } else {
+        // Default to graha (lowest tier)
+        console.warn(
+          `[SECURITY WARNING] Could not determine plan for order ${razorpay_order_id}. ` +
+          `Defaulting to 'graha' tier.`
+        )
+        planId = "graha"
+      }
+    }
 
     // Map plan_id to subscription_tier
-    const subscriptionTier = planId === "premium" ? "premium" : "plus"
+    const subscriptionTier = planId === "rishi" ? "premium" : "plus"
 
     // Update user's subscription in Supabase
     const { error: updateError } = await supabase

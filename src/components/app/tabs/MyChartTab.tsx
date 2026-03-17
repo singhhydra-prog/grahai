@@ -56,7 +56,7 @@ function getStrengths(element: string): { strengths: string[]; sensitivities: st
       sensitivities: ["Absorbing others' emotional states", "Difficulty setting boundaries", "Mood fluctuations from lunar cycles"],
     },
   }
-  return data[element] || data.Water
+  return data[element] || { strengths: [], sensitivities: [] }
 }
 
 export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTabProps) {
@@ -88,7 +88,9 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
       }
       const bd = localStorage.getItem("grahai-onboarding-birthdata")
       if (bd) setBirthData(JSON.parse(bd))
-    } catch {}
+    } catch (err) {
+      console.warn("[MyChartTab] Failed to load cached chart data:", err)
+    }
   }, [])
 
   const snap = cosmicData?.snapshot
@@ -96,7 +98,7 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
   const nakshatraData = snap?.nakshatra
   const moonSignData = snap?.moonSign
   const risingSignData = snap?.risingSign
-  const element = vedicSign?.element || moonSignData?.element || "Water"
+  const element = vedicSign?.element || moonSignData?.element || ""
   const { strengths, sensitivities } = getStrengths(element)
 
   const toggleSection = (id: string) => {

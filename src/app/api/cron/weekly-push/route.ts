@@ -30,6 +30,9 @@ function verifyCronAuth(req: NextRequest): boolean {
 }
 
 // ─── Get Dominant Transit for Week Ahead ───────────────
+// Uses Vedic day-lord (vara) concept: each weekday has a ruling planet
+// Sunday=Sun, Monday=Moon, Tuesday=Mars, Wednesday=Mercury, Thursday=Jupiter,
+// Friday=Venus, Saturday=Saturn
 
 function getDominantTransitForWeek(): {
   planet: string
@@ -37,49 +40,79 @@ function getDominantTransitForWeek(): {
   recommendation: string
   dasha?: string
 } {
-  // Simplified version — in production, this would analyze actual ephemeris data
-  // for the upcoming week and determine dominant transits
+  const today = new Date()
+  const weekday = today.getDay() // 0=Sunday, 1=Monday, etc.
+  const month = today.getMonth() // 0=January, 11=December
 
-  const weekTransits = [
+  // Vedic day-lords mapped to their themes and advice
+  const dayLords = [
     {
-      planet: "Jupiter",
-      theme: "Expansion & Growth",
-      recommendation: "Pursue new opportunities in career and learning",
-      dasha: "Jupiter transits support growth phases",
+      // Sunday - Sun (day 0)
+      planet: "Sun",
+      theme: "Confidence & Clarity",
+      recommendation: "Step into your power and lead with purpose",
+      dasha: "Sun brings clarity and vitality",
     },
     {
-      planet: "Venus",
-      theme: "Harmony & Relationships",
-      recommendation: "Focus on strengthening connections and creative work",
-      dasha: "Venus enhances social and artistic endeavors",
+      // Monday - Moon (day 1)
+      planet: "Moon",
+      theme: "Emotions & Intuition",
+      recommendation: "Trust your inner wisdom and nurture emotional connections",
+      dasha: "Moon supports emotional balance and receptivity",
     },
     {
-      planet: "Mercury",
-      theme: "Communication & Mind",
-      recommendation: "Engage in planning, writing, and meaningful conversations",
-      dasha: "Mercury favors intellectual and communicative pursuits",
-    },
-    {
+      // Tuesday - Mars (day 2)
       planet: "Mars",
       theme: "Energy & Action",
       recommendation: "Channel energy into physical activity and goal-setting",
       dasha: "Mars empowers action and courage",
     },
     {
+      // Wednesday - Mercury (day 3)
+      planet: "Mercury",
+      theme: "Communication & Mind",
+      recommendation: "Engage in planning, writing, and meaningful conversations",
+      dasha: "Mercury favors intellectual and communicative pursuits",
+    },
+    {
+      // Thursday - Jupiter (day 4)
+      planet: "Jupiter",
+      theme: "Expansion & Growth",
+      recommendation: "Pursue new opportunities in career and learning",
+      dasha: "Jupiter transits support growth phases",
+    },
+    {
+      // Friday - Venus (day 5)
+      planet: "Venus",
+      theme: "Harmony & Relationships",
+      recommendation: "Focus on strengthening connections and creative work",
+      dasha: "Venus enhances social and artistic endeavors",
+    },
+    {
+      // Saturday - Saturn (day 6)
       planet: "Saturn",
       theme: "Discipline & Structure",
       recommendation: "Build strong foundations through sustained effort",
       dasha: "Saturn rewards patience and responsibility",
     },
-    {
-      planet: "Sun",
-      theme: "Confidence & Clarity",
-      recommendation: "Step into your power and lead with purpose",
-      dasha: "Sun brings clarity and vitality",
-    },
   ]
 
-  return weekTransits[Math.floor(Math.random() * weekTransits.length)]
+  // Get base transit for today's day-lord
+  const dayLordTransit = dayLords[weekday]
+
+  // Rotate emphasis through different angles per month (deterministic)
+  // This adds seasonal variation without randomness
+  const monthRotation = month % 3 // 0, 1, or 2
+  const emphasisAngles = [
+    "personal growth",
+    "relationships and community",
+    "spiritual development",
+  ]
+
+  return {
+    ...dayLordTransit,
+    recommendation: `${dayLordTransit.recommendation} — Focus on ${emphasisAngles[monthRotation]} this week.`,
+  }
 }
 
 // ─── GET Handler (Vercel Cron) ────────────────────────

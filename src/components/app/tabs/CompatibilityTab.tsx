@@ -299,7 +299,9 @@ export default function CompatibilityTab({
     try {
       const stored = localStorage.getItem("grahai-onboarding-birthdata")
       if (stored) setUserData(JSON.parse(stored))
-    } catch {}
+    } catch (err) {
+      console.warn("[CompatibilityTab] Failed to load birth data:", err)
+    }
   }, [])
 
   // Generate compatibility via real Kundli Match API
