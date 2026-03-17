@@ -1,8 +1,21 @@
+/* ════════════════════════════════════════════════════════════════
+   GrahAI — Chat API Route (MiniMax-powered)
+
+   POST /api/chat  →  SSE stream
+
+   Uses MiniMax M2.5 (OpenAI-compatible) for all chat responses.
+   Retains: vertical routing, sub-agent delegation, memory,
+   tool-use loop, usage limits, metrics, Supabase persistence.
+
+   Voice & tone rules encoded from:
+   - OUTPUT_VOICE_RULES.md
+   - PRODUCT_PHILOSOPHY.md
+   - PERSONALIZATION_RULES.md
+   ════════════════════════════════════════════════════════════════ */
+
 import { NextRequest } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { createServerClient } from "@supabase/ssr"
-import Anthropic from "@anthropic-ai/sdk"
-import type { MessageParam, ContentBlockParam } from "@anthropic-ai/sdk/resources/messages"
 
 import { getActivePrompt, getAgentNameForVertical } from "@/lib/agents/prompt-loader"
 import { getRelevantMemories, extractAndSaveBirthData } from "@/lib/agents/memory"
@@ -12,7 +25,7 @@ import { detectSubAgent, getSubAgentPromptAugment, logDelegation } from "@/lib/a
 import { checkUsage, incrementUsage } from "@/lib/agents/usage-limiter"
 
 /* ────────────────────────────────────────────────────
-   SUPABASE CLIENT — uses user's auth cookies for RLS
+   SUPABASE CLIENTS
    ──────────────────────────────────────────────────── */
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -26,24 +39,87 @@ function getSupabaseFromRequest(request: NextRequest) {
   })
 }
 
-/* Fallback admin client for background tasks (metrics, etc.) */
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 function getSupabase() {
   return createClient(supabaseUrl, supabaseServiceKey)
 }
 
 /* ────────────────────────────────────────────────────
-   ANTHROPIC CLIENT
+   MINIMAX CONFIG
    ──────────────────────────────────────────────────── */
-/* Validate Anthropic API key at startup */
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
-if (!ANTHROPIC_API_KEY) {
-  console.error("CRITICAL: ANTHROPIC_API_KEY not configured — chat will not work")
+const MINIMAX_API_KEY = process.env.MINIMAX_API_KEY
+const MINIMAX_BASE_URL = "https://api.minimax.io/v1"
+const MINIMAX_MODEL = "MiniMax-M1"
+
+if (!MINIMAX_API_KEY) {
+  console.error("CRITICAL: MINIMAX_API_KEY not configured — chat will not work")
 }
 
-const anthropic = new Anthropic({
-  apiKey: ANTHROPIC_API_KEY || "missing-key",
-})
+/* ────────────────────────────────────────────────────
+   GRAHAI TONE & WORD-LIMIT RULES
+   (Derived from OUTPUT_VOICE_RULES.md, PRODUCT_PHILOSOPHY.md,
+    PERSONALIZATION_RULES.md)
+   ──────────────────────────────────────────────────── */
+
+/** Word limits by chat context */
+const CHAT_CONSTRAINTS: Record<string, { min: number; max: number; label: string }> = {
+  short:        { min: 100, max: 200, label: "Quick chat reply / daily insight" },
+  medium:       { min: 300, max: 500, label: "Standard chat response / weekly guidance" },
+  daily:        { min: 250, max: 400, label: "Daily horoscope insight" },
+  compatibility:{ min: 400, max: 600, label: "Compatibility reading" },
+  report:       { min: 500, max: 800, label: "Report section" },
+}
+
+/** Tone rules injected into every system prompt */
+const GRAHAI_TONE_RULES = `
+
+## GrahAI Voice & Tone Rules (MANDATORY)
+
+You are GrahAI — a calm, wise, personal Vedic astrology guide.
+
+### Voice Attributes
+- Calm intelligence, never dramatic or fear-inducing
+- Personal: every response must feel written for THIS person with THIS chart
+- Transparent: always cite which planet, house, dasha, or transit drives your guidance
+- Grounded: practical takeaways, never fatalistic predictions
+- Like a wise friend who understands their birth chart deeply
+
+### Four-Layer Structure (scale to length)
+1. **Simple Summary** — What this means for you, in plain language
+2. **Explanation** — Why this is happening, with chart context
+3. **Source/Reference** — Which chart factors and principles this draws from
+4. **Practical Takeaway** — What to understand, notice, or do
+
+### Anti-Patterns (NEVER do these)
+- Never use generic horoscope language ("the stars say…", "the universe wants…")
+- Never make fear-based statements about death, serious illness, or catastrophe
+- Never give financial/medical/legal advice — frame as "your chart suggests awareness around…"
+- Never output content that could apply to anyone — always personalize with chart specifics
+- Never say "I don't have your chart" — you always have access to tools to compute it
+- Never pad responses with filler — every sentence must carry meaning
+
+### Personalization Rules
+- Always reference the user's specific dasha period (Mahadasha/Antardasha)
+- Always reference relevant transits for the current date
+- Use the user's name naturally (not in every sentence)
+- Connect current guidance to their larger life narrative/chapter
+- Minimum personalization: 1 dasha reference + 1 transit reference + 1 house/sign reference per response
+`
+
+/** Build a word-limit guide for the detected vertical */
+function getWordGuide(vertical: string): string {
+  // Map vertical → typical response length
+  const mapping: Record<string, string> = {
+    astrology: "medium",
+    numerology: "medium",
+    tarot: "medium",
+    vastu: "medium",
+    general: "short",
+  }
+  const key = mapping[vertical] || "medium"
+  const c = CHAT_CONSTRAINTS[key]
+  return `\n\n## Word Limit: Aim for ${c.min}–${c.max} words (${c.label}). Be concise but thorough. Never pad.\n`
+}
 
 /* ────────────────────────────────────────────────────
    VERTICAL ROUTING — CEO Orchestrator logic
@@ -69,7 +145,94 @@ function detectVertical(message: string, requestedVertical: string): string {
 }
 
 /* ────────────────────────────────────────────────────
-   SSE HELPERS — Stream events to the client
+   TOOL FORMAT CONVERSION — Anthropic → OpenAI function-calling
+   ──────────────────────────────────────────────────── */
+interface AnthropicTool {
+  name: string
+  description?: string
+  input_schema?: Record<string, unknown>
+}
+
+interface OpenAIFunction {
+  type: "function"
+  function: {
+    name: string
+    description: string
+    parameters: Record<string, unknown>
+  }
+}
+
+function convertToolsToOpenAI(tools: AnthropicTool[]): OpenAIFunction[] {
+  return tools.map((t) => ({
+    type: "function" as const,
+    function: {
+      name: t.name,
+      description: t.description || "",
+      parameters: t.input_schema || { type: "object", properties: {} },
+    },
+  }))
+}
+
+/* ────────────────────────────────────────────────────
+   MINIMAX API HELPERS
+   ──────────────────────────────────────────────────── */
+
+interface MiniMaxMessage {
+  role: "system" | "user" | "assistant" | "tool"
+  content?: string
+  tool_calls?: Array<{
+    id: string
+    type: "function"
+    function: { name: string; arguments: string }
+  }>
+  tool_call_id?: string
+  name?: string
+}
+
+/** Non-streaming call — used for tool-use rounds */
+async function callMiniMaxSync(
+  messages: MiniMaxMessage[],
+  tools?: OpenAIFunction[],
+): Promise<{
+  content: string | null
+  tool_calls: Array<{ id: string; type: "function"; function: { name: string; arguments: string } }> | null
+  finish_reason: string
+}> {
+  const body: Record<string, unknown> = {
+    model: MINIMAX_MODEL,
+    max_tokens: 4096,
+    messages,
+  }
+  if (tools && tools.length > 0) {
+    body.tools = tools
+    body.tool_choice = "auto"
+  }
+
+  const res = await fetch(`${MINIMAX_BASE_URL}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${MINIMAX_API_KEY}`,
+    },
+    body: JSON.stringify(body),
+  })
+
+  if (!res.ok) {
+    const errText = await res.text()
+    throw new Error(`MiniMax API error ${res.status}: ${errText}`)
+  }
+
+  const data = await res.json()
+  const choice = data.choices?.[0]
+  return {
+    content: choice?.message?.content || null,
+    tool_calls: choice?.message?.tool_calls || null,
+    finish_reason: choice?.finish_reason || "stop",
+  }
+}
+
+/* ────────────────────────────────────────────────────
+   SSE HELPERS
    ──────────────────────────────────────────────────── */
 function sseEvent(event: string, data: unknown): string {
   return `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`
@@ -82,8 +245,7 @@ export async function POST(req: NextRequest) {
   const startTime = Date.now()
 
   try {
-    // Pre-flight: ensure API key is configured
-    if (!ANTHROPIC_API_KEY) {
+    if (!MINIMAX_API_KEY) {
       return new Response(JSON.stringify({ error: "AI service not configured. Please contact support." }), {
         status: 503,
         headers: { "Content-Type": "application/json" },
@@ -106,11 +268,10 @@ export async function POST(req: NextRequest) {
     const vertical = detectVertical(message, requestedVertical)
     const agentName = getAgentNameForVertical(vertical)
 
-    // 1a. Check if anonymous onboarding user
+    // 1a. Anonymous onboarding check
     const isAnonymous = user_id === "anonymous-onboarding"
 
-    // 1b. USAGE LIMIT CHECK — enforce tier-based daily limits
-    // Skip usage check for anonymous onboarding (limited by design — max 3 follow-ups)
+    // 1b. Usage limit check
     let usageCheck: { allowed: boolean; shouldTruncate?: boolean; truncateMessage?: string; message?: string; tier?: string; limit?: number } = { allowed: true }
     if (!isAnonymous) {
       usageCheck = await checkUsage(user_id, vertical)
@@ -128,18 +289,19 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 1b. Detect sub-agent within the vertical
+    // 1c. Detect sub-agent
     const subAgentRoute = detectSubAgent(vertical, message)
     const activeSubAgent = subAgentRoute?.displayName || null
 
-    // 2. Load system prompt from DB (cached) + memory context + sub-agent augment
+    // 2. Load system prompt + memory + sub-agent augment
     const [systemPrompt, memoryContext, subAgentAugment] = await Promise.all([
       getActivePrompt(vertical),
       getRelevantMemories(user_id, vertical),
       subAgentRoute ? getSubAgentPromptAugment(vertical, subAgentRoute) : Promise.resolve(""),
     ])
 
-    const fullSystemPrompt = systemPrompt + subAgentAugment + memoryContext
+    const wordGuide = getWordGuide(vertical)
+    const fullSystemPrompt = systemPrompt + subAgentAugment + GRAHAI_TONE_RULES + wordGuide + memoryContext
 
     // 3. Create or get conversation
     let convId = conversation_id
@@ -184,24 +346,25 @@ export async function POST(req: NextRequest) {
       .order("created_at", { ascending: true })
       .limit(20)
 
-    // Build messages array
-    const messages: MessageParam[] = []
+    // Build MiniMax message array (OpenAI format)
+    const chatMessages: MiniMaxMessage[] = [
+      { role: "system", content: fullSystemPrompt },
+    ]
+
     for (const msg of (history || []).slice(-18)) {
       if (msg.role === "user" || msg.role === "assistant") {
-        messages.push({ role: msg.role as "user" | "assistant", content: msg.content })
+        chatMessages.push({ role: msg.role as "user" | "assistant", content: msg.content })
       }
     }
     // Ensure current message is included
-    if (messages.length === 0 || (messages[messages.length - 1] as { content: string }).content !== message) {
-      messages.push({ role: "user", content: message })
-    }
-    // API requires first message to be user
-    if (messages.length > 0 && messages[0].role !== "user") {
-      messages.shift()
+    const lastMsg = chatMessages[chatMessages.length - 1]
+    if (!lastMsg || lastMsg.role !== "user" || lastMsg.content !== message) {
+      chatMessages.push({ role: "user", content: message })
     }
 
-    // 6. Get tools for this vertical
-    const tools = getToolsForVertical(vertical)
+    // 6. Get tools for this vertical (convert to OpenAI format)
+    const anthropicTools = getToolsForVertical(vertical)
+    const openaiTools = convertToolsToOpenAI(anthropicTools)
 
     // 7. Auto-extract birth data (fire-and-forget)
     extractAndSaveBirthData(user_id, message, vertical).catch(() => {})
@@ -212,16 +375,15 @@ export async function POST(req: NextRequest) {
     // 9. Create SSE stream
     const encoder = new TextEncoder()
     let fullResponseText = ""
-    let toolsExecuted: string[] = []
+    const toolsExecuted: string[] = []
     let success = true
     const shouldTruncate = usageCheck.shouldTruncate || false
-    const truncateMessage = usageCheck.truncateMessage
-    const TRUNCATE_LIMIT = 800 // ~200 tokens
+    const TRUNCATE_LIMIT = 800
 
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          // Send initial metadata (includes sub-agent if delegated)
+          // Send initial metadata
           controller.enqueue(
             encoder.encode(
               sseEvent("meta", {
@@ -235,134 +397,106 @@ export async function POST(req: NextRequest) {
             )
           )
 
-          // Log delegation if sub-agent was selected (fire-and-forget)
+          // Log delegation if sub-agent was selected
           if (subAgentRoute) {
             logDelegation(convId, agentName, subAgentRoute.displayName, vertical, message).catch(() => {})
           }
 
-          // Anthropic API call with streaming
-          let currentMessages = [...messages]
+          // ─── Tool-use loop ─────────────────────────────────
+          let currentMessages = [...chatMessages]
           let continueLoop = true
+          const MAX_TOOL_ROUNDS = 5
 
-          while (continueLoop) {
-            const apiParams: {
-              model: string
-              max_tokens: number
-              system: string
-              messages: MessageParam[]
-              tools?: Anthropic.Messages.Tool[]
-            } = {
-              model: "claude-sonnet-4-20250514",
-              max_tokens: 4096,
-              system: fullSystemPrompt,
-              messages: currentMessages,
-            }
+          for (let round = 0; round < MAX_TOOL_ROUNDS && continueLoop; round++) {
+            // Use sync call (handles both text and tool_calls)
+            const result = await callMiniMaxSync(
+              currentMessages,
+              openaiTools.length > 0 ? openaiTools : undefined,
+            )
 
-            // Only include tools if the vertical has them
-            if (tools.length > 0) {
-              apiParams.tools = tools
-            }
+            // Handle tool calls
+            if (result.tool_calls && result.tool_calls.length > 0) {
+              // Append assistant message with tool_calls to history
+              currentMessages.push({
+                role: "assistant",
+                content: result.content || "",
+                tool_calls: result.tool_calls,
+              })
 
-            const response = await anthropic.messages.create(apiParams)
-
-            // Process content blocks
-            for (const block of response.content) {
-              if (block.type === "text") {
-                // Stream text in chunks for typewriter effect
-                let text = block.text
-
-                // Apply truncation if needed
-                if (shouldTruncate && fullResponseText.length + text.length > TRUNCATE_LIMIT) {
-                  const remaining = Math.max(0, TRUNCATE_LIMIT - fullResponseText.length)
-                  text = text.slice(0, remaining)
+              // Execute each tool call
+              for (const tc of result.tool_calls) {
+                const toolName = tc.function.name
+                let toolArgs: Record<string, unknown> = {}
+                try {
+                  toolArgs = JSON.parse(tc.function.arguments || "{}")
+                } catch {
+                  toolArgs = {}
                 }
 
-                fullResponseText += text
-
-                // Send in ~50 char chunks for smooth streaming
-                const chunkSize = 50
-                for (let i = 0; i < text.length; i += chunkSize) {
-                  const chunk = text.slice(i, i + chunkSize)
-                  controller.enqueue(encoder.encode(sseEvent("text_delta", { text: chunk })))
-                }
-
-                // If truncated, append notice and stop processing
-                if (shouldTruncate && fullResponseText.length >= TRUNCATE_LIMIT) {
-                  const notice = `\n\n✨ *Upgrade to see the full analysis...*`
-                  fullResponseText += notice
-                  const chunkSize = 50
-                  for (let i = 0; i < notice.length; i += chunkSize) {
-                    const chunk = notice.slice(i, i + chunkSize)
-                    controller.enqueue(encoder.encode(sseEvent("text_delta", { text: chunk })))
-                  }
-                  continueLoop = false // Stop processing further
-                  break // Break from content blocks loop
-                }
-              } else if (block.type === "tool_use") {
-                // Tool use detected — notify client
-                const toolInfo = TOOL_DISPLAY_INFO[block.name] || {
-                  label: block.name,
+                // Notify client
+                const toolInfo = TOOL_DISPLAY_INFO[toolName] || {
+                  label: toolName,
                   icon: "⚙️",
-                  description: `Executing ${block.name}...`,
+                  description: `Executing ${toolName}...`,
                 }
-
                 controller.enqueue(
-                  encoder.encode(
-                    sseEvent("tool_start", {
-                      tool_name: block.name,
-                      tool_id: block.id,
-                      ...toolInfo,
-                    })
-                  )
+                  encoder.encode(sseEvent("tool_start", { tool_name: toolName, tool_id: tc.id, ...toolInfo }))
                 )
 
                 // Execute tool server-side
-                const toolResult = await executeToolCall(
-                  block.name,
-                  block.input as Record<string, unknown>,
-                  user_id
-                )
+                const toolResult = await executeToolCall(toolName, toolArgs, user_id)
+                toolsExecuted.push(toolName)
 
-                toolsExecuted.push(block.name)
-
-                // Send tool result to client (summary)
                 controller.enqueue(
                   encoder.encode(
                     sseEvent("tool_result", {
-                      tool_name: block.name,
-                      tool_id: block.id,
+                      tool_name: toolName,
+                      tool_id: tc.id,
                       success: !(toolResult as { error?: string }).error,
                     })
                   )
                 )
 
-                // Feed tool result back to Claude for continuation
-                currentMessages = [
-                  ...currentMessages,
-                  {
-                    role: "assistant" as const,
-                    content: response.content as ContentBlockParam[],
-                  },
-                  {
-                    role: "user" as const,
-                    content: [
-                      {
-                        type: "tool_result" as const,
-                        tool_use_id: block.id,
-                        content: JSON.stringify(toolResult),
-                      },
-                    ],
-                  },
-                ]
+                // Feed tool result back (OpenAI format)
+                currentMessages.push({
+                  role: "tool",
+                  tool_call_id: tc.id,
+                  name: toolName,
+                  content: JSON.stringify(toolResult),
+                })
               }
-            }
 
-            // Check if we need to continue (tool_use requires another round)
-            if (response.stop_reason === "tool_use") {
-              // Continue the loop — Claude needs to process tool results
+              // Continue loop — model needs to process tool results
               continueLoop = true
             } else {
-              // end_turn or max_tokens — we're done
+              // Pure text response — stream it to the client
+              let text = result.content || ""
+
+              // Apply truncation if needed
+              if (shouldTruncate && fullResponseText.length + text.length > TRUNCATE_LIMIT) {
+                const remaining = Math.max(0, TRUNCATE_LIMIT - fullResponseText.length)
+                text = text.slice(0, remaining)
+              }
+
+              fullResponseText += text
+
+              // Stream in ~50 char chunks for typewriter effect
+              const chunkSize = 50
+              for (let i = 0; i < text.length; i += chunkSize) {
+                const chunk = text.slice(i, i + chunkSize)
+                controller.enqueue(encoder.encode(sseEvent("text_delta", { text: chunk })))
+              }
+
+              // If truncated, append upgrade notice
+              if (shouldTruncate && fullResponseText.length >= TRUNCATE_LIMIT) {
+                const notice = `\n\n✨ *Upgrade to see the full analysis...*`
+                fullResponseText += notice
+                for (let i = 0; i < notice.length; i += chunkSize) {
+                  const chunk = notice.slice(i, i + chunkSize)
+                  controller.enqueue(encoder.encode(sseEvent("text_delta", { text: chunk })))
+                }
+              }
+
               continueLoop = false
             }
           }
@@ -380,7 +514,7 @@ export async function POST(req: NextRequest) {
             )
           )
 
-          // 10. Save assistant response to DB (fire-and-forget style but awaited for reliability)
+          // 10. Save assistant response to DB
           try {
             await sb.from("messages").insert({
               conversation_id: convId,
@@ -390,7 +524,7 @@ export async function POST(req: NextRequest) {
               metadata: {
                 vertical,
                 sub_agent: activeSubAgent,
-                model: "claude-sonnet-4-20250514",
+                model: MINIMAX_MODEL,
                 tools_used: toolsExecuted,
                 response_time_ms: Date.now() - startTime,
               },
@@ -399,13 +533,13 @@ export async function POST(req: NextRequest) {
             console.warn("Failed to save assistant message:", saveErr)
           }
 
-          // 11. Track metrics (fire-and-forget) — track both head agent and sub-agent
+          // 11. Track metrics (fire-and-forget)
           trackAgentMetrics(agentName, vertical, Date.now() - startTime, success).catch(() => {})
           if (subAgentRoute) {
             trackAgentMetrics(subAgentRoute.displayName, vertical, Date.now() - startTime, success).catch(() => {})
           }
 
-          // 12. Increment daily usage counter (fire-and-forget) — skip for anonymous onboarding
+          // 12. Increment daily usage counter (skip anonymous)
           if (!isAnonymous) {
             incrementUsage(user_id, vertical).catch(() => {})
           }
@@ -415,7 +549,6 @@ export async function POST(req: NextRequest) {
           success = false
           console.error("Stream error:", err)
 
-          // Send error event
           controller.enqueue(
             encoder.encode(
               sseEvent("error", {
@@ -424,9 +557,7 @@ export async function POST(req: NextRequest) {
             )
           )
 
-          // Track failed metric
           trackAgentMetrics(agentName, vertical, Date.now() - startTime, false).catch(() => {})
-
           controller.close()
         }
       },
