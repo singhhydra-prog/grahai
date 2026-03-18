@@ -386,16 +386,16 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   initial={{ opacity: 0, scale: 0.7 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.3, duration: 1.2, ease: [0.33, 1, 0.68, 1] }}
-                  className="relative inline-flex items-center justify-center mb-4 mt-6"
+                  className="relative inline-flex items-center justify-center mb-6 mt-10"
                 >
                   <span
-                    className="text-[3.5rem] sm:text-[4.5rem] font-extrabold tracking-tight text-white"
-                    style={{ fontFamily: "Inter, system-ui, sans-serif", textShadow: "0 0 18px rgba(255,255,255,0.15)", lineHeight: 1 }}
+                    className="text-[5rem] sm:text-[6rem] font-extrabold tracking-tight text-white"
+                    style={{ fontFamily: "Inter, system-ui, sans-serif", textShadow: "0 0 24px rgba(255,255,255,0.2)", lineHeight: 1 }}
                   >
                     Grah{" "}
                   </span>
                   <span className="relative inline-block">
-                    <svg className="absolute" style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "130%", height: "110%", filter: "drop-shadow(0 0 30px rgba(255,102,0,0.5))" }} viewBox="0 0 100 90" preserveAspectRatio="none">
+                    <svg className="absolute" style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "135%", height: "115%", filter: "drop-shadow(0 0 40px rgba(255,102,0,0.6))" }} viewBox="0 0 100 90" preserveAspectRatio="none">
                       <defs>
                         <linearGradient id="triGrad" x1="50%" y1="0%" x2="50%" y2="100%">
                           <stop offset="0%" stopColor="#FF8800" />
@@ -406,7 +406,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                       <polygon points="50,2 98,88 2,88" fill="url(#triGrad)" />
                       <polygon points="50,32 72,74 28,74" fill="rgba(255,180,80,0.15)" />
                     </svg>
-                    <span className="relative z-10 text-[3.5rem] sm:text-[4.5rem] font-extrabold tracking-tight text-white" style={{ fontFamily: "Inter, system-ui, sans-serif", textShadow: "0 0 10px rgba(255,136,0,0.4)", lineHeight: 1 }}>
+                    <span className="relative z-10 text-[5rem] sm:text-[6rem] font-extrabold tracking-tight text-white" style={{ fontFamily: "Inter, system-ui, sans-serif", textShadow: "0 0 14px rgba(255,136,0,0.5)", lineHeight: 1 }}>
                       AI
                     </span>
                   </span>
@@ -417,7 +417,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 }}
-                  className="text-base sm:text-lg text-[#C8D0DA] font-medium tracking-wide mb-6 sm:mb-10"
+                  className="text-xl sm:text-2xl text-[#E0E4EA] font-semibold tracking-widest uppercase mb-8 sm:mb-12"
+                  style={{ letterSpacing: "0.2em" }}
                 >
                   Your Stars, Your Path
                 </motion.p>
