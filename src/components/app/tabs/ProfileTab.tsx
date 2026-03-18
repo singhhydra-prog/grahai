@@ -340,32 +340,7 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
           ))}
         </div>
 
-        {/* Birth Chart (Kundli) */}
-        {astroMode === "vedic" && (
-          <div className="glass-card p-4 mb-5">
-            {chartLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <p className="text-xs text-[#A0A5B2]">Computing your birth chart...</p>
-              </div>
-            ) : chartPlanets.length > 0 ? (
-              <KundliChart
-                planets={chartPlanets}
-                ascendantSign={ascendantSign}
-                chartType="birth"
-                size={280}
-                showLabels
-              />
-            ) : (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <p className="text-xs text-[#8892A3]">Birth chart requires complete birth details</p>
-                <button onClick={() => setSubPage("edit-birth")}
-                  className="mt-2 text-xs text-[#D4A054] underline">
-                  Update birth details
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+        {/* Birth Chart moved to Home tab hero section */}
       </div>
 
       <div className="section-divider mx-5" />
