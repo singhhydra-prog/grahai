@@ -132,6 +132,17 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
             setAscendantSign(cd.ascendantSign)
           }
 
+          // Cache chart data for HomeTab
+          try {
+            localStorage.setItem("grahai-chart-cache", JSON.stringify({
+              planets: cd.planets,
+              ascendantSign: cd.ascendantSign,
+              moonSign: cd.moonSign,
+              sunSign: cd.sunSign,
+              ascendantName: cd.ascendantName,
+            }))
+          } catch {}
+
           // Also update astro profile from chart data
           if (cd.moonSign || cd.sunSign || cd.ascendantName) {
             setAstro(prev => ({

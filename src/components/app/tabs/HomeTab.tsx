@@ -118,8 +118,25 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
     if (birthData) fetchHoroscope(dayOffset)
   }, [birthData, dayOffset, fetchHoroscope])
 
-  // Fetch chart data for Kundli display
+  // Load chart data — first from localStorage cache (set by ProfileTab), then API fallback
   useEffect(() => {
+    // 1. Try localStorage cache first (instant, no API call)
+    try {
+      const cached = localStorage.getItem("grahai-chart-cache")
+      if (cached) {
+        const cd = JSON.parse(cached)
+        if (cd.planets?.length > 0) {
+          setChartPlanets(cd.planets.map((p: { id: string; symbol: string; name: string; house: number; degree: number; isRetrograde?: boolean }) => ({
+            id: p.id, symbol: p.symbol, name: p.name,
+            house: p.house, degree: p.degree, isRetrograde: p.isRetrograde,
+          })))
+          if (cd.ascendantSign) setAscendantSign(cd.ascendantSign)
+          return // Cache hit — no need for API call
+        }
+      }
+    } catch {}
+
+    // 2. No cache — try API (only if we have full birth data)
     if (!birthData?.dateOfBirth || !birthData?.timeOfBirth || !birthData?.latitude || !birthData?.longitude) return
     const fetchChart = async () => {
       try {
@@ -145,8 +162,10 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
               id: p.id, symbol: p.symbol, name: p.name,
               house: p.house, degree: p.degree, isRetrograde: p.isRetrograde,
             })))
+            if (cd.ascendantSign) setAscendantSign(cd.ascendantSign)
+            // Cache for next time
+            try { localStorage.setItem("grahai-chart-cache", JSON.stringify(cd)) } catch {}
           }
-          if (cd.ascendantSign) setAscendantSign(cd.ascendantSign)
         }
       } catch {
         // Chart is optional on home — don't block UX
