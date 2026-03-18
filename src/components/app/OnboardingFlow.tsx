@@ -419,7 +419,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   transition={{ delay: 0.6 }}
                   className="text-lg text-[#ACB8C4] font-medium tracking-wide mb-10"
                 >
-                  Your stars, your path
+                  Your Stars, Your Path
                 </motion.p>
 
                 {/* Language Dropdown */}
