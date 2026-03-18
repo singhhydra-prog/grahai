@@ -78,6 +78,13 @@ const LUCKY_NUMBERS: Record<string, number[]> = {
   Capricorn: [8, 4, 6], Aquarius: [4, 7, 8], Pisces: [3, 7, 9],
 }
 
+// ─── Dasha lord → sign mapping (for lucky colours) ─────
+const DASHA_TO_SIGN: Record<string, string> = {
+  Sun: "Leo", Moon: "Cancer", Mars: "Aries", Mercury: "Gemini",
+  Jupiter: "Sagittarius", Venus: "Taurus", Saturn: "Capricorn",
+  Rahu: "Aquarius", Ketu: "Scorpio",
+}
+
 // ─── Generate a distinct, chart-specific theme title ──
 // Seed includes birth data so different users get different titles on the same day
 function hashSeed(str: string): number {
@@ -329,6 +336,33 @@ function generateSelfInsight(insight: DailyInsight): string {
   return `${moonEffect} During ${maha} Dasha, ${nak} Nakshatra in ${moon} (house ${house}) invites self-reflection. ${remedyHint}`
 }
 
+// ─── Action / Caution text generators (birth-chart-aware) ──
+function generateActionText(insight: DailyInsight): string {
+  const favs = insight.activities.favorable
+  if (favs.length === 0) return `During your ${insight.dashaContext.mahadasha} Dasha, focus on your highest-priority task today.`
+
+  // Take the first 2 (which are now dasha-specific and house-specific from the generator)
+  // and combine into a natural sentence
+  const first = favs[0]
+  const second = favs[1]
+  if (second) {
+    return `${first}. Also: ${second.charAt(0).toLowerCase() + second.slice(1)}.`
+  }
+  return `${first}.`
+}
+
+function generateCautionText(insight: DailyInsight): string {
+  const unfavs = insight.activities.unfavorable
+  if (unfavs.length === 0) return `During ${insight.dashaContext.mahadasha}–${insight.dashaContext.antardasha} period, avoid impulsive decisions.`
+
+  const first = unfavs[0]
+  const second = unfavs[1]
+  if (second) {
+    return `${first}. Also: ${second.charAt(0).toLowerCase() + second.slice(1)}.`
+  }
+  return `${first}.`
+}
+
 // ─── Map per-user DailyInsight → legacy API response format ─
 function mapInsightToResponse(
   insight: DailyInsight,
@@ -340,9 +374,22 @@ function mapInsightToResponse(
 ) {
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
   const dateLabel = `${months[targetDate.getMonth()]} ${targetDate.getDate()}`
-  const seed = targetDate.getFullYear() * 10000 + (targetDate.getMonth() + 1) * 100 + targetDate.getDate()
-  const colours = LUCKY_COLOURS[signName] || ["White"]
-  const numbers = LUCKY_NUMBERS[signName] || [7]
+  // Seed includes birth data so different users get different lucky elements even with same sun sign
+  const luckySeed = hashSeed(
+    `lucky-${targetDate.toISOString().split("T")[0]}-${birthDate || ""}-${insight.dashaContext.mahadasha}-${insight.moonTransit.houseFromMoon}`
+  )
+
+  // Lucky colours: combine sun sign colours with dasha lord colours
+  const signColours = LUCKY_COLOURS[signName] || ["White"]
+  const dashaColours = LUCKY_COLOURS[DASHA_TO_SIGN[insight.dashaContext.mahadasha] || ""] || []
+  const allColours = [...new Set([...signColours, ...dashaColours])]
+  const colours = allColours.length > 0 ? allColours : ["White"]
+
+  // Lucky numbers: combine sun sign numbers with moon house number
+  const signNumbers = LUCKY_NUMBERS[signName] || [7]
+  const moonHouseNum = insight.moonTransit.houseFromMoon
+  const allNumbers = [...new Set([...signNumbers, moonHouseNum])]
+  const numbers = allNumbers.length > 0 ? allNumbers : [7]
 
   // Compute real auspicious time window (avoid Rahu Kaal)
   const auspiciousTime = calculateAuspiciousTime(targetDate)
@@ -362,8 +409,8 @@ function mapInsightToResponse(
     theme: {
       title: generateThemeTitle(insight, targetDate, birthDate),
       headline: generatePersonalizedHeadline(insight, targetDate, birthDate),
-      action: insight.activities.favorable.slice(0, 2).join(". ") || "Focus on your highest-priority task today.",
-      caution: insight.activities.unfavorable.slice(0, 2).join(". ") || "Avoid impulsive decisions during Rahu Kaal.",
+      action: generateActionText(insight),
+      caution: generateCautionText(insight),
       whyActive: `Moon in ${insight.moonTransit.currentSign} (${insight.moonTransit.nakshatra}) transits your ${insight.moonTransit.houseFromMoon}${getOrdinal(insight.moonTransit.houseFromMoon)} house from natal Moon — ${insight.moonTransit.effect.split(". ")[0]}. You're in ${insight.dashaContext.mahadasha}–${insight.dashaContext.antardasha} Dasha: ${insight.dashaContext.interpretation.split(". ")[0]}.`,
       source: {
         principle: `Moon in ${insight.moonTransit.currentSign} (${insight.moonTransit.nakshatra})`,
@@ -383,8 +430,8 @@ function mapInsightToResponse(
       rahuKaal: { start: insight.panchang.rahuKaal.split(" - ")[0] || "Unknown", end: insight.panchang.rahuKaal.split(" - ")[1] || "Unknown" },
     },
     lucky: {
-      colour: colours[seed % colours.length],
-      number: numbers[seed % numbers.length],
+      colour: colours[luckySeed % colours.length],
+      number: numbers[luckySeed % numbers.length],
     },
     categories: {
       wealth: generateWealthInsight(insight, signName),

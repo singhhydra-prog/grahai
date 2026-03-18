@@ -123,69 +123,93 @@ function getDashaInterpretation(maha: string, antar: string): string {
 
 function getActivityRecommendations(
   panchang: Panchang,
-  transitAnalysis: FullTransitAnalysis
+  transitAnalysis: FullTransitAnalysis,
+  mahadasha: string,
+  antardasha: string,
+  moonSign: string,
+  moonHouseFromMoon: number,
 ): { favorable: string[], unfavorable: string[] } {
   const favorable: string[] = []
   const unfavorable: string[] = []
+  const moonHouse = moonHouseFromMoon || transitAnalysis.transits.find(t => t.planet === "Moon")?.houseFromMoon || 0
 
-  // Based on overall transit trend + specific transit houses
-  const moonHouse = transitAnalysis.transits.find(t => t.planet === "Moon")?.houseFromMoon || 0
-  if (transitAnalysis.overallTrend === "favorable") {
-    favorable.push("Starting new ventures", "Important meetings", "Financial decisions")
-    // Add house-specific favorable activity
-    if ([1, 10].includes(moonHouse)) favorable.push("Leadership and public-facing work")
-    if ([5, 9].includes(moonHouse)) favorable.push("Creative projects and learning")
-    if ([2, 11].includes(moonHouse)) favorable.push("Revenue-related discussions")
-  } else if (transitAnalysis.overallTrend === "challenging") {
-    unfavorable.push("Starting new ventures", "Major financial commitments")
-    favorable.push("Completing pending work", "Introspection and planning")
-    if ([6, 8, 12].includes(moonHouse)) favorable.push("Healing practices and research")
+  // ── 1. Birth-chart-specific: Dasha lord activities ──
+  const dashaActivities: Record<string, { good: string; bad: string }> = {
+    Sun: { good: "Authority-related work, meeting elders or government officials", bad: "Ego conflicts, overexposure in public" },
+    Moon: { good: "Nurturing relationships, creative expression, travel", bad: "Emotional decision-making, sleep deprivation" },
+    Mars: { good: "Physical activity, property matters, competitive tasks", bad: "Arguments, risky physical activity, anger-driven decisions" },
+    Mercury: { good: "Writing, business negotiations, learning new skills", bad: "Signing documents without review, multitasking excessively" },
+    Jupiter: { good: "Teaching, spiritual practice, financial planning", bad: "Overcommitting, excessive spending on luxuries" },
+    Venus: { good: "Creative projects, relationship building, self-care", bad: "Overindulgence, impulsive purchases" },
+    Saturn: { good: "Disciplined long-term work, organizing, service to others", bad: "Shortcuts, procrastination on responsibilities" },
+    Rahu: { good: "Technology, foreign connections, unconventional approaches", bad: "Deception, get-rich-quick schemes, addictive habits" },
+    Ketu: { good: "Meditation, research, spiritual study, letting go", bad: "Attachment to outcomes, starting brand-new ventures" },
   }
 
-  // Based on tithi auspiciousness
+  const dashaInfo = dashaActivities[mahadasha]
+  if (dashaInfo) {
+    favorable.push(`${mahadasha} Dasha favors: ${dashaInfo.good}`)
+    unfavorable.push(`During ${mahadasha} period, avoid: ${dashaInfo.bad}`)
+  }
+
+  // ── 2. Birth-chart-specific: Moon house activities ──
+  const houseActivities: Record<number, { good: string; bad: string }> = {
+    1: { good: "Self-improvement, personal branding, health focus", bad: "Neglecting your appearance or health signals" },
+    2: { good: "Financial review, family conversations, saving", bad: "Harsh speech, risky financial bets" },
+    3: { good: "Communication, short trips, sibling bonding, writing", bad: "Gossip, unnecessary arguments with neighbors/siblings" },
+    4: { good: "Home improvement, mother-related matters, rest", bad: "Real estate decisions without research, emotional eating" },
+    5: { good: "Creative work, romance, children's matters, learning", bad: "Speculative investments, gambling" },
+    6: { good: "Health checkup, defeating competition, service work", bad: "Lending money, ignoring health symptoms" },
+    7: { good: "Partnership discussions, meeting new people, negotiation", bad: "Confrontation with spouse/partner, legal disputes" },
+    8: { good: "Research, transformation work, insurance matters", bad: "Occult experimentation without guidance, risky ventures" },
+    9: { good: "Spiritual pursuit, higher learning, father-related matters", bad: "Dismissing others' beliefs, dogmatic behavior" },
+    10: { good: "Career advancement, public-facing work, leadership", bad: "Cutting corners at work, ego-driven decisions" },
+    11: { good: "Networking, group activities, pursuing long-term goals", bad: "Trusting unreliable friends, overpromising" },
+    12: { good: "Meditation, rest, charitable giving, foreign connections", bad: "Excessive spending, isolation from loved ones" },
+  }
+
+  const houseInfo = houseActivities[moonHouse]
+  if (houseInfo) {
+    favorable.push(`Moon in your ${moonHouse}th house: ${houseInfo.good}`)
+    unfavorable.push(`With Moon in house ${moonHouse}: ${houseInfo.bad}`)
+  }
+
+  // ── 3. Transit trend + antardasha context ──
+  if (transitAnalysis.overallTrend === "favorable") {
+    favorable.push(`${antardasha} sub-period supports: starting new initiatives`)
+  } else if (transitAnalysis.overallTrend === "challenging") {
+    unfavorable.push(`${antardasha} sub-period cautions against: impulsive new starts`)
+    favorable.push("Completing pending work, introspection, and planning")
+  }
+
+  // ── 4. Panchang-based (same for all — but location-specific via panchang calc) ──
   if (panchang.tithi.name.includes("Purnima")) {
-    favorable.push("Spiritual practices", "Charity", "Starting auspicious work")
+    favorable.push("Spiritual practices, charity, starting auspicious work")
   }
   if (panchang.tithi.name.includes("Amavasya")) {
-    unfavorable.push("Starting new work", "Travel")
-    favorable.push("Ancestral rituals (Tarpan)", "Meditation")
+    unfavorable.push("Starting new work, travel")
+    favorable.push("Ancestral rituals (Tarpan), meditation")
   }
 
-  // Based on yoga — auspicious yogas (Siddha, Shiva, Sadhya, etc.) vs inauspicious (Vyaghata, Vajra, etc.)
   const auspiciousYogas = ["Siddha", "Shiva", "Sadhya", "Shubha", "Brahma", "Indra", "Priti", "Saubhagya"]
   const inauspiciousYogas = ["Vyaghata", "Vajra", "Atiganda", "Shoola", "Ganda", "Vishkumbha"]
   if (auspiciousYogas.includes(panchang.yoga.name)) {
-    favorable.push("Ceremonies and celebrations", "Investments")
+    favorable.push(`${panchang.yoga.name} Yoga active: ceremonies and investments`)
   } else if (inauspiciousYogas.includes(panchang.yoga.name)) {
-    unfavorable.push("Signing contracts", "Marriage ceremonies")
+    unfavorable.push(`${panchang.yoga.name} Yoga active: delay signing contracts or ceremonies`)
   }
 
-  // Rahu Kaal warning
   if (panchang.rahukaal) {
     unfavorable.push(`Avoid important work during Rahu Kaal (${panchang.rahukaal.start} - ${panchang.rahukaal.end})`)
   }
 
-  // Based on Karana
   if (panchang.karana.name === "Vishti") {
     unfavorable.push("Auspicious ceremonies (Vishti/Bhadra Karana active)")
   }
 
-  // Based on vara (weekday)
-  const dayFavorable: Record<string, string> = {
-    Sunday: "Government work, health matters, father-related",
-    Monday: "Travel, meeting women, mind-related work",
-    Tuesday: "Property, surgery, competitive activities",
-    Wednesday: "Education, business, communication",
-    Thursday: "Religious activities, meeting gurus, expansion",
-    Friday: "Romance, arts, buying vehicles/luxury",
-    Saturday: "Service, iron/oil work, discipline activities",
-  }
-  const dayActivity = dayFavorable[panchang.var.name]
-  if (dayActivity) favorable.push(dayActivity)
-
   // Ensure at least 2 items each
-  if (favorable.length < 2) favorable.push("Routine work", "Self-care")
-  if (unfavorable.length < 2) unfavorable.push("Overexertion", "Impulsive decisions")
+  if (favorable.length < 2) favorable.push("Routine work aligned with your dasha rhythm")
+  if (unfavorable.length < 2) unfavorable.push("Overexertion beyond your current energy cycle")
 
   return {
     favorable: favorable.slice(0, 5),
@@ -383,8 +407,15 @@ export async function generateDailyInsight(
       significance: t.significance,
     }))
 
-  // 7. Activities
-  const activities = getActivityRecommendations(panchang, transitAnalysis)
+  // 7. Activities (personalized with dasha + moon house)
+  const activities = getActivityRecommendations(
+    panchang,
+    transitAnalysis,
+    currentMaha,
+    currentAntar,
+    moonTransit.currentSign,
+    moonTransit.houseFromNatalMoon,
+  )
 
   // 8. Daily remedy
   const dailyRemedy = selectDailyRemedy(targetDate.getDay(), currentMaha)
