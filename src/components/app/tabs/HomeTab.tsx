@@ -8,6 +8,7 @@ import {
   CheckCircle, AlertTriangle, Calendar, ExternalLink, Bookmark, Clock
 } from "lucide-react"
 import AppHeader from "@/components/ui/AppHeader"
+import KundliChartSVG from "@/components/ui/KundliChart"
 import SourceDrawer from "@/components/ui/SourceDrawer"
 import { useLanguage } from "@/lib/LanguageContext"
 import type { BirthData } from "@/types/app"
@@ -65,6 +66,8 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
   const [activeSource, setActiveSource] = useState<ThemeData["source"] | null>(null)
   const [sourceContext, setSourceContext] = useState("")
   const [apiError, setApiError] = useState<string | null>(null)
+  const [chartPlanets, setChartPlanets] = useState<Array<{ id: string; symbol: string; name: string; house: number; degree: number; isRetrograde?: boolean }>>([])
+  const [ascendantSign, setAscendantSign] = useState(1)
 
   useEffect(() => {
     try {
@@ -114,6 +117,43 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
   useEffect(() => {
     if (birthData) fetchHoroscope(dayOffset)
   }, [birthData, dayOffset, fetchHoroscope])
+
+  // Fetch chart data for Kundli display
+  useEffect(() => {
+    if (!birthData?.dateOfBirth || !birthData?.timeOfBirth || !birthData?.latitude || !birthData?.longitude) return
+    const fetchChart = async () => {
+      try {
+        const res = await fetch("/api/reports/generate-code", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            reportType: "birth-chart",
+            birthDate: birthData.dateOfBirth,
+            birthTime: birthData.timeOfBirth,
+            placeOfBirth: birthData.placeOfBirth,
+            latitude: birthData.latitude,
+            longitude: birthData.longitude,
+            timezone: birthData.timezone,
+            name: birthData.name,
+          }),
+        })
+        const data = await res.json()
+        if (res.ok && data.chartData) {
+          const cd = data.chartData
+          if (cd.planets?.length > 0) {
+            setChartPlanets(cd.planets.map((p: { id: string; symbol: string; name: string; house: number; degree: number; isRetrograde?: boolean }) => ({
+              id: p.id, symbol: p.symbol, name: p.name,
+              house: p.house, degree: p.degree, isRetrograde: p.isRetrograde,
+            })))
+          }
+          if (cd.ascendantSign) setAscendantSign(cd.ascendantSign)
+        }
+      } catch {
+        // Chart is optional on home — don't block UX
+      }
+    }
+    fetchChart()
+  }, [birthData])
 
   const openSource = (source: ThemeData["source"], context: string) => {
     setActiveSource(source)
@@ -181,6 +221,89 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
               exit={{ opacity: 0, x: dayOffset === 1 ? -20 : 20 }}
               transition={{ duration: 0.2 }}
             >
+              {/* ═══ 0a. Lucky Elements (TOP — first thing user sees) ═══ */}
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4"
+              >
+                <p className="text-[10px] font-semibold text-[#8892A3] uppercase tracking-[0.08em] px-1 mb-2">
+                  Lucky Elements
+                </p>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="glass-card p-3 flex flex-col items-center justify-center text-center">
+                    <div className="w-10 h-10 rounded-xl mb-2 flex items-center justify-center shadow-lg border border-white/10" style={{
+                      backgroundColor: horoscope.lucky.colour.toLowerCase() === "white" ? "#f0f0f0" :
+                        horoscope.lucky.colour.toLowerCase() === "red" ? "#ef4444" :
+                        horoscope.lucky.colour.toLowerCase() === "green" ? "#22c55e" :
+                        horoscope.lucky.colour.toLowerCase() === "gold" ? "#D4A054" :
+                        horoscope.lucky.colour.toLowerCase() === "yellow" ? "#eab308" :
+                        horoscope.lucky.colour.toLowerCase() === "blue" ? "#3b82f6" :
+                        horoscope.lucky.colour.toLowerCase() === "black" ? "#1a1a1a" :
+                        horoscope.lucky.colour.toLowerCase() === "scarlet" ? "#FF2400" :
+                        horoscope.lucky.colour.toLowerCase() === "orange" ? "#f97316" :
+                        horoscope.lucky.colour.toLowerCase() === "pink" ? "#ec4899" :
+                        horoscope.lucky.colour.toLowerCase() === "silver" ? "#c0c0c0" :
+                        horoscope.lucky.colour.toLowerCase() === "cream" ? "#FFFDD0" :
+                        horoscope.lucky.colour.toLowerCase() === "maroon" ? "#800000" :
+                        horoscope.lucky.colour.toLowerCase() === "navy" ? "#000080" :
+                        horoscope.lucky.colour.toLowerCase() === "purple" ? "#9333ea" :
+                        horoscope.lucky.colour.toLowerCase() === "grey" || horoscope.lucky.colour.toLowerCase() === "gray" ? "#6b7280" :
+                        horoscope.lucky.colour.toLowerCase() === "lavender" ? "#E6E6FA" :
+                        horoscope.lucky.colour.toLowerCase() === "dark brown" ? "#5C4033" :
+                        horoscope.lucky.colour.toLowerCase() === "dark red" ? "#8B0000" :
+                        horoscope.lucky.colour.toLowerCase() === "light blue" ? "#93c5fd" :
+                        horoscope.lucky.colour.toLowerCase() === "electric blue" ? "#7DF9FF" :
+                        horoscope.lucky.colour.toLowerCase() === "sea green" ? "#2E8B57" :
+                        horoscope.lucky.colour.toLowerCase()
+                    }} />
+                    <p className="text-[9px] text-[#8892A3] mb-0.5 uppercase font-semibold tracking-wider">{t.home.luckyColors}</p>
+                    <span className="text-xs font-bold text-[#F1F0F5]">{horoscope.lucky.colour}</span>
+                  </div>
+                  <div className="glass-card p-3 flex flex-col items-center justify-center text-center">
+                    <div className="w-10 h-10 rounded-xl mb-2 flex items-center justify-center bg-[#D4A054]/20 border border-[#D4A054]/30">
+                      <span className="text-lg font-bold text-[#D4A054]">{horoscope.lucky.number}</span>
+                    </div>
+                    <p className="text-[9px] text-[#8892A3] mb-0.5 uppercase font-semibold tracking-wider">{t.home.luckyNumbers}</p>
+                    <span className="text-xs font-bold text-[#F1F0F5]">#{horoscope.lucky.number}</span>
+                  </div>
+                  <div className="glass-card p-3 flex flex-col items-center justify-center text-center">
+                    <div className="w-10 h-10 rounded-xl mb-2 flex items-center justify-center bg-emerald-500/20 border border-emerald-500/30">
+                      <Clock className="w-5 h-5 text-emerald-400" />
+                    </div>
+                    <p className="text-[9px] text-[#8892A3] mb-0.5 uppercase font-semibold tracking-wider">Auspicious</p>
+                    <span className="text-xs font-bold text-emerald-400">{horoscope.timing.auspiciousTime.start}</span>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* ═══ 0b. Kundli Chart (South Indian Diamond) ═══ */}
+              {chartPlanets.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.05 }}
+                  className="glass-card-hero p-4 mb-4"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-[10px] font-semibold text-[#8892A3] uppercase tracking-[0.08em]">
+                      Your Birth Chart
+                    </p>
+                    <button
+                      onClick={onProfileClick}
+                      className="text-[10px] text-[#D4A054] font-medium hover:underline"
+                    >
+                      View Full Chart →
+                    </button>
+                  </div>
+                  <KundliChartSVG
+                    planets={chartPlanets}
+                    ascendantSign={ascendantSign}
+                    size={260}
+                  />
+                </motion.div>
+              )}
+
               {/* ═══ 1. Today for You — Hero Theme ═══ */}
               <div className="glass-card-hero gold-shimmer p-5 mb-4">
                 {/* Panchang badge */}
@@ -397,52 +520,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                 <ArrowRight className="w-4 h-4 text-[#D4A054]" />
               </motion.button>
 
-              {/* ═══ 6. Lucky Elements (badge layout) ═══ */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.45 }}
-                className="mb-4"
-              >
-                <p className="text-[10px] font-semibold text-[#8892A3] uppercase tracking-[0.08em] px-1 mb-2">
-                  Lucky Elements
-                </p>
-                <div className="grid grid-cols-3 gap-2">
-                  {/* Lucky Color Badge */}
-                  <div className="lucky-badge glass-card p-3 flex flex-col items-center justify-center text-center">
-                    <div className="w-8 h-8 rounded-lg mb-2 flex items-center justify-center shadow-lg" style={{
-                      backgroundColor: horoscope.lucky.colour.toLowerCase() === "white" ? "#f0f0f0" :
-                        horoscope.lucky.colour.toLowerCase() === "red" ? "#ef4444" :
-                        horoscope.lucky.colour.toLowerCase() === "green" ? "#22c55e" :
-                        horoscope.lucky.colour.toLowerCase() === "gold" ? "#D4A054" :
-                        horoscope.lucky.colour.toLowerCase() === "yellow" ? "#eab308" :
-                        horoscope.lucky.colour.toLowerCase() === "blue" ? "#3b82f6" :
-                        horoscope.lucky.colour.toLowerCase() === "black" ? "#1a1a1a" :
-                        horoscope.lucky.colour.toLowerCase()
-                    }} />
-                    <p className="text-[9px] text-[#8892A3] mb-1 uppercase font-semibold tracking-wider">{t.home.luckyColors}</p>
-                    <span className="text-xs font-bold text-[#F1F0F5]">{horoscope.lucky.colour}</span>
-                  </div>
-
-                  {/* Lucky Number Badge */}
-                  <div className="lucky-badge glass-card p-3 flex flex-col items-center justify-center text-center">
-                    <div className="w-8 h-8 rounded-lg mb-2 flex items-center justify-center bg-[#D4A054]/20 border border-[#D4A054]/30">
-                      <span className="text-sm font-bold text-[#D4A054]">{horoscope.lucky.number}</span>
-                    </div>
-                    <p className="text-[9px] text-[#8892A3] mb-1 uppercase font-semibold tracking-wider">{t.home.luckyNumbers}</p>
-                    <span className="text-xs font-bold text-[#F1F0F5]">#{horoscope.lucky.number}</span>
-                  </div>
-
-                  {/* Auspicious Time Badge */}
-                  <div className="lucky-badge glass-card p-3 flex flex-col items-center justify-center text-center">
-                    <div className="w-8 h-8 rounded-lg mb-2 flex items-center justify-center bg-emerald-500/20 border border-emerald-500/30">
-                      <Clock className="w-4 h-4 text-emerald-400" />
-                    </div>
-                    <p className="text-[9px] text-[#8892A3] mb-1 uppercase font-semibold tracking-wider">Auspicious</p>
-                    <span className="text-xs font-bold text-emerald-400">{horoscope.timing.auspiciousTime.start}</span>
-                  </div>
-                </div>
-              </motion.div>
+              {/* Lucky Elements already shown at top */}
 
               {/* ═══ 7. Saved Library ═══ */}
               <motion.button
