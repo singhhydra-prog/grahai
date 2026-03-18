@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import {
   Sparkles, ArrowRight, Heart, Briefcase, Zap,
   BookOpen, MessageCircle, ChevronRight,
-  CheckCircle, AlertTriangle, Calendar, ExternalLink, Bookmark, Clock
+  CheckCircle, AlertTriangle, Calendar, ExternalLink, Bookmark, Clock,
+  Sun, Moon, Star
 } from "lucide-react"
 import AppHeader from "@/components/ui/AppHeader"
 import KundliChartSVG from "@/components/ui/KundliChart"
@@ -33,6 +34,7 @@ interface DailyHoroscope {
   moonSign: string
   sunSign: string
   place: string
+  dashaContext?: { mahadasha: string; antardasha: string; interpretation: string }
 }
 
 interface HomeTabProps {
@@ -68,6 +70,7 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
   const [apiError, setApiError] = useState<string | null>(null)
   const [chartPlanets, setChartPlanets] = useState<Array<{ id: string; symbol: string; name: string; house: number; degree: number; isRetrograde?: boolean }>>([])
   const [ascendantSign, setAscendantSign] = useState(1)
+  const [astroMode, setAstroMode] = useState<"vedic" | "western">("vedic")
 
   useEffect(() => {
     try {
@@ -306,8 +309,44 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
                 </div>
               </motion.div>
 
-              {/* ═══ 0b. Kundli Chart (South Indian Diamond) ═══ */}
-              {chartPlanets.length > 0 && (
+              {/* ═══ 0b. Vedic / Western Toggle + Sign Chips ═══ */}
+              {(horoscope.moonSign || horoscope.sunSign) && (
+                <motion.div
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.03 }}
+                  className="mb-4"
+                >
+                  {/* Toggle */}
+                  <div className="flex gap-2 mb-3 glass-inner rounded-2xl p-1">
+                    <button onClick={() => setAstroMode("vedic")}
+                      className={`flex-1 py-2 text-xs font-medium tab-pill ${
+                        astroMode === "vedic" ? "tab-pill-active" : "text-[#8892A3]"
+                      }`}>Vedic</button>
+                    <button onClick={() => setAstroMode("western")}
+                      className={`flex-1 py-2 text-xs font-medium tab-pill ${
+                        astroMode === "western" ? "tab-pill-active" : "text-[#8892A3]"
+                      }`}>Western</button>
+                  </div>
+                  {/* Sign chips */}
+                  <div className="flex gap-2">
+                    {[
+                      { icon: Moon, label: horoscope.moonSign || "—", type: "Moon" },
+                      { icon: Sun, label: horoscope.sunSign || "—", type: "Sun" },
+                      ...(horoscope.dashaContext?.mahadasha ? [{ icon: Star, label: `${horoscope.dashaContext.mahadasha} Dasha`, type: "Dasha" }] : []),
+                    ].map((chip) => (
+                      <div key={chip.type}
+                        className="flex items-center gap-1.5 glass-inner rounded-full px-3 py-1.5">
+                        <chip.icon className="w-3 h-3 text-[#8892A3]" />
+                        <span className="text-xs text-[#ACB8C4]">{chip.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* ═══ 0c. Kundli Chart (North Indian Diamond) ═══ */}
+              {chartPlanets.length > 0 && astroMode === "vedic" && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
