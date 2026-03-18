@@ -90,7 +90,7 @@ function getWesternSunSign(dateStr: string): string {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function transformApiResponse(apiData: any, dateOfBirth: string): CosmicSnapshot {
   const snap = apiData?.snapshot
-  if (!snap) return makeFallbackSnapshot()
+  if (!snap) return makeFallbackSnapshot(dateOfBirth)
 
   return {
     profile: {
@@ -108,14 +108,42 @@ function transformApiResponse(apiData: any, dateOfBirth: string): CosmicSnapshot
   }
 }
 
-function makeFallbackSnapshot(): CosmicSnapshot {
+function makeFallbackSnapshot(dateOfBirth?: string): CosmicSnapshot {
+  // If we have a birth date, compute at least the Western sun sign and life path
+  if (dateOfBirth) {
+    const westernSign = getWesternSunSign(dateOfBirth)
+    // Approximate Vedic sign (~23 degrees behind tropical)
+    const tropicalSigns = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"]
+    const idx = tropicalSigns.indexOf(westernSign)
+    const vedicSign = idx >= 0 ? tropicalSigns[(idx + 11) % 12] : "—" // approx one sign back
+
+    // Life path from birth date
+    const dob = new Date(dateOfBirth)
+    const digits = `${dob.getDate()}${dob.getMonth() + 1}${dob.getFullYear()}`.split("").map(Number)
+    let lp = digits.reduce((a, b) => a + b, 0)
+    while (lp > 9 && lp !== 11 && lp !== 22) lp = String(lp).split("").reduce((a, b) => a + Number(b), 0)
+
+    return {
+      profile: {
+        moonSign: "Requires birth time", risingSign: "Requires birth time",
+        sunSignVedic: vedicSign,
+        sunSignWestern: westernSign,
+        nakshatra: "Requires birth time",
+        dominantTheme: `${westernSign} Sun (approx. ${vedicSign} Vedic) — Life Path ${lp}`,
+      },
+      todayInsight: `Based on your ${westernSign} Sun placement. Add your exact birth time and location for a complete personalized chart.`,
+      dominantLifeTheme: `Your Life Path ${lp} combined with ${vedicSign} Sun energy shapes your core nature. Full chart requires birth time.`,
+      suggestedFirstQuestion: `What does my ${vedicSign} Sun sign say about my personality?`,
+    }
+  }
+
   return {
     profile: {
       moonSign: "—", risingSign: "—", sunSignVedic: "—",
-      sunSignWestern: "—", nakshatra: "—", dominantTheme: "Chart data unavailable — please check your birth details"
+      sunSignWestern: "—", nakshatra: "—", dominantTheme: "Birth details needed for chart"
     },
-    todayInsight: "We could not compute your chart at this time. Please ensure your birth details are complete and try again.",
-    dominantLifeTheme: "Your chart analysis will be available after a successful computation.",
+    todayInsight: "Please provide your birth date, time, and location for personalized insights.",
+    dominantLifeTheme: "Your unique chart awaits — complete your birth details to begin.",
     suggestedFirstQuestion: "What should I focus on this month based on my chart?"
   }
 }

@@ -36,27 +36,74 @@ const DEFAULT_PROFILE: AstroProfile = {
   currentDasha: "—", dominantTheme: "Complete your birth details to see your chart",
 }
 
-// Derive strengths/sensitivities from element
-function getStrengths(element: string): { strengths: string[]; sensitivities: string[] } {
-  const data: Record<string, { strengths: string[]; sensitivities: string[] }> = {
-    Fire: {
-      strengths: ["Natural leadership and initiative", "Courage under pressure", "Infectious enthusiasm and vision"],
-      sensitivities: ["Impatience with slow processes", "Burnout from overcommitment", "Tendency to act before thinking"],
-    },
-    Earth: {
-      strengths: ["Practical decision-making", "Reliability and follow-through", "Wealth-building instincts"],
-      sensitivities: ["Resistance to change", "Over-attachment to material security", "Difficulty expressing emotions"],
-    },
-    Air: {
-      strengths: ["Excellent communication and persuasion", "Quick mental processing", "Social intelligence and adaptability"],
-      sensitivities: ["Overthinking and analysis paralysis", "Emotional detachment under stress", "Scattered energy across too many interests"],
-    },
-    Water: {
-      strengths: ["Deep emotional intelligence and empathy", "Powerful intuition and pattern recognition", "Creative and healing abilities"],
-      sensitivities: ["Absorbing others' emotional states", "Difficulty setting boundaries", "Mood fluctuations from lunar cycles"],
-    },
+// Derive strengths/sensitivities from chart data (element + nakshatra + ruling planet + moon sign)
+function getStrengths(
+  element: string,
+  nakshatraName?: string,
+  rulingPlanet?: string,
+  moonSignName?: string,
+  risingSignName?: string,
+): { strengths: string[]; sensitivities: string[] } {
+  const strengths: string[] = []
+  const sensitivities: string[] = []
+
+  // Element-based foundation (1 each)
+  const elementStrengths: Record<string, string> = {
+    Fire: "Natural leadership and courage under pressure",
+    Earth: "Practical decision-making and reliability",
+    Air: "Excellent communication and quick mental processing",
+    Water: "Deep emotional intelligence and powerful intuition",
   }
-  return data[element] || { strengths: [], sensitivities: [] }
+  const elementSensitivities: Record<string, string> = {
+    Fire: "Impatience with slow processes",
+    Earth: "Resistance to change",
+    Air: "Overthinking and analysis paralysis",
+    Water: "Absorbing others' emotional states",
+  }
+  if (elementStrengths[element]) strengths.push(elementStrengths[element])
+  if (elementSensitivities[element]) sensitivities.push(elementSensitivities[element])
+
+  // Ruling planet-specific (chart-based)
+  if (rulingPlanet) {
+    const planetStrengths: Record<string, string> = {
+      Sun: `${rulingPlanet}-ruled chart: strong sense of identity and authority`,
+      Moon: `${rulingPlanet}-ruled chart: emotional depth and nurturing instinct`,
+      Mars: `${rulingPlanet}-ruled chart: physical vitality and competitive drive`,
+      Mercury: `${rulingPlanet}-ruled chart: intellectual agility and versatile skills`,
+      Jupiter: `${rulingPlanet}-ruled chart: wisdom-seeking nature and expansive vision`,
+      Venus: `${rulingPlanet}-ruled chart: aesthetic sense and relationship magnetism`,
+      Saturn: `${rulingPlanet}-ruled chart: disciplined persistence and long-term builder`,
+    }
+    const planetSensitivities: Record<string, string> = {
+      Sun: "Ego sensitivity when authority is challenged",
+      Moon: "Mood fluctuations influenced by lunar cycles",
+      Mars: "Anger under pressure if not channeled physically",
+      Mercury: "Nervous energy from information overload",
+      Jupiter: "Overcommitment from excessive optimism",
+      Venus: "Overindulgence in comfort and pleasure",
+      Saturn: "Tendency toward pessimism during difficult phases",
+    }
+    if (planetStrengths[rulingPlanet]) strengths.push(planetStrengths[rulingPlanet])
+    if (planetSensitivities[rulingPlanet]) sensitivities.push(planetSensitivities[rulingPlanet])
+  }
+
+  // Nakshatra-specific (unique to user's birth star)
+  if (nakshatraName) {
+    strengths.push(`${nakshatraName} Nakshatra gifts: innate talents shaped by your birth star's deity and shakti`)
+  }
+
+  // Moon sign + Rising sign combination
+  if (moonSignName && risingSignName && moonSignName !== risingSignName) {
+    sensitivities.push(`${moonSignName} Moon + ${risingSignName} Rising: inner emotional world may differ from how others perceive you`)
+  } else if (moonSignName) {
+    strengths.push(`${moonSignName} Moon: emotional responses aligned with your core nature`)
+  }
+
+  // Ensure at least 3 each
+  if (strengths.length < 3) strengths.push("Unique cosmic blueprint shaping your life journey")
+  if (sensitivities.length < 3) sensitivities.push("Growth edges revealed during challenging dasha periods")
+
+  return { strengths: strengths.slice(0, 3), sensitivities: sensitivities.slice(0, 3) }
 }
 
 export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTabProps) {
@@ -99,7 +146,13 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
   const moonSignData = snap?.moonSign
   const risingSignData = snap?.risingSign
   const element = vedicSign?.element || moonSignData?.element || ""
-  const { strengths, sensitivities } = getStrengths(element)
+  const { strengths, sensitivities } = getStrengths(
+    element,
+    nakshatraData?.name,
+    snap?.rulingPlanet?.name,
+    moonSignData?.name,
+    risingSignData?.name,
+  )
 
   const toggleSection = (id: string) => {
     setExpandedSection(expandedSection === id ? null : id)
@@ -221,7 +274,9 @@ export default function MyChartTab({ onProfileClick, onAskQuestion }: MyChartTab
             <h3 className="text-sm font-semibold text-[#F1F0F5]">{t.chart.currentEnergies}</h3>
           </div>
           <p className="text-xs text-[#ACB8C4] leading-relaxed mb-3">
-            {snap?.todayTransit?.detail || "A transit of focus and discipline is active. This is a building phase — effort invested now compounds."}
+            {snap?.todayTransit?.detail || (profile.currentDasha && profile.currentDasha !== "—"
+              ? `Your ${profile.currentDasha} period shapes today's energy. Check your daily horoscope for transit details.`
+              : "Transit data unavailable — visit the Home tab to load your personalized cosmic weather.")}
           </p>
           {profile.currentDasha && (
             <div className="flex items-center gap-2 bg-[#0A0E1A]/50 rounded-lg p-2.5">

@@ -36,6 +36,24 @@ const RAHU_KAAL_SLOTS: Record<number, number> = {
   0: 8, 1: 2, 2: 7, 3: 5, 4: 6, 5: 4, 6: 3,
 }
 
+// ─── Approximate sunrise/sunset from latitude + date ────
+function approxSunriseSunset(lat: number, dayOfYear: number): { sunrise: number; sunset: number } {
+  // Simplified solar declination
+  const declination = 23.45 * Math.sin((2 * Math.PI / 365) * (dayOfYear - 81))
+  const decRad = declination * Math.PI / 180
+  const latRad = lat * Math.PI / 180
+  // Hour angle at sunrise
+  const cosH = -Math.tan(latRad) * Math.tan(decRad)
+  // Clamp for polar regions
+  const clampedCosH = Math.max(-1, Math.min(1, cosH))
+  const H = Math.acos(clampedCosH) * 180 / Math.PI
+  const daylightHours = (2 * H) / 15
+  const solarNoon = 12 // approximate
+  const sunrise = solarNoon - daylightHours / 2
+  const sunset = solarNoon + daylightHours / 2
+  return { sunrise: Math.max(4, Math.min(8, sunrise)), sunset: Math.max(16, Math.min(20, sunset)) }
+}
+
 // ─── Auspicious Time (best 1.5-hour window) ────────────
 function calculateAuspiciousTime(date: Date, sunrise = 6, sunset = 18) {
   const rahuSlot = RAHU_KAAL_SLOTS[date.getDay()]
@@ -371,6 +389,7 @@ function mapInsightToResponse(
   signName: string,
   placeOfBirth?: string,
   birthDate?: string,
+  latitude?: number,
 ) {
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
   const dateLabel = `${months[targetDate.getMonth()]} ${targetDate.getDate()}`
@@ -391,8 +410,11 @@ function mapInsightToResponse(
   const allNumbers = [...new Set([...signNumbers, moonHouseNum])]
   const numbers = allNumbers.length > 0 ? allNumbers : [7]
 
-  // Compute real auspicious time window (avoid Rahu Kaal)
-  const auspiciousTime = calculateAuspiciousTime(targetDate)
+  // Compute real auspicious time window using user's birth location for sunrise/sunset
+  const dayOfYearForSunrise = Math.floor((targetDate.getTime() - new Date(targetDate.getFullYear(), 0, 0).getTime()) / 86400000)
+  const userLat = latitude || 20 // default to India central if missing
+  const { sunrise: approxSunrise, sunset: approxSunset } = approxSunriseSunset(userLat, dayOfYearForSunrise)
+  const auspiciousTime = calculateAuspiciousTime(targetDate, approxSunrise, approxSunset)
 
   // Extract vara lord planet name from vara string like "Somavara (Monday)"
   const varaLord = extractVaraLord(insight.panchang.vara)
@@ -538,7 +560,7 @@ export async function POST(req: NextRequest) {
       }
 
       return NextResponse.json(mapInsightToResponse(
-        insight, targetDate, dayOffset, sunSign.name, placeOfBirth, birthDate,
+        insight, targetDate, dayOffset, sunSign.name, placeOfBirth, birthDate, lat,
       ))
     } catch (genErr) {
       console.error("[daily-horoscope] Personalized insight generation FAILED:", {

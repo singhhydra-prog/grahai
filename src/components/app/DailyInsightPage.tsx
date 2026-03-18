@@ -74,8 +74,8 @@ export default function DailyInsightPage({ onBack }: DailyInsightPageProps) {
         // Map API response to DailyInsightData format
         setData({
           theme: {
-            title: apiData.theme?.title || "Today's Cosmic Guidance",
-            headline: apiData.theme?.headline || "Your stars are aligning for a meaningful day.",
+            title: apiData.theme?.title || "—",
+            headline: apiData.theme?.headline || "Unable to load personalized headline — tap retry below.",
             body: apiData.theme?.whyActive || apiData.theme?.headline || "",
           },
           lifeAreas: [

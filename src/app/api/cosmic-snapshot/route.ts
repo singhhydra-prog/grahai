@@ -14,7 +14,7 @@ import {
 } from "@/lib/ephemeris/constants"
 
 // ─── Numerology: Life Path Number ──────────────────────
-function computeLifePath(date: Date): { number: number; meaning: string } {
+function computeLifePath(date: Date, moonSignName: string = "", moonSignQuality: string = ""): { number: number; meaning: string } {
   const d = date.getDate()
   const m = date.getMonth() + 1
   const y = date.getFullYear()
@@ -51,9 +51,15 @@ function computeLifePath(date: Date): { number: number; meaning: string } {
     33: "Master 33: The Master Teacher — embodies compassion and uplifts humanity through love.",
   }
 
+  let baseMeaning = meanings[lifePath] || meanings[reduceToSingle(lifePath)] || "A unique soul on a special journey."
+
+  if (moonSignName && moonSignQuality) {
+    baseMeaning += ` Combined with your ${moonSignName} Moon, this amplifies your ${moonSignQuality} nature.`
+  }
+
   return {
     number: lifePath,
-    meaning: meanings[lifePath] || meanings[reduceToSingle(lifePath)] || "A unique soul on a special journey.",
+    meaning: baseMeaning,
   }
 }
 
@@ -152,31 +158,43 @@ function getApproxRisingSign(date: Date, birthTime: string, latitude: number, lo
 }
 
 // ─── Today's Transit Vibe ──────────────────────────────
-function getTodayTransitVibe(): { vibe: string; emoji: string; detail: string } {
+function getTodayTransitVibe(userMoonSignIndex: number): { vibe: string; emoji: string; detail: string } {
   const now = new Date()
   const sunLong = getSiderealSunLongitude(now)
   const moonLong = getApproxMoonLongitude(now)
+  const daysSinceEpoch = Math.floor((now.getTime() - new Date("2000-01-01").getTime()) / 86400000)
 
   const sunSign = SIGNS[Math.floor(sunLong / 30)]
   const moonSign = SIGNS[Math.floor(moonLong / 30)]
   const dayLord = DAY_LORDS[now.getDay()]
 
+  // Use user's moon sign index combined with date to select a vibe deterministically
+  const vibeIndex = (userMoonSignIndex + daysSinceEpoch) % 3
+
   const vibes = [
     { vibe: "Expansive & Auspicious", emoji: "✨", detail: `The Sun transits ${sunSign.name} (${sunSign.sanskrit}) while the Moon illuminates ${moonSign.name}. ${dayLord.name} is ruled by ${PLANET_SANSKRIT[dayLord.lord]} — a day for ${dayLord.lord === "Jupiter" ? "wisdom and growth" : dayLord.lord === "Venus" ? "creativity and beauty" : dayLord.lord === "Saturn" ? "discipline and karma" : dayLord.lord === "Sun" ? "confidence and leadership" : dayLord.lord === "Moon" ? "intuition and nurturing" : dayLord.lord === "Mars" ? "courage and action" : "communication and learning"}.` },
+    { vibe: "Introspective & Grounding", emoji: "🌍", detail: `The Sun in ${sunSign.name} asks for reflection as the Moon aligns with ${moonSign.name}. With ${dayLord.name} governed by ${PLANET_SANSKRIT[dayLord.lord]}, this is a day for stabilizing foundations and examining your inner landscape.` },
+    { vibe: "Dynamic & Transformative", emoji: "⚡", detail: `The Sun's transit through ${sunSign.name} meets dynamic ${moonSign.name} energy. ${dayLord.name} (ruled by ${PLANET_SANSKRIT[dayLord.lord]}) invites action and positive change. Your lunar influence suggests this is a powerful moment for new initiatives.` },
   ]
 
-  return vibes[0]
+  return vibes[vibeIndex]
 }
 
 // ─── Element personality snapshot ──────────────────────
-function getElementInsight(element: string): string {
+function getElementInsight(element: string, rulingPlanet: string = "", nakshatraName: string = ""): string {
   const insights: Record<string, string> = {
     Fire: "Your soul burns bright with ambition and passion. Fire signs are natural leaders who inspire others with their enthusiasm and vision.",
     Earth: "Grounded and purposeful, you build lasting foundations. Earth signs are practical visionaries who turn dreams into tangible reality.",
     Air: "Your mind dances with ideas and connections. Air signs are the communicators and thinkers who weave the social fabric of the world.",
     Water: "Deep emotional currents guide your intuition. Water signs feel the unseen, sense the unspoken, and heal through empathy.",
   }
-  return insights[element] || "Your unique cosmic blueprint holds profound mysteries."
+  let baseInsight = insights[element] || "Your unique cosmic blueprint holds profound mysteries."
+
+  if (rulingPlanet && nakshatraName) {
+    baseInsight += ` Ruled by ${rulingPlanet}, your cosmic authority channels through ${nakshatraName} nakshatra's unique energy.`
+  }
+
+  return baseInsight
 }
 
 export async function POST(req: NextRequest) {
@@ -232,14 +250,14 @@ export async function POST(req: NextRequest) {
     const karakas = STHIRA_KARAKA[rulingPlanet]
 
     // ── Life Path Number ──
-    const lifePath = computeLifePath(date)
+    const lifePath = computeLifePath(date, moonSign.name, moonSign.quality)
 
     // ── Element & Quality ──
     const element = sunSign.element
-    const elementInsight = getElementInsight(element)
+    const elementInsight = getElementInsight(element, rulingPlanet, moonNakshatra.name)
 
     // ── Today's Transit Vibe ──
-    const transit = getTodayTransitVibe()
+    const transit = getTodayTransitVibe(moonSignIndex)
 
     // ── Day of birth insight ──
     const birthDay = date.getDay()

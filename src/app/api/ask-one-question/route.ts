@@ -54,6 +54,13 @@ const VERSE_DB: Record<string, { verse: string; source: string }[]> = {
   ],
 }
 
+/* ─── Simple deterministic hash function ─── */
+function simpleHash(str: string): number {
+  let h = 0
+  for (let i = 0; i < str.length; i++) h = ((h << 5) - h + str.charCodeAt(i)) | 0
+  return Math.abs(h)
+}
+
 /* ─── Detect category from question ─── */
 function detectCategory(q: string): string {
   const lower = q.toLowerCase()
@@ -67,12 +74,26 @@ function detectCategory(q: string): string {
 }
 
 /* ─── Generate personalized teaser answer ─── */
-function generateAnswer(question: string, sunSign: string, nakshatra: string, lifePath: number, category: string): string {
+function generateAnswer(question: string, sunSign: string, nakshatra: string, lifePath: number, category: string, latitude?: number, longitude?: number): string {
+  let houseLordHint = ""
+  if (latitude && longitude) {
+    // Add house lord insights based on category
+    if (category === "love") {
+      houseLordHint = ` Your 7th house (relationships) holds the key to understanding timing and compatibility. `
+    } else if (category === "career") {
+      houseLordHint = ` Your 10th house (career) analysis reveals the precise timing and best professional approach. `
+    } else if (category === "money") {
+      houseLordHint = ` Your 2nd and 11th houses (wealth & income) are currently activated by Jupiter's transits. `
+    } else if (category === "health") {
+      houseLordHint = ` Your 1st house (vitality) and 6th house (ailments) require specific attention in your chart. `
+    }
+  }
+
   const answers: Record<string, string> = {
-    love: `With your ${sunSign} Sun in ${nakshatra} nakshatra, your emotional nature carries deep sensitivity. As a Life Path ${lifePath}, you seek meaningful connections over surface-level attraction. The current planetary transits suggest a significant shift in your relationship dynamics within the next 3-4 months. Your Venus placement holds the key — the full reading reveals the exact timing and nature of these changes.`,
-    career: `Your ${sunSign} Sun energized by ${nakshatra} nakshatra gives you a natural aptitude for leadership and strategic thinking. Life Path ${lifePath} people often experience career breakthroughs in phases aligned with Saturn's transit cycles. The current Dasha period indicates an important professional window opening. Your 10th house analysis in the full reading reveals the precise timing and best approach.`,
-    money: `${sunSign} natives with ${nakshatra} nakshatra influence have a distinctive relationship with wealth — you tend to accumulate through knowledge and persistence rather than speculation. Your Life Path ${lifePath} amplifies this pattern. Current Jupiter transits are activating your 2nd and 11th houses, signaling a period of financial expansion. The complete Dasha analysis reveals the most auspicious months for major financial moves.`,
-    health: `Your ${sunSign} constitution, influenced by ${nakshatra} nakshatra, has specific strengths and vulnerabilities that Vedic medicine maps precisely. Life Path ${lifePath} individuals should pay particular attention to stress management during Saturn transits. The current planetary alignment suggests focusing on preventive care. Your complete chart reveals which body systems need attention and the best remedial practices.`,
+    love: `With your ${sunSign} Sun in ${nakshatra} nakshatra, your emotional nature carries deep sensitivity. As a Life Path ${lifePath}, you seek meaningful connections over surface-level attraction. The current planetary transits suggest a significant shift in your relationship dynamics within the next 3-4 months.${houseLordHint}The full reading reveals the exact timing and nature of these changes.`,
+    career: `Your ${sunSign} Sun energized by ${nakshatra} nakshatra gives you a natural aptitude for leadership and strategic thinking. Life Path ${lifePath} people often experience career breakthroughs in phases aligned with Saturn's transit cycles. The current Dasha period indicates an important professional window opening.${houseLordHint}`,
+    money: `${sunSign} natives with ${nakshatra} nakshatra influence have a distinctive relationship with wealth — you tend to accumulate through knowledge and persistence rather than speculation. Your Life Path ${lifePath} amplifies this pattern. Current Jupiter transits are activating your financial expansion.${houseLordHint}The complete Dasha analysis reveals the most auspicious months for major financial moves.`,
+    health: `Your ${sunSign} constitution, influenced by ${nakshatra} nakshatra, has specific strengths and vulnerabilities that Vedic medicine maps precisely. Life Path ${lifePath} individuals should pay particular attention to stress management during Saturn transits. The current planetary alignment suggests focusing on preventive care.${houseLordHint}Your complete chart reveals which body systems need attention and the best remedial practices.`,
     family: `As a ${sunSign} native born under ${nakshatra} nakshatra, your 4th house dynamics shape your deepest family connections. Life Path ${lifePath} carries a karmic thread related to ancestral patterns. Current Moon transits are activating emotional themes in your family sphere. The full chart analysis reveals the timing of harmonious periods and how to navigate challenging family dynamics.`,
     spiritual: `Your ${sunSign} Sun in ${nakshatra} nakshatra reveals a soul that has carried wisdom across lifetimes. Life Path ${lifePath} is deeply connected to spiritual purpose — you are drawn to seek meaning beyond the material. The current Ketu transit is amplifying your spiritual sensitivity. Your 9th and 12th house analysis in the full reading reveals your dharmic path and the practices most aligned with your cosmic blueprint.`,
   }
@@ -81,7 +102,7 @@ function generateAnswer(question: string, sunSign: string, nakshatra: string, li
 
 export async function POST(req: NextRequest) {
   try {
-    const { question, birthDate } = await req.json()
+    const { question, birthDate, latitude, longitude } = await req.json()
     if (!question || !birthDate) {
       return NextResponse.json({ error: "Missing question or birthDate" }, { status: 400 })
     }
@@ -101,11 +122,14 @@ export async function POST(req: NextRequest) {
     const lifePath = computeLifePath(date)
     const category = detectCategory(question)
 
-    const answer = generateAnswer(question, sunSign, nakshatra, lifePath, category)
+    const answer = generateAnswer(question, sunSign, nakshatra, lifePath, category, latitude, longitude)
 
-    // Pick a random verse from the category
+    // Pick verse using deterministic hash of nakshatra + category + date
+    const today = new Date().toISOString().split("T")[0]
+    const hashInput = `${nakshatra}-${category}-${today}`
+    const verseHash = simpleHash(hashInput)
     const verses = VERSE_DB[category] || VERSE_DB.career
-    const pickedVerse = verses[Math.floor(Math.random() * verses.length)]
+    const pickedVerse = verses[verseHash % verses.length]
 
     return NextResponse.json({
       answer,

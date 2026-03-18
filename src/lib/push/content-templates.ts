@@ -32,30 +32,41 @@ const ACTIVITY_EMOJI: Record<string, string> = {
 
 // ─── Generic Fallback Templates ──────────────────────────
 
-export function getGenericDailyContent(userName: string): PushContent {
-  const messages = [
-    {
-      title: "🌅 शुभ प्रभात, {name}",
-      body: "आज के ग्रहों की स्थिति आपके पक्ष में है। अपना दैनिक राशिफल देखें।",
-    },
-    {
-      title: "✨ Your Stars Today",
-      body: "Your personalized Vedic horoscope is ready. Tap to see today's cosmic guidance.",
-    },
-    {
-      title: "🪐 Cosmic Weather",
-      body: "The planets are shifting. Check your daily insights for guidance.",
-    },
-    {
-      title: "🕉️ Daily Alignment",
-      body: "Align yourself with the cosmos today. Your personalized guidance awaits.",
-    },
-  ]
+export function getGenericDailyContent(
+  userName: string,
+  dashaLord?: string,
+  moonSign?: string,
+): PushContent {
+  // If we have chart data, personalize the message
+  if (dashaLord && moonSign) {
+    const moonHindi = SIGN_NAMES_HINDI[moonSign] || moonSign
+    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000)
+    const messages = [
+      {
+        title: `🌅 शुभ प्रभात, ${userName}`,
+        body: `${moonHindi} में चंद्र — आपका ${dashaLord} दशा काल सक्रिय है। आज का राशिफल देखें।`,
+      },
+      {
+        title: `✨ ${dashaLord} Dasha Active`,
+        body: `Your ${dashaLord} period meets today's Moon in ${moonSign}. Tap for personalized guidance.`,
+      },
+      {
+        title: `🪐 ${moonSign} Moon Today`,
+        body: `During your ${dashaLord} Dasha, today's ${moonSign} transit shapes your energy. Check your horoscope.`,
+      },
+    ]
+    return {
+      title: messages[dayOfYear % messages.length].title,
+      body: messages[dayOfYear % messages.length].body,
+      url: "/daily",
+      tag: "daily",
+    }
+  }
 
-  const msg = messages[Math.floor(Math.random() * messages.length)]
+  // Fallback without chart data
   return {
-    title: msg.title.replace("{name}", userName),
-    body: msg.body,
+    title: `🌅 शुभ प्रभात, ${userName}`,
+    body: "Your personalized Vedic horoscope is ready. Tap to see today's cosmic guidance.",
     url: "/daily",
     tag: "daily",
   }
@@ -118,10 +129,19 @@ export interface WeeklyPushData {
 export function createWeeklyPushContent(data: WeeklyPushData): PushContent {
   const {
     userName,
-    dominantPlanet = "Moon",
-    weekTheme = "Balanced",
-    keyRecommendation = "Focus on steady progress",
+    dominantPlanet,
+    weekTheme,
+    keyRecommendation,
   } = data
+
+  if (!dominantPlanet || !weekTheme) {
+    return {
+      title: "🌙 Your Week Ahead",
+      body: `${userName}, your weekly Vedic forecast is ready. Tap for personalized guidance.`,
+      url: "/app",
+      tag: "weekly",
+    }
+  }
 
   const emoji =
     dominantPlanet.toLowerCase().includes("venus") ||
@@ -155,11 +175,20 @@ export interface MonthlyPushData {
 export function createMonthlyPushContent(data: MonthlyPushData): PushContent {
   const {
     userName,
-    monthName = "This Month",
-    dominantDasha = "Active Dasha",
-    monthTheme = "Transformative",
-    keyAdvice = "Stay grounded and adaptable",
+    monthName,
+    dominantDasha,
+    monthTheme,
+    keyAdvice,
   } = data
+
+  if (!dominantDasha || !monthTheme) {
+    return {
+      title: `📅 ${monthName || "Monthly"} Overview`,
+      body: `${userName}, your monthly Vedic forecast is ready. Tap for personalized guidance.`,
+      url: "/app",
+      tag: "monthly",
+    }
+  }
 
   const emoji = monthTheme.toLowerCase().includes("transform") ? "🔄" : monthTheme.toLowerCase().includes("growth") ? "🌱" : "📅"
 

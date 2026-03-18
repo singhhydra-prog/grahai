@@ -144,40 +144,130 @@ function getTransitSignificance(planet: PlanetName, house: number): "high" | "me
 }
 
 /**
- * Check Sade Sati status based on current Saturn transit and natal Moon.
+ * Get natal-chart-aware transit house effects.
+ * Checks for natal planets in the house and transiting planet's dignity.
+ */
+function getTransitHouseEffect(
+  house: number,
+  planet: PlanetName,
+  natalChart: NatalChart
+): { positive: string, negative: string } {
+  // Start with base TRANSIT_HOUSE_EFFECTS text
+  const baseEffect = TRANSIT_HOUSE_EFFECTS[house] || {
+    positive: "Generally favorable",
+    negative: "Requires caution and patience"
+  }
+
+  let enhancedPositive = baseEffect.positive
+  let enhancedNegative = baseEffect.negative
+
+  // Check if any natal planets sit in the house being transited
+  const natalPlanetsInHouse = natalChart.houses && natalChart.houses[house - 1]?.planets
+  if (natalPlanetsInHouse && natalPlanetsInHouse.length > 0) {
+    const planetList = natalPlanetsInHouse.join(", ")
+    enhancedPositive += `. Your natal ${planetList} in this house amplifies the positive effects`
+    enhancedNegative += `. Natal ${planetList} here adds intensity — channel carefully`
+  }
+
+  // Check the transiting planet's dignity relative to the sign
+  // (This would require dignity lookup; simplified for now)
+  // In a full implementation, check if planet is exalted, in own sign, friendly, etc.
+
+  return {
+    positive: enhancedPositive,
+    negative: enhancedNegative
+  }
+}
+
+/**
+ * Check Sade Sati status based on current Saturn transit, natal Moon, and overall chart strength.
  */
 function checkSadeSati(
   saturnTransitSign: number,
-  natalMoonSign: number
+  natalMoonSign: number,
+  natalChart: NatalChart
 ): SadeSatiStatus | null {
   const diff = ((saturnTransitSign - natalMoonSign) % 12 + 12) % 12
 
+  // Check Moon's dignity in natal chart
+  const natalMoon = natalChart.planets.find(p => p.name === "Moon")
+  const moonDignity = natalMoon?.dignity || "neutral"
+  const isMoonStrong = ["exalted", "own sign", "friendly"].some(d => moonDignity.toLowerCase().includes(d))
+  const isMoonWeak = ["debilitated", "enemy"].some(d => moonDignity.toLowerCase().includes(d))
+
+  // Check for Gaja Kesari Yoga (Jupiter in kendra from Moon)
+  const jupiter = natalChart.planets.find(p => p.name === "Jupiter")
+  const jupiterSignIndex = jupiter ? Math.floor(((jupiter.longitude % 360 + 360) % 360) / 30) : -1
+  const kendraHouses = [1, 4, 7, 10]
+  let hasGajaKesari = false
+
+  if (jupiterSignIndex >= 0) {
+    const jupiterHouseFromMoon = ((jupiterSignIndex - natalMoonSign + 12) % 12) + 1
+    hasGajaKesari = kendraHouses.includes(jupiterHouseFromMoon)
+  }
+
   if (diff === 11) {
     // Saturn in 12th from Moon — Rising phase
+    let advice = "Sade Sati Rising Phase: Saturn approaches your Moon sign. Increased expenses, mental restlessness, and need for patience. Focus on discipline and service. This is the preparatory phase — build resilience."
+
+    if (isMoonStrong) {
+      advice = "Sade Sati Rising Phase: Your strong natal Moon helps you navigate Saturn's approach. While expenses and restlessness may arise, your emotional resilience is your greatest asset. Focus on discipline and service to channel this period productively."
+    } else if (isMoonWeak) {
+      advice = "Sade Sati Rising Phase: Extra self-care is essential as Saturn approaches your Moon. Mental restlessness and financial pressures may feel more acute due to your Moon's vulnerability. Build a support system and lean on spiritual practices."
+    }
+
+    if (hasGajaKesari) {
+      advice += " Jupiter's protective aspect on your Moon eases some of the harder edges — trust this grace."
+    }
+
     return {
       isActive: true,
       phase: "rising",
       saturnSign: SIGNS[saturnTransitSign].name,
       moonSign: SIGNS[natalMoonSign].name,
-      advice: "Sade Sati Rising Phase: Saturn approaches your Moon sign. Increased expenses, mental restlessness, and need for patience. Focus on discipline and service. This is the preparatory phase — build resilience.",
+      advice,
     }
   } else if (diff === 0) {
     // Saturn on natal Moon — Peak phase
+    let advice = "Sade Sati Peak Phase: Saturn is transiting over your natal Moon. This is the most intense phase — emotional challenges, career restructuring, and karmic lessons. Stay grounded, avoid shortcuts, and trust the process of transformation."
+
+    if (isMoonStrong) {
+      advice = "Sade Sati Peak Phase: Saturn is transiting over your strong natal Moon. While this is the most intense phase, your inner emotional strength helps you transform challenges into wisdom. Career and life restructuring is profound but manageable with patience."
+    } else if (isMoonWeak) {
+      advice = "Sade Sati Peak Phase: This is the most challenging time for your natal Moon's vulnerability. Extra self-care, counseling, and spiritual support are essential. Emotional challenges and karmic lessons may feel overwhelming — be gentle with yourself."
+    }
+
+    if (hasGajaKesari) {
+      advice += " Jupiter's presence eases the intensity — this is a period of transformation with grace."
+    }
+
     return {
       isActive: true,
       phase: "peak",
       saturnSign: SIGNS[saturnTransitSign].name,
       moonSign: SIGNS[natalMoonSign].name,
-      advice: "Sade Sati Peak Phase: Saturn is transiting over your natal Moon. This is the most intense phase — emotional challenges, career restructuring, and karmic lessons. Stay grounded, avoid shortcuts, and trust the process of transformation.",
+      advice,
     }
   } else if (diff === 1) {
     // Saturn in 2nd from Moon — Setting phase
+    let advice = "Sade Sati Setting Phase: Saturn is leaving your Moon sign area. Financial pressures ease, but watch speech and family matters. The lessons of Sade Sati are crystallizing — integrate what you have learned."
+
+    if (isMoonStrong) {
+      advice = "Sade Sati Setting Phase: Saturn is leaving your Moon sign area. Your strong natal Moon has carried you through — now integrate the wisdom gained. Financial and emotional relief begins, and you emerge stronger."
+    } else if (isMoonWeak) {
+      advice = "Sade Sati Setting Phase: Saturn is leaving your vulnerable Moon — relief is coming. Continue self-care practices and allow the integration of hard lessons. Healing accelerates now."
+    }
+
+    if (hasGajaKesari) {
+      advice += " Jupiter's protective aspect blesses your exit from this cycle."
+    }
+
     return {
       isActive: true,
       phase: "setting",
       saturnSign: SIGNS[saturnTransitSign].name,
       moonSign: SIGNS[natalMoonSign].name,
-      advice: "Sade Sati Setting Phase: Saturn is leaving your Moon sign area. Financial pressures ease, but watch speech and family matters. The lessons of Sade Sati are crystallizing — integrate what you have learned.",
+      advice,
     }
   }
 
@@ -243,16 +333,16 @@ export async function analyzeTransits(
       }
     }
 
-    // Generate effect description
-    const houseEffect = TRANSIT_HOUSE_EFFECTS[houseFromMoon]
+    // Generate effect description using natal-chart-aware function
+    const houseEffect = getTransitHouseEffect(houseFromMoon, planet, natalChart)
     let effect: string
 
     if (isBeneficTransit && !isVedhaBlocked) {
-      effect = `${planet} in ${houseFromMoon}th from Moon (${SIGNS[transitSignIndex].name}): ${houseEffect?.positive || "Generally favorable"}`
+      effect = `${planet} in ${houseFromMoon}th from Moon (${SIGNS[transitSignIndex].name}): ${houseEffect.positive}`
     } else if (isBeneficTransit && isVedhaBlocked) {
       effect = `${planet} in ${houseFromMoon}th from Moon (${SIGNS[transitSignIndex].name}): Benefits blocked by Vedha from ${vedhaBy} in ${transitHouseFromMoon[vedhaBy!]}th house`
     } else {
-      effect = `${planet} in ${houseFromMoon}th from Moon (${SIGNS[transitSignIndex].name}): ${houseEffect?.negative || "Requires caution and patience"}`
+      effect = `${planet} in ${houseFromMoon}th from Moon (${SIGNS[transitSignIndex].name}): ${houseEffect.negative}`
     }
 
     if (tp.retrograde) {
@@ -280,7 +370,7 @@ export async function analyzeTransits(
   let sadeSatiStatus: SadeSatiStatus | null = null
   if (saturnTransit) {
     const saturnSignIndex = Math.floor(((saturnTransit.longitude % 360 + 360) % 360) / 30)
-    sadeSatiStatus = checkSadeSati(saturnSignIndex, natalMoonSignIndex)
+    sadeSatiStatus = checkSadeSati(saturnSignIndex, natalMoonSignIndex, natalChart)
   }
 
   // Determine overall trend

@@ -111,12 +111,44 @@ const DASHA_THEMES: Record<string, string> = {
   Ketu: "A spiritual and introspective period. Detachment from material desires. Past-life karmas surface. Good for meditation, research, and occult studies.",
 }
 
-function getDashaInterpretation(maha: string, antar: string): string {
-  const mahaTheme = DASHA_THEMES[maha] || "A transformative period."
-  const antarTheme = DASHA_THEMES[antar]
-    ? `Within this, ${antar}'s sub-period brings: ${DASHA_THEMES[antar].split(". ").slice(0, 2).join(". ")}.`
-    : ""
-  return `${mahaTheme} ${antarTheme}`
+function getDashaInterpretation(maha: string, antar: string, natalChart: NatalChart): string {
+  // House signification mapping
+  const houseSignifications: Record<number, string> = {
+    1: "self/body", 2: "wealth/family", 3: "courage/siblings", 4: "home/mind",
+    5: "creativity/children", 6: "health/enemies", 7: "partnership/marriage",
+    8: "transformation/obstacles", 9: "fortune/dharma", 10: "career/status",
+    11: "gains/aspirations", 12: "loss/spirituality"
+  }
+
+  // Find mahadasha planet in natal chart
+  const mahaPlanet = natalChart.planets.find(p => p.name === maha)
+  let mahaInterpretation = DASHA_THEMES[maha] || "A transformative period."
+
+  if (mahaPlanet) {
+    // Find which houses the mahadasha planet lords over
+    const loredHouses = natalChart.houses.filter(h => h.lord === maha)
+    const houseNumbers = loredHouses.map(h => h.number).join(", ")
+    const houseSignifs = loredHouses.map(h => houseSignifications[h.number]).join(", ")
+
+    const dignity = mahaPlanet.dignity || "neutral"
+    mahaInterpretation = `${maha} as lord of house ${houseNumbers} (${houseSignifs}) in your ${dignity} placement — ${DASHA_THEMES[maha] || "a transformative period."}`
+  }
+
+  // Find antardasha planet and add its interpretation
+  let antarTheme = ""
+  const antarPlanet = natalChart.planets.find(p => p.name === antar)
+  if (antarPlanet) {
+    const antarLoredHouses = natalChart.houses.filter(h => h.lord === antar)
+    const antarHouseNum = antarLoredHouses.length > 0 ? antarLoredHouses[0].number : 0
+    const antarDignity = antarPlanet.dignity || "neutral"
+    antarTheme = `Within this, ${antar} as ${antarDignity} ${antarHouseNum}th lord brings: ${DASHA_THEMES[antar]?.split(". ").slice(0, 2).join(". ") || "focused energy"}.`
+  } else {
+    antarTheme = DASHA_THEMES[antar]
+      ? `Within this, ${antar}'s sub-period brings: ${DASHA_THEMES[antar].split(". ").slice(0, 2).join(". ")}.`
+      : ""
+  }
+
+  return `${mahaInterpretation} ${antarTheme}`
 }
 
 // ─── Activity Recommendations ───────────────────────────
@@ -221,16 +253,45 @@ function getActivityRecommendations(
 
 function selectDailyRemedy(
   dayOfWeek: number,
-  activeMahadasha: string
+  activeMahadasha: string,
+  natalChart: NatalChart
 ): DailyInsight["dailyRemedy"] {
+  // Find the weakest planet
+  let weakestPlanet: string | null = null
+
+  // 1. Check for debilitated planets (highest priority)
+  const debilitatedPlanets = natalChart.planets.filter(p => p.isDebilitated === true)
+  if (debilitatedPlanets.length > 0) {
+    weakestPlanet = debilitatedPlanets[0].name
+  }
+
+  // 2. Check for planets in enemy dignity (second priority)
+  if (!weakestPlanet) {
+    const enemyPlanets = natalChart.planets.filter(p => p.dignity === "enemy")
+    if (enemyPlanets.length > 0) {
+      weakestPlanet = enemyPlanets[0].name
+    }
+  }
+
+  // 3. Check for planets in houses 6, 8, or 12 (third priority)
+  if (!weakestPlanet) {
+    const afflictedPlanets = natalChart.planets.filter(p => [6, 8, 12].includes(p.house))
+    if (afflictedPlanets.length > 0) {
+      weakestPlanet = afflictedPlanets[0].name
+    }
+  }
+
   // Map weekdays to ruling planets
   const dayPlanets: PlanetName[] = [
     "Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn",
   ]
   const dayPlanet = dayPlanets[dayOfWeek]
 
-  // Alternate between day planet remedy and dasha lord remedy
-  const planet = dayOfWeek % 2 === 0 ? dayPlanet : (activeMahadasha as PlanetName)
+  // Use weakest planet on odd days, dasha lord on even days
+  const planet = dayOfWeek % 2 === 1 && weakestPlanet
+    ? (weakestPlanet as PlanetName)
+    : (activeMahadasha as PlanetName)
+
   const remedySet = PLANET_REMEDIES[planet]
   if (!remedySet) {
     return {
@@ -303,8 +364,36 @@ const BPHS_DAILY_VERSES = [
   { source: "Saravali", chapter: 30, topic: "Female Horoscopy", insight: "The 7th and 8th houses, Venus, Jupiter, and Moon together paint the picture of married life. A well-placed Jupiter protects marriage through wisdom." },
 ]
 
-function getDailyBPHSVerse(dayOfYear: number): DailyInsight["bphsVerse"] {
-  return BPHS_DAILY_VERSES[dayOfYear % BPHS_DAILY_VERSES.length]
+function getDailyBPHSVerse(dayOfYear: number, mahadasha: string, nakshatraName: string): DailyInsight["bphsVerse"] {
+  // Topic priority based on mahadasha
+  const topicPriorities: Record<string, string[]> = {
+    Saturn: ["Doshas", "Remedies", "Dasha Effects", "Transit"],
+    Rahu: ["Doshas", "Remedies", "Dasha Effects", "Transit"],
+    Ketu: ["Doshas", "Remedies", "Dasha Effects", "Transit"],
+    Jupiter: ["Raj Yoga", "Pancha Mahapurusha", "Yogas", "Nature of Planets"],
+    Venus: ["Raj Yoga", "Pancha Mahapurusha", "Yogas", "Nature of Planets"],
+    Sun: ["House Meanings", "Nature of Planets", "Dignity", "Dasha Effects"],
+    Mars: ["House Meanings", "Nature of Planets", "Dignity", "Dasha Effects"],
+    Moon: ["Nakshatras", "Hora", "Divisional Charts", "Nature of Planets"],
+    Mercury: ["Nakshatras", "Hora", "Divisional Charts", "Nature of Planets"],
+  }
+
+  const priorities = topicPriorities[mahadasha] || []
+
+  // Filter verses by topic priority
+  let filtered = BPHS_DAILY_VERSES
+  if (priorities.length > 0) {
+    filtered = BPHS_DAILY_VERSES.filter(v => priorities.includes(v.topic))
+  }
+
+  // If no matches, fall back to full pool with hash including nakshatra
+  if (filtered.length === 0) {
+    filtered = BPHS_DAILY_VERSES
+    const hash = Array.from(mahadasha + nakshatraName).reduce((acc, char) => acc + char.charCodeAt(0), dayOfYear)
+    return BPHS_DAILY_VERSES[hash % BPHS_DAILY_VERSES.length]
+  }
+
+  return filtered[dayOfYear % filtered.length]
 }
 
 // ─── Headline Generator ─────────────────────────────────
@@ -312,12 +401,13 @@ function getDailyBPHSVerse(dayOfYear: number): DailyInsight["bphsVerse"] {
 function generateHeadline(
   transitAnalysis: FullTransitAnalysis,
   panchang: Panchang,
-  mahadasha: string
+  mahadasha: string,
+  birthDate: string
 ): string {
   const trend = transitAnalysis.overallTrend
   const tithiName = panchang.tithi.name
   const yogaName = panchang.yoga.name
-  const dayOfMonth = new Date().getDate()
+  const dateStr = new Date().toISOString().split("T")[0]
 
   // Check for special days (Purnima, Amavasya, Ekadashi)
   const isSpecial = tithiName.includes("Purnima") || tithiName.includes("Amavasya") || tithiName.includes("Ekadashi")
@@ -326,14 +416,18 @@ function generateHeadline(
     return `${tithiName} — a sacred day during your ${mahadasha} Mahadasha.`
   }
 
-  // Use day-of-month to rotate templates so headlines vary day-to-day
+  // Create a hash from dateStr + birthDate + mahadasha for user-specific headline rotation
+  const hashInput = dateStr + birthDate + mahadasha
+  const hash = Array.from(hashInput).reduce((acc, char) => acc + char.charCodeAt(0), 0)
+
+  // Use hash to rotate templates so different users get different headlines
   if (trend === "favorable") {
     const pool = [
       `${mahadasha} Dasha aligns with today's transits — favorable energy for action.`,
       `Strong day ahead — ${mahadasha} period amplifies today's ${yogaName} Yoga.`,
       `Positive transit window during your ${mahadasha} Mahadasha — make it count.`,
     ]
-    return pool[dayOfMonth % pool.length]
+    return pool[hash % pool.length]
   }
 
   if (trend === "challenging") {
@@ -342,7 +436,7 @@ function generateHeadline(
       `Today's transits test your ${mahadasha} period — move thoughtfully.`,
       `${yogaName} Yoga + ${mahadasha} Dasha: a day for inner work over outer action.`,
     ]
-    return pool[dayOfMonth % pool.length]
+    return pool[hash % pool.length]
   }
 
   const pool = [
@@ -350,7 +444,7 @@ function generateHeadline(
     `Balanced energy today during ${mahadasha} period — trust your rhythm.`,
     `${yogaName} Yoga in your ${mahadasha} phase — read before you leap.`,
   ]
-  return pool[dayOfMonth % pool.length]
+  return pool[hash % pool.length]
 }
 
 // ─── Main Generator ─────────────────────────────────────
@@ -418,13 +512,13 @@ export async function generateDailyInsight(
   )
 
   // 8. Daily remedy
-  const dailyRemedy = selectDailyRemedy(targetDate.getDay(), currentMaha)
+  const dailyRemedy = selectDailyRemedy(targetDate.getDay(), currentMaha, natalChart)
 
   // 9. BPHS verse
-  const bphsVerse = getDailyBPHSVerse(dayOfYear)
+  const bphsVerse = getDailyBPHSVerse(dayOfYear, currentMaha, panchang.nakshatra.name)
 
   // 10. Headline
-  const headline = generateHeadline(transitAnalysis, panchang, currentMaha)
+  const headline = generateHeadline(transitAnalysis, panchang, currentMaha, birthDetails.date)
 
   return {
     userId,
@@ -464,7 +558,7 @@ export async function generateDailyInsight(
       mahadasha: currentMaha,
       antardasha: currentAntar,
       pratyantardasha: null, // Would need deeper dasha calculation
-      interpretation: getDashaInterpretation(currentMaha, currentAntar),
+      interpretation: getDashaInterpretation(currentMaha, currentAntar, natalChart),
     },
 
     dailyRemedy,
