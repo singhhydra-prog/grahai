@@ -21,12 +21,12 @@ interface OnboardingFlowProps {
 }
 
 const STEPS = [
-  { id: "language" },         // 0
-  { id: "welcome-trust" },    // 1 — merged welcome + trust
-  { id: "intent" },           // 2
-  { id: "birth" },            // 3
-  { id: "reveal" },           // 4
-  { id: "first-question" },   // 5
+  { id: "splash" },           // 0 — logo + tagline + language dropdown
+  { id: "trust" },            // 1 — trust cards (why GrahAI)
+  { id: "intent" },           // 2 — what brings you here?
+  { id: "birth" },            // 3 — birth details form
+  { id: "reveal" },           // 4 — cosmic snapshot
+  { id: "first-question" },   // 5 — ask GrahAI
 ]
 
 // Intent-based suggested questions for the first-question step
@@ -165,19 +165,12 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [firstQuestion, setFirstQuestion] = useState("")
   const questionInputRef = useRef<HTMLInputElement>(null)
 
-  // Auto-focus question input when reaching step 5
+  // Auto-focus question input when reaching step 5 (first-question)
   useEffect(() => {
     if (step === 5 && questionInputRef.current) {
       setTimeout(() => questionInputRef.current?.focus(), 600)
     }
   }, [step])
-
-  // Auto-advance after language selection
-  useEffect(() => {
-    if (step === 0 && lang) {
-      setTimeout(() => setStep(1), 300)
-    }
-  }, [lang, step])
 
   const INTENTS: { id: IntentCategory; label: string; Icon: typeof Briefcase; color: string }[] = [
     { id: "career", label: t.onboarding.intentCareer, Icon: Briefcase, color: "from-amber-500/20 to-amber-600/10" },
@@ -196,8 +189,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   ]
 
   const canProceed = useCallback(() => {
-    if (step === 0) return true // language picker
-    if (step === 1) return true // welcome-trust
+    if (step === 0) return !!lang // splash — need language selected
+    if (step === 1) return true // trust cards
     if (step === 2) return intent !== null // intent
     if (step === 3) {
       return form.name.trim().length >= 2 && form.dateOfBirth && form.placeOfBirth.trim() && (timeUnknown || form.timeOfBirth)
@@ -205,12 +198,24 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     if (step === 4) return true // reveal
     if (step === 5) return true // first question (optional)
     return false
-  }, [step, intent, form, timeUnknown])
+  }, [step, lang, intent, form, timeUnknown])
 
   const handleNext = async () => {
-    // Step 0: Language picker — auto-advances via useEffect
+    // Step 0: Splash → trust cards
     if (step === 0) {
       setStep(1)
+      return
+    }
+
+    // Step 1: Trust cards → intent
+    if (step === 1) {
+      setStep(2)
+      return
+    }
+
+    // Step 2: Intent → birth details
+    if (step === 2) {
+      setStep(3)
       return
     }
 
@@ -298,7 +303,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   }
 
   const handleBack = () => {
-    if (step > 0 && step <= 3) setStep(step - 1)
+    if (step > 0 && step <= 3) setStep(step - 1) // can go back through trust, intent, birth
   }
 
   const handleSelectSuggestion = (q: string) => {
@@ -337,7 +342,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex flex-col"
     >
-      {/* Progress dots — show for steps 1-3 (welcome-trust, intent, birth) */}
+      {/* Progress dots — show for steps 1-3 (trust, intent, birth) */}
       {step >= 1 && step <= 3 && (
         <div className="px-6 pt-4 pb-2">
           <div className="flex gap-2">
@@ -368,70 +373,15 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       <div className="flex-1 flex flex-col items-center justify-center px-6 overflow-y-auto">
         <AnimatePresence mode="wait">
 
-          {/* ═══ Step 0: Language Picker ═══ */}
+          {/* ═══ Step 0: Splash — Logo + Tagline + Language Dropdown ═══ */}
           {step === 0 && (
             <motion.div
-              key="language"
+              key="splash"
               variants={slideVariants} initial="enter" animate="center" exit="exit"
               className="w-full max-w-sm"
             >
-              <div className="text-center mb-8">
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.2, type: "spring" }}
-                  className="w-14 h-14 rounded-full bg-[#D4A054]/10 flex items-center justify-center mx-auto mb-4"
-                >
-                  <Globe className="w-7 h-7 text-[#D4A054]" />
-                </motion.div>
-                <h2 className="text-2xl font-bold text-[#F1F0F5] mb-2">
-                  {t.langPicker.title}
-                </h2>
-                <p className="text-sm text-[#8892A3]">
-                  {t.langPicker.subtitle}
-                </p>
-              </div>
-
-              {/* 3-column grid of language cards */}
-              <div className="grid grid-cols-3 gap-3 mb-6">
-                {LANGUAGES.map((langMeta, i) => (
-                  <motion.button
-                    key={langMeta.code}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.1 + i * 0.05 }}
-                    onClick={() => setLanguage(langMeta.code as Language)}
-                    className={`p-4 rounded-xl border-2 transition-all duration-200 text-center ${
-                      lang === langMeta.code
-                        ? "border-[#D4A054] bg-[#D4A054]/5"
-                        : "border-[#1E293B] bg-[#111827] hover:border-[#1E293B]/80"
-                    }`}
-                  >
-                    <p className={`text-sm font-semibold mb-1 ${
-                      lang === langMeta.code ? "text-[#D4A054]" : "text-[#F1F0F5]"
-                    }`}>
-                      {langMeta.label}
-                    </p>
-                    <p className={`text-xs ${
-                      lang === langMeta.code ? "text-[#D4A054]/80" : "text-[#8892A3]"
-                    }`}>
-                      {langMeta.labelEn}
-                    </p>
-                  </motion.button>
-                ))}
-              </div>
-            </motion.div>
-          )}
-
-          {/* ═══ Step 1: Welcome + Trust (merged) ═══ */}
-          {step === 1 && (
-            <motion.div
-              key="welcome-trust"
-              variants={slideVariants} initial="enter" animate="center" exit="exit"
-              className="w-full max-w-sm"
-            >
-              {/* ── Grah AI Brand with orange triangle ── */}
               <div className="text-center">
+                {/* GrahAI Logo */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.7 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -440,28 +390,12 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 >
                   <span
                     className="text-[3.5rem] sm:text-[4.5rem] font-extrabold tracking-tight text-white"
-                    style={{
-                      fontFamily: "Inter, system-ui, sans-serif",
-                      textShadow: "0 0 18px rgba(255,255,255,0.15)",
-                      lineHeight: 1,
-                    }}
+                    style={{ fontFamily: "Inter, system-ui, sans-serif", textShadow: "0 0 18px rgba(255,255,255,0.15)", lineHeight: 1 }}
                   >
                     Grah{" "}
                   </span>
                   <span className="relative inline-block">
-                    <svg
-                      className="absolute"
-                      style={{
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        width: "130%",
-                        height: "110%",
-                        filter: "drop-shadow(0 0 30px rgba(255,102,0,0.5))",
-                      }}
-                      viewBox="0 0 100 90"
-                      preserveAspectRatio="none"
-                    >
+                    <svg className="absolute" style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "130%", height: "110%", filter: "drop-shadow(0 0 30px rgba(255,102,0,0.5))" }} viewBox="0 0 100 90" preserveAspectRatio="none">
                       <defs>
                         <linearGradient id="triGrad" x1="50%" y1="0%" x2="50%" y2="100%">
                           <stop offset="0%" stopColor="#FF8800" />
@@ -472,35 +406,69 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                       <polygon points="50,2 98,88 2,88" fill="url(#triGrad)" />
                       <polygon points="50,32 72,74 28,74" fill="rgba(255,180,80,0.15)" />
                     </svg>
-                    <span
-                      className="relative z-10 text-[3.5rem] sm:text-[4.5rem] font-extrabold tracking-tight text-white"
-                      style={{
-                        fontFamily: "Inter, system-ui, sans-serif",
-                        textShadow: "0 0 10px rgba(255,136,0,0.4)",
-                        lineHeight: 1,
-                      }}
-                    >
+                    <span className="relative z-10 text-[3.5rem] sm:text-[4.5rem] font-extrabold tracking-tight text-white" style={{ fontFamily: "Inter, system-ui, sans-serif", textShadow: "0 0 10px rgba(255,136,0,0.4)", lineHeight: 1 }}>
                       AI
                     </span>
                   </span>
                 </motion.div>
 
-                <h1 className="text-2xl font-bold text-[#F1F0F5] mb-2 tracking-tight">
+                {/* Tagline */}
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                  className="text-lg text-[#ACB8C4] font-medium tracking-wide mb-10"
+                >
+                  Your stars, your path
+                </motion.p>
+
+                {/* Language Dropdown */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.8 }}
+                  className="mb-6"
+                >
+                  <p className="text-xs text-[#8892A3] mb-2 uppercase tracking-wider font-semibold">Choose Language</p>
+                  <select
+                    value={lang}
+                    onChange={(e) => setLanguage(e.target.value as Language)}
+                    className="w-full px-4 py-3 rounded-xl bg-[#111827] border border-[#1E293B] text-[#F1F0F5] text-sm
+                      focus:border-[#D4A054] focus:outline-none appearance-none cursor-pointer"
+                    style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238892A3' d='M6 8L1 3h10z'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center" }}
+                  >
+                    {LANGUAGES.map((l) => (
+                      <option key={l.code} value={l.code}>{l.label} — {l.labelEn}</option>
+                    ))}
+                  </select>
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ═══ Step 1: Trust Cards ═══ */}
+          {step === 1 && (
+            <motion.div
+              key="trust"
+              variants={slideVariants} initial="enter" animate="center" exit="exit"
+              className="w-full max-w-sm"
+            >
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-[#F1F0F5] mb-2">
                   {t.onboarding.welcomeSubtitle}
-                </h1>
-                <p className="text-sm text-[#ACB8C4] leading-relaxed mb-6">
+                </h2>
+                <p className="text-sm text-[#ACB8C4] leading-relaxed">
                   {t.onboarding.welcomeDesc}
                 </p>
               </div>
 
-              {/* Trust cards — integrated into welcome */}
               <div className="space-y-3">
                 {TRUST_CARDS.map(({ Icon, title, desc }, i) => (
                   <motion.div
                     key={title}
                     initial={{ opacity: 0, x: -12 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 + i * 0.12 }}
+                    transition={{ delay: 0.2 + i * 0.12 }}
                     className="flex gap-3 p-3.5 rounded-xl bg-[#111827] border border-[#1E293B]"
                   >
                     <div className="w-9 h-9 rounded-lg bg-[#D4A054]/10 flex items-center justify-center shrink-0">
@@ -524,12 +492,9 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               className="w-full max-w-sm"
             >
               <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-[#F1F0F5] mb-2">
-                  {t.onboarding.intentTitle}
+                <h2 className="text-2xl font-bold text-[#F1F0F5]">
+                  What brings you here today?
                 </h2>
-                <p className="text-sm text-[#8892A3]">
-                  {t.onboarding.intentSubtitle}
-                </p>
               </div>
 
               <div className="space-y-2.5">
