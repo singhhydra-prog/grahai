@@ -453,7 +453,13 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               variants={slideVariants} initial="enter" animate="center" exit="exit"
               className="w-full max-w-sm"
             >
-              <div className="space-y-3 mt-4">
+              <div className="text-center mb-6">
+                <p className="text-sm text-[#ACB8C4] leading-relaxed">
+                  {t.onboarding.welcomeDesc}
+                </p>
+              </div>
+
+              <div className="space-y-3">
                 {TRUST_CARDS.map(({ Icon, title, desc }, i) => (
                   <motion.div
                     key={title}
