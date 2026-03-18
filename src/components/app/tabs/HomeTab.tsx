@@ -136,26 +136,28 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
       }
     } catch {}
 
-    // 2. No cache — try API (only if we have full birth data)
-    if (!birthData?.dateOfBirth || !birthData?.timeOfBirth || !birthData?.latitude || !birthData?.longitude) return
+    // 2. No cache — try API using same format as ProfileTab
+    if (!birthData?.dateOfBirth || !birthData?.latitude || !birthData?.longitude) return
     const fetchChart = async () => {
       try {
         const res = await fetch("/api/reports/generate-code", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            reportType: "birth-chart",
-            birthDate: birthData.dateOfBirth,
-            birthTime: birthData.timeOfBirth,
-            placeOfBirth: birthData.placeOfBirth,
-            latitude: birthData.latitude,
-            longitude: birthData.longitude,
-            timezone: birthData.timezone,
-            name: birthData.name,
+            reportType: "love-compat",
+            birthDetails: {
+              date: birthData.dateOfBirth,
+              time: birthData.timeOfBirth || "12:00",
+              place: birthData.placeOfBirth || "Unknown",
+              latitude: birthData.latitude,
+              longitude: birthData.longitude,
+              timezone: birthData.timezone,
+            },
+            name: birthData.name || "Native",
           }),
         })
         const data = await res.json()
-        if (res.ok && data.chartData) {
+        if (res.ok && data.success && data.chartData) {
           const cd = data.chartData
           if (cd.planets?.length > 0) {
             setChartPlanets(cd.planets.map((p: { id: string; symbol: string; name: string; house: number; degree: number; isRetrograde?: boolean }) => ({
@@ -164,7 +166,15 @@ export default function HomeTab({ onAskQuestion, onProfileClick, onViewReports }
             })))
             if (cd.ascendantSign) setAscendantSign(cd.ascendantSign)
             // Cache for next time
-            try { localStorage.setItem("grahai-chart-cache", JSON.stringify(cd)) } catch {}
+            try {
+              localStorage.setItem("grahai-chart-cache", JSON.stringify({
+                planets: cd.planets,
+                ascendantSign: cd.ascendantSign,
+                moonSign: cd.moonSign,
+                sunSign: cd.sunSign,
+                ascendantName: cd.ascendantName,
+              }))
+            } catch {}
           }
         }
       } catch {
