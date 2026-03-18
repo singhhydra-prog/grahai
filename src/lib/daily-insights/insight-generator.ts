@@ -128,12 +128,18 @@ function getActivityRecommendations(
   const favorable: string[] = []
   const unfavorable: string[] = []
 
-  // Based on overall transit trend
+  // Based on overall transit trend + specific transit houses
+  const moonHouse = transitAnalysis.transits.find(t => t.planet === "Moon")?.houseFromMoon || 0
   if (transitAnalysis.overallTrend === "favorable") {
     favorable.push("Starting new ventures", "Important meetings", "Financial decisions")
+    // Add house-specific favorable activity
+    if ([1, 10].includes(moonHouse)) favorable.push("Leadership and public-facing work")
+    if ([5, 9].includes(moonHouse)) favorable.push("Creative projects and learning")
+    if ([2, 11].includes(moonHouse)) favorable.push("Revenue-related discussions")
   } else if (transitAnalysis.overallTrend === "challenging") {
     unfavorable.push("Starting new ventures", "Major financial commitments")
     favorable.push("Completing pending work", "Introspection and planning")
+    if ([6, 8, 12].includes(moonHouse)) favorable.push("Healing practices and research")
   }
 
   // Based on tithi auspiciousness
@@ -285,22 +291,42 @@ function generateHeadline(
   mahadasha: string
 ): string {
   const trend = transitAnalysis.overallTrend
-  // Check for special days (Purnima, Amavasya, Ekadashi)
   const tithiName = panchang.tithi.name
+  const yogaName = panchang.yoga.name
+  const dayOfMonth = new Date().getDate()
+
+  // Check for special days (Purnima, Amavasya, Ekadashi)
   const isSpecial = tithiName.includes("Purnima") || tithiName.includes("Amavasya") || tithiName.includes("Ekadashi")
 
   if (isSpecial) {
-    return `${tithiName} — A sacred day during your ${mahadasha} Mahadasha period.`
+    return `${tithiName} — a sacred day during your ${mahadasha} Mahadasha.`
   }
 
-  switch (trend) {
-    case "favorable":
-      return `Favorable transits today — ${mahadasha} Dasha supports positive momentum.`
-    case "challenging":
-      return `Navigate today with patience — ${mahadasha} Dasha calls for mindful action.`
-    default:
-      return `Mixed energies today — balance activity with reflection during ${mahadasha} Dasha.`
+  // Use day-of-month to rotate templates so headlines vary day-to-day
+  if (trend === "favorable") {
+    const pool = [
+      `${mahadasha} Dasha aligns with today's transits — favorable energy for action.`,
+      `Strong day ahead — ${mahadasha} period amplifies today's ${yogaName} Yoga.`,
+      `Positive transit window during your ${mahadasha} Mahadasha — make it count.`,
+    ]
+    return pool[dayOfMonth % pool.length]
   }
+
+  if (trend === "challenging") {
+    const pool = [
+      `${mahadasha} Dasha meets resistance today — patience is your strength.`,
+      `Today's transits test your ${mahadasha} period — move thoughtfully.`,
+      `${yogaName} Yoga + ${mahadasha} Dasha: a day for inner work over outer action.`,
+    ]
+    return pool[dayOfMonth % pool.length]
+  }
+
+  const pool = [
+    `${mahadasha} Dasha meets mixed signals — selective action wins.`,
+    `Balanced energy today during ${mahadasha} period — trust your rhythm.`,
+    `${yogaName} Yoga in your ${mahadasha} phase — read before you leap.`,
+  ]
+  return pool[dayOfMonth % pool.length]
 }
 
 // ─── Main Generator ─────────────────────────────────────

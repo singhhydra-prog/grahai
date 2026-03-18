@@ -79,20 +79,40 @@ const LUCKY_NUMBERS: Record<string, number[]> = {
 }
 
 // ─── Generate a distinct, chart-specific theme title ──
-function generateThemeTitle(insight: DailyInsight, targetDate: Date): string {
-  const seed = targetDate.getFullYear() * 10000 + (targetDate.getMonth() + 1) * 100 + targetDate.getDate()
+// Seed includes birth data so different users get different titles on the same day
+function hashSeed(str: string): number {
+  let h = 0
+  for (let i = 0; i < str.length; i++) {
+    h = ((h << 5) - h + str.charCodeAt(i)) | 0
+  }
+  return Math.abs(h)
+}
+
+function generateThemeTitle(insight: DailyInsight, targetDate: Date, birthDate?: string): string {
+  // Combine date + user birth data so each person gets a unique title
+  const dateStr = `${targetDate.getFullYear()}-${targetDate.getMonth()}-${targetDate.getDate()}`
+  const userStr = `${insight.dashaContext.mahadasha}-${insight.moonTransit.currentSign}-${insight.moonTransit.houseFromMoon}-${birthDate || ""}`
+  const seed = hashSeed(dateStr + userStr)
+
   const moonSign = insight.moonTransit.currentSign
   const mahadasha = insight.dashaContext.mahadasha
+  const antardasha = insight.dashaContext.antardasha
+  const nakshatra = insight.moonTransit.nakshatra
+  const house = insight.moonTransit.houseFromMoon
   const trend = insight.overallTrend
 
-  // Titles keyed to the actual transit trend + moon sign + dasha lord
   if (trend === "favorable") {
     const pool = [
       `${mahadasha}'s Blessing in ${moonSign}`,
-      `A Day of Momentum`,
       `${moonSign} Moon Opens Doors`,
-      `Clarity and Confidence`,
-      `Cosmic Wind at Your Back`,
+      `${nakshatra} Illuminates Your Path`,
+      `House ${house} Activates — Momentum Builds`,
+      `${antardasha} Sub-period Fuels Growth`,
+      `Clarity Under ${moonSign}'s Light`,
+      `${mahadasha}–${antardasha}: A Window Opens`,
+      `Your ${moonSign} Transit Shines Today`,
+      `Cosmic Alignment in House ${house}`,
+      `${nakshatra}'s Gift to Your ${mahadasha} Phase`,
     ]
     return pool[seed % pool.length]
   }
@@ -100,21 +120,31 @@ function generateThemeTitle(insight: DailyInsight, targetDate: Date): string {
   if (trend === "challenging") {
     const pool = [
       `Patience Under ${mahadasha}'s Watch`,
-      `Navigate with Awareness`,
       `${moonSign} Moon Asks for Stillness`,
-      `A Day for Inner Strength`,
-      `Steady Through the Storm`,
+      `${nakshatra} Calls for Reflection`,
+      `House ${house} Tests — Grow Through It`,
+      `${antardasha} Sub-period: Navigate Carefully`,
+      `${mahadasha}–${antardasha}: Slow Is Powerful`,
+      `${moonSign} Teaches Through Resistance`,
+      `Inner Strength in ${nakshatra}`,
+      `Steady Your Course — House ${house} Active`,
+      `${mahadasha}'s Lesson in Patience`,
     ]
     return pool[seed % pool.length]
   }
 
   // Mixed
   const pool = [
-    `Balancing Light and Shadow`,
     `Moon in ${moonSign}: Read the Signs`,
     `${mahadasha} Period — Stay Centered`,
-    `A Day of Two Tides`,
-    `Mindful Action Wins Today`,
+    `${nakshatra} Brings Both Light and Shadow`,
+    `House ${house}: Balance Action with Rest`,
+    `${antardasha} Within ${mahadasha} — Choose Wisely`,
+    `${moonSign}'s Dual Energy Today`,
+    `${mahadasha}–${antardasha}: The Middle Path`,
+    `${nakshatra} Transit — Selective Action Wins`,
+    `House ${house} Active — Be Deliberate`,
+    `Navigate ${moonSign}'s Tides`,
   ]
   return pool[seed % pool.length]
 }
@@ -156,6 +186,149 @@ function softenTransitEffect(raw: string | undefined, planet: string, fallback: 
   return `${planet}'s influence today brings ${cleaned.charAt(0).toLowerCase() + cleaned.slice(1)}`
 }
 
+// ─── Personalized headline with varied templates ──────────
+function generatePersonalizedHeadline(insight: DailyInsight, targetDate: Date, birthDate?: string): string {
+  const seed = hashSeed(`hl-${targetDate.toISOString().split("T")[0]}-${birthDate || ""}-${insight.moonTransit.currentSign}`)
+  const moon = insight.moonTransit.currentSign
+  const nak = insight.moonTransit.nakshatra
+  const house = insight.moonTransit.houseFromMoon
+  const maha = insight.dashaContext.mahadasha
+  const antar = insight.dashaContext.antardasha
+  const trend = insight.overallTrend
+
+  const templates = [
+    `${insight.headline} Moon in ${moon} (${nak}) activates your ${house}${getOrdinal(house)} house — ${trendPhrase(trend)} during ${maha}–${antar} period.`,
+    `${nak} Nakshatra lights up house ${house} from your natal Moon in ${moon}. ${maha} Dasha ${trendVerb(trend)} today's energy.`,
+    `Your ${maha}–${antar} period meets Moon's transit through ${moon}. House ${house} is active — ${trendAction(trend)}.`,
+    `Today's ${moon} Moon (${nak}) speaks to house ${house}. ${insight.headline} ${maha} Mahadasha ${trendColor(trend)}.`,
+    `${insight.headline} ${nak} in ${moon} touches house ${house}, ${trendMeaning(trend)} as ${antar} sub-period unfolds within ${maha}.`,
+  ]
+  return templates[seed % templates.length]
+}
+
+function getOrdinal(n: number): string {
+  const s = ["th", "st", "nd", "rd"]
+  const v = n % 100
+  return (s[(v - 20) % 10] || s[v] || s[0])
+}
+
+function trendPhrase(trend: string): string {
+  if (trend === "favorable") return "momentum builds"
+  if (trend === "challenging") return "patience pays"
+  return "balance is key"
+}
+
+function trendVerb(trend: string): string {
+  if (trend === "favorable") return "amplifies"
+  if (trend === "challenging") return "tempers"
+  return "modulates"
+}
+
+function trendAction(trend: string): string {
+  if (trend === "favorable") return "lean into opportunities"
+  if (trend === "challenging") return "observe before acting"
+  return "weigh each choice carefully"
+}
+
+function trendColor(trend: string): string {
+  if (trend === "favorable") return "brings warmth and confidence"
+  if (trend === "challenging") return "asks for deliberate pacing"
+  return "invites thoughtful navigation"
+}
+
+function trendMeaning(trend: string): string {
+  if (trend === "favorable") return "opening doors"
+  if (trend === "challenging") return "calling for introspection"
+  return "mixing opportunity with caution"
+}
+
+// ─── Chart-specific category text generators ─────────────
+function generateWealthInsight(insight: DailyInsight, signName: string): string {
+  const jupiterTransit = insight.keyTransits.find(t => t.planet === "Jupiter")
+  const saturnTransit = insight.keyTransits.find(t => t.planet === "Saturn")
+  const maha = insight.dashaContext.mahadasha
+  const moon = insight.moonTransit.currentSign
+  const house = insight.moonTransit.houseFromMoon
+
+  if (jupiterTransit) {
+    return softenTransitEffect(jupiterTransit.effect, "Jupiter",
+      `Jupiter in house ${jupiterTransit.houseFromMoon} from your Moon shapes financial patterns.`)
+  }
+
+  // Wealth houses: 2nd (stored wealth), 11th (gains)
+  const wealthHouses = [2, 5, 9, 11]
+  if (wealthHouses.includes(house)) {
+    return `Moon transiting your ${house}${getOrdinal(house)} house (a wealth house) during ${maha} Dasha — financial awareness is heightened. ${signName} energy supports material focus today.`
+  }
+
+  if (saturnTransit) {
+    return `Saturn in house ${saturnTransit.houseFromMoon} from your Moon brings structured financial discipline. ${maha} Dasha favors long-term wealth building over quick gains.`
+  }
+
+  return `Your ${maha} Mahadasha with Moon in ${moon} shapes today's financial energy. House ${house} is active — ${insight.overallTrend === "favorable" ? "a good day for financial planning" : "review before committing to expenses"}.`
+}
+
+function generateRelationshipInsight(insight: DailyInsight): string {
+  const venusTransit = insight.keyTransits.find(t => t.planet === "Venus")
+  const moon = insight.moonTransit.currentSign
+  const nak = insight.moonTransit.nakshatra
+  const house = insight.moonTransit.houseFromMoon
+  const maha = insight.dashaContext.mahadasha
+
+  if (venusTransit) {
+    return softenTransitEffect(venusTransit.effect, "Venus",
+      `Venus in house ${venusTransit.houseFromMoon} from your Moon influences relationship dynamics.`)
+  }
+
+  // Relationship houses: 5th (romance), 7th (partnership), 11th (friendships)
+  const relHouses = [3, 5, 7, 11]
+  if (relHouses.includes(house)) {
+    return `Moon in ${moon} (${nak}) transiting your ${house}${getOrdinal(house)} house activates relationship energy. ${maha} Dasha colors emotional connections — ${insight.overallTrend === "favorable" ? "openness brings warmth" : "communicate with patience"}.`
+  }
+
+  return `${nak} Nakshatra in ${moon} colors your emotional world today. During ${maha} Dasha, house ${house} from Moon asks you to ${insight.overallTrend === "challenging" ? "listen more than speak in close relationships" : "express your feelings with clarity"}.`
+}
+
+function generateCareerInsight(insight: DailyInsight): string {
+  const saturnTransit = insight.keyTransits.find(t => t.planet === "Saturn")
+  const moon = insight.moonTransit.currentSign
+  const house = insight.moonTransit.houseFromMoon
+  const maha = insight.dashaContext.mahadasha
+  const antar = insight.dashaContext.antardasha
+
+  if (saturnTransit) {
+    return softenTransitEffect(saturnTransit.effect, "Saturn",
+      `Saturn in house ${saturnTransit.houseFromMoon} from your Moon structures career direction.`)
+  }
+
+  // Career houses: 2nd (speech/income), 6th (work), 10th (profession), 11th (achievements)
+  const careerHouses = [2, 6, 10, 11]
+  if (careerHouses.includes(house)) {
+    return `Moon activating your ${house}${getOrdinal(house)} house (a career house) during ${maha}–${antar} period — professional energy is ${insight.overallTrend === "favorable" ? "strong and directed" : "best used for planning, not launching"}.`
+  }
+
+  return `${maha} Mahadasha with ${antar} sub-period shapes your professional rhythm. Moon in ${moon} (house ${house}) — ${insight.overallTrend === "favorable" ? "take initiative on important projects" : "focus on refining existing work rather than starting new ventures"}.`
+}
+
+function generateSelfInsight(insight: DailyInsight): string {
+  const moon = insight.moonTransit.currentSign
+  const nak = insight.moonTransit.nakshatra
+  const house = insight.moonTransit.houseFromMoon
+  const maha = insight.dashaContext.mahadasha
+
+  // More personal — combine moon transit effect with remedy
+  const remedyHint = insight.dailyRemedy.reason
+  const moonEffect = insight.moonTransit.effect
+
+  // 1st house (body), 4th (mind/comfort), 8th (transformation), 12th (rest/spirituality)
+  const selfHouses = [1, 4, 8, 12]
+  if (selfHouses.includes(house)) {
+    return `${moonEffect} ${nak} in your ${house}${getOrdinal(house)} house heightens inner awareness during ${maha} Dasha. ${remedyHint}`
+  }
+
+  return `${moonEffect} During ${maha} Dasha, ${nak} Nakshatra in ${moon} (house ${house}) invites self-reflection. ${remedyHint}`
+}
+
 // ─── Map per-user DailyInsight → legacy API response format ─
 function mapInsightToResponse(
   insight: DailyInsight,
@@ -163,6 +336,7 @@ function mapInsightToResponse(
   dayOffset: number,
   signName: string,
   placeOfBirth?: string,
+  birthDate?: string,
 ) {
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
   const dateLabel = `${months[targetDate.getMonth()]} ${targetDate.getDate()}`
@@ -186,11 +360,11 @@ function mapInsightToResponse(
     dayOffset,
     personalized: true,
     theme: {
-      title: generateThemeTitle(insight, targetDate),
-      headline: `${insight.headline} Moon transits ${insight.moonTransit.currentSign} (${insight.moonTransit.nakshatra}), activating house ${insight.moonTransit.houseFromMoon} from your natal Moon.`,
+      title: generateThemeTitle(insight, targetDate, birthDate),
+      headline: generatePersonalizedHeadline(insight, targetDate, birthDate),
       action: insight.activities.favorable.slice(0, 2).join(". ") || "Focus on your highest-priority task today.",
       caution: insight.activities.unfavorable.slice(0, 2).join(". ") || "Avoid impulsive decisions during Rahu Kaal.",
-      whyActive: `${insight.moonTransit.effect} ${insight.dashaContext.interpretation.split(". ").slice(0, 2).join(". ")}.`,
+      whyActive: `Moon in ${insight.moonTransit.currentSign} (${insight.moonTransit.nakshatra}) transits your ${insight.moonTransit.houseFromMoon}${getOrdinal(insight.moonTransit.houseFromMoon)} house from natal Moon — ${insight.moonTransit.effect.split(". ")[0]}. You're in ${insight.dashaContext.mahadasha}–${insight.dashaContext.antardasha} Dasha: ${insight.dashaContext.interpretation.split(". ")[0]}.`,
       source: {
         principle: `Moon in ${insight.moonTransit.currentSign} (${insight.moonTransit.nakshatra})`,
         text: `${capitalizedTrend}. ${insight.dashaContext.mahadasha} Mahadasha with ${insight.dashaContext.antardasha} Antardasha active.`,
@@ -213,22 +387,10 @@ function mapInsightToResponse(
       number: numbers[seed % numbers.length],
     },
     categories: {
-      wealth: softenTransitEffect(
-        insight.keyTransits.find(t => t.planet === "Jupiter")?.effect,
-        "Jupiter",
-        `${insight.dashaContext.mahadasha} period influences your financial growth. ${capitalizedTrend}.`,
-      ),
-      relationship: softenTransitEffect(
-        insight.keyTransits.find(t => t.planet === "Venus")?.effect,
-        "Venus",
-        `Moon in ${insight.moonTransit.currentSign} colors your emotional connections today. ${insight.moonTransit.effect}.`,
-      ),
-      career: softenTransitEffect(
-        insight.keyTransits.find(t => t.planet === "Saturn")?.effect,
-        "Saturn",
-        `${insight.dashaContext.mahadasha} Mahadasha shapes your professional direction. Focus on long-term goals.`,
-      ),
-      self: `${insight.moonTransit.effect} ${insight.dailyRemedy.reason}`,
+      wealth: generateWealthInsight(insight, signName),
+      relationship: generateRelationshipInsight(insight),
+      career: generateCareerInsight(insight),
+      self: generateSelfInsight(insight),
     },
     moonSign: insight.moonTransit.currentSign,
     sunSign: signName,
@@ -329,7 +491,7 @@ export async function POST(req: NextRequest) {
       }
 
       return NextResponse.json(mapInsightToResponse(
-        insight, targetDate, dayOffset, sunSign.name, placeOfBirth,
+        insight, targetDate, dayOffset, sunSign.name, placeOfBirth, birthDate,
       ))
     } catch (genErr) {
       console.error("[daily-horoscope] Personalized insight generation FAILED:", {
