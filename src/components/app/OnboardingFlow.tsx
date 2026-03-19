@@ -412,15 +412,24 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       const stored = localStorage.getItem("grahai-onboarding-birthdata")
       if (!stored) return
       const birthData = JSON.parse(stored)
-      await supabase.from("profiles").upsert({
+      const { error } = await supabase.from("profiles").upsert({
         id: user.id,
         name: form.name,
-        email: user.email || emailInput || null,
-        phone: user.phone || (phoneNumber ? `+91${phoneNumber.replace(/^\+91/, "")}` : null),
+        email: user.email || emailInput || undefined,
+        phone: user.phone || (phoneNumber ? `+91${phoneNumber.replace(/^\+91/, "")}` : undefined),
         birth_data: birthData,
         updated_at: new Date().toISOString(),
       }, { onConflict: "id" })
-    } catch {}
+      if (error) {
+        console.warn("[Login] Failed to save birth data to profile:", error.message)
+      } else {
+        // Store email/phone locally for display
+        if (user.email) localStorage.setItem("grahai-user-email", user.email)
+        if (user.phone) localStorage.setItem("grahai-user-phone", user.phone)
+      }
+    } catch (err) {
+      console.warn("[Login] linkBirthDataToProfile error:", err)
+    }
   }
 
   const handleAskNow = () => {
@@ -530,8 +539,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 }}
-                  className="text-lg sm:text-2xl text-[#E0E4EA] font-semibold tracking-widest uppercase mb-8 sm:mb-12 whitespace-nowrap"
-                  style={{ letterSpacing: "0.15em" }}
+                  className="text-lg sm:text-2xl text-[#E0E4EA] font-semibold tracking-wide mb-8 sm:mb-12 whitespace-nowrap"
+                  style={{ letterSpacing: "0.08em" }}
                 >
                   Your Stars, Your Path
                 </motion.p>
@@ -549,7 +558,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               className="w-full max-w-sm"
             >
               <div className="text-center mb-6">
-                <p className="text-base text-[#D4D8E0] leading-relaxed font-semibold">
+                <p className="text-base text-[#D4D8E0] leading-relaxed font-bold">
                   {t.onboarding.welcomeDesc}
                 </p>
               </div>

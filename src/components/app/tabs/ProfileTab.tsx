@@ -188,20 +188,26 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
     // Sign out from Supabase auth
     try {
       const { supabase: sb } = await import("@/lib/supabase")
-      if (sb) await sb.auth.signOut()
-    } catch {}
+      if (sb) {
+        const { error } = await sb.auth.signOut()
+        if (error) console.warn("[ProfileTab] Sign out error:", error.message)
+      }
+    } catch (err) {
+      console.warn("[ProfileTab] Failed to sign out:", err)
+    }
 
     // Clear all local data
-    localStorage.removeItem("grahai-onboarding-birthdata")
-    localStorage.removeItem("grahai-cosmic-snapshot")
-    localStorage.removeItem("userNameForGreeting")
-    localStorage.removeItem("grahai-user-intent")
-    localStorage.removeItem("grahai-questions-left")
-    localStorage.removeItem("grahai-reports-left")
-    localStorage.removeItem("grahai-subscription-tier")
-    localStorage.removeItem("grahai-onboarding-complete")
-    localStorage.removeItem("grahai-chart-cache")
-    window.location.reload()
+    const keysToRemove = [
+      "grahai-onboarding-birthdata", "grahai-cosmic-snapshot",
+      "userNameForGreeting", "grahai-user-intent",
+      "grahai-questions-left", "grahai-reports-left",
+      "grahai-subscription-tier", "grahai-onboarding-complete",
+      "grahai-chart-cache", "grahai-user-email", "grahai-user-phone",
+    ]
+    keysToRemove.forEach(k => localStorage.removeItem(k))
+
+    // Redirect to home
+    window.location.href = "/"
   }
 
   const handleSaveBirthDetails = async () => {

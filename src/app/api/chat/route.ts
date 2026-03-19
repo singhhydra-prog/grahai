@@ -253,16 +253,27 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { message, conversation_id, vertical: requestedVertical, user_id } = body
+    const { message, conversation_id, vertical: requestedVertical, user_id: bodyUserId } = body
 
-    if (!message || !user_id) {
-      return new Response(JSON.stringify({ error: "Missing message or user_id" }), {
+    if (!message) {
+      return new Response(JSON.stringify({ error: "Missing message" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
       })
     }
 
     const sb = getSupabaseFromRequest(req)
+
+    // SECURITY: Verify auth session — don't trust user_id from body
+    let user_id = bodyUserId
+    try {
+      const { data: { user } } = await sb.auth.getUser()
+      if (user) {
+        user_id = user.id // Use verified user ID from session
+      }
+    } catch {}
+    // Allow anonymous-onboarding and body user_id as fallback for unauthenticated users
+    if (!user_id) user_id = "anonymous"
 
     // 1. Detect vertical
     const vertical = detectVertical(message, requestedVertical)
