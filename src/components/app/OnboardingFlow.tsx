@@ -6,7 +6,7 @@ import dynamic from "next/dynamic"
 import {
   ArrowRight, ArrowLeft, Sparkles, MapPin, Clock, Calendar,
   Briefcase, Heart, Gem, TrendingUp, Moon, Compass, Eye,
-  BookOpen, Shield, Target, Send, ChevronRight, Globe,
+  BookOpen, Shield, Target, Send, ChevronRight, Globe, Lock,
 } from "lucide-react"
 import { useLanguage } from "@/lib/LanguageContext"
 import { LANGUAGES, type Language } from "@/lib/i18n"
@@ -26,7 +26,8 @@ const STEPS = [
   { id: "intent" },           // 2 — what brings you here?
   { id: "birth" },            // 3 — birth details form
   { id: "reveal" },           // 4 — cosmic snapshot
-  { id: "first-question" },   // 5 — ask GrahAI
+  { id: "login" },            // 5 — phone/google/email login
+  { id: "first-question" },   // 6 — ask GrahAI
 ]
 
 // Intent-based suggested questions for the first-question step
@@ -165,9 +166,18 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [firstQuestion, setFirstQuestion] = useState("")
   const questionInputRef = useRef<HTMLInputElement>(null)
 
-  // Auto-focus question input when reaching step 5 (first-question)
+  // Login state
+  const [loginMethod, setLoginMethod] = useState<"phone" | "email" | null>(null)
+  const [phoneNumber, setPhoneNumber] = useState("")
+  const [emailInput, setEmailInput] = useState("")
+  const [otpSent, setOtpSent] = useState(false)
+  const [otpCode, setOtpCode] = useState("")
+  const [loginLoading, setLoginLoading] = useState(false)
+  const [loginError, setLoginError] = useState("")
+
+  // Auto-focus question input when reaching step 6 (first-question)
   useEffect(() => {
-    if (step === 5 && questionInputRef.current) {
+    if (step === 6 && questionInputRef.current) {
       setTimeout(() => questionInputRef.current?.focus(), 600)
     }
   }, [step])
@@ -196,7 +206,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       return form.name.trim().length >= 2 && form.dateOfBirth && form.placeOfBirth.trim() && (timeUnknown || form.timeOfBirth)
     }
     if (step === 4) return true // reveal
-    if (step === 5) return true // first question (optional)
+    if (step === 5) return true // login (can skip)
+    if (step === 6) return true // first question (optional)
     return false
   }, [step, lang, intent, form, timeUnknown])
 
@@ -282,14 +293,20 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       return
     }
 
-    // Step 4: Reveal — move to first question
+    // Step 4: Reveal — move to login
     if (step === 4) {
       setStep(5)
       return
     }
 
-    // Step 5: First question — go to Ask tab or enter app
+    // Step 5: Login — move to first question
     if (step === 5) {
+      setStep(6)
+      return
+    }
+
+    // Step 6: First question — go to Ask tab or enter app
+    if (step === 6) {
       localStorage.setItem("grahai-onboarding-complete", "true")
       if (firstQuestion.trim()) {
         onComplete(true, firstQuestion.trim())
@@ -308,6 +325,102 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
   const handleSelectSuggestion = (q: string) => {
     setFirstQuestion(q)
+  }
+
+  // ── Login Handlers ──
+  const handleSendPhoneOTP = async () => {
+    if (!phoneNumber || phoneNumber.length < 10) {
+      setLoginError("Please enter a valid 10-digit phone number")
+      return
+    }
+    setLoginLoading(true)
+    setLoginError("")
+    try {
+      const fullPhone = phoneNumber.startsWith("+") ? phoneNumber : `+91${phoneNumber}`
+      const { error } = await supabase.auth.signInWithOtp({ phone: fullPhone })
+      if (error) throw error
+      setOtpSent(true)
+    } catch (err) {
+      setLoginError(err instanceof Error ? err.message : "Failed to send OTP. Try again.")
+    } finally {
+      setLoginLoading(false)
+    }
+  }
+
+  const handleVerifyOTP = async () => {
+    if (!otpCode || otpCode.length < 4) {
+      setLoginError("Please enter the OTP")
+      return
+    }
+    setLoginLoading(true)
+    setLoginError("")
+    try {
+      const fullPhone = phoneNumber.startsWith("+") ? phoneNumber : `+91${phoneNumber}`
+      const { error } = await supabase.auth.verifyOtp({ phone: fullPhone, token: otpCode, type: "sms" })
+      if (error) throw error
+      // Save birth data to profile
+      await linkBirthDataToProfile()
+      setStep(6) // Move to first question
+    } catch (err) {
+      setLoginError(err instanceof Error ? err.message : "Invalid OTP. Try again.")
+    } finally {
+      setLoginLoading(false)
+    }
+  }
+
+  const handleSendEmailMagicLink = async () => {
+    if (!emailInput || !emailInput.includes("@")) {
+      setLoginError("Please enter a valid email address")
+      return
+    }
+    setLoginLoading(true)
+    setLoginError("")
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: emailInput,
+        options: { emailRedirectTo: `${window.location.origin}/app` },
+      })
+      if (error) throw error
+      setOtpSent(true)
+      setLoginError("Magic link sent! Check your inbox and tap the link.")
+    } catch (err) {
+      setLoginError(err instanceof Error ? err.message : "Failed to send link. Try again.")
+    } finally {
+      setLoginLoading(false)
+    }
+  }
+
+  const handleGoogleLogin = async () => {
+    setLoginLoading(true)
+    setLoginError("")
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/app` },
+      })
+      if (error) throw error
+    } catch (err) {
+      setLoginError(err instanceof Error ? err.message : "Google login failed.")
+      setLoginLoading(false)
+    }
+  }
+
+  const linkBirthDataToProfile = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const stored = localStorage.getItem("grahai-onboarding-birthdata")
+      if (!stored) return
+      const birthData = JSON.parse(stored)
+      await supabase.from("profiles").upsert({
+        id: user.id,
+        name: form.name,
+        email: user.email || emailInput || null,
+        phone: user.phone || (phoneNumber ? `+91${phoneNumber.replace(/^\+91/, "")}` : null),
+        birth_data: birthData,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "id" })
+    } catch {}
   }
 
   const handleAskNow = () => {
@@ -417,8 +530,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 }}
-                  className="text-xl sm:text-2xl text-[#E0E4EA] font-semibold tracking-widest uppercase mb-8 sm:mb-12"
-                  style={{ letterSpacing: "0.2em" }}
+                  className="text-lg sm:text-2xl text-[#E0E4EA] font-semibold tracking-widest uppercase mb-8 sm:mb-12 whitespace-nowrap"
+                  style={{ letterSpacing: "0.15em" }}
                 >
                   Your Stars, Your Path
                 </motion.p>
@@ -436,7 +549,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
               className="w-full max-w-sm"
             >
               <div className="text-center mb-6">
-                <p className="text-base text-[#D4D8E0] leading-relaxed">
+                <p className="text-base text-[#D4D8E0] leading-relaxed font-semibold">
                   {t.onboarding.welcomeDesc}
                 </p>
               </div>
@@ -627,8 +740,175 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             </motion.div>
           )}
 
-          {/* ═══ Step 5: First Question — The Aha Moment ═══ */}
+          {/* ═══ Step 5: Login (Phone OTP / Google / Email) ═══ */}
           {step === 5 && (
+            <motion.div
+              key="login"
+              variants={slideVariants} initial="enter" animate="center" exit="exit"
+              className="w-full max-w-sm"
+            >
+              <div className="text-center mb-6">
+                <div className="w-14 h-14 rounded-full bg-[#D4A054]/10 flex items-center justify-center mx-auto mb-4">
+                  <Shield className="w-7 h-7 text-[#D4A054]" />
+                </div>
+                <h2 className="text-xl font-bold text-[#F1F0F5] mb-2">Save Your Chart Forever</h2>
+                <p className="text-sm text-[#A0AAB8] leading-relaxed">
+                  Sign in to keep your chart, insights, and history safe across all devices.
+                </p>
+              </div>
+
+              {/* Login options */}
+              {!loginMethod && (
+                <div className="space-y-3">
+                  {/* Phone OTP */}
+                  <button
+                    onClick={() => setLoginMethod("phone")}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border border-[#1E293B] bg-[#111827] hover:border-[#D4A054]/30 transition-colors text-left"
+                  >
+                    <span className="text-lg">📱</span>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-[#F1F0F5]">Phone Number</p>
+                      <p className="text-[10px] text-[#A0AAB8]">Get OTP on your mobile</p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-[#A0AAB8]" />
+                  </button>
+
+                  {/* Google */}
+                  <button
+                    onClick={handleGoogleLogin}
+                    disabled={loginLoading}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border border-[#1E293B] bg-[#111827] hover:border-[#D4A054]/30 transition-colors text-left"
+                  >
+                    <span className="text-lg">🔵</span>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-[#F1F0F5]">Google</p>
+                      <p className="text-[10px] text-[#A0AAB8]">Sign in with your Google account</p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-[#A0AAB8]" />
+                  </button>
+
+                  {/* Email Magic Link */}
+                  <button
+                    onClick={() => setLoginMethod("email")}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border border-[#1E293B] bg-[#111827] hover:border-[#D4A054]/30 transition-colors text-left"
+                  >
+                    <span className="text-lg">📧</span>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-[#F1F0F5]">Email</p>
+                      <p className="text-[10px] text-[#A0AAB8]">Get a magic link in your inbox</p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-[#A0AAB8]" />
+                  </button>
+                </div>
+              )}
+
+              {/* Phone input + OTP */}
+              {loginMethod === "phone" && (
+                <div className="space-y-3">
+                  {!otpSent ? (
+                    <>
+                      <div className="flex items-center gap-2 bg-[#0D1220] border border-[#1E293B] rounded-xl px-3 py-3">
+                        <span className="text-sm text-[#A0AAB8] font-medium">+91</span>
+                        <div className="w-px h-5 bg-[#1E293B]" />
+                        <input
+                          type="tel"
+                          value={phoneNumber}
+                          onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                          placeholder="Enter mobile number"
+                          className="flex-1 bg-transparent text-sm text-[#F1F0F5] placeholder:text-[#A0AAB8]/50 outline-none"
+                          maxLength={10}
+                        />
+                      </div>
+                      <button
+                        onClick={handleSendPhoneOTP}
+                        disabled={loginLoading || phoneNumber.length < 10}
+                        className="w-full py-3 rounded-xl font-semibold text-sm btn-primary disabled:opacity-40 flex items-center justify-center gap-2"
+                      >
+                        {loginLoading ? "Sending..." : "Send OTP →"}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-xs text-[#A0AAB8] text-center">OTP sent to +91{phoneNumber}</p>
+                      <div className="flex items-center gap-2 bg-[#0D1220] border border-[#1E293B] rounded-xl px-3 py-3">
+                        <input
+                          type="text"
+                          value={otpCode}
+                          onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                          placeholder="Enter OTP"
+                          className="flex-1 bg-transparent text-sm text-[#F1F0F5] placeholder:text-[#A0AAB8]/50 outline-none text-center tracking-[0.3em] font-bold"
+                          maxLength={6}
+                        />
+                      </div>
+                      <button
+                        onClick={handleVerifyOTP}
+                        disabled={loginLoading || otpCode.length < 4}
+                        className="w-full py-3 rounded-xl font-semibold text-sm btn-primary disabled:opacity-40 flex items-center justify-center gap-2"
+                      >
+                        {loginLoading ? "Verifying..." : "Verify & Continue →"}
+                      </button>
+                    </>
+                  )}
+                  <button onClick={() => { setLoginMethod(null); setOtpSent(false); setOtpCode(""); setLoginError("") }}
+                    className="w-full text-xs text-[#A0AAB8] py-2 hover:text-[#D4A054] transition-colors">
+                    ← Back to login options
+                  </button>
+                </div>
+              )}
+
+              {/* Email input */}
+              {loginMethod === "email" && (
+                <div className="space-y-3">
+                  {!otpSent ? (
+                    <>
+                      <div className="flex items-center gap-2 bg-[#0D1220] border border-[#1E293B] rounded-xl px-3 py-3">
+                        <span className="text-sm">📧</span>
+                        <input
+                          type="email"
+                          value={emailInput}
+                          onChange={(e) => setEmailInput(e.target.value)}
+                          placeholder="your@email.com"
+                          className="flex-1 bg-transparent text-sm text-[#F1F0F5] placeholder:text-[#A0AAB8]/50 outline-none"
+                        />
+                      </div>
+                      <button
+                        onClick={handleSendEmailMagicLink}
+                        disabled={loginLoading || !emailInput.includes("@")}
+                        className="w-full py-3 rounded-xl font-semibold text-sm btn-primary disabled:opacity-40 flex items-center justify-center gap-2"
+                      >
+                        {loginLoading ? "Sending..." : "Send Magic Link →"}
+                      </button>
+                    </>
+                  ) : (
+                    <div className="glass-card p-4 text-center">
+                      <p className="text-sm text-emerald-400 font-medium mb-1">Check your inbox!</p>
+                      <p className="text-xs text-[#A0AAB8]">We sent a login link to {emailInput}</p>
+                    </div>
+                  )}
+                  <button onClick={() => { setLoginMethod(null); setOtpSent(false); setLoginError("") }}
+                    className="w-full text-xs text-[#A0AAB8] py-2 hover:text-[#D4A054] transition-colors">
+                    ← Back to login options
+                  </button>
+                </div>
+              )}
+
+              {/* Error */}
+              {loginError && (
+                <p className="text-xs text-rose-400 text-center mt-3">{loginError}</p>
+              )}
+
+              {/* Skip link */}
+              <button
+                onClick={() => setStep(6)}
+                className="w-full text-xs text-[#A0AAB8]/60 py-4 hover:text-[#A0AAB8] transition-colors text-center"
+              >
+                Skip for now — you can sign in later
+              </button>
+            </motion.div>
+          )}
+
+          {/* ═══ Step 6: First Question — The Aha Moment ═══ */}
+          {step === 6 && (
             <motion.div
               key="first-question"
               variants={slideVariants} initial="enter" animate="center" exit="exit"
@@ -703,8 +983,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         </AnimatePresence>
       </div>
 
-      {/* Bottom CTA */}
-      <div className="px-6 pb-6 pt-3">
+      {/* Bottom CTA — hidden on login step (step 5) */}
+      <div className={`px-6 pb-6 pt-3 ${step === 5 ? "hidden" : ""}`}>
         {/* Language selector — shown only on splash step, right above the button */}
         {step === 0 && (
           <div className="mb-3">
@@ -741,8 +1021,11 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           ) : step === 0 ? (
             <>{t.onboarding.getFirstInsight}<ArrowRight className="w-4 h-4" /></>
           ) : step === 4 ? (
-            <>{t.onboarding.askYourFirst}<ArrowRight className="w-4 h-4" /></>
+            <>Continue<ArrowRight className="w-4 h-4" /></>
           ) : step === 5 ? (
+            // Login step — CTA hidden (login buttons handle navigation)
+            null
+          ) : step === 6 ? (
             firstQuestion.trim() ? (
               <><Send className="w-4 h-4" />{t.onboarding.askNow}</>
             ) : (

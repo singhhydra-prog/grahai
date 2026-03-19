@@ -184,7 +184,14 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
     }
   }, [subPage, birthData])
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    // Sign out from Supabase auth
+    try {
+      const { supabase: sb } = await import("@/lib/supabase")
+      if (sb) await sb.auth.signOut()
+    } catch {}
+
+    // Clear all local data
     localStorage.removeItem("grahai-onboarding-birthdata")
     localStorage.removeItem("grahai-cosmic-snapshot")
     localStorage.removeItem("userNameForGreeting")
@@ -192,6 +199,8 @@ export default function ProfileTab({ onPricingClick, onReferralClick, onAskQuest
     localStorage.removeItem("grahai-questions-left")
     localStorage.removeItem("grahai-reports-left")
     localStorage.removeItem("grahai-subscription-tier")
+    localStorage.removeItem("grahai-onboarding-complete")
+    localStorage.removeItem("grahai-chart-cache")
     window.location.reload()
   }
 
