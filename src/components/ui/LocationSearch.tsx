@@ -269,6 +269,41 @@ const CITIES: CityData[] = [
   { name: "Nairobi", country: "Kenya", lat: -1.2921, lng: 36.8219, tz: "Africa/Nairobi" },
 ]
 
+// Rough timezone guess from coordinates (used for non-India locations from Nominatim)
+function guessTimezoneFromCoords(lat: number, lng: number): string {
+  // India
+  if (lat >= 6 && lat <= 38 && lng >= 68 && lng <= 98) return "Asia/Kolkata"
+  // Pakistan
+  if (lat >= 23 && lat <= 37 && lng >= 60 && lng <= 78) return "Asia/Karachi"
+  // Bangladesh
+  if (lat >= 20 && lat <= 27 && lng >= 87 && lng <= 93) return "Asia/Dhaka"
+  // Nepal
+  if (lat >= 26 && lat <= 31 && lng >= 80 && lng <= 89) return "Asia/Kathmandu"
+  // Sri Lanka
+  if (lat >= 5 && lat <= 10 && lng >= 79 && lng <= 82) return "Asia/Colombo"
+  // UAE
+  if (lat >= 22 && lat <= 27 && lng >= 51 && lng <= 57) return "Asia/Dubai"
+  // UK
+  if (lat >= 49 && lat <= 61 && lng >= -9 && lng <= 2) return "Europe/London"
+  // US East
+  if (lat >= 24 && lat <= 50 && lng >= -85 && lng <= -67) return "America/New_York"
+  // US Central
+  if (lat >= 24 && lat <= 50 && lng >= -105 && lng <= -85) return "America/Chicago"
+  // US West
+  if (lat >= 24 && lat <= 50 && lng >= -125 && lng <= -105) return "America/Los_Angeles"
+  // Australia East
+  if (lat >= -44 && lat <= -10 && lng >= 140 && lng <= 155) return "Australia/Sydney"
+  // Singapore/Malaysia
+  if (lat >= -2 && lat <= 8 && lng >= 99 && lng <= 105) return "Asia/Singapore"
+  // Japan
+  if (lat >= 24 && lat <= 46 && lng >= 129 && lng <= 146) return "Asia/Tokyo"
+  // China
+  if (lat >= 18 && lat <= 54 && lng >= 73 && lng <= 135) return "Asia/Shanghai"
+  // Generic: offset from longitude
+  const offsetHours = Math.round(lng / 15)
+  return `Etc/GMT${offsetHours >= 0 ? "-" : "+"}${Math.abs(offsetHours)}`
+}
+
 interface LocationSearchProps {
   value: string
   onChange: (value: string, city?: CityData) => void
@@ -283,13 +318,18 @@ export default function LocationSearch({ value, onChange, placeholder = "Search 
   const wrapperRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Search logic
+  const [isSearchingOnline, setIsSearchingOnline] = useState(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Search logic — offline first, then Nominatim API for unmatched queries
   const search = useCallback((q: string) => {
-    if (q.length < 1) {
+    if (q.length < 2) {
       setResults([])
       return
     }
     const lower = q.toLowerCase()
+
+    // 1. Offline: search static city database
     const matched = CITIES.filter(
       (c) =>
         c.name.toLowerCase().startsWith(lower) ||
@@ -297,8 +337,66 @@ export default function LocationSearch({ value, onChange, placeholder = "Search 
         (c.state && c.state.toLowerCase().includes(lower)) ||
         c.country.toLowerCase().includes(lower)
     ).slice(0, 8)
+
     setResults(matched)
     setHighlighted(-1)
+
+    // 2. If offline results are few (<3) and query is 3+ chars, query Nominatim
+    if (matched.length < 3 && q.length >= 3) {
+      // Debounce online search to avoid spamming API
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      debounceRef.current = setTimeout(async () => {
+        setIsSearchingOnline(true)
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=6&addressdetails=1`,
+            { headers: { "User-Agent": "GrahAI-App/1.0" } }
+          )
+          if (res.ok) {
+            const data = await res.json()
+            const onlineResults: CityData[] = data
+              .filter((r: { lat: string; lon: string; type: string; class: string }) =>
+                r.lat && r.lon && (r.type !== "country") && (r.class !== "boundary" || r.type === "administrative")
+              )
+              .map((r: { display_name: string; lat: string; lon: string; address?: { city?: string; town?: string; village?: string; suburb?: string; county?: string; state?: string; state_district?: string; country?: string }; }) => {
+                const addr = r.address || {}
+                const cityName = addr.city || addr.town || addr.village || addr.suburb || addr.county || r.display_name.split(",")[0]
+                const stateName = addr.state_district || addr.state || ""
+                const countryName = addr.country || ""
+                // Determine timezone from longitude (rough: 15 degrees per hour)
+                const lng = parseFloat(r.lon)
+                const lat = parseFloat(r.lat)
+                // For India, always use Asia/Kolkata
+                const tz = countryName === "India" || countryName === "भारत"
+                  ? "Asia/Kolkata"
+                  : guessTimezoneFromCoords(lat, lng)
+
+                return {
+                  name: cityName,
+                  state: stateName,
+                  country: countryName,
+                  lat,
+                  lng,
+                  tz,
+                }
+              })
+
+            // Merge: static results first, then online (deduped)
+            const existingNames = new Set(matched.map(c => `${c.name}-${c.lat}`))
+            const merged = [
+              ...matched,
+              ...onlineResults.filter(c => !existingNames.has(`${c.name}-${c.lat}`)),
+            ].slice(0, 8)
+
+            setResults(merged)
+          }
+        } catch {
+          // Offline fallback — keep static results
+        } finally {
+          setIsSearchingOnline(false)
+        }
+      }, 400) // 400ms debounce
+    }
   }, [])
 
   useEffect(() => {
@@ -407,13 +505,20 @@ export default function LocationSearch({ value, onChange, placeholder = "Search 
         </div>
       )}
 
-      {/* No results hint */}
+      {/* No results / searching online hint */}
       {isOpen && query.length >= 2 && results.length === 0 && (
         <div className="absolute z-50 w-full mt-1.5 bg-[#111827] border border-[#1E293B]
           rounded-xl px-4 py-3 shadow-xl shadow-black/40">
           <p className="text-xs text-[#8892A3] text-center">
-            No match found. Type a city name manually.
+            {isSearchingOnline ? "Searching online..." : "No match found. Try a nearby city or district name."}
           </p>
+        </div>
+      )}
+
+      {/* Online search indicator in dropdown */}
+      {isOpen && isSearchingOnline && results.length > 0 && (
+        <div className="absolute z-40 w-full bottom-0 bg-[#111827]/90 border-t border-[#1E293B] rounded-b-xl px-3 py-1.5">
+          <p className="text-[10px] text-[#D4A054] text-center animate-pulse">Searching more locations...</p>
         </div>
       )}
     </div>

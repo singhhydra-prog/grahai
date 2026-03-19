@@ -8,6 +8,7 @@ import {
   Brain, MessageCircle, Flame, Shield, Coins, Home as HomeIcon
 } from "lucide-react"
 import AppHeader from "@/components/ui/AppHeader"
+import LocationSearch, { type CityData } from "@/components/ui/LocationSearch"
 import { useLanguage } from "@/lib/LanguageContext"
 import type { BirthData } from "@/types/app"
 
@@ -96,9 +97,9 @@ function PartnerInputForm({ onSubmit, onClose }: {
   const [dateOfBirth, setDateOfBirth] = useState("")
   const [timeOfBirth, setTimeOfBirth] = useState("")
   const [timeUnknown, setTimeUnknown] = useState(false)
-  const [placeOfBirth, setPlaceOfBirth] = useState("")
+  const [selectedCity, setSelectedCity] = useState<CityData | null>(null)
 
-  const canSubmit = name.trim() && dateOfBirth && placeOfBirth.trim()
+  const canSubmit = name.trim() && dateOfBirth && selectedCity !== null
 
   return (
     <motion.div
@@ -172,24 +173,25 @@ function PartnerInputForm({ onSubmit, onClose }: {
         </label>
       </div>
 
-      {/* Place of Birth */}
+      {/* Place of Birth — LocationSearch with lat/lng/tz */}
       <div>
         <label className="text-xs text-[#A0A5B2] mb-1 block">Place of Birth</label>
-        <div className="flex items-center gap-2 glass-inner rounded-xl px-3 py-2.5">
-          <MapPin className="w-4 h-4 text-[#D4A054]" />
-          <input
-            type="text"
-            value={placeOfBirth}
-            onChange={(e) => setPlaceOfBirth(e.target.value)}
-            placeholder="City, Country"
-            className="flex-1 bg-transparent text-sm text-[#F1F0F5] placeholder:text-[#8892A3] outline-none"
-          />
-        </div>
+        <LocationSearch
+          value={selectedCity ? `${selectedCity.name}${selectedCity.state ? `, ${selectedCity.state}` : ""}` : ""}
+          onChange={(_value, city) => { if (city) setSelectedCity(city) }}
+          placeholder="Search city, district, suburb..."
+        />
       </div>
 
       {/* Submit */}
       <button
-        onClick={() => canSubmit && onSubmit({ name, dateOfBirth, timeOfBirth, timeUnknown, placeOfBirth })}
+        onClick={() => canSubmit && selectedCity && onSubmit({
+          name, dateOfBirth, timeOfBirth, timeUnknown,
+          placeOfBirth: `${selectedCity.name}${selectedCity.state ? `, ${selectedCity.state}` : ""}, ${selectedCity.country}`,
+          latitude: selectedCity.lat,
+          longitude: selectedCity.lng,
+          timezone: selectedCity.tz,
+        })}
         disabled={!canSubmit}
         className="w-full py-3 rounded-xl font-semibold text-sm transition-all duration-300
           bg-gradient-to-r from-[#D4A054] to-[#B8863A] text-[#0A0E1A]
