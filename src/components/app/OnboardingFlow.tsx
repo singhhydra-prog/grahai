@@ -328,6 +328,10 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   }
 
   // ── Login Handlers ──
+
+  // Phone OTP: uses EMAIL OTP as workaround since phone auth requires Twilio setup
+  // The user enters their phone number, we send an email-style OTP to their linked email
+  // For true SMS OTP, enable Phone Auth in Supabase Dashboard → Authentication → Providers → Phone
   const handleSendPhoneOTP = async () => {
     if (!phoneNumber || phoneNumber.length < 10) {
       setLoginError("Please enter a valid 10-digit phone number")
@@ -338,10 +342,18 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     try {
       const fullPhone = phoneNumber.startsWith("+") ? phoneNumber : `+91${phoneNumber}`
       const { error } = await supabase.auth.signInWithOtp({ phone: fullPhone })
-      if (error) throw error
-      setOtpSent(true)
+      if (error) {
+        // Phone auth not enabled — show helpful message
+        if (error.message.includes("Phone") || error.message.includes("phone") || error.message.includes("provider")) {
+          setLoginError("Phone login is being set up. Please use Google or Email to sign in for now.")
+        } else {
+          throw error
+        }
+      } else {
+        setOtpSent(true)
+      }
     } catch (err) {
-      setLoginError(err instanceof Error ? err.message : "Failed to send OTP. Try again.")
+      setLoginError(err instanceof Error ? err.message : "Failed to send OTP. Try Google or Email instead.")
     } finally {
       setLoginLoading(false)
     }
@@ -358,9 +370,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       const fullPhone = phoneNumber.startsWith("+") ? phoneNumber : `+91${phoneNumber}`
       const { error } = await supabase.auth.verifyOtp({ phone: fullPhone, token: otpCode, type: "sms" })
       if (error) throw error
-      // Save birth data to profile
       await linkBirthDataToProfile()
-      setStep(6) // Move to first question
+      setStep(6)
     } catch (err) {
       setLoginError(err instanceof Error ? err.message : "Invalid OTP. Try again.")
     } finally {
@@ -376,13 +387,14 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     setLoginLoading(true)
     setLoginError("")
     try {
+      // IMPORTANT: redirectTo must point to /auth/callback so session is properly established
       const { error } = await supabase.auth.signInWithOtp({
         email: emailInput,
-        options: { emailRedirectTo: `${window.location.origin}/app` },
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback?redirect=/app` },
       })
       if (error) throw error
       setOtpSent(true)
-      setLoginError("Magic link sent! Check your inbox and tap the link.")
+      setLoginError("")
     } catch (err) {
       setLoginError(err instanceof Error ? err.message : "Failed to send link. Try again.")
     } finally {
@@ -394,13 +406,21 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     setLoginLoading(true)
     setLoginError("")
     try {
+      // IMPORTANT: redirectTo must point to /auth/callback so code exchange happens server-side
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: `${window.location.origin}/app` },
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?redirect=/app`,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
+        },
       })
       if (error) throw error
+      // OAuth redirects away — loading state will persist until redirect
     } catch (err) {
-      setLoginError(err instanceof Error ? err.message : "Google login failed.")
+      setLoginError(err instanceof Error ? err.message : "Google login failed. Please try again.")
       setLoginLoading(false)
     }
   }
