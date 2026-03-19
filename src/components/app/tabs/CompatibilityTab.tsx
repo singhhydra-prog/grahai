@@ -295,6 +295,7 @@ export default function CompatibilityTab({
   const [isLoading, setIsLoading] = useState(false)
   const [userData, setUserData] = useState<BirthData | null>(null)
   const [relationshipType, setRelationshipType] = useState<"romantic" | "marriage" | "friendship" | "professional">("romantic")
+  const [compatError, setCompatError] = useState<string | null>(null)
 
   // Load user birth data
   useEffect(() => {
@@ -309,6 +310,8 @@ export default function CompatibilityTab({
   // Generate compatibility via real Kundli Match API
   const generateCompatibility = useCallback(async (partner: BirthData) => {
     setIsLoading(true)
+    setCompatError(null)
+    setResult(null)
     setPartnerData(partner)
     setShowPartnerForm(false)
 
@@ -413,13 +416,9 @@ export default function CompatibilityTab({
       })
     } catch (err) {
       console.error("Compatibility generation failed:", err)
-      // Show error state instead of fake data
-      setResult({
-        overallScore: 0,
-        headline: "Unable to generate compatibility report",
-        advice: "We could not compute your compatibility at this time. Please ensure both birth details are complete and try again.",
-        sections: [],
-      })
+      const errorMessage = err instanceof Error ? err.message : "Unknown error"
+      // Show clear error — don't set result (so error state renders instead of fake 0%)
+      setCompatError(errorMessage)
     }
 
     setIsLoading(false)
@@ -565,8 +564,36 @@ export default function CompatibilityTab({
           </motion.div>
         )}
 
+        {/* ── Error State ── */}
+        {compatError && !isLoading && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center py-12 space-y-4"
+          >
+            <div className="w-16 h-16 rounded-full bg-rose-500/10 flex items-center justify-center">
+              <X className="w-7 h-7 text-rose-400" />
+            </div>
+            <div className="text-center space-y-1 px-4">
+              <p className="text-sm font-semibold text-[#F1F0F5]">Compatibility Check Failed</p>
+              <p className="text-xs text-[#A0A5B2] max-w-[280px]">{compatError}</p>
+            </div>
+            <button
+              onClick={() => {
+                setCompatError(null)
+                setPartnerData(null)
+                setShowPartnerForm(true)
+              }}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium
+                bg-[#D4A054]/10 text-[#D4A054] border border-[#D4A054]/20 hover:bg-[#D4A054]/20 transition-colors"
+            >
+              Try Again
+            </button>
+          </motion.div>
+        )}
+
         {/* ── Results ── */}
-        {result && !isLoading && (
+        {result && !isLoading && !compatError && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
